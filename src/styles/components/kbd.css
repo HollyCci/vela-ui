@@ -1,0 +1,58 @@
+/*
+ * HeroUI Pro — 组件 kbd
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.kbd {
+  height: calc(var(--spacing) * 6);
+  align-items: center;
+  display: inline-flex;
+}
+
+:where(.kbd>:not(:last-child)) {
+  --tw-space-x-reverse: 0;
+  margin-inline-start: calc(calc(var(--spacing) * .5) * var(--tw-space-x-reverse));
+  margin-inline-end: calc(calc(var(--spacing) * .5) * calc(1 - var(--tw-space-x-reverse)));
+}
+
+.kbd {
+  border-radius: calc(var(--radius) * 1);
+  background-color: var(--default);
+  padding-inline: calc(var(--spacing) * 2);
+  text-align: center;
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+:where(.kbd:where(:is(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi)),[dir=rtl],[dir=rtl] *)>:not(:last-child)) {
+  --tw-space-x-reverse: 1;
+}
+
+.kbd {
+  word-spacing: -.25rem;
+}
+
+.kbd__abbr {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  text-decoration: none;
+  display: flex;
+}
+
+.kbd__content {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.kbd--light {
+  background-color: #0000;
+}

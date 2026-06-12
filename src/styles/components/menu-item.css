@@ -1,0 +1,239 @@
+/*
+ * HeroUI Pro — 组件 menu-item
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.menu-item {
+  min-height: calc(var(--spacing) * 9);
+  justify-content: flex-start;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  border-radius: calc(var(--radius) * 2);
+  width: 100%;
+  padding-inline: calc(var(--spacing) * 2);
+  padding-block: calc(var(--spacing) * 1.5);
+  --tw-outline-style: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform .25s var(--ease-out-quart), box-shadow .15s var(--ease-out);
+  outline-style: none;
+  display: flex;
+  position: relative;
+}
+
+.menu-item:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.menu-item:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.menu-item:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .menu-item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .menu-item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .menu-item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.menu-item {
+  cursor: var(--cursor-interactive);
+}
+
+.menu-item [data-slot=label] {
+  pointer-events: none;
+  -webkit-user-select: none;
+  user-select: none;
+  width: fit-content;
+}
+
+.menu-item [data-slot=description] {
+  pointer-events: none;
+  text-wrap: wrap;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.menu-item [data-slot=submenu-indicator] svg {
+  width: calc(var(--spacing) * 3.5);
+  height: calc(var(--spacing) * 3.5);
+}
+
+.menu-item:has(.menu-item__indicator) {
+  padding-inline-start: calc(var(--spacing) * 7);
+}
+
+.menu-item[data-has-submenu=true]:has(.menu-item__indicator) {
+  padding-inline-start: calc(var(--spacing) * 2);
+  padding-inline-end: calc(var(--spacing) * 7);
+}
+
+.menu-item:focus-visible:not(:focus),
+.menu-item[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.menu-item:active,
+.menu-item[data-pressed=true] {
+  transform: scale(.98);
+}
+
+@media (hover:hover) {
+  .menu-item:hover,
+  .menu-item[data-hovered=true] {
+    background-color: var(--default);
+  }
+}
+
+:is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark] {
+  transition: stroke-dashoffset .1s linear;
+}
+
+:is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--checkmark]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+:is(.menu-item[aria-checked=true],.menu-item[aria-selected=true],.menu-item[data-selected=true]) [data-slot=menu-item-indicator--dot] {
+  --tw-scale-x: 100%;
+  --tw-scale-y: 100%;
+  --tw-scale-z: 100%;
+  scale: var(--tw-scale-x) var(--tw-scale-y);
+  opacity: 1;
+}
+
+.menu-item[data-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.menu-item__indicator {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  color: var(--muted);
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .25s;
+  inset-inline-start: calc(var(--spacing) * 2);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  transition-duration: .25s;
+  display: flex;
+  position: absolute;
+  top: 50%;
+}
+
+.menu-item__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.menu-item__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.menu-item__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .menu-item__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .menu-item__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .menu-item__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.menu-item[data-has-submenu=true] .menu-item__indicator {
+  inset-inline-start: auto;
+  inset-inline-end: calc(var(--spacing) * 2);
+}
+
+.menu-item__indicator [data-slot=menu-item-indicator--checkmark] {
+  width: calc(var(--spacing) * 2.5);
+  height: calc(var(--spacing) * 2.5);
+}
+
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]) {
+  transition-property: all;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .3s;
+  transition-duration: .3s;
+}
+
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--checkmark]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.menu-item__indicator [data-slot=menu-item-indicator--dot] {
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
+}
+
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]) {
+  transition-property: all;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .25s;
+  transition-duration: .25s;
+}
+
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .menu-item[data-selection-mode=multiple] :is(.menu-item__indicator [data-slot=menu-item-indicator--dot]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.menu-item__indicator [data-slot=menu-item-indicator--dot] {
+  --tw-scale-x: 70%;
+  --tw-scale-y: 70%;
+  --tw-scale-z: 70%;
+  scale: var(--tw-scale-x) var(--tw-scale-y);
+  opacity: 0;
+}
+
+.menu-item__indicator--submenu {
+  color: var(--muted);
+}
+
+.menu-item__indicator--submenu svg {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+}
+
+.menu-item--danger .menu-item__indicator,
+.menu-item--danger [data-slot=label] {
+  color: var(--danger);
+}

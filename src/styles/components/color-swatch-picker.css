@@ -1,0 +1,219 @@
+/*
+ * HeroUI Pro — 组件 color-swatch-picker
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.color-swatch-picker {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  flex-wrap: wrap;
+  display: flex;
+}
+
+.color-swatch-picker__item {
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
+  border-radius: calc(var(--radius) * 2);
+  border-style: var(--tw-border-style);
+  --tw-outline-style: none;
+  -webkit-tap-highlight-color: transparent;
+  cursor: var(--cursor-interactive);
+  transition: border-color .1s var(--ease-out), box-shadow .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  border-width: 2px;
+  border-color: #0000;
+  outline-style: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.color-swatch-picker__item:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.color-swatch-picker__item:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.color-swatch-picker__item:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .color-swatch-picker__item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .color-swatch-picker__item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .color-swatch-picker__item:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.color-swatch-picker__item:focus-visible,
+.color-swatch-picker__item[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.color-swatch-picker__item[data-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.color-swatch-picker__item[data-selected=true] {
+  border-color: var(--color-swatch-current);
+  box-shadow: var(--field-shadow);
+}
+
+.color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  transform: scale(.77);
+}
+
+.color-swatch-picker__swatch {
+  border-radius: inherit;
+  width: 100%;
+  height: 100%;
+  transition: transform .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  display: block;
+}
+
+.color-swatch-picker__swatch:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.color-swatch-picker__swatch:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.color-swatch-picker__swatch:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .color-swatch-picker__swatch:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .color-swatch-picker__swatch:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .color-swatch-picker__swatch:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+@media (hover:hover) {
+  .color-swatch-picker__swatch:hover {
+    transform: scale(1.1);
+  }
+}
+
+.color-swatch-picker__indicator {
+  pointer-events: none;
+  inset: calc(var(--spacing) * 0);
+  z-index: 10;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: absolute;
+}
+
+.color-swatch-picker__indicator>* {
+  width: 33.3333%;
+  height: 33.3333%;
+  color: var(--color-white);
+  transition: transform .15s var(--ease-out);
+  transform: scale(0)translateZ(0);
+}
+
+.color-swatch-picker__indicator>:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.color-swatch-picker__indicator>:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.color-swatch-picker__indicator>:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .color-swatch-picker__indicator>:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .color-swatch-picker__indicator>:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .color-swatch-picker__indicator>:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.color-swatch-picker__indicator[data-light-color=true] .color-swatch-picker__indicator>* {
+  color: var(--color-black);
+}
+
+.color-swatch-picker__item[data-selected=true] .color-swatch-picker__indicator>* {
+  transform: scale(1)translateZ(0);
+}
+
+.color-swatch-picker--stack {
+  flex-direction: column;
+}
+
+.color-swatch-picker--xs .color-swatch-picker__item {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  border-radius: calc(var(--radius) * 1);
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+}
+
+.color-swatch-picker--sm .color-swatch-picker__item {
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+  border-radius: calc(var(--radius) * 1.5);
+  border-style: var(--tw-border-style);
+  border-width: 2px;
+}
+
+.color-swatch-picker--lg .color-swatch-picker__item {
+  width: calc(var(--spacing) * 9);
+  height: calc(var(--spacing) * 9);
+  border-radius: calc(var(--radius) * 3);
+  border-style: var(--tw-border-style);
+  border-width: 3px;
+}
+
+.color-swatch-picker--xl .color-swatch-picker__item {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+  border-radius: calc(var(--radius) * 3);
+  border-style: var(--tw-border-style);
+  border-width: 3px;
+}
+
+.color-swatch-picker--square .color-swatch-picker__item {
+  border-radius: calc(var(--radius) * 1.5);
+}
+
+.color-swatch-picker--square .color-swatch-picker__item .color-swatch-picker__swatch,
+.color-swatch-picker--square .color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * 1);
+}
+
+.color-swatch-picker--square.color-swatch-picker--xs .color-swatch-picker__item,
+.color-swatch-picker--square.color-swatch-picker--xs .color-swatch-picker__item .color-swatch-picker__swatch,
+.color-swatch-picker--square.color-swatch-picker--xs .color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * .75);
+}
+
+.color-swatch-picker--square.color-swatch-picker--sm .color-swatch-picker__item,
+.color-swatch-picker--square.color-swatch-picker--sm .color-swatch-picker__item .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * 1);
+}
+
+.color-swatch-picker--square.color-swatch-picker--sm .color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * .75);
+}
+
+.color-swatch-picker--square.color-swatch-picker--lg .color-swatch-picker__item {
+  border-radius: calc(var(--radius) * 1.5);
+}
+
+.color-swatch-picker--square.color-swatch-picker--lg .color-swatch-picker__item .color-swatch-picker__swatch,
+.color-swatch-picker--square.color-swatch-picker--lg .color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * 1);
+}
+
+.color-swatch-picker--square.color-swatch-picker--xl .color-swatch-picker__item {
+  border-radius: calc(var(--radius) * 1.5);
+}
+
+.color-swatch-picker--square.color-swatch-picker--xl .color-swatch-picker__item .color-swatch-picker__swatch,
+.color-swatch-picker--square.color-swatch-picker--xl .color-swatch-picker__item[data-selected=true] .color-swatch-picker__swatch {
+  border-radius: calc(var(--radius) * 1);
+}

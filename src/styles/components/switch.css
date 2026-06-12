@@ -1,0 +1,219 @@
+/*
+ * HeroUI Pro — 组件 switch
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.switch {
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  -webkit-tap-highlight-color: transparent;
+  cursor: var(--cursor-interactive);
+  --switch-control-bg: var(--default);
+  --switch-control-bg-hover: var(--switch-control-bg);
+  display: inline-flex;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .switch {
+    --switch-control-bg-hover: color-mix(in oklab, var(--switch-control-bg), transparent 20%);
+  }
+}
+
+.switch {
+  --switch-control-bg-pressed: var(--switch-control-bg-hover);
+  --switch-control-bg-checked: var(--accent);
+  --switch-control-bg-checked-hover: var(--accent-hover);
+}
+
+.switch:disabled,
+.switch[data-disabled=true],
+.switch[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+:is(.switch:disabled,.switch[data-disabled=true],.switch[aria-disabled=true]) .switch__thumb {
+  background-color: var(--default-foreground);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :is(.switch:disabled,.switch[data-disabled=true],.switch[aria-disabled=true]) .switch__thumb {
+    background-color: color-mix(in oklab, var(--default-foreground) 20%, transparent);
+  }
+}
+
+:is(.switch:disabled[aria-checked=true],.switch:disabled[data-selected=true],.switch[data-disabled=true][aria-checked=true],.switch[data-disabled=true][data-selected=true],.switch[aria-disabled=true][aria-checked=true],.switch[aria-disabled=true][data-selected=true]) .switch__thumb {
+  opacity: .4;
+}
+
+.switch__control {
+  border-radius: calc(var(--radius) * 1.5);
+  background-color: var(--switch-control-bg);
+  width: 2.5rem;
+  height: 1.25rem;
+  transition: background-color .25s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  flex-shrink: 0;
+  align-items: center;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.switch__control:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.switch__control:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.switch__control:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .switch__control:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .switch__control:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .switch__control:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.switch:focus-visible .switch__control,
+.switch[data-focus-visible=true] .switch__control {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.switch:hover .switch__control,
+.switch[data-hovered=true] .switch__control {
+  background-color: var(--switch-control-bg-hover);
+}
+
+.switch:active .switch__control,
+.switch[data-pressed=true] .switch__control {
+  background-color: var(--switch-control-bg-pressed);
+}
+
+:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transform: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transform: none;
+  }
+}
+
+.switch[aria-checked=true] .switch__control,
+.switch[data-selected=true] .switch__control {
+  background-color: var(--switch-control-bg-checked);
+}
+
+.switch[aria-checked=true]:hover .switch__control,
+.switch[data-selected=true]:hover .switch__control,
+.switch[aria-checked=true][data-hovered=true] .switch__control,
+.switch[data-selected=true][data-hovered=true] .switch__control,
+.switch[aria-checked=true]:active .switch__control,
+.switch[data-selected=true]:active .switch__control,
+.switch[aria-checked=true][data-pressed=true] .switch__control,
+.switch[data-selected=true][data-pressed=true] .switch__control {
+  background-color: var(--switch-control-bg-checked-hover);
+}
+
+.switch--sm .switch__control {
+  border-radius: calc(var(--radius) * 1);
+  width: 2rem;
+  height: 1rem;
+}
+
+.switch--lg .switch__control {
+  width: 3rem;
+  height: 1.5rem;
+}
+
+.switch__thumb {
+  transform-origin: 50%;
+  border-radius: calc(var(--radius) * 1);
+  background-color: var(--color-white);
+  color: var(--color-black);
+  --tw-shadow: var(--field-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  width: 1.375rem;
+  height: 1rem;
+  transition: margin .3s var(--ease-out-fluid), background-color .2s var(--ease-out);
+  margin-inline-start: calc(var(--spacing) * .5);
+  display: flex;
+}
+
+.switch__thumb:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.switch__thumb:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.switch__thumb:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .switch__thumb:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .switch__thumb:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .switch__thumb:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.switch[aria-checked=true] .switch__thumb,
+.switch[data-selected=true] .switch__thumb {
+  background-color: var(--accent-foreground);
+  color: var(--accent);
+  margin-inline-start: calc(100% - 1.5rem);
+  box-shadow: 0 0 5px #00000005,0 2px 10px #0000000f,0 0 1px #0000004d;
+}
+
+.switch--sm .switch__thumb {
+  border-radius: calc(var(--radius) * .75);
+  width: 1.03125rem;
+  height: .75rem;
+}
+
+.switch[aria-checked=true] :is(.switch--sm .switch__thumb),
+.switch[data-selected=true] :is(.switch--sm .switch__thumb) {
+  margin-inline-start: calc(100% - 1.15625rem);
+}
+
+.switch--lg .switch__thumb {
+  border-radius: calc(var(--radius) * 1.5);
+  width: 1.71875rem;
+  height: 1.25rem;
+}
+
+.switch[aria-checked=true] :is(.switch--lg .switch__thumb),
+.switch[data-selected=true] :is(.switch--lg .switch__thumb) {
+  margin-inline-start: calc(100% - 1.84375rem);
+}
+
+.switch__thumb>* {
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.switch__label {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.switch__content {
+  gap: calc(var(--spacing) * 0);
+  flex-direction: column;
+  display: flex;
+}

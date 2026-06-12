@@ -1,0 +1,11 @@
+/*
+ * HeroUI Pro — 组件 badge-anchor
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.badge-anchor {
+  flex-shrink: 0;
+  display: inline-flex;
+  position: relative;
+}

@@ -1,0 +1,20 @@
+/*
+ * HeroUI Pro — 组件 list-box
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.list-box {
+  gap: calc(var(--spacing) * 1);
+  width: 100%;
+  padding: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+  position: relative;
+  overflow: clip;
+}
+
+.list-box [data-slot=separator][data-orientation=horizontal] {
+  width: 94%;
+  margin-left: 3%;
+}

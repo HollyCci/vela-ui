@@ -1,0 +1,21 @@
+/*
+ * HeroUI Pro — 组件 radial-chart
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.radial-chart {
+  width: 100%;
+}
+
+.radial-chart .recharts-tooltip-cursor {
+  display: none;
+}
+
+.radial-chart .recharts-tooltip-wrapper {
+  z-index: 10;
+}
+
+.radial-chart .recharts-radial-bar-background-sector {
+  fill: var(--separator);
+}

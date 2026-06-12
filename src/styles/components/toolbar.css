@@ -1,0 +1,42 @@
+/*
+ * HeroUI Pro — 组件 toolbar
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.toolbar {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  grid-auto-flow: column;
+  width: fit-content;
+  display: grid;
+}
+
+.toolbar .separator--vertical {
+  align-self: center;
+  height: 50%;
+}
+
+.toolbar .separator--horizontal {
+  justify-content: center;
+  justify-self: center;
+  width: 50%;
+}
+
+.toolbar--vertical {
+  grid-auto-flow: row;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.toolbar--vertical .button-group {
+  justify-content: flex-start;
+}
+
+.toolbar--attached {
+  border-radius: calc(var(--radius) * 3);
+  background-color: var(--surface);
+  padding: calc(var(--spacing) * 1);
+  --tw-shadow: var(--overlay-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}

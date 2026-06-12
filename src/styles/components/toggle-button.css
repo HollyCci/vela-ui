@@ -1,0 +1,217 @@
+/*
+ * HeroUI Pro — 组件 toggle-button
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.toggle-button {
+  isolation: isolate;
+  height: calc(var(--spacing) * 10);
+  transform-origin: 50%;
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  border-radius: calc(var(--radius) * 3);
+  width: fit-content;
+  padding-inline: calc(var(--spacing) * 4);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  --tw-outline-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline-style: none;
+  display: inline-flex;
+  position: relative;
+}
+
+@media (min-width:48rem) {
+  .toggle-button {
+    height: calc(var(--spacing) * 9);
+  }
+}
+
+.toggle-button {
+  transition: transform .25s var(--ease-smooth), background-color .1s var(--ease-out), box-shadow .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+}
+
+.toggle-button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.toggle-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.toggle-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .toggle-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .toggle-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .toggle-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.toggle-button {
+  cursor: var(--cursor-interactive);
+  --toggle-button-bg: var(--default);
+  --toggle-button-bg-hover: var(--default-hover);
+  --toggle-button-bg-pressed: var(--default-hover);
+  --toggle-button-fg: currentColor;
+  --toggle-button-bg-selected: var(--accent-soft);
+  --toggle-button-bg-selected-hover: var(--accent-soft-hover);
+  --toggle-button-bg-selected-pressed: var(--accent-soft-hover);
+  --toggle-button-fg-selected: var(--accent-soft-foreground);
+  background-color: var(--toggle-button-bg);
+  color: var(--toggle-button-fg);
+}
+
+.toggle-button:focus-visible:not(:focus),
+.toggle-button[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.toggle-button:disabled,
+.toggle-button[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+@media (hover:hover) {
+  .toggle-button:hover,
+  .toggle-button[data-hovered=true] {
+    background-color: var(--toggle-button-bg-hover);
+  }
+}
+
+.toggle-button:active,
+.toggle-button[data-pressed=true] {
+  background-color: var(--toggle-button-bg-pressed);
+  transform: scale(.97);
+}
+
+.toggle-button[data-selected=true] {
+  background-color: var(--toggle-button-bg-selected);
+  color: var(--toggle-button-fg-selected);
+}
+
+@media (hover:hover) {
+  .toggle-button[data-selected=true]:hover,
+  .toggle-button[data-selected=true][data-hovered=true] {
+    background-color: var(--toggle-button-bg-selected-hover);
+  }
+}
+
+.toggle-button[data-selected=true]:active,
+.toggle-button[data-selected=true][data-pressed=true] {
+  background-color: var(--toggle-button-bg-selected-pressed);
+}
+
+.toggle-button svg {
+  pointer-events: none;
+  margin-inline: calc(var(--spacing) * -.5);
+  margin-block: calc(var(--spacing) * .5);
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+@media (min-width:40rem) {
+  .toggle-button svg {
+    margin-block: calc(var(--spacing) * 1);
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+}
+
+.toggle-button--sm {
+  height: calc(var(--spacing) * 9);
+  padding-inline: calc(var(--spacing) * 3);
+}
+
+@media (min-width:48rem) {
+  .toggle-button--sm {
+    height: calc(var(--spacing) * 8);
+  }
+}
+
+.toggle-button--sm svg {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.toggle-button--sm:active,
+.toggle-button--sm[data-pressed=true] {
+  transform: scale(.98);
+}
+
+.toggle-button--lg {
+  height: calc(var(--spacing) * 11);
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+}
+
+@media (min-width:48rem) {
+  .toggle-button--lg {
+    height: calc(var(--spacing) * 10);
+  }
+}
+
+.toggle-button--lg:active,
+.toggle-button--lg[data-pressed=true] {
+  transform: scale(.96);
+}
+
+.toggle-button--default {
+  --toggle-button-bg: var(--default);
+  --toggle-button-bg-hover: var(--default-hover);
+  --toggle-button-bg-pressed: var(--default-hover);
+}
+
+.toggle-button--ghost {
+  --toggle-button-bg: transparent;
+  --toggle-button-bg-hover: var(--default);
+  --toggle-button-bg-pressed: var(--default);
+  --toggle-button-fg: var(--default-foreground);
+}
+
+.toggle-button--icon-only {
+  width: calc(var(--spacing) * 10);
+  padding: calc(var(--spacing) * 0);
+}
+
+@media (min-width:48rem) {
+  .toggle-button--icon-only {
+    width: calc(var(--spacing) * 9);
+  }
+}
+
+.toggle-button--icon-only.toggle-button--sm {
+  width: calc(var(--spacing) * 9);
+}
+
+@media (min-width:48rem) {
+  .toggle-button--icon-only.toggle-button--sm {
+    width: calc(var(--spacing) * 8);
+  }
+}
+
+.toggle-button--icon-only.toggle-button--lg {
+  width: calc(var(--spacing) * 11);
+}
+
+@media (min-width:48rem) {
+  .toggle-button--icon-only.toggle-button--lg {
+    width: calc(var(--spacing) * 10);
+  }
+}

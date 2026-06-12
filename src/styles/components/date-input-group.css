@@ -1,0 +1,272 @@
+/*
+ * HeroUI Pro — 组件 date-input-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.date-input-group {
+  height: calc(var(--spacing) * 9);
+  border-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  border-style: var(--tw-border-style);
+  background-color: var(--field-background,var(--default));
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--field-foreground,var(--foreground));
+  --tw-shadow: var(--field-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  border-width: 1px;
+  border-width: var(--border-width-field);
+  border-color: var(--field-border);
+  transition: background-color .15s var(--ease-smooth), border-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  outline-style: none;
+  align-items: center;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+.date-input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.date-input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.date-input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .date-input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .date-input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .date-input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+@media (hover:hover) {
+  .date-input-group:hover:not(:focus-within),
+  .date-input-group[data-hovered=true]:not([data-focus-within=true]) {
+    background-color: var(--field-hover);
+    border-color: var(--field-border-hover);
+  }
+}
+
+:is(.date-input-group[data-focus-within=true]:not(:has([data-slot=date-picker-trigger]:focus,[data-slot=date-picker-trigger][data-focused=true],[data-slot=date-range-picker-trigger]:focus,[data-slot=date-range-picker-trigger][data-focused=true])),.date-input-group:focus-within:not(:has([data-slot=date-picker-trigger]:focus,[data-slot=date-picker-trigger][data-focused=true],[data-slot=date-range-picker-trigger]:focus,[data-slot=date-range-picker-trigger][data-focused=true]))) {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-outline-style: none;
+  --tw-ring-offset-width: 0px;
+  outline-style: none;
+}
+
+.date-input-group[data-invalid=true] {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+  outline-color: var(--danger);
+  --tw-outline-style: solid;
+  --tw-ring-offset-width: 3px;
+  outline-style: solid;
+}
+
+.date-input-group[data-invalid=true]:focus,
+.date-input-group[data-invalid=true]:focus-visible,
+.date-input-group[data-invalid=true][data-focused=true],
+.date-input-group[data-invalid=true][data-focus-visible=true],
+.date-input-group[data-invalid=true]:focus-within,
+.date-input-group[data-invalid=true][data-focus-within=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--danger);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-width: 0px;
+}
+
+.date-input-group[data-invalid=true] {
+  background-color: var(--field-focus);
+  border-color: var(--color-field-border-invalid);
+}
+
+.date-input-group[data-disabled=true],
+.date-input-group[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.date-input-group__input {
+  cursor: text;
+  border-style: var(--tw-border-style);
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 2);
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  background-color: #0000;
+  border-width: 0;
+  border-radius: 0;
+  outline-style: none;
+  flex: 1;
+  align-items: center;
+  gap: 1px;
+  display: flex;
+}
+
+@media (min-width:40rem) {
+  .date-input-group__input {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading,var(--text-sm--line-height));
+  }
+}
+
+.date-input-group:has([data-slot=date-input-group-prefix]) .date-input-group__input {
+  padding-left: calc(var(--spacing) * 2);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.date-input-group:has([data-slot=date-input-group-suffix]) .date-input-group__input {
+  padding-right: calc(var(--spacing) * 2);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.date-input-group:has(.date-range-picker__range-separator) .date-input-group__input[slot=start] {
+  padding-right: calc(var(--spacing) * 0);
+  flex: none;
+}
+
+.date-input-group:has(.date-range-picker__range-separator) .date-input-group__input[slot=end] {
+  padding-left: calc(var(--spacing) * 0);
+}
+
+.date-input-group__input:focus,
+.date-input-group__input:focus-visible {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.date-input-group__input-container {
+  scrollbar-width: none;
+  scrollbar-color: auto;
+  scrollbar-gutter: auto;
+  -ms-overflow-style: none;
+  flex: 1;
+  align-items: center;
+  width: fit-content;
+  display: flex;
+  overflow: auto clip;
+}
+
+.date-input-group__segment {
+  border-radius: calc(var(--radius) * .75);
+  padding-inline: calc(var(--spacing) * .5);
+  text-align: end;
+  text-wrap: nowrap;
+  --tw-outline-style: none;
+  outline-style: none;
+  display: inline-block;
+}
+
+.date-input-group__segment[data-type=literal] {
+  padding: calc(var(--spacing) * 0);
+  color: var(--muted);
+}
+
+.date-input-group__segment[data-placeholder=true] {
+  color: var(--field-placeholder,var(--muted));
+}
+
+.date-input-group__segment:focus,
+.date-input-group__segment[data-focused=true] {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+.date-input-group__segment[data-disabled=true] {
+  opacity: .5;
+}
+
+.date-input-group__segment[data-invalid=true] {
+  color: var(--danger);
+}
+
+.date-input-group__segment[data-invalid=true]:focus,
+.date-input-group__segment[data-invalid=true][data-focused=true] {
+  background-color: var(--danger-soft);
+  color: var(--danger-soft-foreground);
+}
+
+.date-input-group__prefix {
+  pointer-events: none;
+  color: var(--field-placeholder,var(--muted));
+  margin-right: calc(var(--spacing) * 0);
+  margin-left: calc(var(--spacing) * 3);
+  flex-shrink: 0;
+  align-items: center;
+  display: flex;
+}
+
+.date-input-group__suffix {
+  pointer-events: none;
+  color: var(--field-placeholder,var(--muted));
+  margin-right: calc(var(--spacing) * 3);
+  flex-shrink: 0;
+  align-items: center;
+  display: flex;
+}
+
+.date-input-group--secondary {
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  background-color: var(--date-input-group-bg);
+  --date-input-group-bg: var(--default);
+  --date-input-group-bg-hover: var(--default-hover);
+  --date-input-group-bg-focus: var(--default);
+}
+
+@media (hover:hover) {
+  .date-input-group--secondary:hover:not(:focus-within),
+  .date-input-group--secondary[data-hovered=true]:not([data-focus-within=true]) {
+    background-color: var(--date-input-group-bg-hover);
+  }
+}
+
+.date-input-group--secondary:focus-within,
+.date-input-group--secondary[data-focus-within=true] {
+  background-color: var(--date-input-group-bg-focus);
+}
+
+.date-input-group--secondary[data-invalid=true] {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+  outline-color: var(--danger);
+  --tw-outline-style: solid;
+  --tw-ring-offset-width: 3px;
+  outline-style: solid;
+}
+
+.date-input-group--secondary[data-invalid=true]:focus,
+.date-input-group--secondary[data-invalid=true]:focus-visible,
+.date-input-group--secondary[data-invalid=true][data-focused=true],
+.date-input-group--secondary[data-invalid=true][data-focus-visible=true],
+.date-input-group--secondary[data-invalid=true]:focus-within,
+.date-input-group--secondary[data-invalid=true][data-focus-within=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--danger);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-width: 0px;
+}
+
+.date-input-group--secondary[data-invalid=true] {
+  border-color: var(--color-field-border-invalid);
+  background-color: var(--date-input-group-bg-focus);
+}
+
+.date-input-group--secondary [data-slot=date-input-group-input] {
+  background-color: #0000;
+}
+
+.date-input-group--full-width {
+  width: 100%;
+}

@@ -1,0 +1,198 @@
+/*
+ * HeroUI Pro — 组件 data-grid
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.data-grid {
+  --data-grid-selection-column-width: 40px;
+  --data-grid-drag-handle-column-width: 32px;
+  --data-grid-tree-toggle-size: 24px;
+  --data-grid-tree-gap: 4px;
+  width: 100%;
+  position: relative;
+}
+
+.data-grid__selection-column {
+  width: var(--data-grid-selection-column-width);
+  padding-right: calc(var(--spacing) * 0);
+}
+
+.data-grid__selection-column:after {
+  content: none;
+}
+
+.data-grid__selection-cell {
+  width: var(--data-grid-selection-column-width);
+  padding-right: calc(var(--spacing) * 0);
+}
+
+.data-grid__drag-handle-column {
+  width: var(--data-grid-drag-handle-column-width);
+  padding-inline: calc(var(--spacing) * 0);
+}
+
+.data-grid__drag-handle-column:after {
+  content: none;
+}
+
+.data-grid__drag-handle-cell {
+  width: var(--data-grid-drag-handle-column-width);
+  padding-inline: calc(var(--spacing) * 0);
+}
+
+.data-grid__drag-handle {
+  cursor: grab;
+  width: 100%;
+  height: 100%;
+  padding: calc(var(--spacing) * 0);
+  --tw-outline-style: none;
+  -webkit-tap-highlight-color: transparent;
+  --tw-border-style: none;
+  --tw-leading: 1;
+  color: var(--muted);
+  background-color: #0000;
+  border-style: none;
+  outline-style: none;
+  justify-content: center;
+  align-items: center;
+  line-height: 1;
+  display: flex;
+}
+
+.data-grid__drag-handle svg {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.data-grid__drag-handle:focus-visible:not(:focus),
+.data-grid__drag-handle[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+@media (hover:hover) {
+  .data-grid__drag-handle:hover,
+  .data-grid__drag-handle[data-hovered=true] {
+    color: var(--foreground);
+  }
+}
+
+.data-grid__drag-handle:active,
+.data-grid__drag-handle[data-pressed=true] {
+  cursor: grabbing;
+}
+
+.data-grid .react-aria-DropIndicator {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.data-grid .react-aria-DropIndicator td {
+  padding: calc(var(--spacing) * 0);
+  height: 2px;
+}
+
+.data-grid .react-aria-DropIndicator[data-drop-target] td {
+  background-color: var(--accent);
+}
+
+.data-grid__sort-icon {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  transition-property: transform,translate,scale,rotate;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .1s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .1s;
+  transition-timing-function: var(--ease-out);
+  flex-shrink: 0;
+  display: inline-flex;
+}
+
+.data-grid__sort-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.data-grid__sort-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.data-grid__sort-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .data-grid__sort-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .data-grid__sort-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .data-grid__sort-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.data-grid__sort-icon[data-direction=descending] {
+  rotate: 180deg;
+}
+
+.data-grid__empty-state {
+  padding-block: calc(var(--spacing) * 12);
+  text-align: center;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.data-grid__tree-cell {
+  min-width: calc(var(--spacing) * 0);
+  align-items: center;
+  gap: var(--data-grid-tree-gap);
+  display: flex;
+}
+
+.data-grid__tree-toggle {
+  width: var(--data-grid-tree-toggle-size);
+  height: var(--data-grid-tree-toggle-size);
+  flex-shrink: 0;
+}
+
+.data-grid__tree-toggle-icon {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  color: var(--muted);
+  transition-property: transform,translate,scale,rotate;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .15s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .15s;
+  transition-timing-function: var(--ease-out);
+}
+
+.data-grid__tree-toggle-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.data-grid__tree-toggle-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.data-grid__tree-toggle-icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .data-grid__tree-toggle-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .data-grid__tree-toggle-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .data-grid__tree-toggle-icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.data-grid__tree-toggle-icon[data-expanded] {
+  rotate: 90deg;
+}
+
+.data-grid__tree-toggle-spacer {
+  width: var(--data-grid-tree-toggle-size);
+  height: var(--data-grid-tree-toggle-size);
+  flex-shrink: 0;
+  display: inline-block;
+}

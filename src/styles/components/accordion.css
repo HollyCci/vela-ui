@@ -1,0 +1,211 @@
+/*
+ * HeroUI Pro — 组件 accordion
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.accordion {
+  contain: layout style;
+  width: 100%;
+}
+
+.accordion__body {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.accordion__body-inner {
+  padding-inline: calc(var(--spacing) * 4);
+  padding-top: calc(var(--spacing) * 0);
+  padding-bottom: calc(var(--spacing) * 4);
+  color: var(--muted);
+}
+
+.accordion__indicator {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  color: var(--muted);
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .25s;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition-duration: .25s;
+}
+
+.accordion__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.accordion__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.accordion__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .accordion__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .accordion__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .accordion__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.accordion__indicator[data-expanded=true] {
+  rotate: -180deg;
+}
+
+.accordion__item {
+  --tw-border-style: none;
+  border-style: none;
+  position: relative;
+}
+
+.accordion__item:after {
+  content: "";
+  bottom: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  border-radius: calc(var(--radius) * .25);
+  background-color: var(--separator);
+  width: 100%;
+  height: 1px;
+  position: absolute;
+}
+
+.accordion__item:last-child:after {
+  content: none;
+}
+
+.accordion__item[data-hide-separator=true]:after {
+  display: none;
+}
+
+.accordion__trigger {
+  cursor: var(--cursor-interactive);
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 4);
+  text-align: left;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity .15s var(--ease-out), box-shadow .15s var(--ease-out);
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.accordion__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.accordion__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.accordion__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .accordion__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .accordion__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .accordion__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+@media (hover:hover) {
+  .accordion__trigger:hover:not([aria-expanded=true]),
+  .accordion__trigger[data-hovered=true]:not([aria-expanded=true]) {
+    background-color: var(--foreground);
+  }
+}
+
+@media (hover:hover) {
+  @supports (color:color-mix(in lab, red, red)) {
+    .accordion__trigger:hover:not([aria-expanded=true]),
+    .accordion__trigger[data-hovered=true]:not([aria-expanded=true]) {
+      background-color: color-mix(in oklab, var(--foreground) 3%, transparent 90%);
+    }
+  }
+}
+
+.accordion__trigger:focus-visible:not(:focus),
+.accordion__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.accordion__trigger:disabled,
+.accordion__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.accordion__panel {
+  opacity: 0;
+  height: var(--disclosure-panel-height);
+  transition: height .2s var(--ease-out-quad), opacity .2s var(--ease-out);
+  overflow: clip;
+}
+
+.accordion__panel:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.accordion__panel:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.accordion__panel:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .accordion__panel:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .accordion__panel:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .accordion__panel:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.accordion__panel[data-expanded=true] {
+  will-change: height, opacity;
+  opacity: 1;
+}
+
+.accordion--surface {
+  background-color: var(--surface);
+  border-radius: min(32px, var(--radius-3xl));
+}
+
+@media (hover:hover) {
+  .accordion--surface .accordion__trigger:hover:not([aria-expanded=true]),
+  .accordion--surface .accordion__trigger[data-hovered=true]:not([aria-expanded=true]) {
+    background-color: var(--default);
+  }
+}
+
+.accordion--surface .accordion__item:after {
+  background-color: var(--surface-foreground);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .accordion--surface .accordion__item:after {
+    background-color: color-mix(in oklab, var(--surface-foreground) 6%, transparent);
+  }
+}
+
+.accordion--surface .accordion__item:after {
+  width: 94%;
+  left: 3%;
+}
+
+.accordion--surface .accordion__item:first-child [data-slot=accordion-trigger] {
+  border-top-left-radius: min(32px, var(--radius-3xl));
+  border-top-right-radius: min(32px, var(--radius-3xl));
+}
+
+.accordion--surface .accordion__item:last-child:not(:has([data-slot=accordion-trigger][aria-expanded=true])) [data-slot=accordion-trigger] {
+  border-bottom-left-radius: min(32px, var(--radius-3xl));
+  border-bottom-right-radius: min(32px, var(--radius-3xl));
+}
+
+.accordion__heading {
+  display: flex;
+}

@@ -1,0 +1,83 @@
+/*
+ * HeroUI Pro — 组件 chat-sources
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.chat-sources,
+.chat-sources [data-slot=disclosure-heading] {
+  width: 100%;
+}
+
+.chat-sources__trigger {
+  height: auto;
+  min-height: calc(var(--spacing) * 8);
+  cursor: pointer;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  width: fit-content;
+  padding-inline: calc(var(--spacing) * 0);
+  padding-block: calc(var(--spacing) * 1);
+  text-align: left;
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  display: inline-flex;
+}
+
+@media (hover:hover) {
+  .chat-sources__trigger:hover {
+    color: var(--foreground);
+  }
+}
+
+.chat-sources__trigger {
+  -webkit-tap-highlight-color: transparent;
+  transition: color .1s var(--ease-out);
+}
+
+.chat-sources .chat-sources__content {
+  transition: height .15s var(--ease-out-quad), opacity .15s var(--ease-out);
+}
+
+.chat-sources [data-slot=disclosure-indicator] {
+  transition-duration: .15s;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .chat-sources .chat-sources__content,
+  .chat-sources [data-slot=disclosure-indicator] {
+    transition: none;
+  }
+}
+
+.chat-sources__content {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 0;
+  border-color: var(--default);
+}
+
+.chat-sources__content[data-expanded=true] {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 1px;
+}
+
+.chat-sources__content-body {
+  padding-top: calc(var(--spacing) * 2);
+}
+
+.chat-sources__list {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  flex-wrap: wrap;
+  display: flex;
+}
+
+.chat-sources__trigger-label {
+  min-width: calc(var(--spacing) * 0);
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  display: inline-flex;
+}

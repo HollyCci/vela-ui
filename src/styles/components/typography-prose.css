@@ -1,0 +1,165 @@
+/*
+ * HeroUI Pro — 组件 typography-prose
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.typography-prose h1 {
+  font-size: var(--text-4xl);
+  line-height: var(--tw-leading,var(--text-4xl--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose h2 {
+  font-size: var(--text-3xl);
+  line-height: var(--tw-leading,var(--text-3xl--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose h3 {
+  font-size: var(--text-2xl);
+  line-height: var(--tw-leading,var(--text-2xl--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose h4 {
+  font-size: var(--text-xl);
+  line-height: var(--tw-leading,var(--text-xl--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose h5 {
+  font-size: var(--text-lg);
+  line-height: var(--tw-leading,var(--text-lg--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose h6 {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  --tw-tracking: var(--tracking-tight);
+  letter-spacing: var(--tracking-tight);
+}
+
+.typography-prose p {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-leading: calc(var(--spacing) * 7);
+  line-height: calc(var(--spacing) * 7);
+}
+
+.typography-prose code {
+  border-radius: calc(var(--radius) * .75);
+  background-color: var(--default);
+  padding-inline: calc(var(--spacing) * 1.5);
+  padding-block: calc(var(--spacing) * .5);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--foreground);
+}
+
+.typography-prose a {
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--link);
+  text-underline-offset: 4px;
+  text-decoration-line: underline;
+}
+
+.typography-prose blockquote {
+  margin-top: calc(var(--spacing) * 4);
+  border-left-style: var(--tw-border-style);
+  border-left-width: 4px;
+  border-color: var(--border);
+  padding-left: calc(var(--spacing) * 4);
+  color: var(--muted);
+  font-style: italic;
+}
+
+.typography-prose ul {
+  margin-block: calc(var(--spacing) * 4);
+  list-style-type: disc;
+}
+
+:where(.typography-prose ul>:not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+}
+
+.typography-prose ul {
+  padding-left: calc(var(--spacing) * 6);
+}
+
+.typography-prose ol {
+  margin-block: calc(var(--spacing) * 4);
+  list-style-type: decimal;
+}
+
+:where(.typography-prose ol>:not(:last-child)) {
+  --tw-space-y-reverse: 0;
+  margin-block-start: calc(calc(var(--spacing) * 2) * var(--tw-space-y-reverse));
+  margin-block-end: calc(calc(var(--spacing) * 2) * calc(1 - var(--tw-space-y-reverse)));
+}
+
+.typography-prose ol {
+  padding-left: calc(var(--spacing) * 6);
+}
+
+.typography-prose li {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-leading: calc(var(--spacing) * 7);
+  line-height: calc(var(--spacing) * 7);
+}
+
+.typography-prose hr {
+  margin-block: calc(var(--spacing) * 8);
+  border-color: var(--separator);
+}
+
+.typography-prose pre {
+  margin-block: calc(var(--spacing) * 4);
+  border-radius: calc(var(--radius) * 1.5);
+  background-color: var(--default);
+  padding: calc(var(--spacing) * 4);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: var(--leading-relaxed);
+  line-height: var(--leading-relaxed);
+  overflow-x: auto;
+}
+
+.typography-prose strong {
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.typography-prose em {
+  font-style: italic;
+}
+
+.typography-prose img {
+  margin-block: calc(var(--spacing) * 4);
+  border-radius: calc(var(--radius) * 1.5);
+}

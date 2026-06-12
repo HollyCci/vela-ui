@@ -1,0 +1,23 @@
+/*
+ * HeroUI Pro — 组件 date-field
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.date-field {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+:is(.date-field[data-invalid=true],.date-field[aria-invalid=true]) [data-slot=description] {
+  display: none;
+}
+
+.date-field [data-slot=label] {
+  width: fit-content;
+}
+
+.date-field--full-width {
+  width: 100%;
+}

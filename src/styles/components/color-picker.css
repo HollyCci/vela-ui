@@ -1,0 +1,129 @@
+/*
+ * HeroUI Pro — 组件 color-picker
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.color-picker {
+  display: inline-flex;
+}
+
+.color-picker__trigger {
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  border-radius: calc(var(--radius) * .5);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  -webkit-tap-highlight-color: transparent;
+  cursor: var(--cursor-interactive);
+  transition: background-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  display: inline-flex;
+}
+
+.color-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.color-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.color-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .color-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .color-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .color-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.color-picker__trigger [data-slot=label] {
+  cursor: var(--cursor-interactive);
+}
+
+.color-picker__trigger:focus-visible:not(:focus),
+.color-picker__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.color-picker__trigger:disabled,
+.color-picker__trigger[data-disabled=true],
+.color-picker__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.color-picker__popover {
+  min-width: calc(var(--spacing) * 62);
+  transform-origin: var(--trigger-anchor-point);
+  overscroll-behavior: contain;
+  background-color: var(--overlay);
+  padding-inline: calc(var(--spacing) * 2);
+  padding-top: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 3);
+  scrollbar-width: none;
+  scrollbar-color: auto;
+  scrollbar-gutter: auto;
+  -ms-overflow-style: none;
+  box-shadow: var(--shadow-overlay);
+  border-radius: min(32px, calc(var(--radius) * 2.5));
+  gap: calc(var(--spacing) * 3);
+  flex-direction: column;
+  display: flex;
+  overflow: hidden auto;
+}
+
+.color-picker__popover:focus-visible:not(:focus),
+.color-picker__popover[data-focus-visible=true] {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.color-picker__popover[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: ease;
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: .95;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+}
+
+.color-picker__popover[data-entering=true][data-placement^=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.color-picker__popover[data-entering=true][data-placement^=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.color-picker__popover[data-entering=true][data-placement^=left] {
+  --tw-enter-translate-x: calc(1*var(--spacing));
+}
+
+.color-picker__popover[data-entering=true][data-placement^=right] {
+  --tw-enter-translate-x: calc(1*var(--spacing)*-1);
+}
+
+.color-picker__popover[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: ease;
+  --tw-exit-scale: .95;
+  --tw-exit-opacity: 0;
+  transition-duration: .1s;
+  transition-timing-function: ease;
+}
+
+.color-picker__popover[data-exiting=true],
+.color-picker__popover[data-entering=true] {
+  transition-property: opacity,transform;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  will-change: opacity,transform;
+}

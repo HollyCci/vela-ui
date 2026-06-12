@@ -1,0 +1,9 @@
+/*
+ * HeroUI Pro — 组件 number-value
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.number-value {
+  font-variant-numeric: tabular-nums;
+}

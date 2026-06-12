@@ -1,0 +1,77 @@
+/*
+ * HeroUI Pro — 组件 separator
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.separator {
+  border-radius: calc(var(--radius) * .5);
+  border-top-style: var(--tw-border-style);
+  border-top-width: 0;
+  border-bottom-style: var(--tw-border-style);
+  background-color: var(--separator);
+  border-bottom-width: 0;
+  flex-shrink: 0;
+  width: 100%;
+  height: 1px;
+}
+
+.separator--horizontal {
+  width: 100%;
+  height: 1px;
+}
+
+.separator--vertical {
+  height: auto;
+  min-height: calc(var(--spacing) * 2);
+  align-self: stretch;
+  width: 1px;
+}
+
+.separator--default {
+  background-color: var(--separator);
+}
+
+.separator--secondary {
+  background-color: var(--separator-secondary);
+}
+
+.separator--tertiary {
+  background-color: var(--separator-tertiary);
+}
+
+.separator__container {
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
+}
+
+.separator__container--horizontal {
+  flex-direction: row;
+  width: 100%;
+}
+
+.separator__container--vertical {
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+}
+
+.separator__line {
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.separator__content {
+  text-align: center;
+  white-space: nowrap;
+  color: var(--muted);
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.separator__content--horizontal,
+.separator__content--vertical {
+  text-align: center;
+}

@@ -1,0 +1,135 @@
+/*
+ * HeroUI Pro — 组件 button-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.button-group {
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * 0);
+  height: auto;
+  display: inline-flex;
+}
+
+.button-group--horizontal {
+  flex-direction: row;
+}
+
+.button-group--vertical {
+  flex-direction: column;
+}
+
+.button-group .button {
+  border-radius: 0;
+}
+
+.button-group--horizontal .button:first-child {
+  border-start-start-radius: calc(var(--radius) * 3);
+  border-end-start-radius: calc(var(--radius) * 3);
+}
+
+.button-group--horizontal .button:last-child {
+  border-start-end-radius: calc(var(--radius) * 3);
+  border-end-end-radius: calc(var(--radius) * 3);
+}
+
+.button-group--horizontal .button:first-child:last-child {
+  border-radius: calc(var(--radius) * 3);
+}
+
+.button-group--vertical .button:first-child {
+  border-top-left-radius: calc(var(--radius) * 3);
+  border-top-right-radius: calc(var(--radius) * 3);
+}
+
+.button-group--vertical .button:last-child {
+  border-bottom-right-radius: calc(var(--radius) * 3);
+  border-bottom-left-radius: calc(var(--radius) * 3);
+}
+
+.button-group--vertical .button:first-child:last-child {
+  border-radius: calc(var(--radius) * 3);
+}
+
+.button-group .button:active,
+.button-group .button[data-pressed=true] {
+  transform: none;
+}
+
+.button-group .button:focus-visible:not(:focus),
+.button-group .button[data-focus-visible=true] {
+  --tw-ring-offset-width: 0px;
+  --tw-ring-inset: inset;
+}
+
+.button-group__separator {
+  border-radius: calc(var(--radius) * .5);
+  opacity: .15;
+  pointer-events: none;
+  transition: opacity .15s var(--ease-smooth);
+  background-color: currentColor;
+  position: absolute;
+}
+
+.button-group__separator:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.button-group__separator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.button-group__separator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .button-group__separator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .button-group__separator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .button-group__separator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.button-group--horizontal .button-group__separator {
+  width: 1px;
+  height: 50%;
+  top: 25%;
+  left: -1px;
+}
+
+.button-group--vertical .button-group__separator {
+  width: 50%;
+  height: 1px;
+  top: -1px;
+  left: 25%;
+}
+
+.button-group--horizontal .button--outline:first-child {
+  border-inline-end-style: var(--tw-border-style);
+  border-inline-end-width: 0;
+}
+
+.button-group--horizontal .button--outline:last-child {
+  border-inline-start-style: var(--tw-border-style);
+  border-inline-start-width: 0;
+}
+
+.button-group--horizontal .button--outline:not(:first-child):not(:last-child) {
+  border-inline-style: var(--tw-border-style);
+  border-inline-width: 0;
+}
+
+.button-group--vertical .button--outline:first-child {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 0;
+}
+
+.button-group--vertical .button--outline:last-child {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 0;
+}
+
+.button-group--vertical .button--outline:not(:first-child):not(:last-child) {
+  border-block-style: var(--tw-border-style);
+  border-block-width: 0;
+}
+
+.button-group--full-width {
+  width: 100%;
+}

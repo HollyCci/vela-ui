@@ -1,0 +1,29 @@
+/*
+ * HeroUI Pro — 组件 surface
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.surface {
+  color: var(--foreground);
+  position: relative;
+}
+
+.surface--transparent {
+  background-color: #0000;
+}
+
+.surface--default {
+  background-color: var(--surface);
+  color: var(--surface-foreground);
+}
+
+.surface--secondary {
+  background-color: var(--surface-secondary);
+  color: var(--surface-secondary-foreground);
+}
+
+.surface--tertiary {
+  background-color: var(--surface-tertiary);
+  color: var(--surface-tertiary-foreground);
+}

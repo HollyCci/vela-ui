@@ -1,0 +1,49 @@
+/*
+ * HeroUI Pro — 组件 spinner
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.spinner {
+  pointer-events: none;
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+  transform-origin: 50%;
+  animation: .75s linear infinite spin;
+  position: relative;
+}
+
+.spinner--sm {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.spinner--lg {
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
+}
+
+.spinner--xl {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+}
+
+.spinner--current {
+  color: inherit;
+}
+
+.spinner--accent {
+  color: var(--accent);
+}
+
+.spinner--danger {
+  color: var(--danger);
+}
+
+.spinner--success {
+  color: var(--success);
+}
+
+.spinner--warning {
+  color: var(--warning);
+}

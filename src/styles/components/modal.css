@@ -1,0 +1,391 @@
+/*
+ * HeroUI Pro — 组件 modal
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.modal__trigger {
+  cursor: var(--cursor-interactive);
+  transition: transform .25s var(--ease-out-quart), background-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  display: inline-block;
+}
+
+.modal__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.modal__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.modal__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .modal__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .modal__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .modal__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.modal__trigger:focus-visible:not(:focus),
+.modal__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.modal__trigger:disabled,
+.modal__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.modal__trigger:active,
+.modal__trigger[data-pressed=true] {
+  transform: scale(.97);
+}
+
+.modal__backdrop {
+  inset: calc(var(--spacing) * 0);
+  z-index: 50;
+  height: var(--visual-viewport-height);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  position: fixed;
+}
+
+.modal__backdrop[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .15s;
+  transition-timing-function: var(--ease-out);
+  --tw-enter-opacity: 0;
+}
+
+.modal__backdrop[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .1s;
+  transition-timing-function: var(--ease-out);
+  --tw-exit-opacity: 0;
+}
+
+.modal__backdrop[data-exiting=true],
+.modal__backdrop[data-entering=true] {
+  will-change: opacity;
+}
+
+:is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.modal__backdrop[data-exiting=true],.modal__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.modal__backdrop--transparent {
+  background-color: #0000;
+}
+
+.modal__backdrop--opaque {
+  background-color: var(--backdrop);
+}
+
+.modal__backdrop--blur {
+  background-color: var(--backdrop);
+  --tw-backdrop-blur: blur(var(--blur-md));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+
+.modal__container {
+  height: var(--visual-viewport-height);
+  width: 100%;
+  min-width: calc(var(--spacing) * 0);
+  padding: calc(var(--spacing) * 4);
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  display: flex;
+}
+
+@media (min-width:40rem) {
+  .modal__container {
+    width: fit-content;
+    padding: calc(var(--spacing) * 10);
+  }
+}
+
+.modal__container {
+  pointer-events: none;
+}
+
+.modal__container[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .25s;
+  --tw-ease: cubic-bezier(.25, .46, .45, .94);
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: calc(105*1%);
+  transition-duration: .25s;
+  transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+}
+
+.modal__container[data-entering=true][data-placement=auto] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+@media (min-width:40rem) {
+  .modal__container[data-entering=true][data-placement=auto] {
+    --tw-enter-translate-y: calc(0*100%);
+  }
+}
+
+.modal__container[data-entering=true][data-placement=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.modal__container[data-entering=true][data-placement=center] {
+  --tw-enter-translate-y: calc(0*-100%);
+}
+
+.modal__container[data-entering=true][data-placement=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.modal__container[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: cubic-bezier(.25, .46, .45, .94);
+  --tw-exit-opacity: 0;
+  --tw-exit-scale: .95;
+  transition-duration: .1s;
+  transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+}
+
+.modal__container[data-exiting=true],
+.modal__container[data-entering=true] {
+  will-change: opacity,transform;
+}
+
+:is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.modal__container[data-exiting=true],.modal__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.modal__container--scroll-outside {
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  pointer-events: auto;
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+.modal__container--full {
+  padding: calc(var(--spacing) * 0);
+}
+
+@media (min-width:40rem) {
+  .modal__container--full {
+    padding: calc(var(--spacing) * 0);
+  }
+}
+
+.modal__container--full[data-entering=true] {
+  --tw-enter-translate-y: calc(0*100%);
+  --tw-enter-scale: 1;
+}
+
+@media (min-width:40rem) {
+  .modal__container--full[data-entering=true] {
+    --tw-enter-translate-y: calc(0*100%);
+  }
+}
+
+.modal__container--full[data-exiting=true] {
+  --tw-exit-scale: 1;
+}
+
+.modal__dialog {
+  background-color: var(--overlay);
+  --tw-shadow: var(--overlay-shadow);
+  width: 100%;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  border-radius: min(32px, var(--radius-3xl));
+  padding: calc(var(--spacing) * 6);
+  pointer-events: auto;
+  outline-style: none;
+  flex-direction: column;
+  display: flex;
+  position: relative;
+}
+
+.modal__dialog[data-placement=auto] {
+  margin-top: auto;
+}
+
+@media (min-width:40rem) {
+  .modal__dialog[data-placement=auto] {
+    margin-block: auto;
+  }
+}
+
+.modal__dialog[data-placement=center] {
+  margin-block: auto;
+}
+
+.modal__dialog[data-placement=bottom] {
+  margin-top: auto;
+}
+
+.modal__dialog[data-placement=top] {
+  margin-top: calc(var(--spacing) * 0);
+}
+
+.modal__dialog--scroll-inside {
+  overflow: clip;
+}
+
+.modal__dialog--scroll-outside {
+  height: auto;
+  min-height: calc(var(--spacing) * 0);
+  flex-shrink: 0;
+}
+
+.modal__dialog--xs {
+  max-width: var(--container-xs);
+}
+
+.modal__dialog--sm {
+  max-width: var(--container-sm);
+}
+
+.modal__dialog--md {
+  max-width: var(--container-md);
+}
+
+.modal__dialog--lg {
+  max-width: var(--container-lg);
+}
+
+.modal__dialog--cover {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.modal__dialog--full {
+  --tw-shadow: 0 0 #0000;
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  border-radius: 0;
+}
+
+.modal__header {
+  gap: calc(var(--spacing) * 3);
+  margin-bottom: calc(var(--spacing) * 0);
+  flex-direction: column;
+  display: flex;
+}
+
+.modal__header>.modal__icon {
+  margin-bottom: calc(var(--spacing) * 0);
+}
+
+.modal__heading {
+  vertical-align: middle;
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.modal__icon {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+  border-radius: calc(var(--radius) * 3);
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.modal__body {
+  min-height: calc(var(--spacing) * 0);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: 1.43;
+  color: var(--muted);
+  margin: -3px;
+  margin-block: calc(var(--spacing) * 0);
+  flex: 1;
+  padding: 3px;
+  line-height: 1.43;
+  overflow: visible;
+}
+
+.modal__body--scroll-inside {
+  overscroll-behavior: contain;
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  -webkit-overflow-scrolling: touch;
+  overflow-y: auto;
+}
+
+.modal__body--scroll-outside {
+  overflow-y: visible;
+}
+
+.modal__footer {
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  margin-top: calc(var(--spacing) * 0);
+  flex-direction: row;
+  display: flex;
+}
+
+.modal__close-trigger {
+  top: calc(var(--spacing) * 4);
+  right: calc(var(--spacing) * 4);
+  position: absolute;
+}
+
+.modal__header+.modal__body {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.modal__header+.modal__footer,
+.modal__body+.modal__footer {
+  margin-top: calc(var(--spacing) * 5);
+}

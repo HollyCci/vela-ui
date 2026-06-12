@@ -1,0 +1,127 @@
+/*
+ * HeroUI Pro — 组件 empty-state
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.empty-state {
+  padding: calc(var(--spacing) * 2);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+}
+
+.empty-state {
+  text-align: center;
+  flex-direction: column;
+  align-items: center;
+  display: flex;
+}
+
+.empty-state--sm {
+  gap: calc(var(--spacing) * 3);
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 6);
+}
+
+.empty-state--md {
+  gap: calc(var(--spacing) * 4);
+  padding-inline: calc(var(--spacing) * 6);
+  padding-block: calc(var(--spacing) * 8);
+}
+
+.empty-state--lg {
+  gap: calc(var(--spacing) * 5);
+  padding-inline: calc(var(--spacing) * 8);
+  padding-block: calc(var(--spacing) * 12);
+}
+
+.empty-state__header {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  flex-direction: column;
+  display: flex;
+}
+
+.empty-state__media {
+  color: var(--muted);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.empty-state__media[data-variant=icon] {
+  background-color: var(--default);
+  color: var(--foreground);
+  border-radius: 3.40282e38px;
+}
+
+.empty-state--sm .empty-state__media[data-variant=icon] {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+}
+
+.empty-state--sm .empty-state__media[data-variant=icon] svg {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.empty-state--md .empty-state__media[data-variant=icon] {
+  width: calc(var(--spacing) * 12);
+  height: calc(var(--spacing) * 12);
+}
+
+.empty-state--md .empty-state__media[data-variant=icon] svg {
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+}
+
+.empty-state--lg .empty-state__media[data-variant=icon] {
+  width: calc(var(--spacing) * 14);
+  height: calc(var(--spacing) * 14);
+}
+
+.empty-state--lg .empty-state__media[data-variant=icon] svg {
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+}
+
+.empty-state__title {
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.empty-state--sm .empty-state__title {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.empty-state--md .empty-state__title {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+}
+
+.empty-state--lg .empty-state__title {
+  font-size: var(--text-lg);
+  line-height: var(--tw-leading,var(--text-lg--line-height));
+}
+
+.empty-state__description {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+}
+
+.empty-state--sm .empty-state__description {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+}
+
+.empty-state__content {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  flex-direction: column;
+  display: flex;
+}

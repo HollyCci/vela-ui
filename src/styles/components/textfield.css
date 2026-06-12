@@ -1,0 +1,21 @@
+/*
+ * HeroUI Pro — 组件 textfield
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.textfield {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+:is(.textfield[data-invalid=true],.textfield[aria-invalid=true]) [data-slot=description] {
+  display: none;
+}
+
+.textfield--full-width,
+.textfield--full-width [data-slot=input],
+.textfield--full-width [data-slot=textarea] {
+  width: 100%;
+}

@@ -1,0 +1,13 @@
+/*
+ * HeroUI Pro — 组件 toast-top
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+::view-transition-new(.toast-top):only-child {
+  animation: .35s toast-slide-top-in;
+}
+
+::view-transition-old(.toast-top):only-child {
+  animation: .35s forwards toast-slide-top-out;
+}

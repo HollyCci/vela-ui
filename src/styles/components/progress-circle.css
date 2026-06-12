@@ -1,0 +1,107 @@
+/*
+ * HeroUI Pro — 组件 progress-circle
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.progress-circle {
+  --progress-circle-stroke: var(--accent);
+  --progress-circle-track-stroke: var(--default);
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.progress-circle .progress-circle__track {
+  width: calc(var(--spacing) * 7);
+  height: calc(var(--spacing) * 7);
+}
+
+.progress-circle .progress-circle__track-circle {
+  stroke: var(--progress-circle-track-stroke);
+}
+
+.progress-circle .progress-circle__fill-circle {
+  stroke: var(--progress-circle-stroke);
+  transition: stroke-dashoffset .3s var(--ease-out);
+}
+
+.progress-circle .progress-circle__fill-circle:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.progress-circle .progress-circle__fill-circle:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.progress-circle .progress-circle__fill-circle:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .progress-circle .progress-circle__fill-circle:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .progress-circle .progress-circle__fill-circle:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .progress-circle .progress-circle__fill-circle:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.progress-circle:not([aria-valuenow]) .progress-circle__track {
+  animation: 1s linear infinite progress-circle-spin;
+}
+
+.progress-circle:not([aria-valuenow]) .progress-circle__track:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.progress-circle:not([aria-valuenow]) .progress-circle__track:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.progress-circle:not([aria-valuenow]) .progress-circle__track:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .progress-circle:not([aria-valuenow]) .progress-circle__track:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .progress-circle:not([aria-valuenow]) .progress-circle__track:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .progress-circle:not([aria-valuenow]) .progress-circle__track:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.progress-circle:disabled,
+.progress-circle[data-disabled=true],
+.progress-circle[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.progress-circle--sm .progress-circle__track {
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+}
+
+.progress-circle--lg .progress-circle__track {
+  width: calc(var(--spacing) * 9);
+  height: calc(var(--spacing) * 9);
+}
+
+.progress-circle--default {
+  --progress-circle-stroke: var(--default-foreground);
+}
+
+.progress-circle--accent {
+  --progress-circle-stroke: var(--accent);
+}
+
+.progress-circle--success {
+  --progress-circle-stroke: var(--success);
+}
+
+.progress-circle--warning {
+  --progress-circle-stroke: var(--warning);
+}
+
+.progress-circle--danger {
+  --progress-circle-stroke: var(--danger);
+}
+
+/* @keyframes */
+@keyframes progress-circle-spin {
+  0% {
+    transform: rotate(0);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

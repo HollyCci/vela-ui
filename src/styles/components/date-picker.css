@@ -1,0 +1,154 @@
+/*
+ * HeroUI Pro — 组件 date-picker
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.date-picker {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: inline-flex;
+}
+
+.date-picker .date-input-group__suffix,
+.date-picker .date-input-group__prefix {
+  pointer-events: auto;
+}
+
+.date-picker__trigger {
+  border-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  width: 100%;
+  padding: calc(var(--spacing) * 1);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  -webkit-tap-highlight-color: transparent;
+  cursor: var(--cursor-interactive);
+  transition: box-shadow .15s var(--ease-out);
+  align-items: center;
+  display: inline-flex;
+}
+
+.date-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.date-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.date-picker__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .date-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .date-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .date-picker__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.date-picker__trigger:focus-visible:not(:focus),
+.date-picker__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.date-picker__trigger:disabled,
+.date-picker__trigger[data-disabled=true],
+.date-picker__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.date-picker__trigger-indicator {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  color: var(--field-placeholder,var(--muted));
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.date-picker__popover {
+  max-width: var(--trigger-width);
+  transform-origin: var(--trigger-anchor-point);
+  overscroll-behavior: contain;
+  background-color: var(--overlay);
+  padding: calc(var(--spacing) * 3);
+  scrollbar-width: none;
+  scrollbar-color: auto;
+  scrollbar-gutter: auto;
+  -ms-overflow-style: none;
+  overflow: hidden auto;
+}
+
+.date-picker__popover:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.date-picker__popover:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.date-picker__popover:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .date-picker__popover:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .date-picker__popover:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .date-picker__popover:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.date-picker__popover {
+  box-shadow: var(--shadow-overlay);
+  border-radius: min(32px, calc(var(--radius) * 2.5));
+}
+
+.date-picker__popover:focus-visible:not(:focus),
+.date-picker__popover[data-focus-visible=true] {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.date-picker__popover[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: ease;
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: .95;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+}
+
+.date-picker__popover[data-entering=true][data-placement^=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.date-picker__popover[data-entering=true][data-placement^=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.date-picker__popover[data-entering=true][data-placement^=left] {
+  --tw-enter-translate-x: calc(1*var(--spacing));
+}
+
+.date-picker__popover[data-entering=true][data-placement^=right] {
+  --tw-enter-translate-x: calc(1*var(--spacing)*-1);
+}
+
+.date-picker__popover[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: ease;
+  --tw-exit-scale: .95;
+  --tw-exit-opacity: 0;
+  transition-duration: .1s;
+  transition-timing-function: ease;
+}
+
+.date-picker__popover[data-exiting=true],
+.date-picker__popover[data-entering=true] {
+  transition-property: opacity,transform;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  will-change: opacity,transform;
+}

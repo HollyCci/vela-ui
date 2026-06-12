@@ -1,0 +1,38 @@
+/*
+ * HeroUI Pro — 组件 chat-tool-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.chat-tool-group {
+  border-radius: calc(var(--radius) * 1.5);
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-color: var(--default);
+  width: 100%;
+  overflow: hidden;
+}
+
+.chat-tool-group__content {
+  border-top-style: var(--tw-border-style);
+  border-top-width: 0;
+  border-color: var(--default);
+}
+
+.chat-tool-group__content-body {
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+.chat-tool-group__trigger-label {
+  min-width: calc(var(--spacing) * 0);
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-normal);
+  display: flex;
+}

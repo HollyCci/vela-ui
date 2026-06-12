@@ -1,0 +1,2671 @@
+/*
+ * HeroUI Pro — 设计 Token（@layer theme：亮色/暗色/vibrant 主题变量）
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+:root,
+:host {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --color-red-50: #fef2f2;
+  --color-red-100: #ffe2e2;
+  --color-red-200: #ffcaca;
+  --color-red-400: #ff6568;
+  --color-red-500: #fb2c36;
+  --color-red-600: #e40014;
+  --color-red-700: #bf000f;
+  --color-orange-100: #ffedd5;
+  --color-orange-400: #ff8b1a;
+  --color-orange-500: #fe6e00;
+  --color-orange-700: #c53c00;
+  --color-amber-100: #fef3c6;
+  --color-amber-400: #fcbb00;
+  --color-amber-500: #f99c00;
+  --color-amber-600: #dd7400;
+  --color-amber-700: #b75000;
+  --color-yellow-100: #fef9c2;
+  --color-yellow-400: #fac800;
+  --color-yellow-500: #edb200;
+  --color-yellow-700: #a36100;
+  --color-lime-100: #ecfcca;
+  --color-lime-400: #9de500;
+  --color-lime-500: #80cd00;
+  --color-lime-700: #4b7d00;
+  --color-green-500: #00c758;
+  --color-green-600: #00a544;
+  --color-emerald-100: #d0fae5;
+  --color-emerald-400: #00d294;
+  --color-emerald-500: #00bb7f;
+  --color-emerald-600: #009767;
+  --color-emerald-700: #007956;
+  --color-teal-100: #cbfbf1;
+  --color-teal-400: #00d3bd;
+  --color-teal-500: #00baa7;
+  --color-teal-700: #00776e;
+  --color-cyan-100: #cefafe;
+  --color-cyan-400: #00d2ef;
+  --color-cyan-500: #00b7d7;
+  --color-cyan-700: #007492;
+  --color-sky-100: #dff2fe;
+  --color-sky-300: #77d4ff;
+  --color-sky-400: #00bcfe;
+  --color-sky-500: #00a5ef;
+  --color-sky-700: #0069a4;
+  --color-blue-100: #dbeafe;
+  --color-blue-400: #54a2ff;
+  --color-blue-500: #3080ff;
+  --color-blue-600: #155dfc;
+  --color-blue-700: #1447e6;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-400: #7d87ff;
+  --color-indigo-500: #625fff;
+  --color-indigo-600: #4f39f6;
+  --color-indigo-700: #432dd7;
+  --color-violet-100: #ede9fe;
+  --color-violet-400: #a685ff;
+  --color-violet-500: #8d54ff;
+  --color-violet-600: #7f22fe;
+  --color-violet-700: #7008e7;
+  --color-purple-500: #ac4bff;
+  --color-fuchsia-100: #fae8ff;
+  --color-fuchsia-400: #ec6cff;
+  --color-fuchsia-500: #e12afb;
+  --color-fuchsia-700: #a600b5;
+  --color-pink-100: #fce7f3;
+  --color-pink-400: #fb64b6;
+  --color-pink-500: #f6339a;
+  --color-pink-700: #c4005c;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #ffccd3;
+  --color-rose-400: #ff667f;
+  --color-rose-500: #ff2357;
+  --color-rose-700: #c20039;
+  --color-slate-100: #f1f5f9;
+  --color-slate-400: #90a1b9;
+  --color-slate-500: #62748e;
+  --color-slate-700: #314158;
+  --color-gray-100: #f3f4f6;
+  --color-gray-300: #d1d5dc;
+  --color-gray-400: #99a1af;
+  --color-gray-500: #6a7282;
+  --color-gray-700: #364153;
+  --color-gray-800: #1e2939;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-400: #9f9fa9;
+  --color-zinc-500: #71717b;
+  --color-zinc-800: #27272a;
+  --color-neutral-400: #a1a1a1;
+  --color-neutral-500: #737373;
+  --color-neutral-800: #262626;
+  --color-black: #000;
+  --color-white: #fff;
+  --spacing: .25rem;
+  --breakpoint-sm: 40rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --text-xs: .75rem;
+  --text-xs--line-height: calc(1 / .75);
+  --text-sm: .875rem;
+  --text-sm--line-height: calc(1.25 / .875);
+  --text-base: 1rem;
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg: 1.125rem;
+  --text-lg--line-height: calc(1.75 / 1.125);
+  --text-xl: 1.25rem;
+  --text-xl--line-height: calc(1.75 / 1.25);
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: calc(2 / 1.5);
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: calc(2.25 / 1.875);
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: calc(2.5 / 2.25);
+  --text-6xl: 3.75rem;
+  --text-6xl--line-height: 1;
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --tracking-tight: -.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: .025em;
+  --tracking-wider: .05em;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-relaxed: 1.625;
+  --radius-sm: calc(var(--radius) * .5);
+  --radius-md: calc(var(--radius) * .75);
+  --radius-lg: calc(var(--radius) * 1);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
+  --ease-out: cubic-bezier(0, 0, .2, 1);
+  --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+  --blur-xs: 4px;
+  --blur-sm: 8px;
+  --blur-md: 12px;
+  --blur-lg: 16px;
+  --aspect-video: 16 / 9;
+  --default-transition-duration: .15s;
+  --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+  --color-fd-background: #fafafa;
+  --color-fd-foreground: #0a0a0a;
+  --color-fd-muted: #f5f5f5;
+  --color-fd-muted-foreground: #737373;
+  --color-fd-popover: #fff;
+  --color-fd-popover-foreground: #272727;
+  --color-fd-card: #fefefe;
+  --color-fd-card-foreground: #0a0a0a;
+  --color-fd-border: #9993;
+  --color-fd-primary: #171717;
+  --color-fd-primary-foreground: #fafafa;
+  --color-fd-secondary: #f5f5f5;
+  --color-fd-secondary-foreground: #171717;
+  --color-fd-accent: #f0f0f0;
+  --color-fd-accent-foreground: #171717;
+  --color-fd-ring: #a3a3a3;
+  --color-fd-overlay: #0003;
+  --color-fd-info: #3080ff;
+  --color-fd-warning: #f99c00;
+  --color-fd-error: #fb2c36;
+  --color-fd-success: #00c758;
+  --color-fd-idea: #ee7e00;
+  --color-fd-diff-remove: #c80a641f;
+  --color-fd-diff-remove-symbol: #e60a64;
+  --color-fd-diff-add: #0eb4641a;
+  --color-fd-diff-add-symbol: #0ac864;
+  --animate-fd-fade-in: fd-fade-in .3s ease;
+  --animate-fd-fade-out: fd-fade-out .3s ease;
+  --animate-fd-dialog-in: fd-dialog-in .3s cubic-bezier(.16, 1, .3, 1);
+  --animate-fd-dialog-out: fd-dialog-out .3s cubic-bezier(.16, 1, .3, 1);
+  --animate-fd-popover-in: fd-popover-in .1s ease;
+  --animate-fd-popover-out: fd-popover-out .1s ease;
+  --animate-fd-enterFromLeft: fd-enterFromLeft .25s ease;
+  --animate-fd-enterFromRight: fd-enterFromRight .25s ease;
+  --animate-fd-sidebar-in: fd-sidebar-in .25s ease;
+  --animate-fd-sidebar-out: fd-sidebar-out .25s ease;
+  --animate-fd-exitToLeft: fd-exitToLeft .25s ease;
+  --animate-fd-exitToRight: fd-exitToRight .25s ease;
+  --animate-fd-collapsible-down: fd-collapsible-down .15s cubic-bezier(.45, 0, .55, 1);
+  --animate-fd-collapsible-up: fd-collapsible-up .15s cubic-bezier(.45, 0, .55, 1);
+  --animate-fd-accordion-down: fd-accordion-down .2s ease-out;
+  --animate-fd-accordion-up: fd-accordion-up .2s ease-out;
+  --animate-fd-nav-menu-in: fd-nav-menu-in .2s ease;
+  --animate-fd-nav-menu-out: fd-nav-menu-out .2s ease;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-secondary-foreground: var(--surface-secondary-foreground);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-separator: var(--separator);
+  --color-focus: var(--focus);
+  --color-default: var(--default);
+  --color-default-foreground: var(--default-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-backdrop: var(--backdrop);
+  --shadow-surface: var(--surface-shadow);
+  --shadow-overlay: var(--overlay-shadow);
+  --color-field-border: var(--field-border,var(--border));
+  --border-width-field: var(--field-border-width,var(--border-width));
+  --color-default-hover: var(--default-hover);
+  --color-field-focus: var(--field-focus);
+  --color-field-border-hover: var(--field-border-hover);
+  --color-field-border-focus: var(--field-border-focus);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-separator-secondary: var(--separator-secondary);
+  --color-separator-tertiary: var(--separator-tertiary);
+  --color-border-secondary: var(--border-secondary);
+  --ease-smooth: ease;
+  --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
+  --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+  --ease-out-fluid: cubic-bezier(.32, .72, 0, 1);
+  --ease-linear: linear;
+}
+
+@supports (color:lab(0% 0 0)) {
+  :root,
+  :host {
+    --color-red-50: lab(96.5005% 4.18508 1.52328);
+    --color-red-100: lab(92.243% 10.2865 3.83865);
+    --color-red-200: lab(86.017% 19.8815 7.75869);
+    --color-red-400: lab(63.7053% 60.745 31.3109);
+    --color-red-500: lab(55.4814% 75.0732 48.8528);
+    --color-red-600: lab(48.4493% 77.4328 61.5452);
+    --color-red-700: lab(40.4273% 67.2623 53.7441);
+    --color-orange-100: lab(94.7127% 3.58394 14.3151);
+    --color-orange-400: lab(70.0429% 42.5156 75.8207);
+    --color-orange-500: lab(64.272% 57.1788 90.3583);
+    --color-orange-700: lab(46.4615% 57.7275 70.8507);
+    --color-amber-100: lab(95.916% -1.21653 23.111);
+    --color-amber-400: lab(80.1641% 16.6016 99.2089);
+    --color-amber-500: lab(72.7183% 31.8672 97.9407);
+    --color-amber-600: lab(60.3514% 40.5624 87.1228);
+    --color-amber-700: lab(47.2709% 42.9082 69.2966);
+    --color-yellow-100: lab(97.3564% -4.51407 27.344);
+    --color-yellow-400: lab(83.2664% 8.65132 106.895);
+    --color-yellow-500: lab(76.3898% 14.5258 98.4589);
+    --color-yellow-700: lab(47.8202% 25.2426 66.5015);
+    --color-lime-100: lab(96.8662% -11.7133 22.0854);
+    --color-lime-400: lab(83.7876% -45.0447 88.4738);
+    --color-lime-500: lab(75.3197% -46.6547 86.1778);
+    --color-lime-700: lab(47.246% -32.2589 55.8249);
+    --color-green-500: lab(70.5521% -66.5147 45.8073);
+    --color-green-600: lab(59.0978% -58.6621 41.2579);
+    --color-emerald-100: lab(94.9004% -17.0769 5.63836);
+    --color-emerald-400: lab(75.0771% -60.7313 19.4147);
+    --color-emerald-500: lab(66.9756% -58.27 19.5419);
+    --color-emerald-600: lab(55.0481% -49.9246 15.93);
+    --color-emerald-700: lab(44.4871% -41.0396 11.0361);
+    --color-teal-100: lab(95.1845% -17.4212 -.425422);
+    --color-teal-400: lab(76.0109% -53.3483 -2.27906);
+    --color-teal-500: lab(67.3859% -49.0983 -2.63511);
+    --color-teal-700: lab(44.4134% -33.1436 -4.22149);
+    --color-cyan-100: lab(95.3146% -13.8285 -6.84732);
+    --color-cyan-400: lab(76.6045% -40.9406 -29.6231);
+    --color-cyan-500: lab(67.805% -35.3952 -30.2018);
+    --color-cyan-700: lab(44.7267% -21.5987 -26.118);
+    --color-sky-100: lab(94.3709% -4.56053 -8.23453);
+    --color-sky-300: lab(80.3307% -20.2945 -31.385);
+    --color-sky-400: lab(70.687% -23.6078 -45.9483);
+    --color-sky-500: lab(63.3038% -18.433 -51.0407);
+    --color-sky-700: lab(41.6013% -9.10804 -42.5647);
+    --color-blue-100: lab(92.0301% -2.24757 -11.6453);
+    --color-blue-400: lab(65.0361% -1.42065 -56.9802);
+    --color-blue-500: lab(54.1736% 13.3369 -74.6839);
+    --color-blue-600: lab(44.0605% 29.0279 -86.0352);
+    --color-blue-700: lab(36.9089% 35.0961 -85.6872);
+    --color-indigo-100: lab(91.6577% 1.04591 -12.7199);
+    --color-indigo-400: lab(59.866% 22.4834 -64.4485);
+    --color-indigo-500: lab(48.295% 38.3129 -81.9673);
+    --color-indigo-600: lab(38.4009% 52.6132 -92.3857);
+    --color-indigo-700: lab(32.4486% 49.2217 -84.6695);
+    --color-violet-100: lab(93.0838% 4.35197 -9.88284);
+    --color-violet-400: lab(62.8239% 34.9159 -60.0512);
+    --color-violet-500: lab(49.9355% 55.1776 -81.8963);
+    --color-violet-600: lab(41.088% 68.9966 -91.995);
+    --color-violet-700: lab(35.2783% 67.9912 -88.793);
+    --color-purple-500: lab(52.0183% 66.11 -78.2316);
+    --color-fuchsia-100: lab(93.9419% 9.57647 -9.08735);
+    --color-fuchsia-400: lab(66.1178% 66.0652 -52.4733);
+    --color-fuchsia-500: lab(56.4256% 83.132 -64.639);
+    --color-fuchsia-700: lab(39.787% 72.2653 -53.1244);
+    --color-pink-100: lab(93.5864% 9.01193 -3.15079);
+    --color-pink-400: lab(64.5597% 64.3615 -12.7988);
+    --color-pink-500: lab(56.9303% 76.8162 -8.07021);
+    --color-pink-700: lab(42.1737% 71.8009 7.42233);
+    --color-rose-100: lab(92.8221% 9.86832 2.60075);
+    --color-rose-200: lab(86.806% 19.1909 4.07754);
+    --color-rose-400: lab(64.4125% 63.0291 19.2068);
+    --color-rose-500: lab(56.101% 79.4328 31.4532);
+    --color-rose-700: lab(41.1651% 71.6251 30.3087);
+    --color-slate-100: lab(96.286% -.852436 -2.46847);
+    --color-slate-400: lab(65.5349% -2.25151 -14.5072);
+    --color-slate-500: lab(48.0876% -2.03595 -16.5814);
+    --color-slate-700: lab(26.9569% -1.47016 -15.6993);
+    --color-gray-100: lab(96.1596% -.0823438 -1.13575);
+    --color-gray-300: lab(85.1236% -.612259 -3.7138);
+    --color-gray-400: lab(65.9269% -.832707 -8.17473);
+    --color-gray-500: lab(47.7841% -.393182 -10.0268);
+    --color-gray-700: lab(27.1134% -.956401 -12.3224);
+    --color-gray-800: lab(16.1051% -1.18239 -11.7533);
+    --color-zinc-100: lab(96.1634% .0993311 -.364041);
+    --color-zinc-400: lab(65.6464% 1.53497 -5.42429);
+    --color-zinc-500: lab(47.8878% 1.65477 -5.77283);
+    --color-zinc-800: lab(15.7305% .613764 -2.16959);
+    --color-neutral-400: lab(66.128% -.0000298023 .0000119209);
+    --color-neutral-500: lab(48.496% 0 0);
+    --color-neutral-800: lab(15.204% 0 -.00000596046);
+    --color-fd-info: lab(54.1736% 13.3369 -74.6839);
+    --color-fd-warning: lab(72.7183% 31.8672 97.9407);
+    --color-fd-error: lab(55.4814% 75.0732 48.8528);
+    --color-fd-success: lab(70.5521% -66.5147 45.8073);
+    --color-fd-idea: lab(64.7587% 46.0756 133.272);
+  }
+}
+
+@layer theme {
+  @layer base {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --lightningcss-light: initial;
+      --lightningcss-dark:  ;
+      color-scheme: light;
+      --white: #fff;
+      --black: #000;
+      --snow: #fcfcfc;
+      --eclipse: #18181b;
+      --spacing: .25rem;
+      --border-width: 1px;
+      --field-border-width: 0px;
+      --disabled-opacity: .5;
+      --ring-offset-width: 2px;
+      --cursor-interactive: pointer;
+      --cursor-disabled: not-allowed;
+      --radius: .5rem;
+      --field-radius: calc(var(--radius) * 1.5);
+      --background: #f5f5f5;
+      --foreground: var(--eclipse);
+      --surface: var(--white);
+      --surface-foreground: var(--foreground);
+      --surface-secondary: #efeff0;
+      --surface-secondary-foreground: var(--foreground);
+      --surface-tertiary: #eaeaeb;
+      --surface-tertiary-foreground: var(--foreground);
+      --overlay: var(--white);
+      --overlay-foreground: var(--foreground);
+      --muted: #71717a;
+      --scrollbar: var(--scrollbar-thumb);
+      --scrollbar-thumb: var(--foreground);
+    }
+    @supports (color:lab(0% 0 0)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --white: lab(100% 0 0);
+        --black: lab(0% 0 0);
+        --snow: lab(98.9676% -.0000298023 -.0000119209);
+        --eclipse: lab(8.34178% .607349 -2.12998);
+        --background: lab(96.5432% -.0000596046 0);
+        --surface-secondary: lab(94.4672% .129223 -.473213);
+        --surface-tertiary: lab(92.7156% .129253 -.473213);
+        --muted: lab(47.8738% 1.41454 -4.98644);
+      }
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --scrollbar-track: transparent;
+      --scrollbar-gutter: auto;
+      --scrollbar-width: thin;
+      --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+      --default: #ebebec;
+      --default-foreground: var(--eclipse);
+      --accent: #0485f7;
+      --accent-foreground: var(--snow);
+      --field-background: var(--white);
+      --field-foreground: #18181b;
+      --field-placeholder: var(--muted);
+      --field-border: transparent;
+      --success: #17c964;
+      --success-foreground: var(--eclipse);
+      --warning: #f5a524;
+      --warning-foreground: var(--eclipse);
+      --danger: #ff383c;
+      --danger-foreground: var(--snow);
+      --segment: var(--white);
+      --segment-foreground: var(--eclipse);
+      --border: #dedee0;
+      --separator: #e4e4e7;
+      --focus: var(--accent);
+      --link: var(--foreground);
+      --backdrop: #00000080;
+      --surface-hover: var(--surface);
+    }
+    @supports (color:lab(0% 0 0)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --default: lab(93.0314% .0993609 -.364041);
+        --accent: lab(54.5335% 3.31545 -66.5298);
+        --field-foreground: lab(8.34178% .607349 -2.12998);
+        --success: lab(71.4376% -59.4106 38.0321);
+        --warning: lab(74.4448% 23.7172 71.6451);
+        --danger: lab(57.4234% 73.5589 48.0136);
+        --border: lab(88.3653% .399351 -1.45447);
+        --separator: lab(90.6853% .399232 -1.45452);
+      }
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --background-secondary: var(--background);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --background-tertiary: var(--background);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --background-inverse: var(--foreground);
+      --default-hover: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-hover: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-hover: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-hover: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-hover: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-hover: var(--field-background,var(--default));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-focus: var(--field-background,var(--default));
+      --field-border-hover: var(--field-border,var(--border));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-border-focus: var(--field-border,var(--border));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default-soft: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default-soft-foreground: var(--default-foreground);
+      --default-soft-hover: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft-foreground: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --accent-soft-foreground: color-mix(in oklab, var(--accent) 70%, var(--foreground) 30%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft-hover: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft-foreground: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --danger-soft-foreground: color-mix(in oklab, var(--danger) 70%, var(--foreground) 40%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft-hover: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --warning-soft: color-mix(in oklab, var(--warning) 15%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft-foreground: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 70%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft-hover: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --warning-soft-hover: color-mix(in oklab, var(--warning) 20%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft-foreground: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 60%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft-hover: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --success-soft-hover: color-mix(in oklab, var(--success) 20%, transparent);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --separator-secondary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --separator-tertiary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --border-secondary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --border-tertiary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      :root,
+      .light,
+      .default,
+      [data-theme=light],
+      [data-theme=default] {
+        --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+      }
+    }
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --surface-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+      --overlay-shadow: 0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014;
+      --field-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+      --skeleton-animation: shimmer;
+    }
+    .dark,
+    [data-theme=dark] {
+      --lightningcss-light:  ;
+      --lightningcss-dark: initial;
+      color-scheme: dark;
+      --background: #060607;
+      --foreground: var(--snow);
+      --surface: #18181b;
+      --surface-foreground: var(--foreground);
+      --surface-secondary: #232325;
+      --surface-tertiary: #262728;
+      --overlay: #18181b;
+      --overlay-foreground: var(--foreground);
+      --muted: #9f9fa9;
+      --scrollbar: var(--scrollbar-thumb);
+      --scrollbar-thumb: var(--foreground);
+    }
+    @supports (color:lab(0% 0 0)) {
+      .dark,
+      [data-theme=dark] {
+        --background: lab(1.54547% .178337 -.64671);
+        --surface: lab(8.34178% .607349 -2.12998);
+        --surface-secondary: lab(13.7794% .374213 -1.34113);
+        --surface-tertiary: lab(15.5629% -.291005 -.84582);
+        --overlay: lab(8.34178% .607349 -2.12998);
+        --muted: lab(65.6464% 1.53497 -5.42429);
+      }
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --scrollbar-track: transparent;
+      --scrollbar-gutter: auto;
+      --scrollbar-width: thin;
+      --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+      --default: #27272a;
+      --default-foreground: var(--snow);
+      --field-background: #18181b;
+      --field-foreground: var(--foreground);
+      --warning: #f7b750;
+      --warning-foreground: var(--eclipse);
+      --danger: #db3b3e;
+      --danger-foreground: var(--snow);
+      --segment: #46464c;
+      --segment-foreground: var(--foreground);
+      --border: #28282c;
+      --separator: #212124;
+      --focus: var(--accent);
+      --link: var(--foreground);
+      --backdrop: #0009;
+      --surface-shadow: 0 0 0 0 transparent inset;
+      --overlay-shadow: 0 0 1px 0 #ffffff4d inset;
+      --field-shadow: 0 0 0 0 transparent inset;
+      --surface-hover: var(--surface);
+    }
+    @supports (color:lab(0% 0 0)) {
+      .dark,
+      [data-theme=dark] {
+        --default: lab(15.7305% .613764 -2.16959);
+        --field-background: lab(8.34178% .607349 -2.12998);
+        --warning: lab(79.1095% 16.747 59.9157);
+        --danger: lab(50.9109% 62.2712 37.59);
+        --segment: lab(29.8929% 1.02498 -3.61326);
+        --border: lab(16.4266% .613093 -2.16998);
+        --separator: lab(12.9463% .616677 -2.16783);
+      }
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --background-secondary: var(--background);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --background-tertiary: var(--background);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --background-inverse: var(--foreground);
+      --default-hover: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --accent-hover: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --success-hover: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --warning-hover: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --danger-hover: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --field-hover: var(--field-background,var(--default));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --field-focus: var(--field-background,var(--default));
+      --field-border-hover: var(--field-border,var(--border));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --field-border-focus: var(--field-border,var(--border));
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --default-soft: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --default-soft-foreground: var(--default-foreground);
+      --default-soft-hover: var(--default);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --accent-soft: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --accent-soft-foreground: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --accent-soft-hover: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --accent-soft-hover: color-mix(in oklab, var(--accent) 16%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --danger-soft: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --danger-soft-foreground: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --danger-soft-foreground: color-mix(in oklab, var(--danger) 80%, var(--foreground) 30%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --danger-soft-hover: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --warning-soft: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --warning-soft: color-mix(in oklab, var(--warning) 12%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --warning-soft-foreground: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 30%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --warning-soft-hover: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --warning-soft-hover: color-mix(in oklab, var(--warning) 16%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --success-soft: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --success-soft: color-mix(in oklab, var(--success) 12%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --success-soft-foreground: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 30%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --success-soft-hover: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --success-soft-hover: color-mix(in oklab, var(--success) 16%, transparent);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --separator-secondary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --separator-tertiary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --border-secondary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+      }
+    }
+    .dark,
+    [data-theme=dark] {
+      --border-tertiary: var(--surface);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      .dark,
+      [data-theme=dark] {
+        --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+      }
+    }
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --accent-soft-foreground: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+        --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --danger-soft-foreground: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+        --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --warning-soft-foreground: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+        --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --success-soft-foreground: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+        --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --accent-soft-foreground: var(--accent);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true].dark,
+      [data-vibrant-palette=true][data-theme=dark] {
+        --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --danger-soft-foreground: var(--danger);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true].dark,
+      [data-vibrant-palette=true][data-theme=dark] {
+        --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --warning-soft-foreground: var(--warning);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true].dark,
+      [data-vibrant-palette=true][data-theme=dark] {
+        --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+      }
+    }
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --success-soft-foreground: var(--success);
+    }
+    @supports (color:color-mix(in lab, red, red)) {
+      [data-vibrant-palette=true].dark,
+      [data-vibrant-palette=true][data-theme=dark] {
+        --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+      }
+    }
+  }
+}
+
+@layer components;
+
+:root {
+  --chart-1: oklch(from var(--accent) calc(l - .24) c h);
+  --chart-2: oklch(from var(--accent) calc(l - .12) c h);
+  --chart-3: var(--accent);
+  --chart-4: oklch(from var(--accent) calc(l + .12) c h);
+  --chart-5: oklch(from var(--accent) calc(l + .24) c h);
+}
+
+@layer base {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --lightningcss-light: initial;
+    --lightningcss-dark:  ;
+    color-scheme: light;
+    --white: #fff;
+    --black: #000;
+    --snow: #fcfcfc;
+    --eclipse: #18181b;
+    --spacing: .25rem;
+    --border-width: 1px;
+    --field-border-width: 0px;
+    --disabled-opacity: .5;
+    --ring-offset-width: 2px;
+    --cursor-interactive: pointer;
+    --cursor-disabled: not-allowed;
+    --radius: .5rem;
+    --field-radius: calc(var(--radius) * 1.5);
+    --background: #f5f5f5;
+    --foreground: var(--eclipse);
+    --surface: var(--white);
+    --surface-foreground: var(--foreground);
+    --surface-secondary: #efeff0;
+    --surface-secondary-foreground: var(--foreground);
+    --surface-tertiary: #eaeaeb;
+    --surface-tertiary-foreground: var(--foreground);
+    --overlay: var(--white);
+    --overlay-foreground: var(--foreground);
+    --muted: #71717a;
+    --scrollbar: var(--scrollbar-thumb);
+    --scrollbar-thumb: var(--foreground);
+  }
+  @supports (color:lab(0% 0 0)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --white: lab(100% 0 0);
+      --black: lab(0% 0 0);
+      --snow: lab(98.9676% -.0000298023 -.0000119209);
+      --eclipse: lab(8.34178% .607349 -2.12998);
+      --background: lab(96.5432% -.0000596046 0);
+      --surface-secondary: lab(94.4672% .129223 -.473213);
+      --surface-tertiary: lab(92.7156% .129253 -.473213);
+      --muted: lab(47.8738% 1.41454 -4.98644);
+    }
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --scrollbar-track: transparent;
+    --scrollbar-gutter: auto;
+    --scrollbar-width: thin;
+    --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    --default: #ebebec;
+    --default-foreground: var(--eclipse);
+    --accent: #0485f7;
+    --accent-foreground: var(--snow);
+    --field-background: var(--white);
+    --field-foreground: #18181b;
+    --field-placeholder: var(--muted);
+    --field-border: transparent;
+    --success: #17c964;
+    --success-foreground: var(--eclipse);
+    --warning: #f5a524;
+    --warning-foreground: var(--eclipse);
+    --danger: #ff383c;
+    --danger-foreground: var(--snow);
+    --segment: var(--white);
+    --segment-foreground: var(--eclipse);
+    --border: #dedee0;
+    --separator: #e4e4e7;
+    --focus: var(--accent);
+    --link: var(--foreground);
+    --backdrop: #00000080;
+    --surface-hover: var(--surface);
+  }
+  @supports (color:lab(0% 0 0)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default: lab(93.0314% .0993609 -.364041);
+      --accent: lab(54.5335% 3.31545 -66.5298);
+      --field-foreground: lab(8.34178% .607349 -2.12998);
+      --success: lab(71.4376% -59.4106 38.0321);
+      --warning: lab(74.4448% 23.7172 71.6451);
+      --danger: lab(57.4234% 73.5589 48.0136);
+      --border: lab(88.3653% .399351 -1.45447);
+      --separator: lab(90.6853% .399232 -1.45452);
+    }
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --background-secondary: var(--background);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --background-tertiary: var(--background);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --background-inverse: var(--foreground);
+    --default-hover: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-hover: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-hover: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-hover: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-hover: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-hover: var(--field-background,var(--default));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-focus: var(--field-background,var(--default));
+    --field-border-hover: var(--field-border,var(--border));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-border-focus: var(--field-border,var(--border));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default-soft: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default-soft-foreground: var(--default-foreground);
+    --default-soft-hover: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft-foreground: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft-foreground: color-mix(in oklab, var(--accent) 70%, var(--foreground) 30%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft-hover: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft-foreground: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft-foreground: color-mix(in oklab, var(--danger) 70%, var(--foreground) 40%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft-hover: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft: color-mix(in oklab, var(--warning) 15%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft-foreground: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 70%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft-hover: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --warning-soft-hover: color-mix(in oklab, var(--warning) 20%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft-foreground: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 60%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft-hover: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --success-soft-hover: color-mix(in oklab, var(--success) 20%, transparent);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --separator-secondary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --separator-tertiary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --border-secondary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --border-tertiary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    :root,
+    .light,
+    .default,
+    [data-theme=light],
+    [data-theme=default] {
+      --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+    }
+  }
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --surface-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+    --overlay-shadow: 0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014;
+    --field-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+    --skeleton-animation: shimmer;
+  }
+  .dark,
+  [data-theme=dark] {
+    --lightningcss-light:  ;
+    --lightningcss-dark: initial;
+    color-scheme: dark;
+    --background: #060607;
+    --foreground: var(--snow);
+    --surface: #18181b;
+    --surface-foreground: var(--foreground);
+    --surface-secondary: #232325;
+    --surface-tertiary: #262728;
+    --overlay: #18181b;
+    --overlay-foreground: var(--foreground);
+    --muted: #9f9fa9;
+    --scrollbar: var(--scrollbar-thumb);
+    --scrollbar-thumb: var(--foreground);
+  }
+  @supports (color:lab(0% 0 0)) {
+    .dark,
+    [data-theme=dark] {
+      --background: lab(1.54547% .178337 -.64671);
+      --surface: lab(8.34178% .607349 -2.12998);
+      --surface-secondary: lab(13.7794% .374213 -1.34113);
+      --surface-tertiary: lab(15.5629% -.291005 -.84582);
+      --overlay: lab(8.34178% .607349 -2.12998);
+      --muted: lab(65.6464% 1.53497 -5.42429);
+    }
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --scrollbar-track: transparent;
+    --scrollbar-gutter: auto;
+    --scrollbar-width: thin;
+    --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+    --default: #27272a;
+    --default-foreground: var(--snow);
+    --field-background: #18181b;
+    --field-foreground: var(--foreground);
+    --warning: #f7b750;
+    --warning-foreground: var(--eclipse);
+    --danger: #db3b3e;
+    --danger-foreground: var(--snow);
+    --segment: #46464c;
+    --segment-foreground: var(--foreground);
+    --border: #28282c;
+    --separator: #212124;
+    --focus: var(--accent);
+    --link: var(--foreground);
+    --backdrop: #0009;
+    --surface-shadow: 0 0 0 0 transparent inset;
+    --overlay-shadow: 0 0 1px 0 #ffffff4d inset;
+    --field-shadow: 0 0 0 0 transparent inset;
+    --surface-hover: var(--surface);
+  }
+  @supports (color:lab(0% 0 0)) {
+    .dark,
+    [data-theme=dark] {
+      --default: lab(15.7305% .613764 -2.16959);
+      --field-background: lab(8.34178% .607349 -2.12998);
+      --warning: lab(79.1095% 16.747 59.9157);
+      --danger: lab(50.9109% 62.2712 37.59);
+      --segment: lab(29.8929% 1.02498 -3.61326);
+      --border: lab(16.4266% .613093 -2.16998);
+      --separator: lab(12.9463% .616677 -2.16783);
+    }
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --background-secondary: var(--background);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --background-tertiary: var(--background);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --background-inverse: var(--foreground);
+    --default-hover: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --accent-hover: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --success-hover: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --warning-hover: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --danger-hover: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --field-hover: var(--field-background,var(--default));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --field-focus: var(--field-background,var(--default));
+    --field-border-hover: var(--field-border,var(--border));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --field-border-focus: var(--field-border,var(--border));
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --default-soft: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --default-soft-foreground: var(--default-foreground);
+    --default-soft-hover: var(--default);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --accent-soft: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --accent-soft-foreground: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --accent-soft-hover: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --accent-soft-hover: color-mix(in oklab, var(--accent) 16%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --danger-soft: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --danger-soft-foreground: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --danger-soft-foreground: color-mix(in oklab, var(--danger) 80%, var(--foreground) 30%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --danger-soft-hover: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --warning-soft: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --warning-soft: color-mix(in oklab, var(--warning) 12%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --warning-soft-foreground: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 30%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --warning-soft-hover: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --warning-soft-hover: color-mix(in oklab, var(--warning) 16%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --success-soft: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --success-soft: color-mix(in oklab, var(--success) 12%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --success-soft-foreground: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 30%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --success-soft-hover: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --success-soft-hover: color-mix(in oklab, var(--success) 16%, transparent);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --separator-secondary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --separator-tertiary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --border-secondary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+    }
+  }
+  .dark,
+  [data-theme=dark] {
+    --border-tertiary: var(--surface);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    .dark,
+    [data-theme=dark] {
+      --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+    }
+  }
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --accent-soft-foreground: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --danger-soft-foreground: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --warning-soft-foreground: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --success-soft-foreground: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+      --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --accent-soft-foreground: var(--accent);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --danger-soft-foreground: var(--danger);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --warning-soft-foreground: var(--warning);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+    }
+  }
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --success-soft-foreground: var(--success);
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-vibrant-palette=true].dark,
+    [data-vibrant-palette=true][data-theme=dark] {
+      --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+    }
+  }
+}
+
+:root,
+:host {
+  --font-sans: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --color-red-50: #fef2f2;
+  --color-red-100: #ffe2e2;
+  --color-red-200: #ffcaca;
+  --color-red-400: #ff6568;
+  --color-red-500: #fb2c36;
+  --color-red-600: #e40014;
+  --color-red-700: #bf000f;
+  --color-orange-100: #ffedd5;
+  --color-orange-400: #ff8b1a;
+  --color-orange-500: #fe6e00;
+  --color-orange-700: #c53c00;
+  --color-amber-100: #fef3c6;
+  --color-amber-400: #fcbb00;
+  --color-amber-500: #f99c00;
+  --color-amber-600: #dd7400;
+  --color-amber-700: #b75000;
+  --color-yellow-100: #fef9c2;
+  --color-yellow-400: #fac800;
+  --color-yellow-500: #edb200;
+  --color-yellow-700: #a36100;
+  --color-lime-100: #ecfcca;
+  --color-lime-400: #9de500;
+  --color-lime-500: #80cd00;
+  --color-lime-700: #4b7d00;
+  --color-green-500: #00c758;
+  --color-green-600: #00a544;
+  --color-emerald-100: #d0fae5;
+  --color-emerald-400: #00d294;
+  --color-emerald-500: #00bb7f;
+  --color-emerald-600: #009767;
+  --color-emerald-700: #007956;
+  --color-teal-100: #cbfbf1;
+  --color-teal-400: #00d3bd;
+  --color-teal-500: #00baa7;
+  --color-teal-700: #00776e;
+  --color-cyan-100: #cefafe;
+  --color-cyan-400: #00d2ef;
+  --color-cyan-500: #00b7d7;
+  --color-cyan-700: #007492;
+  --color-sky-100: #dff2fe;
+  --color-sky-300: #77d4ff;
+  --color-sky-400: #00bcfe;
+  --color-sky-500: #00a5ef;
+  --color-sky-700: #0069a4;
+  --color-blue-100: #dbeafe;
+  --color-blue-400: #54a2ff;
+  --color-blue-500: #3080ff;
+  --color-blue-600: #155dfc;
+  --color-blue-700: #1447e6;
+  --color-indigo-100: #e0e7ff;
+  --color-indigo-400: #7d87ff;
+  --color-indigo-500: #625fff;
+  --color-indigo-600: #4f39f6;
+  --color-indigo-700: #432dd7;
+  --color-violet-100: #ede9fe;
+  --color-violet-400: #a685ff;
+  --color-violet-500: #8d54ff;
+  --color-violet-600: #7f22fe;
+  --color-violet-700: #7008e7;
+  --color-purple-500: #ac4bff;
+  --color-fuchsia-100: #fae8ff;
+  --color-fuchsia-400: #ec6cff;
+  --color-fuchsia-500: #e12afb;
+  --color-fuchsia-700: #a600b5;
+  --color-pink-100: #fce7f3;
+  --color-pink-400: #fb64b6;
+  --color-pink-500: #f6339a;
+  --color-pink-700: #c4005c;
+  --color-rose-100: #ffe4e6;
+  --color-rose-200: #ffccd3;
+  --color-rose-400: #ff667f;
+  --color-rose-500: #ff2357;
+  --color-rose-700: #c20039;
+  --color-slate-100: #f1f5f9;
+  --color-slate-400: #90a1b9;
+  --color-slate-500: #62748e;
+  --color-slate-700: #314158;
+  --color-gray-100: #f3f4f6;
+  --color-gray-300: #d1d5dc;
+  --color-gray-400: #99a1af;
+  --color-gray-500: #6a7282;
+  --color-gray-700: #364153;
+  --color-gray-800: #1e2939;
+  --color-zinc-100: #f4f4f5;
+  --color-zinc-400: #9f9fa9;
+  --color-zinc-500: #71717b;
+  --color-zinc-800: #27272a;
+  --color-neutral-400: #a1a1a1;
+  --color-neutral-500: #737373;
+  --color-neutral-800: #262626;
+  --color-black: #000;
+  --color-white: #fff;
+  --spacing: .25rem;
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --text-xs: .75rem;
+  --text-xs--line-height: calc(1 / .75);
+  --text-sm: .875rem;
+  --text-sm--line-height: calc(1.25 / .875);
+  --text-base: 1rem;
+  --text-base--line-height: calc(1.5 / 1);
+  --text-lg: 1.125rem;
+  --text-lg--line-height: calc(1.75 / 1.125);
+  --text-xl: 1.25rem;
+  --text-xl--line-height: calc(1.75 / 1.25);
+  --text-2xl: 1.5rem;
+  --text-2xl--line-height: calc(2 / 1.5);
+  --text-3xl: 1.875rem;
+  --text-3xl--line-height: calc(2.25 / 1.875);
+  --text-4xl: 2.25rem;
+  --text-4xl--line-height: calc(2.5 / 2.25);
+  --font-weight-light: 300;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --tracking-tight: -.025em;
+  --tracking-normal: 0em;
+  --tracking-wide: .025em;
+  --tracking-wider: .05em;
+  --leading-tight: 1.25;
+  --leading-snug: 1.375;
+  --leading-relaxed: 1.625;
+  --radius-sm: calc(var(--radius) * .5);
+  --radius-md: calc(var(--radius) * .75);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 3);
+  --ease-out: cubic-bezier(0, 0, .2, 1);
+  --animate-pulse: pulse 2s cubic-bezier(.4, 0, .6, 1) infinite;
+  --blur-xs: 4px;
+  --blur-sm: 8px;
+  --blur-md: 12px;
+  --aspect-video: 16 / 9;
+  --default-transition-duration: .15s;
+  --default-transition-timing-function: cubic-bezier(.4, 0, .2, 1);
+  --default-font-family: var(--font-sans);
+  --default-mono-font-family: var(--font-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-secondary: var(--surface-secondary);
+  --color-surface-secondary-foreground: var(--surface-secondary-foreground);
+  --color-surface-tertiary: var(--surface-tertiary);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-separator: var(--separator);
+  --color-focus: var(--focus);
+  --color-default: var(--default);
+  --color-default-foreground: var(--default-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-danger: var(--danger);
+  --color-danger-foreground: var(--danger-foreground);
+  --color-backdrop: var(--backdrop);
+  --shadow-surface: var(--surface-shadow);
+  --shadow-overlay: var(--overlay-shadow);
+  --color-field-border: var(--field-border,var(--border));
+  --border-width-field: var(--field-border-width,var(--border-width));
+  --color-default-hover: var(--default-hover);
+  --color-field-focus: var(--field-focus);
+  --color-field-border-hover: var(--field-border-hover);
+  --color-field-border-focus: var(--field-border-focus);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-soft-foreground: var(--accent-soft-foreground);
+  --color-separator-secondary: var(--separator-secondary);
+  --color-separator-tertiary: var(--separator-tertiary);
+  --color-border-secondary: var(--border-secondary);
+  --ease-smooth: ease;
+  --ease-out-quad: cubic-bezier(.25, .46, .45, .94);
+  --ease-out-quart: cubic-bezier(.165, .84, .44, 1);
+  --ease-out-fluid: cubic-bezier(.32, .72, 0, 1);
+  --ease-linear: linear;
+}
+
+@supports (color:lab(0% 0 0)) {
+  :root,
+  :host {
+    --color-red-50: lab(96.5005% 4.18508 1.52328);
+    --color-red-100: lab(92.243% 10.2865 3.83865);
+    --color-red-200: lab(86.017% 19.8815 7.75869);
+    --color-red-400: lab(63.7053% 60.745 31.3109);
+    --color-red-500: lab(55.4814% 75.0732 48.8528);
+    --color-red-600: lab(48.4493% 77.4328 61.5452);
+    --color-red-700: lab(40.4273% 67.2623 53.7441);
+    --color-orange-100: lab(94.7127% 3.58394 14.3151);
+    --color-orange-400: lab(70.0429% 42.5156 75.8207);
+    --color-orange-500: lab(64.272% 57.1788 90.3583);
+    --color-orange-700: lab(46.4615% 57.7275 70.8507);
+    --color-amber-100: lab(95.916% -1.21653 23.111);
+    --color-amber-400: lab(80.1641% 16.6016 99.2089);
+    --color-amber-500: lab(72.7183% 31.8672 97.9407);
+    --color-amber-600: lab(60.3514% 40.5624 87.1228);
+    --color-amber-700: lab(47.2709% 42.9082 69.2966);
+    --color-yellow-100: lab(97.3564% -4.51407 27.344);
+    --color-yellow-400: lab(83.2664% 8.65132 106.895);
+    --color-yellow-500: lab(76.3898% 14.5258 98.4589);
+    --color-yellow-700: lab(47.8202% 25.2426 66.5015);
+    --color-lime-100: lab(96.8662% -11.7133 22.0854);
+    --color-lime-400: lab(83.7876% -45.0447 88.4738);
+    --color-lime-500: lab(75.3197% -46.6547 86.1778);
+    --color-lime-700: lab(47.246% -32.2589 55.8249);
+    --color-green-500: lab(70.5521% -66.5147 45.8073);
+    --color-green-600: lab(59.0978% -58.6621 41.2579);
+    --color-emerald-100: lab(94.9004% -17.0769 5.63836);
+    --color-emerald-400: lab(75.0771% -60.7313 19.4147);
+    --color-emerald-500: lab(66.9756% -58.27 19.5419);
+    --color-emerald-600: lab(55.0481% -49.9246 15.93);
+    --color-emerald-700: lab(44.4871% -41.0396 11.0361);
+    --color-teal-100: lab(95.1845% -17.4212 -.425422);
+    --color-teal-400: lab(76.0109% -53.3483 -2.27906);
+    --color-teal-500: lab(67.3859% -49.0983 -2.63511);
+    --color-teal-700: lab(44.4134% -33.1436 -4.22149);
+    --color-cyan-100: lab(95.3146% -13.8285 -6.84732);
+    --color-cyan-400: lab(76.6045% -40.9406 -29.6231);
+    --color-cyan-500: lab(67.805% -35.3952 -30.2018);
+    --color-cyan-700: lab(44.7267% -21.5987 -26.118);
+    --color-sky-100: lab(94.3709% -4.56053 -8.23453);
+    --color-sky-300: lab(80.3307% -20.2945 -31.385);
+    --color-sky-400: lab(70.687% -23.6078 -45.9483);
+    --color-sky-500: lab(63.3038% -18.433 -51.0407);
+    --color-sky-700: lab(41.6013% -9.10804 -42.5647);
+    --color-blue-100: lab(92.0301% -2.24757 -11.6453);
+    --color-blue-400: lab(65.0361% -1.42065 -56.9802);
+    --color-blue-500: lab(54.1736% 13.3369 -74.6839);
+    --color-blue-600: lab(44.0605% 29.0279 -86.0352);
+    --color-blue-700: lab(36.9089% 35.0961 -85.6872);
+    --color-indigo-100: lab(91.6577% 1.04591 -12.7199);
+    --color-indigo-400: lab(59.866% 22.4834 -64.4485);
+    --color-indigo-500: lab(48.295% 38.3129 -81.9673);
+    --color-indigo-600: lab(38.4009% 52.6132 -92.3857);
+    --color-indigo-700: lab(32.4486% 49.2217 -84.6695);
+    --color-violet-100: lab(93.0838% 4.35197 -9.88284);
+    --color-violet-400: lab(62.8239% 34.9159 -60.0512);
+    --color-violet-500: lab(49.9355% 55.1776 -81.8963);
+    --color-violet-600: lab(41.088% 68.9966 -91.995);
+    --color-violet-700: lab(35.2783% 67.9912 -88.793);
+    --color-purple-500: lab(52.0183% 66.11 -78.2316);
+    --color-fuchsia-100: lab(93.9419% 9.57647 -9.08735);
+    --color-fuchsia-400: lab(66.1178% 66.0652 -52.4733);
+    --color-fuchsia-500: lab(56.4256% 83.132 -64.639);
+    --color-fuchsia-700: lab(39.787% 72.2653 -53.1244);
+    --color-pink-100: lab(93.5864% 9.01193 -3.15079);
+    --color-pink-400: lab(64.5597% 64.3615 -12.7988);
+    --color-pink-500: lab(56.9303% 76.8162 -8.07021);
+    --color-pink-700: lab(42.1737% 71.8009 7.42233);
+    --color-rose-100: lab(92.8221% 9.86832 2.60075);
+    --color-rose-200: lab(86.806% 19.1909 4.07754);
+    --color-rose-400: lab(64.4125% 63.0291 19.2068);
+    --color-rose-500: lab(56.101% 79.4328 31.4532);
+    --color-rose-700: lab(41.1651% 71.6251 30.3087);
+    --color-slate-100: lab(96.286% -.852436 -2.46847);
+    --color-slate-400: lab(65.5349% -2.25151 -14.5072);
+    --color-slate-500: lab(48.0876% -2.03595 -16.5814);
+    --color-slate-700: lab(26.9569% -1.47016 -15.6993);
+    --color-gray-100: lab(96.1596% -.0823438 -1.13575);
+    --color-gray-300: lab(85.1236% -.612259 -3.7138);
+    --color-gray-400: lab(65.9269% -.832707 -8.17473);
+    --color-gray-500: lab(47.7841% -.393182 -10.0268);
+    --color-gray-700: lab(27.1134% -.956401 -12.3224);
+    --color-gray-800: lab(16.1051% -1.18239 -11.7533);
+    --color-zinc-100: lab(96.1634% .0993311 -.364041);
+    --color-zinc-400: lab(65.6464% 1.53497 -5.42429);
+    --color-zinc-500: lab(47.8878% 1.65477 -5.77283);
+    --color-zinc-800: lab(15.7305% .613764 -2.16959);
+    --color-neutral-400: lab(66.128% -.0000298023 .0000119209);
+    --color-neutral-500: lab(48.496% 0 0);
+    --color-neutral-800: lab(15.204% 0 -.00000596046);
+  }
+}

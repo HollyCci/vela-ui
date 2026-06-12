@@ -1,0 +1,24 @@
+/*
+ * HeroUI Pro — 组件 switch-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.switch-group {
+  gap: calc(var(--spacing) * 6);
+  flex-direction: column;
+  display: flex;
+}
+
+.switch-group__items {
+  gap: calc(var(--spacing) * 4);
+  display: flex;
+}
+
+.switch-group--horizontal .switch-group__items {
+  flex-direction: row;
+}
+
+.switch-group--vertical .switch-group__items {
+  flex-direction: column;
+}

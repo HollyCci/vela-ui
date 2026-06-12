@@ -1,0 +1,129 @@
+/*
+ * HeroUI Pro — 组件 chat-source
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.chat-source {
+  height: calc(var(--spacing) * 5);
+  align-items: center;
+  display: inline-flex;
+}
+
+.chat-source__trigger {
+  height: calc(var(--spacing) * 5);
+  align-items: center;
+  max-width: 100%;
+  display: inline-flex;
+}
+
+.chat-source .hover-card__trigger {
+  height: calc(var(--spacing) * 5);
+  align-items: center;
+  display: inline-flex;
+}
+
+.chat-source__trigger-link {
+  height: calc(var(--spacing) * 5);
+  max-width: calc(var(--spacing) * 32);
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  background-color: var(--default);
+  padding-inline: calc(var(--spacing) * 1.5);
+  padding-block: calc(var(--spacing) * 0);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-leading: 1;
+  color: var(--muted);
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .15s;
+  border-radius: 3.40282e38px;
+  line-height: 1;
+  text-decoration-line: none;
+  transition-duration: .15s;
+  display: inline-flex;
+  overflow: hidden;
+}
+
+@media (hover:hover) {
+  .chat-source__trigger-link:hover {
+    background-color: var(--default-hover);
+    color: var(--foreground);
+  }
+}
+
+.chat-source__icon,
+.chat-source__document-icon {
+  width: calc(var(--spacing) * 3.5);
+  height: calc(var(--spacing) * 3.5);
+  object-fit: cover;
+  border-radius: 3.40282e38px;
+  flex-shrink: 0;
+}
+
+.chat-source__icon-fallback {
+  width: calc(var(--spacing) * 3.5);
+  height: calc(var(--spacing) * 3.5);
+  background-color: var(--muted);
+  --tw-font-weight: var(--font-weight-medium);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  border-radius: 3.40282e38px;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.chat-source__title {
+  min-width: calc(var(--spacing) * 0);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-align: left;
+  --tw-font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-normal);
+  overflow: hidden;
+}
+
+.chat-source__preview {
+  width: calc(var(--spacing) * 80);
+  padding: calc(var(--spacing) * 0);
+}
+
+.chat-source__preview-link {
+  gap: calc(var(--spacing) * 1.5);
+  padding: calc(var(--spacing) * 1);
+  flex-direction: column;
+  text-decoration-line: none;
+  display: flex;
+}
+
+.chat-source__preview-header {
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  display: flex;
+}
+
+.chat-source__preview-title {
+  -webkit-line-clamp: 2;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+}
+
+.chat-source__preview-description {
+  -webkit-line-clamp: 2;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+  -webkit-box-orient: vertical;
+  display: -webkit-box;
+  overflow: hidden;
+}

@@ -1,0 +1,295 @@
+/*
+ * HeroUI Pro — 组件 input-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.input-group {
+  min-height: calc(var(--spacing) * 9);
+  border-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  border-style: var(--tw-border-style);
+  background-color: var(--field-background,var(--default));
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--field-foreground,var(--foreground));
+  --tw-shadow: var(--field-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  border-width: 1px;
+  border-width: var(--border-width-field);
+  border-color: var(--field-border);
+  outline-style: none;
+  align-items: center;
+  display: inline-flex;
+}
+
+.input-group:has([data-slot=input-group-textarea]) {
+  align-items: flex-start;
+  height: auto;
+}
+
+.input-group {
+  transition: background-color .15s var(--ease-smooth), border-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+}
+
+.input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.input-group:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .input-group:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+@media (hover:hover) {
+  .input-group:hover:not(:focus-within),
+  .input-group[data-hovered=true]:not([data-focus-within=true]) {
+    background-color: var(--field-hover);
+    border-color: var(--field-border-hover);
+  }
+}
+
+:is(.input-group:has([data-slot=input-group-input]:focus),.input-group:has([data-slot=input-group-textarea]:focus)) {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-outline-style: none;
+  --tw-ring-offset-width: 0px;
+  border-color: var(--field-border-focus);
+  background-color: var(--field-focus);
+  outline-style: none;
+}
+
+.input-group[data-invalid=true] {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+  outline-color: var(--danger);
+  --tw-outline-style: solid;
+  --tw-ring-offset-width: 3px;
+  outline-style: solid;
+}
+
+.input-group[data-invalid=true]:focus,
+.input-group[data-invalid=true]:focus-visible,
+.input-group[data-invalid=true][data-focused=true],
+.input-group[data-invalid=true][data-focus-visible=true],
+.input-group[data-invalid=true]:focus-within,
+.input-group[data-invalid=true][data-focus-within=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--danger);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-width: 0px;
+}
+
+.input-group[data-invalid=true] {
+  background-color: var(--field-focus);
+  border-color: var(--color-field-border-invalid);
+}
+
+.input-group[data-disabled=true],
+.input-group[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.input-group__input {
+  border-style: var(--tw-border-style);
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 2);
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  background-color: #0000;
+  border-width: 0;
+  border-radius: 0;
+  outline-style: none;
+  flex: 1;
+}
+
+.input-group__input::placeholder {
+  color: var(--field-placeholder,var(--muted));
+}
+
+@media (min-width:40rem) {
+  .input-group__input {
+    font-size: var(--text-sm);
+    line-height: var(--tw-leading,var(--text-sm--line-height));
+  }
+}
+
+.input-group:has([data-slot=input-group-prefix]) .input-group__input {
+  padding-left: calc(var(--spacing) * 0);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.input-group:has([data-slot=input-group-suffix]) .input-group__input {
+  padding-right: calc(var(--spacing) * 0);
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}
+
+.input-group__input:focus,
+.input-group__input:focus-visible {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.input-group__input[data-slot=input-group-textarea] {
+  resize: vertical;
+  min-height: 38px;
+}
+
+.input-group__prefix {
+  border-top-left-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  border-bottom-left-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  height: 100%;
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--field-placeholder,var(--muted));
+  border-width: var(--border-width-field);
+  border-color: var(--field-border);
+  border-style: solid;
+  border-right-color: var(--field-border);
+  background-color: #0000;
+  border-top: none;
+  border-bottom: none;
+  border-left: none;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.input-group:has([data-slot=input-group-textarea]) .input-group__prefix {
+  align-items: flex-start;
+  padding-top: .5rem;
+}
+
+.input-group__prefix {
+  transition: background-color .15s var(--ease-smooth), border-color .15s var(--ease-smooth);
+}
+
+.input-group__prefix:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.input-group__prefix:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.input-group__prefix:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .input-group__prefix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .input-group__prefix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .input-group__prefix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.input-group__suffix {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-top-right-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  border-bottom-right-radius: var(--field-radius,calc(var(--radius) * 1.5));
+  height: 100%;
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--field-placeholder,var(--muted));
+  border-width: var(--border-width-field);
+  border-color: var(--field-border);
+  border-style: solid;
+  border-left-color: var(--field-border);
+  background-color: #0000;
+  border-top: none;
+  border-bottom: none;
+  border-right: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.input-group:has([data-slot=input-group-textarea]) .input-group__suffix {
+  align-items: flex-start;
+  padding-top: .5rem;
+}
+
+.input-group__suffix {
+  transition: background-color .15s var(--ease-smooth), border-color .15s var(--ease-smooth);
+}
+
+.input-group__suffix:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.input-group__suffix:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.input-group__suffix:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .input-group__suffix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .input-group__suffix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .input-group__suffix:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.input-group--secondary {
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  background-color: var(--input-group-bg);
+  --input-group-bg: var(--default);
+  --input-group-bg-hover: var(--default-hover);
+  --input-group-bg-focus: var(--default);
+}
+
+@media (hover:hover) {
+  .input-group--secondary:hover:not(:focus-within),
+  .input-group--secondary[data-hovered=true]:not([data-focus-within=true]) {
+    background-color: var(--input-group-bg-hover);
+  }
+}
+
+:is(.input-group--secondary:has([data-slot=input-group-input]:focus),.input-group--secondary:has([data-slot=input-group-textarea]:focus)) {
+  background-color: var(--input-group-bg-focus);
+}
+
+.input-group--secondary[data-invalid=true] {
+  outline-style: var(--tw-outline-style);
+  outline-width: 1px;
+  outline-color: var(--danger);
+  --tw-outline-style: solid;
+  --tw-ring-offset-width: 3px;
+  outline-style: solid;
+}
+
+.input-group--secondary[data-invalid=true]:focus,
+.input-group--secondary[data-invalid=true]:focus-visible,
+.input-group--secondary[data-invalid=true][data-focused=true],
+.input-group--secondary[data-invalid=true][data-focus-visible=true],
+.input-group--secondary[data-invalid=true]:focus-within,
+.input-group--secondary[data-invalid=true][data-focus-within=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--danger);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-width: 0px;
+}
+
+.input-group--secondary[data-invalid=true] {
+  border-color: var(--color-field-border-invalid);
+  background-color: var(--input-group-bg-focus);
+}
+
+.input-group--secondary [data-slot=input-group-input],
+.input-group--secondary [data-slot=input-group-textarea] {
+  background-color: #0000;
+}
+
+.input-group--full-width {
+  width: 100%;
+}

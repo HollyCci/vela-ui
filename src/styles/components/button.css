@@ -1,0 +1,246 @@
+/*
+ * HeroUI Pro — 组件 button
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.button {
+  isolation: isolate;
+  height: calc(var(--spacing) * 10);
+  transform-origin: 50%;
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  border-radius: calc(var(--radius) * 3);
+  width: fit-content;
+  padding-inline: calc(var(--spacing) * 4);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+  --tw-outline-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline-style: none;
+  display: inline-flex;
+  position: relative;
+}
+
+@media (min-width:48rem) {
+  .button {
+    height: calc(var(--spacing) * 9);
+  }
+}
+
+.button {
+  transition: transform .25s var(--ease-smooth), background-color .1s var(--ease-out), box-shadow .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+}
+
+.button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.button {
+  cursor: var(--cursor-interactive);
+  --button-bg: transparent;
+  --button-bg-hover: var(--button-bg);
+  --button-bg-pressed: var(--button-bg-hover);
+  --button-fg: currentColor;
+  background-color: var(--button-bg);
+  color: var(--button-fg);
+}
+
+.button:focus-visible:not(:focus),
+.button[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.button:disabled,
+.button[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.button[data-pending=true] {
+  pointer-events: none;
+}
+
+.button:active,
+.button[data-pressed=true] {
+  background-color: var(--button-bg-pressed);
+  transform: scale(.97);
+}
+
+@media (hover:hover) {
+  .button:hover,
+  .button[data-hovered=true] {
+    background-color: var(--button-bg-hover);
+  }
+}
+
+.button svg:not([data-slot=spinner] svg,[data-slot=link-icon] svg) {
+  pointer-events: none;
+  margin-inline: calc(var(--spacing) * -.5);
+  margin-block: calc(var(--spacing) * .5);
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+@media (min-width:40rem) {
+  .button svg:not([data-slot=spinner] svg,[data-slot=link-icon] svg) {
+    margin-block: calc(var(--spacing) * 1);
+    width: calc(var(--spacing) * 4);
+    height: calc(var(--spacing) * 4);
+  }
+}
+
+.button--sm {
+  height: calc(var(--spacing) * 9);
+  padding-inline: calc(var(--spacing) * 3);
+}
+
+@media (min-width:48rem) {
+  .button--sm {
+    height: calc(var(--spacing) * 8);
+  }
+}
+
+.button--sm svg:not([data-slot=spinner] svg,[data-slot=link-icon] svg) {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.button--sm:active,
+.button--sm[data-pressed=true] {
+  transform: scale(.98);
+}
+
+.button--lg {
+  height: calc(var(--spacing) * 11);
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+}
+
+@media (min-width:48rem) {
+  .button--lg {
+    height: calc(var(--spacing) * 10);
+  }
+}
+
+.button--lg:active,
+.button--lg[data-pressed=true] {
+  transform: scale(.96);
+}
+
+.button--primary {
+  --button-bg: var(--accent);
+  --button-bg-hover: var(--accent-hover);
+  --button-bg-pressed: var(--accent-hover);
+  --button-fg: var(--accent-foreground);
+}
+
+.button--secondary {
+  --button-bg: var(--default);
+  --button-bg-hover: var(--default-hover);
+  --button-bg-pressed: var(--default-hover);
+  --button-fg: var(--accent-soft-foreground);
+}
+
+.button--tertiary {
+  --button-bg: var(--default);
+  --button-bg-hover: var(--default-hover);
+  --button-bg-pressed: var(--default-hover);
+}
+
+.button--ghost,
+.button--outline {
+  --button-bg: transparent;
+  --button-bg-hover: var(--default);
+  --button-bg-pressed: var(--default);
+  --button-fg: var(--default-foreground);
+}
+
+.button--outline {
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-color: var(--border);
+  --button-bg-hover: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .button--outline {
+    --button-bg-hover: color-mix(in srgb, var(--default) 60%, transparent);
+  }
+}
+
+.button--danger {
+  --button-bg: var(--danger);
+  --button-bg-hover: var(--danger-hover);
+  --button-bg-pressed: var(--danger-hover);
+  --button-fg: var(--danger-foreground);
+}
+
+.button--danger-soft {
+  --button-bg: var(--danger-soft);
+  --button-bg-hover: var(--danger-soft-hover);
+  --button-bg-pressed: var(--danger-soft-hover);
+  --button-fg: var(--danger-soft-foreground);
+}
+
+.button--icon-only {
+  width: calc(var(--spacing) * 10);
+  padding: calc(var(--spacing) * 0);
+}
+
+@media (min-width:48rem) {
+  .button--icon-only {
+    width: calc(var(--spacing) * 9);
+  }
+}
+
+.button--icon-only.button--sm {
+  width: calc(var(--spacing) * 9);
+}
+
+@media (min-width:48rem) {
+  .button--icon-only.button--sm {
+    width: calc(var(--spacing) * 8);
+  }
+}
+
+.button--icon-only.button--lg {
+  width: calc(var(--spacing) * 11);
+}
+
+@media (min-width:48rem) {
+  .button--icon-only.button--lg {
+    width: calc(var(--spacing) * 10);
+  }
+}
+
+.button--full-width {
+  width: 100%;
+}

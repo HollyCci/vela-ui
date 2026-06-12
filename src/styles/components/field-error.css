@@ -1,0 +1,38 @@
+/*
+ * HeroUI Pro — 组件 field-error
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.field-error {
+  height: calc(var(--spacing) * 0);
+  padding-inline: calc(var(--spacing) * 1);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  overflow-wrap: break-word;
+  color: var(--danger);
+  opacity: 0;
+}
+
+.field-error[data-visible=true] {
+  opacity: 1;
+  height: auto;
+}
+
+.field-error {
+  transition: opacity .15s var(--ease-out), height .35s var(--ease-smooth);
+}
+
+.field-error:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.field-error:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.field-error:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .field-error:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .field-error:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .field-error:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}

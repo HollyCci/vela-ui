@@ -1,0 +1,767 @@
+[
+  {
+    "block": "accordion",
+    "file": "components/accordion.css",
+    "count": 30
+  },
+  {
+    "block": "action-bar",
+    "file": "components/action-bar.css",
+    "count": 10
+  },
+  {
+    "block": "agenda",
+    "file": "components/agenda.css",
+    "count": 116
+  },
+  {
+    "block": "alert",
+    "file": "components/alert.css",
+    "count": 11
+  },
+  {
+    "block": "alert-dialog",
+    "file": "components/alert-dialog.css",
+    "count": 54
+  },
+  {
+    "block": "app-layout",
+    "file": "components/app-layout.css",
+    "count": 26
+  },
+  {
+    "block": "area-chart",
+    "file": "components/area-chart.css",
+    "count": 6
+  },
+  {
+    "block": "autocomplete",
+    "file": "components/autocomplete.css",
+    "count": 50
+  },
+  {
+    "block": "avatar",
+    "file": "components/avatar.css",
+    "count": 19
+  },
+  {
+    "block": "badge",
+    "file": "components/badge.css",
+    "count": 23
+  },
+  {
+    "block": "badge-anchor",
+    "file": "components/badge-anchor.css",
+    "count": 1
+  },
+  {
+    "block": "bar-chart",
+    "file": "components/bar-chart.css",
+    "count": 5
+  },
+  {
+    "block": "breadcrumbs",
+    "file": "components/breadcrumbs.css",
+    "count": 7
+  },
+  {
+    "block": "button",
+    "file": "components/button.css",
+    "count": 35
+  },
+  {
+    "block": "button-group",
+    "file": "components/button-group.css",
+    "count": 24
+  },
+  {
+    "block": "calendar",
+    "file": "components/calendar.css",
+    "count": 43
+  },
+  {
+    "block": "calendar-year-picker",
+    "file": "components/calendar-year-picker.css",
+    "count": 22
+  },
+  {
+    "block": "card",
+    "file": "components/card.css",
+    "count": 10
+  },
+  {
+    "block": "carousel",
+    "file": "components/carousel.css",
+    "count": 32
+  },
+  {
+    "block": "cell-color-picker",
+    "file": "components/cell-color-picker.css",
+    "count": 15
+  },
+  {
+    "block": "cell-select",
+    "file": "components/cell-select.css",
+    "count": 16
+  },
+  {
+    "block": "cell-slider",
+    "file": "components/cell-slider.css",
+    "count": 30
+  },
+  {
+    "block": "cell-switch",
+    "file": "components/cell-switch.css",
+    "count": 19
+  },
+  {
+    "block": "chain-of-thought",
+    "file": "components/chain-of-thought.css",
+    "count": 12
+  },
+  {
+    "block": "chart-tooltip",
+    "file": "components/chart-tooltip.css",
+    "count": 8
+  },
+  {
+    "block": "chat-attachment",
+    "file": "components/chat-attachment.css",
+    "count": 11
+  },
+  {
+    "block": "chat-attachment-group",
+    "file": "components/chat-attachment-group.css",
+    "count": 1
+  },
+  {
+    "block": "chat-conversation",
+    "file": "components/chat-conversation.css",
+    "count": 9
+  },
+  {
+    "block": "chat-list-view",
+    "file": "components/chat-list-view.css",
+    "count": 7
+  },
+  {
+    "block": "chat-loader",
+    "file": "components/chat-loader.css",
+    "count": 23
+  },
+  {
+    "block": "chat-message",
+    "file": "components/chat-message.css",
+    "count": 12
+  },
+  {
+    "block": "chat-message-actions",
+    "file": "components/chat-message-actions.css",
+    "count": 1
+  },
+  {
+    "block": "chat-source",
+    "file": "components/chat-source.css",
+    "count": 13
+  },
+  {
+    "block": "chat-sources",
+    "file": "components/chat-sources.css",
+    "count": 12
+  },
+  {
+    "block": "chat-tool",
+    "file": "components/chat-tool.css",
+    "count": 26
+  },
+  {
+    "block": "chat-tool-group",
+    "file": "components/chat-tool-group.css",
+    "count": 4
+  },
+  {
+    "block": "checkbox",
+    "file": "components/checkbox.css",
+    "count": 42
+  },
+  {
+    "block": "checkbox-button-group",
+    "file": "components/checkbox-button-group.css",
+    "count": 13
+  },
+  {
+    "block": "checkbox-group",
+    "file": "components/checkbox-group.css",
+    "count": 2
+  },
+  {
+    "block": "chip",
+    "file": "components/chip.css",
+    "count": 20
+  },
+  {
+    "block": "close-button",
+    "file": "components/close-button.css",
+    "count": 10
+  },
+  {
+    "block": "code-block",
+    "file": "components/code-block.css",
+    "count": 13
+  },
+  {
+    "block": "color-area",
+    "file": "components/color-area.css",
+    "count": 9
+  },
+  {
+    "block": "color-field",
+    "file": "components/color-field.css",
+    "count": 4
+  },
+  {
+    "block": "color-input-group",
+    "file": "components/color-input-group.css",
+    "count": 25
+  },
+  {
+    "block": "color-picker",
+    "file": "components/color-picker.css",
+    "count": 16
+  },
+  {
+    "block": "color-slider",
+    "file": "components/color-slider.css",
+    "count": 33
+  },
+  {
+    "block": "color-swatch",
+    "file": "components/color-swatch.css",
+    "count": 11
+  },
+  {
+    "block": "color-swatch-picker",
+    "file": "components/color-swatch-picker.css",
+    "count": 32
+  },
+  {
+    "block": "combo-box",
+    "file": "components/combo-box.css",
+    "count": 34
+  },
+  {
+    "block": "command",
+    "file": "components/command.css",
+    "count": 73
+  },
+  {
+    "block": "composed-chart",
+    "file": "components/composed-chart.css",
+    "count": 6
+  },
+  {
+    "block": "context-menu",
+    "file": "components/context-menu.css",
+    "count": 18
+  },
+  {
+    "block": "data-grid",
+    "file": "components/data-grid.css",
+    "count": 27
+  },
+  {
+    "block": "date-field",
+    "file": "components/date-field.css",
+    "count": 4
+  },
+  {
+    "block": "date-input-group",
+    "file": "components/date-input-group.css",
+    "count": 34
+  },
+  {
+    "block": "date-picker",
+    "file": "components/date-picker.css",
+    "count": 20
+  },
+  {
+    "block": "date-range-picker",
+    "file": "components/date-range-picker.css",
+    "count": 21
+  },
+  {
+    "block": "description",
+    "file": "components/description.css",
+    "count": 1
+  },
+  {
+    "block": "disclosure",
+    "file": "components/disclosure.css",
+    "count": 13
+  },
+  {
+    "block": "disclosure-group",
+    "file": "components/disclosure-group.css",
+    "count": 1
+  },
+  {
+    "block": "drawer",
+    "file": "components/drawer.css",
+    "count": 45
+  },
+  {
+    "block": "drop-zone",
+    "file": "components/drop-zone.css",
+    "count": 57
+  },
+  {
+    "block": "dropdown",
+    "file": "components/dropdown.css",
+    "count": 28
+  },
+  {
+    "block": "emoji-picker",
+    "file": "components/emoji-picker.css",
+    "count": 44
+  },
+  {
+    "block": "emoji-reaction-button",
+    "file": "components/emoji-reaction-button.css",
+    "count": 22
+  },
+  {
+    "block": "empty-state",
+    "file": "components/empty-state.css",
+    "count": 21
+  },
+  {
+    "block": "error-message",
+    "file": "components/error-message.css",
+    "count": 3
+  },
+  {
+    "block": "field-error",
+    "file": "components/field-error.css",
+    "count": 5
+  },
+  {
+    "block": "fieldset",
+    "file": "components/fieldset.css",
+    "count": 5
+  },
+  {
+    "block": "file-tree",
+    "file": "components/file-tree.css",
+    "count": 48
+  },
+  {
+    "block": "floating-toc",
+    "file": "components/floating-toc.css",
+    "count": 24
+  },
+  {
+    "block": "header",
+    "file": "components/header.css",
+    "count": 1
+  },
+  {
+    "block": "hover-card",
+    "file": "components/hover-card.css",
+    "count": 16
+  },
+  {
+    "block": "inline-select",
+    "file": "components/inline-select.css",
+    "count": 12
+  },
+  {
+    "block": "input",
+    "file": "components/input.css",
+    "count": 19
+  },
+  {
+    "block": "input-group",
+    "file": "components/input-group.css",
+    "count": 36
+  },
+  {
+    "block": "input-otp",
+    "file": "components/input-otp.css",
+    "count": 21
+  },
+  {
+    "block": "item-card",
+    "file": "components/item-card.css",
+    "count": 14
+  },
+  {
+    "block": "item-card-group",
+    "file": "components/item-card-group.css",
+    "count": 20
+  },
+  {
+    "block": "kanban",
+    "file": "components/kanban.css",
+    "count": 53
+  },
+  {
+    "block": "kbd",
+    "file": "components/kbd.css",
+    "count": 8
+  },
+  {
+    "block": "kpi",
+    "file": "components/kpi.css",
+    "count": 25
+  },
+  {
+    "block": "kpi-group",
+    "file": "components/kpi-group.css",
+    "count": 8
+  },
+  {
+    "block": "label",
+    "file": "components/label.css",
+    "count": 4
+  },
+  {
+    "block": "line-chart",
+    "file": "components/line-chart.css",
+    "count": 6
+  },
+  {
+    "block": "link",
+    "file": "components/link.css",
+    "count": 18
+  },
+  {
+    "block": "list-box",
+    "file": "components/list-box.css",
+    "count": 2
+  },
+  {
+    "block": "list-box-item",
+    "file": "components/list-box-item.css",
+    "count": 21
+  },
+  {
+    "block": "list-box-section",
+    "file": "components/list-box-section.css",
+    "count": 1
+  },
+  {
+    "block": "list-view",
+    "file": "components/list-view.css",
+    "count": 32
+  },
+  {
+    "block": "markdown",
+    "file": "components/markdown.css",
+    "count": 26
+  },
+  {
+    "block": "menu",
+    "file": "components/menu.css",
+    "count": 2
+  },
+  {
+    "block": "menu-item",
+    "file": "components/menu-item.css",
+    "count": 33
+  },
+  {
+    "block": "menu-section",
+    "file": "components/menu-section.css",
+    "count": 1
+  },
+  {
+    "block": "meter",
+    "file": "components/meter.css",
+    "count": 18
+  },
+  {
+    "block": "modal",
+    "file": "components/modal.css",
+    "count": 59
+  },
+  {
+    "block": "native-select",
+    "file": "components/native-select.css",
+    "count": 24
+  },
+  {
+    "block": "navbar",
+    "file": "components/navbar.css",
+    "count": 60
+  },
+  {
+    "block": "number-field",
+    "file": "components/number-field.css",
+    "count": 38
+  },
+  {
+    "block": "number-stepper",
+    "file": "components/number-stepper.css",
+    "count": 47
+  },
+  {
+    "block": "number-value",
+    "file": "components/number-value.css",
+    "count": 1
+  },
+  {
+    "block": "pagination",
+    "file": "components/pagination.css",
+    "count": 35
+  },
+  {
+    "block": "pie-chart",
+    "file": "components/pie-chart.css",
+    "count": 7
+  },
+  {
+    "block": "popover",
+    "file": "components/popover.css",
+    "count": 20
+  },
+  {
+    "block": "pressable-feedback",
+    "file": "components/pressable-feedback.css",
+    "count": 32
+  },
+  {
+    "block": "progress-bar",
+    "file": "components/progress-bar.css",
+    "count": 22
+  },
+  {
+    "block": "progress-circle",
+    "file": "components/progress-circle.css",
+    "count": 18
+  },
+  {
+    "block": "prompt-input",
+    "file": "components/prompt-input.css",
+    "count": 86
+  },
+  {
+    "block": "prompt-suggestion",
+    "file": "components/prompt-suggestion.css",
+    "count": 26
+  },
+  {
+    "block": "radar-chart",
+    "file": "components/radar-chart.css",
+    "count": 5
+  },
+  {
+    "block": "radial-chart",
+    "file": "components/radial-chart.css",
+    "count": 4
+  },
+  {
+    "block": "radio",
+    "file": "components/radio.css",
+    "count": 29
+  },
+  {
+    "block": "radio-button-group",
+    "file": "components/radio-button-group.css",
+    "count": 13
+  },
+  {
+    "block": "radio-group",
+    "file": "components/radio-group.css",
+    "count": 4
+  },
+  {
+    "block": "range-calendar",
+    "file": "components/range-calendar.css",
+    "count": 52
+  },
+  {
+    "block": "rating",
+    "file": "components/rating.css",
+    "count": 30
+  },
+  {
+    "block": "resizable",
+    "file": "components/resizable.css",
+    "count": 31
+  },
+  {
+    "block": "scroll-shadow",
+    "file": "components/scroll-shadow.css",
+    "count": 10
+  },
+  {
+    "block": "search-field",
+    "file": "components/search-field.css",
+    "count": 31
+  },
+  {
+    "block": "segment",
+    "file": "components/segment.css",
+    "count": 26
+  },
+  {
+    "block": "select",
+    "file": "components/select.css",
+    "count": 41
+  },
+  {
+    "block": "separator",
+    "file": "components/separator.css",
+    "count": 12
+  },
+  {
+    "block": "sheet",
+    "file": "components/sheet.css",
+    "count": 44
+  },
+  {
+    "block": "sidebar",
+    "file": "components/sidebar.css",
+    "count": 114
+  },
+  {
+    "block": "skeleton",
+    "file": "components/skeleton.css",
+    "count": 10
+  },
+  {
+    "block": "slider",
+    "file": "components/slider.css",
+    "count": 34
+  },
+  {
+    "block": "spinner",
+    "file": "components/spinner.css",
+    "count": 9
+  },
+  {
+    "block": "stepper",
+    "file": "components/stepper.css",
+    "count": 54
+  },
+  {
+    "block": "surface",
+    "file": "components/surface.css",
+    "count": 5
+  },
+  {
+    "block": "switch",
+    "file": "components/switch.css",
+    "count": 30
+  },
+  {
+    "block": "switch-group",
+    "file": "components/switch-group.css",
+    "count": 4
+  },
+  {
+    "block": "table",
+    "file": "components/table.css",
+    "count": 60
+  },
+  {
+    "block": "table-root",
+    "file": "components/table-root.css",
+    "count": 17
+  },
+  {
+    "block": "tabs",
+    "file": "components/tabs.css",
+    "count": 39
+  },
+  {
+    "block": "tag",
+    "file": "components/tag.css",
+    "count": 18
+  },
+  {
+    "block": "tag-group",
+    "file": "components/tag-group.css",
+    "count": 3
+  },
+  {
+    "block": "text-shimmer",
+    "file": "components/text-shimmer.css",
+    "count": 18
+  },
+  {
+    "block": "textarea",
+    "file": "components/textarea.css",
+    "count": 19
+  },
+  {
+    "block": "textfield",
+    "file": "components/textfield.css",
+    "count": 3
+  },
+  {
+    "block": "time-field",
+    "file": "components/time-field.css",
+    "count": 4
+  },
+  {
+    "block": "toast",
+    "file": "components/toast.css",
+    "count": 34
+  },
+  {
+    "block": "toast-bottom",
+    "file": "components/toast-bottom.css",
+    "count": 2
+  },
+  {
+    "block": "toast-region",
+    "file": "components/toast-region.css",
+    "count": 10
+  },
+  {
+    "block": "toast-top",
+    "file": "components/toast-top.css",
+    "count": 2
+  },
+  {
+    "block": "toggle-button",
+    "file": "components/toggle-button.css",
+    "count": 30
+  },
+  {
+    "block": "toggle-button-group",
+    "file": "components/toggle-button-group.css",
+    "count": 22
+  },
+  {
+    "block": "toolbar",
+    "file": "components/toolbar.css",
+    "count": 6
+  },
+  {
+    "block": "tooltip",
+    "file": "components/tooltip.css",
+    "count": 18
+  },
+  {
+    "block": "trend-chip",
+    "file": "components/trend-chip.css",
+    "count": 6
+  },
+  {
+    "block": "typography",
+    "file": "components/typography.css",
+    "count": 24
+  },
+  {
+    "block": "typography-prose",
+    "file": "components/typography-prose.css",
+    "count": 22
+  },
+  {
+    "block": "widget",
+    "file": "components/widget.css",
+    "count": 12
+  }
+]

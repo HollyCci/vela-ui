@@ -1,0 +1,83 @@
+/*
+ * HeroUI Pro — 组件 alert
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.alert {
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 4);
+  background-color: var(--surface);
+  width: 100%;
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 3);
+  --tw-shadow: var(--surface-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  border-radius: min(32px, var(--radius-3xl));
+  flex-direction: row;
+  display: flex;
+}
+
+.alert__content {
+  flex-direction: column;
+  flex-grow: 1;
+  align-items: flex-start;
+  height: 100%;
+  display: flex;
+}
+
+.alert__indicator {
+  padding: calc(var(--spacing) * 1);
+  -webkit-user-select: none;
+  user-select: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.alert__indicator [data-slot=alert-default-icon] {
+  box-sizing: content-box;
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.alert__title {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: calc(var(--spacing) * 6);
+  line-height: calc(var(--spacing) * 6);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+}
+
+.alert__description {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+}
+
+.alert--default .alert__indicator,
+.alert--default .alert__title {
+  color: var(--foreground);
+}
+
+.alert--accent .alert__indicator,
+.alert--accent .alert__title {
+  color: var(--accent-soft-foreground);
+}
+
+.alert--success .alert__indicator,
+.alert--success .alert__title {
+  color: var(--success-soft-foreground);
+}
+
+.alert--warning .alert__indicator,
+.alert--warning .alert__title {
+  color: var(--warning-soft-foreground);
+}
+
+.alert--danger .alert__indicator,
+.alert--danger .alert__title {
+  color: var(--danger-soft-foreground);
+}

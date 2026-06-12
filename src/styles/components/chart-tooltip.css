@@ -1,0 +1,66 @@
+/*
+ * HeroUI Pro — 组件 chart-tooltip
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.chart-tooltip {
+  gap: calc(var(--spacing) * 1.5);
+  border-radius: calc(var(--radius) * 1);
+  border-style: var(--tw-border-style);
+  min-width: 140px;
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 2);
+  border-width: 1px;
+  border-color: var(--separator);
+  background-color: var(--overlay);
+  box-shadow: var(--overlay-shadow);
+  font-variant-numeric: tabular-nums;
+  flex-direction: column;
+  display: flex;
+}
+
+.chart-tooltip__header {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+}
+
+.chart-tooltip__item {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  display: flex;
+}
+
+.chart-tooltip__indicator {
+  flex-shrink: 0;
+}
+
+.chart-tooltip__indicator--dot {
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
+  border-radius: 3.40282e38px;
+}
+
+.chart-tooltip__indicator--line {
+  height: calc(var(--spacing) * 3);
+  width: calc(var(--spacing) * 1);
+  border-radius: 3.40282e38px;
+}
+
+.chart-tooltip__label {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  color: var(--muted);
+  flex: 1;
+}
+
+.chart-tooltip__value {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}

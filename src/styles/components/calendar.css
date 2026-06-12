@@ -1,0 +1,306 @@
+/*
+ * HeroUI Pro — 组件 calendar
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.calendar {
+  width: calc(var(--spacing) * 63);
+  max-width: calc(var(--spacing) * 63);
+  container-type: inline-size;
+}
+
+.calendar__header {
+  padding-inline: calc(var(--spacing) * .5);
+  padding-bottom: calc(var(--spacing) * 4);
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.calendar__header:has(.calendar-year-picker__trigger[data-open=true]) .calendar__nav-button {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.calendar__heading {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  flex: 1;
+}
+
+.calendar__nav-button {
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+  border-radius: calc(var(--radius) * 2);
+  color: var(--accent-soft-foreground);
+  will-change: scale;
+  transition: transform .25s var(--ease-out), background-color .1s var(--ease-out), box-shadow .1s var(--ease-out), opacity .15s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar__nav-button {
+  cursor: var(--cursor-interactive);
+}
+
+@media (hover:hover) {
+  .calendar__nav-button:hover,
+  .calendar__nav-button[data-hovered=true] {
+    background-color: var(--default);
+    color: var(--accent-soft-foreground);
+  }
+}
+
+.calendar__nav-button:active,
+.calendar__nav-button[data-pressed=true] {
+  transform: scale(.95);
+}
+
+.calendar__nav-button:focus-visible,
+.calendar__nav-button[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.calendar__nav-button:disabled,
+.calendar__nav-button[data-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.calendar__nav-button-icon {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.calendar__grid {
+  grid-template-columns: repeat(7,1fr);
+  width: 100%;
+  display: grid;
+}
+
+.calendar__grid[aria-readonly=true] .calendar__cell {
+  pointer-events: none;
+}
+
+.calendar__grid-header,
+.calendar__grid-header>tr,
+.calendar__grid-body,
+.calendar__grid-body>tr {
+  display: contents;
+}
+
+.calendar__grid-body>tr:first-child>td {
+  margin-top: calc(var(--spacing) * 1);
+}
+
+.calendar__grid-row {
+  display: contents;
+}
+
+.calendar__header-cell {
+  padding-bottom: calc(var(--spacing) * 2);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.calendar__cell {
+  aspect-ratio: 1;
+  border-radius: calc(var(--radius) * 3);
+  text-align: center;
+  width: 100%;
+  height: 100%;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  --tw-outline-style: none;
+  -webkit-tap-highlight-color: transparent;
+  will-change: scale;
+  transition: transform .25s var(--ease-out), box-shadow .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  outline-style: none;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+}
+
+.calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar__cell {
+  cursor: var(--cursor-interactive);
+}
+
+.calendar__cell:focus-visible:not(:focus),
+.calendar__cell[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.calendar__cell[data-today=true] {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+@media (hover:hover) {
+  .calendar__cell[data-today=true]:hover:not([data-selected=true]),
+  .calendar__cell[data-today=true][data-hovered=true]:not([data-selected=true]) {
+    background-color: var(--accent-soft-hover);
+  }
+}
+
+.calendar__cell[data-selected=true] {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.calendar__cell:active,
+.calendar__cell[data-pressed=true] {
+  background-color: var(--default);
+  transform: scale(.95);
+}
+
+:is(.calendar__cell:active,.calendar__cell[data-pressed=true])[data-selected=true] {
+  background-color: var(--accent-hover);
+}
+
+@media (hover:hover) {
+  .calendar__cell:hover:not([data-selected=true]),
+  .calendar__cell[data-hovered=true]:not([data-selected=true]) {
+    background-color: var(--default);
+  }
+}
+
+.calendar__cell[data-outside-month=true] {
+  color: var(--muted);
+  opacity: .5;
+}
+
+.calendar__cell[data-selected=true][data-outside-month=true] {
+  background-color: var(--default);
+}
+
+.calendar__cell[data-unavailable=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.calendar__cell:disabled:not([data-outside-month=true]),
+.calendar__cell[data-disabled=true]:not([data-outside-month=true]) {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+.calendar__cell-indicator {
+  bottom: calc(var(--spacing) * 1);
+  --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+  width: 3px;
+  height: 3px;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  border-radius: calc(var(--radius) * .25);
+  background-color: var(--muted);
+  position: absolute;
+  left: 50%;
+}
+
+[data-selected=true]>.calendar__cell-indicator {
+  background-color: var(--accent-foreground);
+}
+
+:is(.calendar:has(.calendar-year-picker__year-grid),.range-calendar:has(.calendar-year-picker__year-grid)) {
+  position: relative;
+}
+
+:is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]) {
+  will-change: opacity;
+  transition: opacity .15s var(--ease-out), visibility 0s linear;
+}
+
+:is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.calendar:has(.calendar-year-picker__year-grid)>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid)>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+:is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]) {
+  pointer-events: none;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity .15s var(--ease-out), visibility 0s linear .15s;
+}
+
+:is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=calendar-grid],.range-calendar:has(.calendar-year-picker__year-grid[data-open=true])>[data-slot=range-calendar-grid]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}

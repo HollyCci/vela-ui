@@ -1,0 +1,13 @@
+/*
+ * HeroUI Pro — 组件 description
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.description {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  text-wrap: wrap;
+  overflow-wrap: break-word;
+  color: var(--muted);
+}

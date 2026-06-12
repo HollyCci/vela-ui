@@ -1,0 +1,85 @@
+/*
+ * HeroUI Pro — 组件 scroll-shadow
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.scroll-shadow {
+  --scroll-shadow-size: 40px;
+  position: relative;
+}
+
+.scroll-shadow--vertical {
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  overflow-y: auto;
+}
+
+.scroll-shadow--horizontal {
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  overflow-x: auto;
+}
+
+.scroll-shadow--fade.scroll-shadow--vertical[data-top-scroll=true] {
+  --scroll-linear-gradient: 0deg, #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--fade.scroll-shadow--vertical[data-bottom-scroll=true] {
+  --scroll-linear-gradient: 180deg, #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--fade.scroll-shadow--vertical[data-top-bottom-scroll=true] {
+  --scroll-linear-gradient: #000, #000, transparent 0, #000 var(--scroll-shadow-size), #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--fade.scroll-shadow--horizontal[data-left-scroll=true] {
+  --scroll-linear-gradient: 270deg, #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--fade.scroll-shadow--horizontal[data-right-scroll=true] {
+  --scroll-linear-gradient: 90deg, #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--fade.scroll-shadow--horizontal[data-left-right-scroll=true] {
+  --scroll-linear-gradient: to right, #000, #000, transparent 0, #000 var(--scroll-shadow-size), #000 calc(100% - var(--scroll-shadow-size)), transparent;
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+  mask-image: linear-gradient(var(--scroll-linear-gradient));
+  -webkit-mask-image: linear-gradient(var(--scroll-linear-gradient));
+}
+
+.scroll-shadow--hide-scrollbar {
+  scrollbar-width: none;
+  scrollbar-color: auto;
+  scrollbar-gutter: auto;
+  -ms-overflow-style: none;
+}

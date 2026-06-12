@@ -1,0 +1,407 @@
+/*
+ * HeroUI Pro — 组件 table
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.table__scroll-container {
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  scrollbar-gutter: auto;
+  overflow-x: auto;
+}
+
+.table__content {
+  border-collapse: separate;
+  --tw-border-spacing-x: calc(var(--spacing) * 0);
+  --tw-border-spacing-y: calc(var(--spacing) * 0);
+  width: 100%;
+  border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.table__header {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 1px;
+  border-color: var(--separator);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .table__header {
+    border-color: color-mix(in oklab, var(--separator) 50%, transparent);
+  }
+}
+
+.table__header {
+  background-color: var(--surface-secondary);
+}
+
+.table__column {
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 2.5);
+  text-align: left;
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  position: relative;
+}
+
+.table__column:after {
+  content: "";
+  pointer-events: none;
+  top: 50%;
+  right: calc(var(--spacing) * 0);
+  height: calc(var(--spacing) * 4);
+  --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+  width: 1px;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  border-radius: calc(var(--radius) * .5);
+  background-color: var(--separator);
+  position: absolute;
+}
+
+.table__column:last-child:not(:only-child):after {
+  content: none;
+}
+
+.table__column[data-allows-sorting=true] {
+  cursor: var(--cursor-interactive);
+}
+
+@media (hover:hover) {
+  .table__column[data-allows-sorting=true]:hover,
+  .table__column[data-allows-sorting=true][data-hovered=true] {
+    color: var(--foreground);
+  }
+}
+
+.table__column:focus-visible,
+.table__column[data-focus-visible=true] {
+  border-radius: calc(var(--radius) * 1);
+  --tw-outline-style: none;
+  box-shadow: inset 0 0 0 2px var(--focus);
+  outline-style: none;
+}
+
+.table__body tr:first-child td:first-child {
+  border-start-start-radius: min(32px, var(--radius-2xl));
+}
+
+.table__body tr:first-child td:last-child {
+  border-start-end-radius: min(32px, var(--radius-2xl));
+}
+
+.table__body tr:last-child td:first-child {
+  border-end-start-radius: min(32px, var(--radius-2xl));
+}
+
+.table__body tr:last-child td:last-child {
+  border-end-end-radius: min(32px, var(--radius-2xl));
+}
+
+.table__body:not(tbody) {
+  border-radius: min(32px, var(--radius-2xl));
+  height: 100%;
+  position: relative;
+  overflow: clip;
+}
+
+.table__row {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 1px;
+  border-color: var(--separator);
+  height: 100%;
+  position: relative;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .table__row {
+    border-color: color-mix(in oklab, var(--separator) 50%, transparent);
+  }
+}
+
+.table__row:last-child {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 0;
+}
+
+@media (hover:hover) {
+  .table__row:hover .table__cell,
+  .table__row[data-hovered=true] .table__cell {
+    background-color: var(--surface);
+  }
+}
+
+@media (hover:hover) {
+  @supports (color:color-mix(in lab, red, red)) {
+    .table__row:hover .table__cell,
+    .table__row[data-hovered=true] .table__cell {
+      background-color: color-mix(in oklab, var(--surface) 40%, transparent);
+    }
+  }
+}
+
+.table__row[data-selected=true] .table__cell {
+  background-color: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .table__row[data-selected=true] .table__cell {
+    background-color: color-mix(in oklab, var(--surface) 10%, transparent);
+  }
+}
+
+.table__row[aria-disabled=true],
+.table__row[data-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.table__row:focus-visible,
+.table__row[data-focus-visible=true] {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.table__row[data-dragging=true] {
+  opacity: .5;
+}
+
+.table__row[data-drop-target=true] .table__cell {
+  background-color: var(--accent-soft);
+}
+
+.table__cell {
+  background-color: var(--surface);
+  height: 100%;
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 3);
+  vertical-align: middle;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--foreground);
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 1px;
+  border-color: var(--separator-tertiary);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .table__cell {
+    border-color: color-mix(in oklab, var(--separator-tertiary) 50%, transparent);
+  }
+}
+
+.table__cell:focus-visible,
+.table__cell[data-focus-visible=true] {
+  border-radius: calc(var(--radius) * 1);
+  --tw-outline-style: none;
+  box-shadow: inset 0 0 0 2px var(--focus);
+  outline-style: none;
+}
+
+.table__row:is(:focus-visible,[data-focus-visible=true]) :is(.table__cell,.table__column) {
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+.table__row:is(:focus-visible,[data-focus-visible=true])>:is(.table__cell,.table__column):only-child,
+.table__row:is(:focus-visible,[data-focus-visible=true])>:only-child :is(.table__cell,.table__column) {
+  border-radius: calc(var(--radius) * 1);
+  --tw-shadow: inset 0 0 0 2px var(--tw-shadow-color,var(--focus));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.table__row:is(:focus-visible,[data-focus-visible=true])>:is(.table__cell,.table__column):first-child:not(:only-child),
+.table__row:is(:focus-visible,[data-focus-visible=true])>:first-child:not(:only-child) :is(.table__cell,.table__column) {
+  border-top-left-radius: calc(var(--radius) * 1);
+  border-bottom-left-radius: calc(var(--radius) * 1);
+  --tw-shadow: inset 2px 0 0 0 var(--tw-shadow-color,var(--focus)), inset 0 2px 0 0 var(--tw-shadow-color,var(--focus)), inset 0 -2px 0 0 var(--tw-shadow-color,var(--focus));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.table__row:is(:focus-visible,[data-focus-visible=true])>:is(.table__cell,.table__column):last-child:not(:only-child),
+.table__row:is(:focus-visible,[data-focus-visible=true])>:last-child:not(:only-child) :is(.table__cell,.table__column) {
+  border-top-right-radius: calc(var(--radius) * 1);
+  border-bottom-right-radius: calc(var(--radius) * 1);
+  --tw-shadow: inset -2px 0 0 0 var(--tw-shadow-color,var(--focus)), inset 0 2px 0 0 var(--tw-shadow-color,var(--focus)), inset 0 -2px 0 0 var(--tw-shadow-color,var(--focus));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.table__row:is(:focus-visible,[data-focus-visible=true])>:is(.table__cell,.table__column):not(:first-child):not(:last-child):not(:only-child),
+.table__row:is(:focus-visible,[data-focus-visible=true])>:not(:first-child):not(:last-child):not(:only-child) :is(.table__cell,.table__column) {
+  --tw-shadow: inset 0 2px 0 0 var(--tw-shadow-color,var(--focus)), inset 0 -2px 0 0 var(--tw-shadow-color,var(--focus));
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.table__cell[data-tree-column] {
+  padding-inline-start: calc(1rem * var(--table-row-level,1));
+}
+
+.table__footer {
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 2.5);
+  align-items: center;
+  display: flex;
+}
+
+.table__resizable-container {
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  scrollbar-gutter: auto;
+  position: relative;
+  overflow: auto;
+}
+
+.table__column-resizer {
+  top: 50%;
+  right: calc(var(--spacing) * 0);
+  height: calc(var(--spacing) * 4);
+  --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+  border-radius: calc(var(--radius) * .5);
+  background-color: var(--separator);
+  box-sizing: content-box;
+  --tw-translate-x: calc(1 / 2 * 100%);
+  width: 1px;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  cursor: col-resize;
+  touch-action: none;
+  padding-inline: calc(var(--spacing) * 2);
+  --tw-border-style: none;
+  --tw-outline-style: none;
+  background-clip: content-box;
+  border-style: none;
+  outline-style: none;
+  position: absolute;
+}
+
+.table__column-resizer[data-hovered=true],
+.table__column-resizer:hover,
+.table__column-resizer[data-resizing=true] {
+  height: 100%;
+  width: calc(var(--spacing) * .5);
+  background-color: var(--accent);
+}
+
+.table__column-resizer[data-focus-visible=true],
+.table__column-resizer:focus-visible {
+  height: 100%;
+  width: calc(var(--spacing) * .5);
+  background-color: var(--focus);
+}
+
+.table__column:has(.table__column-resizer):after {
+  content: none;
+}
+
+.table__load-more td,
+.table__load-more [role=rowheader] {
+  padding-block: calc(var(--spacing) * 3);
+  text-align: center;
+}
+
+:is(.table__load-more td,.table__load-more [role=rowheader])>* {
+  margin-inline: auto;
+}
+
+.table__load-more-content {
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  padding-block: calc(var(--spacing) * 2);
+  display: flex;
+}
+
+[data-slot=data-grid] .table__row[data-dragging=true] {
+  opacity: .5;
+}
+
+[data-slot=data-grid][data-vertical-align=top] .table__cell {
+  vertical-align: top;
+}
+
+[data-slot=data-grid][data-vertical-align=middle] .table__cell {
+  vertical-align: middle;
+}
+
+[data-slot=data-grid][data-vertical-align=bottom] .table__cell {
+  vertical-align: bottom;
+}
+
+[data-slot=data-grid][data-vertical-align=top] .table__body:not(tbody) [data-slot=table-cell] {
+  align-items: flex-start;
+  display: flex;
+}
+
+[data-slot=data-grid][data-vertical-align=middle] .table__body:not(tbody) [data-slot=table-cell] {
+  align-items: center;
+  display: flex;
+}
+
+[data-slot=data-grid][data-vertical-align=bottom] .table__body:not(tbody) [data-slot=table-cell] {
+  align-items: flex-end;
+  display: flex;
+}
+
+[data-slot=data-grid] .table__column[data-pinned],
+[data-slot=data-grid] .data-grid__selection-column[data-pinned],
+[data-slot=data-grid] .data-grid__drag-handle-column[data-pinned] {
+  background-color: var(--surface-secondary);
+}
+
+[data-slot=data-grid] .table__cell[data-pinned],
+[data-slot=data-grid] .data-grid__selection-cell[data-pinned],
+[data-slot=data-grid] .data-grid__drag-handle-cell[data-pinned] {
+  background-color: var(--surface);
+}
+
+@media (hover:hover) {
+  [data-slot=data-grid] .table__row:hover [data-pinned].table__cell,
+  [data-slot=data-grid] .table__row[data-hovered=true] [data-pinned].table__cell {
+    background-color: var(--color-surface);
+  }
+}
+
+@media (hover:hover) {
+  @supports (color:color-mix(in lab, red, red)) {
+    [data-slot=data-grid] .table__row:hover [data-pinned].table__cell,
+    [data-slot=data-grid] .table__row[data-hovered=true] [data-pinned].table__cell {
+      background-color: color-mix(in oklch, var(--color-surface) 40%, var(--color-surface-secondary));
+    }
+  }
+}
+
+[data-slot=data-grid] .table__row[data-selected=true] [data-pinned].table__cell {
+  background-color: var(--color-surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-slot=data-grid] .table__row[data-selected=true] [data-pinned].table__cell {
+    background-color: color-mix(in oklch, var(--color-surface) 10%, var(--color-surface-secondary));
+  }
+}
+
+[data-slot=data-grid][data-pinned-start-detached] .table__body tr:first-child td:first-child[data-pinned=start][data-pinned-edge],
+[data-slot=data-grid][data-pinned-start-detached] .table__body tr:last-child td:first-child[data-pinned=start][data-pinned-edge],
+[data-slot=data-grid][data-pinned-end-detached] .table__body tr:first-child td:last-child[data-pinned=end][data-pinned-edge],
+[data-slot=data-grid][data-pinned-end-detached] .table__body tr:last-child td:last-child[data-pinned=end][data-pinned-edge] {
+  border-radius: 0;
+}
+
+.table__row:last-child .table__cell {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 0;
+}

@@ -1,0 +1,35 @@
+/*
+ * HeroUI Pro — 组件 line-chart
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.line-chart {
+  width: 100%;
+}
+
+.line-chart .recharts-cartesian-axis-tick-value {
+  font-size: 10px;
+  fill: var(--muted) !important;
+}
+
+.line-chart .recharts-cartesian-axis-line,
+.line-chart .recharts-cartesian-axis-tick-line {
+  stroke: none !important;
+}
+
+.line-chart .recharts-cartesian-grid line {
+  stroke: var(--muted);
+  stroke-opacity: .15;
+}
+
+.line-chart .recharts-tooltip-cursor {
+  stroke: var(--muted);
+  stroke-dasharray: 4 4;
+  stroke-width: 1px;
+}
+
+.line-chart .recharts-active-dot circle {
+  stroke: var(--surface);
+  stroke-width: 2px;
+}

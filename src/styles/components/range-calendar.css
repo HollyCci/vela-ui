@@ -1,0 +1,349 @@
+/*
+ * HeroUI Pro — 组件 range-calendar
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.range-calendar {
+  width: calc(var(--spacing) * 63);
+  max-width: calc(var(--spacing) * 63);
+  container-type: inline-size;
+}
+
+.range-calendar__header {
+  padding-inline: calc(var(--spacing) * .5);
+  padding-bottom: calc(var(--spacing) * 4);
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.range-calendar__header:has(.calendar-year-picker__trigger[data-open=true]) .range-calendar__nav-button {
+  pointer-events: none;
+  opacity: 0;
+}
+
+.range-calendar__heading {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  flex: 1;
+}
+
+.range-calendar__nav-button {
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+  border-radius: calc(var(--radius) * 1.5);
+  color: var(--accent-soft-foreground);
+  will-change: scale;
+  transition: transform .25s var(--ease-out), background-color .1s var(--ease-out), box-shadow .1s var(--ease-out), opacity .15s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.range-calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.range-calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.range-calendar__nav-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .range-calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .range-calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .range-calendar__nav-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.range-calendar__nav-button {
+  cursor: var(--cursor-interactive);
+}
+
+@media (hover:hover) {
+  .range-calendar__nav-button:hover,
+  .range-calendar__nav-button[data-hovered=true] {
+    background-color: var(--default);
+    color: var(--accent-soft-foreground);
+  }
+}
+
+.range-calendar__nav-button:active,
+.range-calendar__nav-button[data-pressed=true] {
+  transform: scale(.95);
+}
+
+.range-calendar__nav-button:focus-visible,
+.range-calendar__nav-button[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.range-calendar__nav-button:disabled,
+.range-calendar__nav-button[data-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.range-calendar__nav-button-icon {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.range-calendar__grid {
+  grid-template-columns: repeat(7,1fr);
+  width: 100%;
+  display: grid;
+}
+
+.range-calendar__grid[aria-readonly=true] .range-calendar__cell {
+  pointer-events: none;
+}
+
+.range-calendar__grid-header,
+.range-calendar__grid-header>tr,
+.range-calendar__grid-body,
+.range-calendar__grid-body>tr {
+  display: contents;
+}
+
+.range-calendar__grid-body>tr:first-child>td {
+  margin-top: calc(var(--spacing) * 1);
+}
+
+.range-calendar__grid-row {
+  display: contents;
+}
+
+.range-calendar__header-cell {
+  padding-bottom: calc(var(--spacing) * 2);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.range-calendar__cell {
+  z-index: 1;
+  margin-inline: calc(var(--spacing) * 0);
+  border-radius: calc(var(--radius) * 3);
+  padding: calc(var(--spacing) * 0);
+  --tw-outline-style: none;
+  cursor: var(--cursor-interactive);
+  will-change: background-color, border-color;
+  transition: box-shadow .1s var(--ease-out), border-color .1s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  outline-style: none;
+  margin-block: 2px;
+  position: relative;
+}
+
+.range-calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.range-calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.range-calendar__cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .range-calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .range-calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .range-calendar__cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.range-calendar__cell .range-calendar__cell-button {
+  aspect-ratio: 1;
+  border-radius: calc(var(--radius) * 3);
+  width: 100%;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  -webkit-tap-highlight-color: transparent;
+  will-change: scale;
+  transition: scale .2s var(--ease-out);
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.range-calendar__cell .range-calendar__cell-button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.range-calendar__cell .range-calendar__cell-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.range-calendar__cell .range-calendar__cell-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .range-calendar__cell .range-calendar__cell-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .range-calendar__cell .range-calendar__cell-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .range-calendar__cell .range-calendar__cell-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.range-calendar__cell:focus-visible:not(:focus),
+.range-calendar__cell[data-focus-visible=true] {
+  z-index: 2;
+}
+
+:is(.range-calendar__cell:focus-visible:not(:focus),.range-calendar__cell[data-focus-visible=true]) .range-calendar__cell-button {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.range-calendar__cell[data-today=true] .range-calendar__cell-button {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+@media (hover:hover) {
+  :is(.range-calendar__cell[data-today=true]:hover:not([data-selected=true]),.range-calendar__cell[data-today=true][data-hovered=true]:not([data-selected=true])) .range-calendar__cell-button {
+    background-color: var(--accent-soft-hover);
+  }
+}
+
+.range-calendar__cell[data-selected=true]:not([data-outside-month=true]) {
+  background-color: var(--accent-soft);
+  border-radius: 0;
+}
+
+.range-calendar__cell[data-selected=true]:is(td:first-child>*,[aria-disabled]+td>*) {
+  border-start-start-radius: calc(var(--radius) * 1);
+  border-end-start-radius: calc(var(--radius) * 1);
+}
+
+.range-calendar__cell[data-selected=true]:is(td:first-child>*,[aria-disabled]+td>*)[data-selection-start=true] {
+  border-start-start-radius: calc(var(--radius) * 3);
+  border-end-start-radius: calc(var(--radius) * 3);
+}
+
+.range-calendar__cell[data-selected=true]:is(td:last-child>*,td:has(+[aria-disabled])>*) {
+  border-start-end-radius: calc(var(--radius) * 1);
+  border-end-end-radius: calc(var(--radius) * 1);
+}
+
+.range-calendar__cell[data-selected=true]:is(td:last-child>*,td:has(+[aria-disabled])>*)[data-selection-end=true] {
+  border-start-end-radius: calc(var(--radius) * 3);
+  border-end-end-radius: calc(var(--radius) * 3);
+}
+
+.range-calendar__cell[data-selection-start=true]:not([data-outside-month=true]),
+.range-calendar__cell[data-selection-end=true]:not([data-outside-month=true]) {
+  z-index: 2;
+}
+
+:is(.range-calendar__cell[data-selection-start=true]:not([data-outside-month=true]),.range-calendar__cell[data-selection-end=true]:not([data-outside-month=true])) .range-calendar__cell-button {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+.range-calendar__cell[data-selection-start=true]:not([data-outside-month=true]) {
+  border-top-left-radius: calc(var(--radius) * 3);
+  border-bottom-left-radius: calc(var(--radius) * 3);
+}
+
+.range-calendar__cell[data-selection-end=true]:not([data-outside-month=true]) {
+  border-top-right-radius: calc(var(--radius) * 3);
+  border-bottom-right-radius: calc(var(--radius) * 3);
+}
+
+:is(.range-calendar__cell:active,.range-calendar__cell[data-pressed=true]) .range-calendar__cell-button {
+  scale: .9;
+}
+
+:is(:is(.range-calendar__cell:active,.range-calendar__cell[data-pressed=true])[data-selection-start=true],:is(.range-calendar__cell:active,.range-calendar__cell[data-pressed=true])[data-selection-end=true]) .range-calendar__cell-button {
+  background-color: var(--accent-hover);
+}
+
+@media (hover:hover) {
+  :is(.range-calendar__cell:hover:not([data-selected=true]),.range-calendar__cell[data-hovered=true]:not([data-selected=true])) .range-calendar__cell-button {
+    background-color: var(--default);
+  }
+}
+
+.range-calendar__cell[data-outside-month=true] {
+  color: var(--muted);
+  opacity: .5;
+}
+
+.range-calendar__cell[data-selected=true][data-outside-month=true]:not([data-selection-start=true],[data-selection-end=true]) {
+  background-color: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .range-calendar__cell[data-selected=true][data-outside-month=true]:not([data-selection-start=true],[data-selection-end=true]) {
+    background-color: color-mix(in oklab, var(--default) 20%, transparent);
+  }
+}
+
+.range-calendar__cell[data-unavailable=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.range-calendar__cell:disabled:not([data-outside-month=true]),
+.range-calendar__cell[data-disabled=true]:not([data-outside-month=true]) {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+  text-decoration: line-through;
+}
+
+.range-calendar__grid-body td:has(>.range-calendar__cell[data-outside-month=true])+td>.range-calendar__cell[data-selected=true] {
+  border-start-start-radius: calc(var(--radius) * 1);
+  border-end-start-radius: calc(var(--radius) * 1);
+}
+
+:is(.range-calendar__grid-body td:has(>.range-calendar__cell[data-outside-month=true])+td>.range-calendar__cell[data-selected=true][data-outside-month=true],.range-calendar__grid-body td:has(>.range-calendar__cell[data-outside-month=true])+td>.range-calendar__cell[data-selected=true][data-selection-start=true]) {
+  border-start-start-radius: calc(var(--radius) * 3);
+  border-end-start-radius: calc(var(--radius) * 3);
+}
+
+.range-calendar__grid-body td:has(>.range-calendar__cell[data-selected=true]):has(+td>.range-calendar__cell[data-outside-month=true])>.range-calendar__cell[data-selected=true] {
+  border-start-end-radius: calc(var(--radius) * 1);
+  border-end-end-radius: calc(var(--radius) * 1);
+}
+
+:is(.range-calendar__grid-body td:has(>.range-calendar__cell[data-selected=true]):has(+td>.range-calendar__cell[data-outside-month=true])>.range-calendar__cell[data-selected=true][data-outside-month=true],.range-calendar__grid-body td:has(>.range-calendar__cell[data-selected=true]):has(+td>.range-calendar__cell[data-outside-month=true])>.range-calendar__cell[data-selected=true][data-selection-end=true]) {
+  border-start-end-radius: calc(var(--radius) * 3);
+  border-end-end-radius: calc(var(--radius) * 3);
+}
+
+.range-calendar__cell-indicator {
+  bottom: calc(var(--spacing) * 1);
+  --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+  width: 3px;
+  height: 3px;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  border-radius: calc(var(--radius) * .25);
+  background-color: var(--muted);
+  position: absolute;
+  left: 50%;
+}
+
+[data-selected=true]>.range-calendar__cell-indicator {
+  background-color: var(--accent-foreground);
+}

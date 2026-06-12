@@ -1,0 +1,96 @@
+/*
+ * HeroUI Pro — 组件 chain-of-thought
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.chain-of-thought {
+  width: 100%;
+  max-width: none;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.chain-of-thought__trigger {
+  width: fit-content;
+  cursor: var(--cursor-interactive);
+  justify-content: flex-start;
+  gap: calc(var(--spacing) * 2);
+  padding-inline: calc(var(--spacing) * 0);
+  --tw-font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-normal);
+  color: var(--muted);
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  background-color: #0000;
+  transform: none;
+}
+
+@media (hover:hover) {
+  .chain-of-thought__trigger:hover,
+  .chain-of-thought__trigger[data-hovered=true] {
+    color: var(--foreground);
+    background-color: #0000;
+  }
+}
+
+.chain-of-thought__trigger:active,
+.chain-of-thought__trigger[data-pressed=true] {
+  background-color: #0000;
+  transform: none;
+}
+
+.chain-of-thought--streaming .chain-of-thought__trigger {
+  color: var(--foreground);
+}
+
+.chain-of-thought__steps {
+  gap: calc(var(--spacing) * 3);
+  border-left-style: var(--tw-border-style);
+  border-left-width: 1px;
+  border-color: var(--default);
+  padding-left: calc(var(--spacing) * 3);
+  flex-direction: column;
+  display: flex;
+}
+
+.chain-of-thought__step {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+.chain-of-thought__step-header {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  display: flex;
+}
+
+.chain-of-thought__step-indicator {
+  width: calc(var(--spacing) * 1.5);
+  height: calc(var(--spacing) * 1.5);
+  background-color: var(--muted);
+  border-radius: 3.40282e38px;
+  flex-shrink: 0;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .chain-of-thought__step-indicator {
+    background-color: color-mix(in oklab, var(--muted) 40%, transparent);
+  }
+}
+
+.chain-of-thought__step-label {
+  --tw-font-weight: var(--font-weight-normal);
+  font-weight: var(--font-weight-normal);
+  --tw-tracking: var(--tracking-wide);
+  letter-spacing: var(--tracking-wide);
+  color: var(--muted);
+}
+
+.chain-of-thought__step-content {
+  --tw-leading: var(--leading-relaxed);
+  line-height: var(--leading-relaxed);
+  color: var(--foreground);
+}

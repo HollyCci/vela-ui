@@ -1,0 +1,128 @@
+/*
+ * HeroUI Pro — 组件 popover
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.popover {
+  transform-origin: var(--trigger-anchor-point);
+  background-color: var(--overlay);
+  padding: calc(var(--spacing) * 0);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  border-radius: min(32px, var(--radius-3xl));
+  box-shadow: var(--shadow-overlay);
+}
+
+.popover[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: ease;
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: .9;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+}
+
+.popover[data-entering=true][data-placement=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.popover[data-entering=true][data-placement=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.popover[data-entering=true][data-placement=left] {
+  --tw-enter-translate-x: calc(1*var(--spacing));
+}
+
+.popover[data-entering=true][data-placement=right] {
+  --tw-enter-translate-x: calc(1*var(--spacing)*-1);
+}
+
+.popover[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: ease;
+  --tw-exit-scale: .95;
+  --tw-exit-opacity: 0;
+  transition-duration: .1s;
+  transition-timing-function: ease;
+}
+
+.popover[data-exiting=true],
+.popover[data-entering=true] {
+  transition-property: opacity,transform;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  will-change: opacity,transform;
+}
+
+.popover [data-slot=popover-overlay-arrow] {
+  fill: var(--overlay);
+}
+
+.popover[data-placement=bottom] [data-slot=popover-overlay-arrow] {
+  rotate: 180deg;
+}
+
+.popover[data-placement=left] [data-slot=popover-overlay-arrow] {
+  rotate: -90deg;
+}
+
+.popover[data-placement=right] [data-slot=popover-overlay-arrow] {
+  rotate: 90deg;
+}
+
+.popover__dialog {
+  padding: calc(var(--spacing) * 4);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.popover__heading {
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+}
+
+.popover__trigger {
+  transition: color .15s var(--ease-smooth), background-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  display: inline-block;
+}
+
+.popover__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.popover__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.popover__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .popover__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .popover__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .popover__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.popover__trigger {
+  cursor: var(--cursor-interactive);
+}
+
+.popover__trigger:focus-visible:not(:focus),
+.popover__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.popover__trigger:disabled,
+.popover__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}

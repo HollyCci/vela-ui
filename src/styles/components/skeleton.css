@@ -1,0 +1,78 @@
+/*
+ * HeroUI Pro — 组件 skeleton
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.skeleton {
+  pointer-events: none;
+  border-radius: calc(var(--radius) * .5);
+  background-color: var(--surface-tertiary);
+  position: relative;
+  overflow: hidden;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .skeleton {
+    background-color: color-mix(in oklab, var(--surface-tertiary) 70%, transparent);
+  }
+}
+
+.skeleton--shimmer:after {
+  inset: calc(var(--spacing) * 0);
+  --tw-translate-x: -100%;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  --tw-gradient-position: to right;
+  animation: 2s linear infinite skeleton;
+  position: absolute;
+}
+
+@supports (background-image:linear-gradient(in lab, red, red)) {
+  .skeleton--shimmer:after {
+    --tw-gradient-position: to right in oklab;
+  }
+}
+
+.skeleton--shimmer:after {
+  background-image: linear-gradient(var(--tw-gradient-stops));
+  --tw-gradient-from: transparent;
+  --tw-gradient-via: var(--surface-tertiary);
+  --tw-gradient-via-stops: var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-via) var(--tw-gradient-via-position), var(--tw-gradient-to) var(--tw-gradient-to-position);
+  --tw-gradient-stops: var(--tw-gradient-via-stops,var(--tw-gradient-position), var(--tw-gradient-from) var(--tw-gradient-from-position), var(--tw-gradient-to) var(--tw-gradient-to-position));
+  --tw-gradient-to: transparent;
+  --tw-content: "";
+  content: var(--tw-content);
+}
+
+.skeleton--shimmer:has(.skeleton):after {
+  content: none;
+}
+
+.skeleton--shimmer:has(.skeleton):before {
+  inset: calc(var(--spacing) * 0);
+  --tw-translate-x: -100%;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  --tw-content: "";
+  content: var(--tw-content);
+  z-index: 10;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+  background: linear-gradient(90deg,#0000 0%,#ffffff80 50%,#0000 100%);
+  animation: 2s linear infinite skeleton;
+  position: absolute;
+}
+
+.skeleton--shimmer:has(.skeleton) .skeleton:after {
+  content: none;
+}
+
+.skeleton--pulse {
+  animation: var(--animate-pulse);
+}
+
+/* @keyframes */
+@keyframes skeleton {
+  to {
+    transform: translate(200%);
+  }
+}

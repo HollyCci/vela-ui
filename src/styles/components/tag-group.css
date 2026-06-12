@@ -1,0 +1,26 @@
+/*
+ * HeroUI Pro — 组件 tag-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.tag-group {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+  position: relative;
+}
+
+.tag-group__list {
+  gap: calc(var(--spacing) * 1.5);
+  flex-wrap: wrap;
+  display: flex;
+  position: relative;
+}
+
+.tag-group [slot=description],
+.tag-group [data-slot=description],
+.tag-group [slot=errorMessage],
+.tag-group [data-slot=error-message] {
+  padding: calc(var(--spacing) * 1);
+}

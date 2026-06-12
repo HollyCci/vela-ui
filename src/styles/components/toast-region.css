@@ -1,0 +1,66 @@
+/*
+ * HeroUI Pro — 组件 toast-region
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.toast-region {
+  pointer-events: none;
+  z-index: 50;
+  --tw-outline-style: none;
+  outline-style: none;
+  width: calc(100vw - 2rem);
+  position: fixed;
+}
+
+@media (min-width:40rem) {
+  .toast-region {
+    width: auto;
+    min-width: var(--toast-width);
+  }
+}
+
+.toast-region {
+  display: block;
+}
+
+.toast-region--bottom {
+  bottom: calc(var(--spacing) * 4);
+  --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  left: 50%;
+}
+
+.toast-region--bottom-start {
+  bottom: calc(var(--spacing) * 4);
+  left: calc(var(--spacing) * 4);
+}
+
+.toast-region--bottom-end {
+  right: calc(var(--spacing) * 4);
+  bottom: calc(var(--spacing) * 4);
+}
+
+.toast-region--top {
+  top: calc(var(--spacing) * 4);
+  --tw-translate-x: calc(calc(1 / 2 * 100%) * -1);
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  left: 50%;
+}
+
+.toast-region--top-start {
+  top: calc(var(--spacing) * 4);
+  left: calc(var(--spacing) * 4);
+}
+
+.toast-region--top-end {
+  top: calc(var(--spacing) * 4);
+  right: calc(var(--spacing) * 4);
+}
+
+.toast-region:focus-visible {
+  outline-style: var(--tw-outline-style);
+  outline-offset: 2px;
+  outline-width: 2px;
+  outline-color: var(--focus);
+}

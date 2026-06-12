@@ -1,0 +1,32 @@
+/*
+ * HeroUI Pro — 组件 trend-chip
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.trend-chip__indicator {
+  flex-shrink: 0;
+}
+
+.trend-chip__value {
+  font-variant-numeric: tabular-nums;
+}
+
+.trend-chip__suffix {
+  color: var(--muted);
+}
+
+.trend-chip--sm .trend-chip__indicator {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+}
+
+.trend-chip--md .trend-chip__indicator {
+  width: calc(var(--spacing) * 3.5);
+  height: calc(var(--spacing) * 3.5);
+}
+
+.trend-chip--lg .trend-chip__indicator {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}

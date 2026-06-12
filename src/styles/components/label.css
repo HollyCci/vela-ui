@@ -1,0 +1,35 @@
+/*
+ * HeroUI Pro — 组件 label
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.label {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+:is(.label--required,[data-required=true]:not([role=group]):not([role=radiogroup]):not([role=checkboxgroup])>.label,[data-required=true]:not([data-slot=radio]):not([data-slot=checkbox])>.label):after {
+  content: var(--tw-content);
+  margin-left: calc(var(--spacing) * .5);
+  content: var(--tw-content);
+  color: var(--danger);
+  --tw-content: "*";
+  content: var(--tw-content);
+}
+
+.label--disabled,
+[data-disabled=true] .label {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.label--invalid,
+[data-invalid=true] .label,
+[aria-invalid=true] .label {
+  color: var(--danger);
+}

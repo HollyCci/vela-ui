@@ -1,0 +1,95 @@
+/*
+ * HeroUI Pro — 组件 disclosure
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.disclosure {
+  position: relative;
+}
+
+.disclosure__trigger {
+  cursor: var(--cursor-interactive);
+  -webkit-tap-highlight-color: transparent;
+  display: inline-block;
+}
+
+.disclosure__trigger:focus-visible:not(:focus),
+.disclosure__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.disclosure__trigger:disabled,
+.disclosure__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.disclosure__indicator {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  color: inherit;
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .25s;
+  flex-shrink: 0;
+  margin-left: auto;
+  transition-duration: .25s;
+}
+
+.disclosure__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.disclosure__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.disclosure__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .disclosure__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .disclosure__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .disclosure__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.disclosure__indicator[data-expanded=true] {
+  rotate: -180deg;
+}
+
+.disclosure__content {
+  opacity: 0;
+  height: var(--disclosure-panel-height);
+  transition: height .2s var(--ease-out-quad), opacity .2s var(--ease-out);
+  overflow: clip;
+}
+
+.disclosure__content:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.disclosure__content:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.disclosure__content:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .disclosure__content:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .disclosure__content:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .disclosure__content:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.disclosure__content[data-expanded=true] {
+  will-change: height, opacity;
+  opacity: 1;
+}
+
+.disclosure__body {
+  padding: calc(var(--spacing) * 2);
+}

@@ -1,0 +1,145 @@
+/*
+ * HeroUI Pro — 组件 progress-bar
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.progress-bar {
+  gap: calc(var(--spacing) * 1);
+  --progress-bar-fill: var(--accent);
+  grid-template-columns: 1fr auto;
+  grid-template-areas: "label output""track track";
+  width: 100%;
+  display: grid;
+}
+
+.progress-bar [data-slot=label] {
+  width: fit-content;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  grid-area: label;
+}
+
+.progress-bar .progress-bar__output {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  --tw-numeric-spacing: tabular-nums;
+  font-variant-numeric: var(--tw-ordinal,) var(--tw-slashed-zero,) var(--tw-numeric-figure,) var(--tw-numeric-spacing,) var(--tw-numeric-fraction,);
+  grid-area: output;
+}
+
+.progress-bar .progress-bar__track {
+  border-radius: calc(var(--radius) * .5);
+  background-color: var(--default);
+  height: calc(var(--spacing) * 2);
+  grid-area: track;
+  position: relative;
+  overflow: hidden;
+}
+
+.progress-bar .progress-bar__fill {
+  top: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  border-radius: calc(var(--radius) * .5);
+  background-color: var(--progress-bar-fill);
+  height: 100%;
+  transition: width .3s var(--ease-out);
+  position: absolute;
+}
+
+.progress-bar .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.progress-bar .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.progress-bar .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .progress-bar .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .progress-bar .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .progress-bar .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.progress-bar:not([aria-valuenow]) .progress-bar__fill {
+  width: 40%;
+  animation: 1.5s cubic-bezier(.65,0,.35,1) infinite progress-bar-indeterminate;
+}
+
+.progress-bar:not([aria-valuenow]) .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.progress-bar:not([aria-valuenow]) .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.progress-bar:not([aria-valuenow]) .progress-bar__fill:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .progress-bar:not([aria-valuenow]) .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .progress-bar:not([aria-valuenow]) .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .progress-bar:not([aria-valuenow]) .progress-bar__fill:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.progress-bar:disabled,
+.progress-bar[data-disabled=true],
+.progress-bar[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+:is(.progress-bar:disabled,.progress-bar[data-disabled=true],.progress-bar[aria-disabled=true]) [data-slot=label] {
+  opacity: 1;
+}
+
+.progress-bar--sm .progress-bar__track {
+  height: calc(var(--spacing) * 1);
+  border-radius: calc(var(--radius) * .25);
+}
+
+.progress-bar--sm .progress-bar__fill {
+  border-radius: calc(var(--radius) * .25);
+}
+
+.progress-bar--lg .progress-bar__track {
+  height: calc(var(--spacing) * 3);
+  border-radius: calc(var(--radius) * .75);
+}
+
+.progress-bar--lg .progress-bar__fill {
+  border-radius: calc(var(--radius) * .75);
+}
+
+.progress-bar--default {
+  --progress-bar-fill: var(--default-foreground);
+}
+
+.progress-bar--accent {
+  --progress-bar-fill: var(--accent);
+}
+
+.progress-bar--success {
+  --progress-bar-fill: var(--success);
+}
+
+.progress-bar--warning {
+  --progress-bar-fill: var(--warning);
+}
+
+.progress-bar--danger {
+  --progress-bar-fill: var(--danger);
+}
+
+/* @keyframes */
+@keyframes progress-bar-indeterminate {
+  0% {
+    transform: translate(-100%);
+  }
+  to {
+    transform: translate(350%);
+  }
+}

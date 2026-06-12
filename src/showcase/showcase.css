@@ -1,0 +1,114 @@
+/* 展示站自身的布局样式（与组件库样式隔离，前缀 sc-） */
+.sc-layout {
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+}
+
+.sc-sidebar {
+  border-right: 1px solid var(--border);
+  background: var(--surface);
+  padding: 16px 12px;
+  overflow-y: auto;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.sc-sidebar__brand {
+  font-size: 15px;
+  font-weight: 700;
+  padding: 4px 8px 16px;
+}
+
+.sc-sidebar__group {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 14px 8px 6px;
+}
+
+.sc-sidebar__item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 13px;
+  color: var(--foreground);
+  padding: 5px 8px;
+  border-radius: calc(var(--radius) * 1);
+  cursor: pointer;
+}
+
+.sc-sidebar__item:hover {
+  background: var(--default);
+}
+
+.sc-sidebar__item--active {
+  background: var(--default);
+  font-weight: 600;
+}
+
+.sc-sidebar__item--todo {
+  color: var(--muted);
+}
+
+.sc-main {
+  padding: 32px 40px 120px;
+  max-width: 960px;
+}
+
+.sc-main__title {
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0 0 4px;
+}
+
+.sc-main__subtitle {
+  font-size: 14px;
+  color: var(--muted);
+  margin: 0 0 28px;
+}
+
+.sc-demo {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  background: var(--surface);
+  padding: 32px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.sc-demo--column {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.sc-demo__label {
+  position: absolute;
+  top: -9px;
+  left: 12px;
+  font-size: 11px;
+  color: var(--muted);
+  background: var(--surface);
+  padding: 0 6px;
+}
+
+.sc-todo {
+  border: 1px dashed var(--border);
+  border-radius: calc(var(--radius) * 2);
+  padding: 24px;
+  color: var(--muted);
+  font-size: 13px;
+}

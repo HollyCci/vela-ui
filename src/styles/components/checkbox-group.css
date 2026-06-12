@@ -1,0 +1,14 @@
+/*
+ * HeroUI Pro — 组件 checkbox-group
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.checkbox-group {
+  flex-direction: column;
+  display: flex;
+}
+
+.checkbox-group [data-slot=checkbox] {
+  margin-top: calc(var(--spacing) * 4);
+}

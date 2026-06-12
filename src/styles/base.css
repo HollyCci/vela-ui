@@ -1,0 +1,1473 @@
+/*
+ * HeroUI Pro — 基础样式（@layer base）
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --lightningcss-light: initial;
+  --lightningcss-dark:  ;
+  color-scheme: light;
+  --white: #fff;
+  --black: #000;
+  --snow: #fcfcfc;
+  --eclipse: #18181b;
+  --spacing: .25rem;
+  --border-width: 1px;
+  --field-border-width: 0px;
+  --disabled-opacity: .5;
+  --ring-offset-width: 2px;
+  --cursor-interactive: pointer;
+  --cursor-disabled: not-allowed;
+  --radius: .5rem;
+  --field-radius: calc(var(--radius) * 1.5);
+  --background: #f5f5f5;
+  --foreground: var(--eclipse);
+  --surface: var(--white);
+  --surface-foreground: var(--foreground);
+  --surface-secondary: #efeff0;
+  --surface-secondary-foreground: var(--foreground);
+  --surface-tertiary: #eaeaeb;
+  --surface-tertiary-foreground: var(--foreground);
+  --overlay: var(--white);
+  --overlay-foreground: var(--foreground);
+  --muted: #71717a;
+  --scrollbar: var(--scrollbar-thumb);
+  --scrollbar-thumb: var(--foreground);
+}
+
+@supports (color:lab(0% 0 0)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --white: lab(100% 0 0);
+    --black: lab(0% 0 0);
+    --snow: lab(98.9676% -.0000298023 -.0000119209);
+    --eclipse: lab(8.34178% .607349 -2.12998);
+    --background: lab(96.5432% -.0000596046 0);
+    --surface-secondary: lab(94.4672% .129223 -.473213);
+    --surface-tertiary: lab(92.7156% .129253 -.473213);
+    --muted: lab(47.8738% 1.41454 -4.98644);
+  }
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --scrollbar-track: transparent;
+  --scrollbar-gutter: auto;
+  --scrollbar-width: thin;
+  --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  --default: #ebebec;
+  --default-foreground: var(--eclipse);
+  --accent: #0485f7;
+  --accent-foreground: var(--snow);
+  --field-background: var(--white);
+  --field-foreground: #18181b;
+  --field-placeholder: var(--muted);
+  --field-border: transparent;
+  --success: #17c964;
+  --success-foreground: var(--eclipse);
+  --warning: #f5a524;
+  --warning-foreground: var(--eclipse);
+  --danger: #ff383c;
+  --danger-foreground: var(--snow);
+  --segment: var(--white);
+  --segment-foreground: var(--eclipse);
+  --border: #dedee0;
+  --separator: #e4e4e7;
+  --focus: var(--accent);
+  --link: var(--foreground);
+  --backdrop: #00000080;
+  --surface-hover: var(--surface);
+}
+
+@supports (color:lab(0% 0 0)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default: lab(93.0314% .0993609 -.364041);
+    --accent: lab(54.5335% 3.31545 -66.5298);
+    --field-foreground: lab(8.34178% .607349 -2.12998);
+    --success: lab(71.4376% -59.4106 38.0321);
+    --warning: lab(74.4448% 23.7172 71.6451);
+    --danger: lab(57.4234% 73.5589 48.0136);
+    --border: lab(88.3653% .399351 -1.45447);
+    --separator: lab(90.6853% .399232 -1.45452);
+  }
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --background-secondary: var(--background);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --background-tertiary: var(--background);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --background-inverse: var(--foreground);
+  --default-hover: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --accent-hover: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --success-hover: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --warning-hover: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --danger-hover: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --field-hover: var(--field-background,var(--default));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --field-focus: var(--field-background,var(--default));
+  --field-border-hover: var(--field-border,var(--border));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --field-border-focus: var(--field-border,var(--border));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --default-soft: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --default-soft-foreground: var(--default-foreground);
+  --default-soft-hover: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --accent-soft: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft: color-mix(in oklab, var(--accent) 15%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --accent-soft-foreground: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft-foreground: color-mix(in oklab, var(--accent) 70%, var(--foreground) 30%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --accent-soft-hover: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --accent-soft-hover: color-mix(in oklab, var(--accent) 20%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --danger-soft: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --danger-soft-foreground: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft-foreground: color-mix(in oklab, var(--danger) 70%, var(--foreground) 40%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --danger-soft-hover: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --warning-soft: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft: color-mix(in oklab, var(--warning) 15%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --warning-soft-foreground: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 70%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --warning-soft-hover: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --warning-soft-hover: color-mix(in oklab, var(--warning) 20%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --success-soft: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft: color-mix(in oklab, var(--success) 15%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --success-soft-foreground: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 60%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --success-soft-hover: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --success-soft-hover: color-mix(in oklab, var(--success) 20%, transparent);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --separator-secondary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --separator-tertiary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --border-secondary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --border-tertiary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  :root,
+  .light,
+  .default,
+  [data-theme=light],
+  [data-theme=default] {
+    --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+  }
+}
+
+:root,
+.light,
+.default,
+[data-theme=light],
+[data-theme=default] {
+  --surface-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+  --overlay-shadow: 0 2px 8px 0 #0000000f, 0 -6px 12px 0 #00000008, 0 14px 28px 0 #00000014;
+  --field-shadow: 0 2px 4px 0 #0000000a, 0 1px 2px 0 #0000000f, 0 0 1px 0 #0000000f;
+  --skeleton-animation: shimmer;
+}
+
+.dark,
+[data-theme=dark] {
+  --lightningcss-light:  ;
+  --lightningcss-dark: initial;
+  color-scheme: dark;
+  --background: #060607;
+  --foreground: var(--snow);
+  --surface: #18181b;
+  --surface-foreground: var(--foreground);
+  --surface-secondary: #232325;
+  --surface-tertiary: #262728;
+  --overlay: #18181b;
+  --overlay-foreground: var(--foreground);
+  --muted: #9f9fa9;
+  --scrollbar: var(--scrollbar-thumb);
+  --scrollbar-thumb: var(--foreground);
+}
+
+@supports (color:lab(0% 0 0)) {
+  .dark,
+  [data-theme=dark] {
+    --background: lab(1.54547% .178337 -.64671);
+    --surface: lab(8.34178% .607349 -2.12998);
+    --surface-secondary: lab(13.7794% .374213 -1.34113);
+    --surface-tertiary: lab(15.5629% -.291005 -.84582);
+    --overlay: lab(8.34178% .607349 -2.12998);
+    --muted: lab(65.6464% 1.53497 -5.42429);
+  }
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --scrollbar-thumb: color-mix(in oklch, var(--foreground) 15%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --scrollbar-track: transparent;
+  --scrollbar-gutter: auto;
+  --scrollbar-width: thin;
+  --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  --default: #27272a;
+  --default-foreground: var(--snow);
+  --field-background: #18181b;
+  --field-foreground: var(--foreground);
+  --warning: #f7b750;
+  --warning-foreground: var(--eclipse);
+  --danger: #db3b3e;
+  --danger-foreground: var(--snow);
+  --segment: #46464c;
+  --segment-foreground: var(--foreground);
+  --border: #28282c;
+  --separator: #212124;
+  --focus: var(--accent);
+  --link: var(--foreground);
+  --backdrop: #0009;
+  --surface-shadow: 0 0 0 0 transparent inset;
+  --overlay-shadow: 0 0 1px 0 #ffffff4d inset;
+  --field-shadow: 0 0 0 0 transparent inset;
+  --surface-hover: var(--surface);
+}
+
+@supports (color:lab(0% 0 0)) {
+  .dark,
+  [data-theme=dark] {
+    --default: lab(15.7305% .613764 -2.16959);
+    --field-background: lab(8.34178% .607349 -2.12998);
+    --warning: lab(79.1095% 16.747 59.9157);
+    --danger: lab(50.9109% 62.2712 37.59);
+    --segment: lab(29.8929% 1.02498 -3.61326);
+    --border: lab(16.4266% .613093 -2.16998);
+    --separator: lab(12.9463% .616677 -2.16783);
+  }
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --surface-hover: color-mix(in oklab, var(--surface) 92%, var(--surface-foreground) 8%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --background-secondary: var(--background);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --background-secondary: color-mix(in oklab, var(--background) 96%, var(--foreground) 4%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --background-tertiary: var(--background);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --background-tertiary: color-mix(in oklab, var(--background) 92%, var(--foreground) 8%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --background-inverse: var(--foreground);
+  --default-hover: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --default-hover: color-mix(in oklab, var(--default) 96%, var(--default-foreground) 4%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --accent-hover: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --accent-hover: color-mix(in oklab, var(--accent) 90%, var(--accent-foreground) 10%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --success-hover: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --success-hover: color-mix(in oklab, var(--success) 90%, var(--success-foreground) 10%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --warning-hover: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --warning-hover: color-mix(in oklab, var(--warning) 90%, var(--warning-foreground) 10%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --danger-hover: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --danger-hover: color-mix(in oklab, var(--danger) 90%, var(--danger-foreground) 10%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --field-hover: var(--field-background,var(--default));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --field-hover: color-mix(in oklab, var(--field-background,var(--default)) 90%, var(--field-foreground,var(--foreground)) 2%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --field-focus: var(--field-background,var(--default));
+  --field-border-hover: var(--field-border,var(--border));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --field-border-hover: color-mix(in oklab, var(--field-border,var(--border)) 88%, var(--field-foreground,var(--foreground)) 10%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --field-border-focus: var(--field-border,var(--border));
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --field-border-focus: color-mix(in oklab, var(--field-border,var(--border)) 74%, var(--field-foreground,var(--foreground)) 22%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --default-soft: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --default-soft: color-mix(in oklab, var(--default) 50%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --default-soft-foreground: var(--default-foreground);
+  --default-soft-hover: var(--default);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --default-soft-hover: color-mix(in oklab, var(--default) 60%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --accent-soft: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --accent-soft: color-mix(in oklab, var(--accent) 12%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --accent-soft-foreground: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --accent-soft-foreground: color-mix(in oklab, var(--accent) 80%, var(--foreground) 30%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --accent-soft-hover: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --accent-soft-hover: color-mix(in oklab, var(--accent) 16%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --danger-soft: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --danger-soft: color-mix(in oklab, var(--danger) 15%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --danger-soft-foreground: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --danger-soft-foreground: color-mix(in oklab, var(--danger) 80%, var(--foreground) 30%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --danger-soft-hover: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --danger-soft-hover: color-mix(in oklab, var(--danger) 20%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --warning-soft: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --warning-soft: color-mix(in oklab, var(--warning) 12%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --warning-soft-foreground: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --warning-soft-foreground: color-mix(in oklab, var(--warning) 80%, var(--foreground) 30%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --warning-soft-hover: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --warning-soft-hover: color-mix(in oklab, var(--warning) 16%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --success-soft: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --success-soft: color-mix(in oklab, var(--success) 12%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --success-soft-foreground: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --success-soft-foreground: color-mix(in oklab, var(--success) 80%, var(--foreground) 30%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --success-soft-hover: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --success-soft-hover: color-mix(in oklab, var(--success) 16%, transparent);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --separator-secondary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --separator-secondary: color-mix(in oklab, var(--surface) 85%, var(--surface-foreground) 15%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --separator-tertiary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --separator-tertiary: color-mix(in oklab, var(--surface) 81%, var(--surface-foreground) 19%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --border-secondary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --border-secondary: color-mix(in oklab, var(--surface) 78%, var(--surface-foreground) 22%);
+  }
+}
+
+.dark,
+[data-theme=dark] {
+  --border-tertiary: var(--surface);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .dark,
+  [data-theme=dark] {
+    --border-tertiary: color-mix(in oklab, var(--surface) 66%, var(--surface-foreground) 34%);
+  }
+}
+
+[data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+  --accent-soft-foreground: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+  --danger-soft-foreground: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+  --warning-soft-foreground: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+  --success-soft-foreground: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true]:not(.dark):not([data-theme=dark]) {
+    --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true].dark,
+[data-vibrant-palette=true][data-theme=dark] {
+  --accent-soft-foreground: var(--accent);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --accent-soft-foreground: color-mix(in oklab, var(--accent) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true].dark,
+[data-vibrant-palette=true][data-theme=dark] {
+  --danger-soft-foreground: var(--danger);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --danger-soft-foreground: color-mix(in oklab, var(--danger) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true].dark,
+[data-vibrant-palette=true][data-theme=dark] {
+  --warning-soft-foreground: var(--warning);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --warning-soft-foreground: color-mix(in oklab, var(--warning) 92%, var(--foreground) 8%);
+  }
+}
+
+[data-vibrant-palette=true].dark,
+[data-vibrant-palette=true][data-theme=dark] {
+  --success-soft-foreground: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  [data-vibrant-palette=true].dark,
+  [data-vibrant-palette=true][data-theme=dark] {
+    --success-soft-foreground: color-mix(in oklab, var(--success) 92%, var(--foreground) 8%);
+  }
+}
+
+@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px) {
+  ::placeholder {
+    color: currentColor;
+  }
+  @supports (color:color-mix(in lab, red, red)) {
+    ::placeholder {
+      color: color-mix(in oklab, currentcolor 50%, transparent);
+    }
+  }
+}
+
+body {
+  background-color: var(--color-fd-background);
+  color: var(--color-fd-foreground);
+}
+
+*,
+:after,
+:before,
+::backdrop {
+  box-sizing: border-box;
+  border: 0 solid;
+  margin: 0;
+  padding: 0;
+}
+
+::file-selector-button {
+  box-sizing: border-box;
+  border: 0 solid;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+:host {
+  -webkit-text-size-adjust: 100%;
+  tab-size: 4;
+  line-height: 1.5;
+  font-family: var(--default-font-family,ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji");
+  font-feature-settings: var(--default-font-feature-settings,normal);
+  font-variation-settings: var(--default-font-variation-settings,normal);
+  -webkit-tap-highlight-color: transparent;
+}
+
+hr {
+  height: 0;
+  color: inherit;
+  border-top-width: 1px;
+}
+
+abbr:where([title]) {
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-size: inherit;
+  font-weight: inherit;
+}
+
+a {
+  color: inherit;
+  -webkit-text-decoration: inherit;
+  -webkit-text-decoration: inherit;
+  -webkit-text-decoration: inherit;
+  -webkit-text-decoration: inherit;
+  text-decoration: inherit;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+code,
+kbd,
+samp,
+pre {
+  font-family: var(--default-mono-font-family,ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace);
+  font-feature-settings: var(--default-mono-font-feature-settings,normal);
+  font-variation-settings: var(--default-mono-font-variation-settings,normal);
+  font-size: 1em;
+}
+
+small {
+  font-size: 80%;
+}
+
+sub,
+sup {
+  vertical-align: baseline;
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+}
+
+sub {
+  bottom: -.25em;
+}
+
+sup {
+  top: -.5em;
+}
+
+table {
+  text-indent: 0;
+  border-color: inherit;
+  border-collapse: collapse;
+}
+
+:-moz-focusring {
+  outline: auto;
+}
+
+progress {
+  vertical-align: baseline;
+}
+
+summary {
+  display: list-item;
+}
+
+ol,
+ul,
+menu {
+  list-style: none;
+}
+
+img,
+svg,
+video,
+canvas,
+audio,
+iframe,
+embed,
+object {
+  vertical-align: middle;
+  display: block;
+}
+
+img,
+video {
+  max-width: 100%;
+  height: auto;
+}
+
+button,
+input,
+select,
+optgroup,
+textarea {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  opacity: 1;
+  background-color: #0000;
+  border-radius: 0;
+}
+
+::file-selector-button {
+  font: inherit;
+  font-feature-settings: inherit;
+  font-variation-settings: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+  opacity: 1;
+  background-color: #0000;
+  border-radius: 0;
+}
+
+:where(select:is([multiple],[size])) optgroup {
+  font-weight: bolder;
+}
+
+:where(select:is([multiple],[size])) optgroup option {
+  padding-inline-start: 20px;
+}
+
+::file-selector-button {
+  margin-inline-end: 4px;
+}
+
+::placeholder {
+  opacity: 1;
+}
+
+textarea {
+  resize: vertical;
+}
+
+::-webkit-search-decoration {
+  -webkit-appearance: none;
+}
+
+::-webkit-date-and-time-value {
+  min-height: 1lh;
+  text-align: inherit;
+}
+
+::-webkit-datetime-edit {
+  display: inline-flex;
+}
+
+::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+::-webkit-datetime-edit {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-year-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-month-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-day-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-hour-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-minute-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-second-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-millisecond-field {
+  padding-block: 0;
+}
+
+::-webkit-datetime-edit-meridiem-field {
+  padding-block: 0;
+}
+
+::-webkit-calendar-picker-indicator {
+  line-height: 1;
+}
+
+:-moz-ui-invalid {
+  box-shadow: none;
+}
+
+button,
+input:where([type=button],[type=reset],[type=submit]) {
+  appearance: button;
+}
+
+::file-selector-button {
+  appearance: button;
+}
+
+::-webkit-inner-spin-button {
+  height: auto;
+}
+
+::-webkit-outer-spin-button {
+  height: auto;
+}
+
+[hidden]:where(:not([hidden=until-found])) {
+  display: none !important;
+}
+
+*,
+:after,
+:before,
+::backdrop {
+  border-color: var(--border,currentColor);
+}
+
+::file-selector-button {
+  border-color: var(--border,currentColor);
+}
+
+:root {
+  view-transition-name: none;
+}
+
+::view-transition {
+  pointer-events: none;
+}
+
+[data-scrollbar=thin] {
+  --scrollbar-width: thin;
+  --scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+  --scrollbar-gutter: auto;
+}
+
+[data-scrollbar=default] {
+  --scrollbar-width: auto;
+  --scrollbar-color: auto;
+  --scrollbar-gutter: auto;
+}
+
+[data-scrollbar=none] {
+  --scrollbar-width: none;
+  --scrollbar-color: auto;
+  --scrollbar-gutter: auto;
+}

@@ -1,0 +1,244 @@
+/*
+ * HeroUI Pro — 组件 combo-box
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.combo-box {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+:is(.combo-box[data-invalid=true],.combo-box[aria-invalid=true]) [data-slot=description] {
+  display: none;
+}
+
+.combo-box [data-slot=label] {
+  width: fit-content;
+}
+
+.combo-box [data-slot=input] {
+  min-width: calc(var(--spacing) * 0);
+  flex: 1;
+}
+
+.combo-box [data-slot=input]:has(+.combo-box__trigger) {
+  padding-inline-end: calc(var(--spacing) * 7);
+}
+
+.combo-box [data-slot=input]:focus,
+.combo-box [data-slot=input][data-focus] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-outline-style: none;
+  --tw-ring-offset-width: 0px;
+  border-color: var(--field-border-focus);
+  background-color: var(--field-focus);
+  outline-style: none;
+}
+
+.combo-box [data-slot=input]:disabled,
+.combo-box [data-slot=input][data-disabled],
+.combo-box [data-slot=input][aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.combo-box__input-group {
+  isolation: isolate;
+  align-items: center;
+  display: inline-flex;
+  position: relative;
+}
+
+.combo-box__trigger {
+  --tw-translate-y: calc(calc(1 / 2 * 100%) * -1);
+  height: 100%;
+  translate: var(--tw-translate-x) var(--tw-translate-y);
+  cursor: pointer;
+  color: var(--field-placeholder,var(--muted));
+  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to,opacity,box-shadow,transform,translate,scale,rotate,filter,-webkit-backdrop-filter,backdrop-filter,display,content-visibility,overlay,pointer-events;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .15s;
+  -webkit-tap-highlight-color: transparent;
+  --tw-border-style: none;
+  --tw-outline-style: none;
+  inset-inline-end: calc(var(--spacing) * 0);
+  background-color: #0000;
+  border-style: none;
+  outline-style: none;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  padding-inline-end: calc(var(--spacing) * 2);
+  transition-duration: .15s;
+  display: flex;
+  position: absolute;
+  top: 50%;
+}
+
+@media (hover:hover) {
+  .combo-box__trigger:hover,
+  .combo-box__trigger[data-hovered=true] {
+    color: var(--field-foreground,var(--foreground));
+  }
+}
+
+.combo-box__trigger:focus-visible:not(:focus),
+.combo-box__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: 2px;
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  border-radius: .25rem;
+  outline-style: none;
+}
+
+.combo-box__trigger[data-pressed=true] {
+  opacity: .7;
+}
+
+.combo-box__trigger:disabled,
+.combo-box__trigger[data-disabled],
+.combo-box__trigger[aria-disabled=true] {
+  cursor: not-allowed;
+  opacity: .5;
+}
+
+.combo-box__trigger [data-slot=combo-box-trigger-default-icon] {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+  transition-property: transform,translate,scale,rotate;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .15s;
+  transition-duration: .15s;
+}
+
+.combo-box__trigger [data-slot=combo-box-trigger-default-icon]:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.combo-box__trigger [data-slot=combo-box-trigger-default-icon]:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.combo-box__trigger [data-slot=combo-box-trigger-default-icon]:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .combo-box__trigger [data-slot=combo-box-trigger-default-icon]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .combo-box__trigger [data-slot=combo-box-trigger-default-icon]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .combo-box__trigger [data-slot=combo-box-trigger-default-icon]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.combo-box__trigger[data-open=true] [data-slot=combo-box-trigger-default-icon] {
+  rotate: 180deg;
+}
+
+.combo-box__popover {
+  min-width: var(--trigger-width);
+  transform-origin: var(--trigger-anchor-point);
+  scroll-padding-block: calc(var(--spacing) * 1);
+  overscroll-behavior: contain;
+  background-color: var(--overlay);
+  padding: calc(var(--spacing) * 0);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  border-radius: min(32px, var(--radius-3xl));
+  box-shadow: var(--shadow-overlay);
+  overflow-y: auto;
+}
+
+.combo-box__popover:focus-visible:not(:focus),
+.combo-box__popover[data-focus-visible=true] {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.combo-box__popover[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: ease;
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: .95;
+  transition-duration: .15s;
+  transition-timing-function: ease;
+}
+
+.combo-box__popover[data-entering=true][data-placement=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.combo-box__popover[data-entering=true][data-placement=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.combo-box__popover[data-entering=true][data-placement=left] {
+  --tw-enter-translate-x: calc(1*var(--spacing));
+}
+
+.combo-box__popover[data-entering=true][data-placement=right] {
+  --tw-enter-translate-x: calc(1*var(--spacing)*-1);
+}
+
+.combo-box__popover[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: ease;
+  --tw-exit-scale: .95;
+  --tw-exit-opacity: 0;
+  transition-duration: .1s;
+  transition-timing-function: ease;
+}
+
+.combo-box__popover[data-exiting=true],
+.combo-box__popover[data-entering=true] {
+  transition-property: opacity,transform;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  will-change: opacity,transform;
+}
+
+.combo-box__popover [data-slot=popover-overlay-arrow] {
+  fill: var(--overlay);
+}
+
+.combo-box__popover[data-placement=bottom] [data-slot=popover-overlay-arrow] {
+  rotate: 180deg;
+}
+
+.combo-box__popover[data-placement=left] [data-slot=popover-overlay-arrow] {
+  rotate: -90deg;
+}
+
+.combo-box__popover[data-placement=right] [data-slot=popover-overlay-arrow] {
+  rotate: 90deg;
+}
+
+.combo-box__popover [data-slot=list-box] {
+  padding: calc(var(--spacing) * 1.5);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.combo-box__popover [data-slot=list-box-item] {
+  padding-inline: calc(var(--spacing) * 2.5);
+}
+
+.combo-box__popover [data-slot=list-box-item] [data-slot=list-box-item-indicator--checkmark] {
+  transition-property: none;
+}
+
+.combo-box--full-width,
+.combo-box__input-group--full-width {
+  width: 100%;
+}

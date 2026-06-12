@@ -1,0 +1,90 @@
+/*
+ * HeroUI Pro — 组件 widget
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.widget {
+  border-radius: calc(var(--radius) * 2);
+  background-color: var(--surface-secondary);
+  flex-direction: column;
+  display: flex;
+  overflow: hidden;
+}
+
+.widget__header {
+  margin-top: calc(var(--spacing) * .5);
+  min-height: calc(var(--spacing) * 8);
+  justify-content: space-between;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  padding-inline: calc(var(--spacing) * 4);
+  display: flex;
+}
+
+.widget__title {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
+}
+
+.widget__description {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  color: var(--muted);
+}
+
+.widget__content {
+  margin-inline: calc(var(--spacing) * 1.5);
+  margin-bottom: calc(var(--spacing) * 1.5);
+  border-radius: calc(var(--radius) * 1.5);
+  background-color: var(--surface);
+  padding: calc(var(--spacing) * 4);
+  flex: 1;
+  overflow: hidden;
+}
+
+.widget__content:first-child {
+  margin-top: calc(var(--spacing) * 1.5);
+}
+
+.widget__content {
+  box-shadow: 0 0 0 1px #00000008,0 1px 2px #0000000a;
+  box-shadow: 0 0 0 1px lab(0% 0 0/.03),0 1px 2px lab(0% 0 0/.04);
+}
+
+.widget__footer {
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  padding-inline: calc(var(--spacing) * 4);
+  padding-top: calc(var(--spacing) * 3);
+  padding-bottom: calc(var(--spacing) * 4);
+  display: flex;
+}
+
+.widget__legend {
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  display: flex;
+}
+
+.widget__legend-item {
+  align-items: center;
+  gap: calc(var(--spacing) * 1.5);
+  display: flex;
+}
+
+.widget__legend-item-dot {
+  width: calc(var(--spacing) * 2.5);
+  height: calc(var(--spacing) * 2.5);
+  border-radius: 3.40282e38px;
+  flex-shrink: 0;
+}
+
+.widget__legend-item-label {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  color: var(--muted);
+}

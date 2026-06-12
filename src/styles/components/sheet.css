@@ -1,0 +1,331 @@
+/*
+ * HeroUI Pro — 组件 sheet
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.sheet__backdrop {
+  z-index: 50;
+  position: fixed;
+  inset: 0;
+}
+
+.sheet__backdrop--opaque:before {
+  background-color: var(--backdrop);
+}
+
+.sheet__backdrop--blur:before {
+  background-color: var(--background);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .sheet__backdrop--blur:before {
+    background-color: color-mix(in oklab, var(--background) 1%, transparent);
+  }
+}
+
+.sheet__backdrop--blur:before {
+  --tw-backdrop-blur: blur(var(--blur-sm));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+
+.sheet__backdrop--transparent:before {
+  background: 0 0;
+}
+
+.sheet__content {
+  z-index: 50;
+  outline: none;
+  position: fixed;
+}
+
+.sheet__content--bottom {
+  border-top-left-radius: calc(var(--radius) * 2);
+  border-top-right-radius: calc(var(--radius) * 2);
+  max-height: 96vh;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.sheet__content--top {
+  border-bottom-right-radius: calc(var(--radius) * 2);
+  border-bottom-left-radius: calc(var(--radius) * 2);
+  max-height: 96vh;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+
+.sheet__content--left {
+  border-top-right-radius: calc(var(--radius) * 2);
+  border-bottom-right-radius: calc(var(--radius) * 2);
+  max-width: 96vw;
+  height: 100dvh;
+  top: 0;
+  bottom: 0;
+  left: 0;
+}
+
+.sheet__content--right {
+  border-top-left-radius: calc(var(--radius) * 2);
+  border-bottom-left-radius: calc(var(--radius) * 2);
+  max-width: 96vw;
+  height: 100dvh;
+  top: 0;
+  bottom: 0;
+  right: 0;
+}
+
+[data-sheet-detached] .sheet__dialog {
+  border-radius: calc(var(--radius) * 2);
+}
+
+[data-sheet-detached].sheet__content--bottom {
+  bottom: .5rem;
+  left: .5rem;
+  right: .5rem;
+}
+
+[data-sheet-detached].sheet__content--top {
+  top: .5rem;
+  left: .5rem;
+  right: .5rem;
+}
+
+[data-sheet-detached].sheet__content--left {
+  top: .5rem;
+  bottom: .5rem;
+  left: .5rem;
+}
+
+[data-sheet-detached].sheet__content--right {
+  top: .5rem;
+  bottom: .5rem;
+  right: .5rem;
+}
+
+.sheet__dialog {
+  background-color: var(--overlay);
+  color: var(--overlay-foreground);
+  --tw-shadow: var(--overlay-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  outline: none;
+  flex-direction: column;
+  flex: auto;
+  min-height: 0;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.sheet__dialog--bottom {
+  border-top-left-radius: calc(var(--radius) * 2);
+  border-top-right-radius: calc(var(--radius) * 2);
+  max-height: 96vh;
+}
+
+.sheet__dialog--top {
+  border-bottom-right-radius: calc(var(--radius) * 2);
+  border-bottom-left-radius: calc(var(--radius) * 2);
+  max-height: 96vh;
+}
+
+[data-sheet-snap-points=true] .sheet__dialog--bottom,
+[data-sheet-snap-points=true] .sheet__dialog--top {
+  max-height: none;
+}
+
+.sheet__dialog--left {
+  border-top-right-radius: calc(var(--radius) * 2);
+  border-bottom-right-radius: calc(var(--radius) * 2);
+  height: 100%;
+}
+
+.sheet__dialog--right {
+  border-top-left-radius: calc(var(--radius) * 2);
+  border-bottom-left-radius: calc(var(--radius) * 2);
+  height: 100%;
+}
+
+.sheet__header {
+  flex-direction: column;
+  flex-shrink: 0;
+  gap: .25rem;
+  padding: 1rem 1.25rem .5rem;
+  display: flex;
+}
+
+.sheet__heading {
+  font-size: var(--text-lg);
+  line-height: var(--tw-leading,var(--text-lg--line-height));
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+}
+
+.sheet__body {
+  -webkit-overflow-scrolling: touch;
+  flex: auto;
+  padding: .5rem 1.25rem;
+  overflow-y: auto;
+}
+
+.sheet__footer {
+  flex-shrink: 0;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .5rem;
+  padding: .5rem 1.25rem 1rem;
+  display: flex;
+}
+
+.sheet__handle {
+  cursor: grab;
+  touch-action: pan-y;
+  justify-content: center;
+  align-items: center;
+  padding: .75rem 0;
+  display: flex;
+  position: relative;
+}
+
+.sheet__handle:active {
+  cursor: grabbing;
+}
+
+.sheet__handle-bar {
+  background-color: var(--default);
+  border-radius: 3.40282e38px;
+  width: 2rem;
+  height: .3rem;
+  transition: background-color .15s;
+  display: block;
+}
+
+.sheet__handle:hover .sheet__handle-bar,
+.sheet__handle:active .sheet__handle-bar {
+  background-color: var(--default-hover);
+}
+
+.sheet__close-trigger {
+  --tw-outline-style: none;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--muted);
+  cursor: var(--cursor-interactive);
+  outline-style: none;
+  position: absolute;
+  top: .75rem;
+  right: .75rem;
+}
+
+.sheet__close-trigger:focus-visible,
+.sheet__close-trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.sheet__close-trigger:disabled,
+.sheet__close-trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+@media (hover:hover) {
+  .sheet__close-trigger:hover,
+  .sheet__close-trigger[data-hovered=true] {
+    color: var(--foreground);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-fadeIn {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-fadeOut {
+  to {
+    opacity: 0;
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideFromBottom {
+  0% {
+    transform: translate3d(0, var(--initial-transform,100%), 0);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideToBottom {
+  to {
+    transform: translate3d(0, var(--initial-transform,100%), 0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideFromTop {
+  0% {
+    transform: translate3d(0, calc(var(--initial-transform,100%) * -1), 0);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideToTop {
+  to {
+    transform: translate3d(0, calc(var(--initial-transform,100%) * -1), 0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideFromLeft {
+  0% {
+    transform: translate3d(calc(var(--initial-transform,100%) * -1), 0, 0);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideToLeft {
+  to {
+    transform: translate3d(calc(var(--initial-transform,100%) * -1), 0, 0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideFromRight {
+  0% {
+    transform: translate3d(var(--initial-transform,100%), 0, 0);
+  }
+  to {
+    transform: translate(0);
+  }
+}
+
+/* @keyframes */
+@keyframes sheet-slideToRight {
+  to {
+    transform: translate3d(var(--initial-transform,100%), 0, 0);
+  }
+}

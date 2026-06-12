@@ -1,0 +1,362 @@
+/*
+ * HeroUI Pro — 组件 alert-dialog
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.alert-dialog__trigger {
+  cursor: var(--cursor-interactive);
+  transition: transform .25s var(--ease-out-quart), background-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+  display: inline-block;
+}
+
+.alert-dialog__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.alert-dialog__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.alert-dialog__trigger:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .alert-dialog__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .alert-dialog__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .alert-dialog__trigger:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.alert-dialog__trigger:focus-visible:not(:focus),
+.alert-dialog__trigger[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.alert-dialog__trigger:disabled,
+.alert-dialog__trigger[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.alert-dialog__trigger:active,
+.alert-dialog__trigger[data-pressed=true] {
+  transform: scale(.97);
+}
+
+.alert-dialog__backdrop {
+  inset: calc(var(--spacing) * 0);
+  z-index: 50;
+  height: var(--visual-viewport-height);
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  display: flex;
+  position: fixed;
+}
+
+.alert-dialog__backdrop[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .15s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .15s;
+  transition-timing-function: var(--ease-out);
+  --tw-enter-opacity: 0;
+}
+
+.alert-dialog__backdrop[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .1s;
+  transition-timing-function: var(--ease-out);
+  --tw-exit-opacity: 0;
+}
+
+.alert-dialog__backdrop[data-exiting=true],
+.alert-dialog__backdrop[data-entering=true] {
+  will-change: opacity;
+}
+
+:is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.alert-dialog__backdrop[data-exiting=true],.alert-dialog__backdrop[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.alert-dialog__backdrop--transparent {
+  background-color: #0000;
+}
+
+.alert-dialog__backdrop--opaque {
+  background-color: var(--backdrop);
+}
+
+.alert-dialog__backdrop--blur {
+  background-color: var(--backdrop);
+  --tw-backdrop-blur: blur(var(--blur-md));
+  -webkit-backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+  backdrop-filter: var(--tw-backdrop-blur,) var(--tw-backdrop-brightness,) var(--tw-backdrop-contrast,) var(--tw-backdrop-grayscale,) var(--tw-backdrop-hue-rotate,) var(--tw-backdrop-invert,) var(--tw-backdrop-opacity,) var(--tw-backdrop-saturate,) var(--tw-backdrop-sepia,);
+}
+
+.alert-dialog__container {
+  height: var(--visual-viewport-height);
+  width: 100%;
+  min-width: calc(var(--spacing) * 0);
+  padding: calc(var(--spacing) * 4);
+  flex-direction: column;
+  flex: 1;
+  align-items: center;
+  display: flex;
+}
+
+@media (min-width:40rem) {
+  .alert-dialog__container {
+    width: fit-content;
+    padding: calc(var(--spacing) * 10);
+  }
+}
+
+.alert-dialog__container {
+  pointer-events: none;
+}
+
+.alert-dialog__container[data-entering=true] {
+  animation: enter var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .25s;
+  --tw-ease: cubic-bezier(.25, .46, .45, .94);
+  --tw-enter-opacity: 0;
+  --tw-enter-scale: calc(105*1%);
+  transition-duration: .25s;
+  transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+}
+
+.alert-dialog__container[data-entering=true][data-placement=auto] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+@media (min-width:40rem) {
+  .alert-dialog__container[data-entering=true][data-placement=auto] {
+    --tw-enter-translate-y: calc(0*100%);
+  }
+}
+
+.alert-dialog__container[data-entering=true][data-placement=top] {
+  --tw-enter-translate-y: calc(1*var(--spacing)*-1);
+}
+
+.alert-dialog__container[data-entering=true][data-placement=center] {
+  --tw-enter-translate-y: calc(0*-100%);
+}
+
+.alert-dialog__container[data-entering=true][data-placement=bottom] {
+  --tw-enter-translate-y: calc(1*var(--spacing));
+}
+
+.alert-dialog__container[data-exiting=true] {
+  animation: exit var(--tw-animation-duration,var(--tw-duration,.15s))var(--tw-ease,ease)var(--tw-animation-delay,0s)var(--tw-animation-iteration-count,1)var(--tw-animation-direction,normal)var(--tw-animation-fill-mode,none);
+  --tw-duration: .1s;
+  --tw-ease: cubic-bezier(.25, .46, .45, .94);
+  --tw-exit-opacity: 0;
+  --tw-exit-scale: .95;
+  transition-duration: .1s;
+  transition-timing-function: cubic-bezier(.25,.46,.45,.94);
+}
+
+.alert-dialog__container[data-exiting=true],
+.alert-dialog__container[data-entering=true] {
+  will-change: opacity,transform;
+}
+
+:is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  :is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.alert-dialog__container[data-exiting=true],.alert-dialog__container[data-entering=true]):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
+}
+
+.alert-dialog__dialog {
+  background-color: var(--overlay);
+  --tw-shadow: var(--overlay-shadow);
+  width: 100%;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-outline-style: none;
+  border-radius: min(32px, var(--radius-3xl));
+  padding: calc(var(--spacing) * 6);
+  pointer-events: auto;
+  outline-style: none;
+  flex-direction: column;
+  display: flex;
+  position: relative;
+  overflow: clip;
+}
+
+.alert-dialog__dialog[data-placement=auto] {
+  margin-top: auto;
+}
+
+@media (min-width:40rem) {
+  .alert-dialog__dialog[data-placement=auto] {
+    margin-block: auto;
+  }
+}
+
+.alert-dialog__dialog[data-placement=center] {
+  margin-block: auto;
+}
+
+.alert-dialog__dialog[data-placement=bottom] {
+  margin-top: auto;
+}
+
+.alert-dialog__dialog[data-placement=top] {
+  margin-top: calc(var(--spacing) * 0);
+}
+
+.alert-dialog__dialog--xs {
+  max-width: var(--container-xs);
+}
+
+.alert-dialog__dialog--sm {
+  max-width: var(--container-sm);
+}
+
+.alert-dialog__dialog--md {
+  max-width: var(--container-md);
+}
+
+.alert-dialog__dialog--lg {
+  max-width: var(--container-lg);
+}
+
+.alert-dialog__dialog--cover {
+  width: 100%;
+  height: 100%;
+  min-height: 100%;
+}
+
+.alert-dialog__header {
+  gap: calc(var(--spacing) * 3);
+  margin-bottom: calc(var(--spacing) * 0);
+  flex-direction: column;
+  display: flex;
+}
+
+.alert-dialog__header>.modal__icon {
+  margin-bottom: calc(var(--spacing) * 0);
+}
+
+.alert-dialog__heading {
+  vertical-align: middle;
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+}
+
+.alert-dialog__icon {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+  border-radius: calc(var(--radius) * 3);
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.alert-dialog__icon [data-slot=alert-dialog-default-icon] {
+  box-sizing: content-box;
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+}
+
+.alert-dialog__icon--default {
+  background-color: var(--default);
+  color: var(--foreground);
+}
+
+.alert-dialog__icon--accent {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+.alert-dialog__icon--success {
+  background-color: var(--success-soft);
+  color: var(--success-soft-foreground);
+}
+
+.alert-dialog__icon--warning {
+  background-color: var(--warning-soft);
+  color: var(--warning-soft-foreground);
+}
+
+.alert-dialog__icon--danger {
+  background-color: var(--danger-soft);
+  color: var(--danger-soft-foreground);
+}
+
+.alert-dialog__body {
+  min-height: calc(var(--spacing) * 0);
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: 1.43;
+  color: var(--muted);
+  margin: -3px;
+  margin-block: calc(var(--spacing) * 0);
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+  padding: 3px;
+  line-height: 1.43;
+  overflow-y: auto;
+}
+
+.alert-dialog__footer {
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  margin-top: calc(var(--spacing) * 0);
+  flex-direction: row;
+  display: flex;
+}
+
+.alert-dialog__close-trigger {
+  top: calc(var(--spacing) * 4);
+  right: calc(var(--spacing) * 4);
+  position: absolute;
+}
+
+.alert-dialog__header+.alert-dialog__body {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+.alert-dialog__header+.alert-dialog__footer,
+.alert-dialog__body+.alert-dialog__footer {
+  margin-top: calc(var(--spacing) * 5);
+}

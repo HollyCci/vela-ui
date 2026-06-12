@@ -1,0 +1,151 @@
+/*
+ * HeroUI Pro — 组件 link
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.link {
+  border-radius: calc(var(--radius) * 1.5);
+  width: fit-content;
+  height: fit-content;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--link);
+  text-decoration-line: none;
+  -webkit-text-decoration-color: var(--separator-tertiary);
+  -webkit-text-decoration-color: var(--separator-tertiary);
+  -webkit-text-decoration-color: var(--separator-tertiary);
+  text-decoration-color: var(--separator-tertiary);
+  text-underline-offset: 4px;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .1s var(--ease-smooth), background-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out), opacity .1s var(--ease-out);
+  align-items: center;
+  text-decoration-thickness: 1.5px;
+  display: inline-flex;
+  position: relative;
+}
+
+.link:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.link:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.link:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .link:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .link:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .link:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.link {
+  cursor: var(--cursor-interactive);
+}
+
+@media (hover:hover) {
+  .link:hover,
+  .link[data-hovered=true] {
+    text-decoration-line: underline;
+    -webkit-text-decoration-color: var(--muted);
+    -webkit-text-decoration-color: var(--muted);
+    -webkit-text-decoration-color: var(--muted);
+    text-decoration-color: var(--muted);
+  }
+}
+
+@media (hover:hover) {
+  @supports (color:color-mix(in lab, red, red)) {
+    .link:hover,
+    .link[data-hovered=true] {
+      -webkit-text-decoration-color: color-mix(in oklab, var(--muted) 50%, transparent);
+      -webkit-text-decoration-color: color-mix(in oklab, var(--muted) 50%, transparent);
+      -webkit-text-decoration-color: color-mix(in oklab, var(--muted) 50%, transparent);
+      text-decoration-color: color-mix(in oklab, var(--muted) 50%, transparent);
+    }
+  }
+}
+
+@media (hover:hover) {
+  :is(.link:hover,.link[data-hovered=true]) .link__icon {
+    opacity: 1;
+  }
+}
+
+.link:active,
+.link[data-pressed=true] {
+  text-decoration-line: underline;
+  -webkit-text-decoration-color: var(--muted);
+  -webkit-text-decoration-color: var(--muted);
+  -webkit-text-decoration-color: var(--muted);
+  text-decoration-color: var(--muted);
+}
+
+:is(.link:active,.link[data-pressed=true]) .link__icon {
+  opacity: 1;
+}
+
+.link:focus-visible:not(:focus),
+.link[data-focus-visible=true] {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+:is(.link:focus-visible:not(:focus),.link[data-focus-visible=true]) .link__icon {
+  opacity: 1;
+}
+
+.link[aria-disabled=true] {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.link .link__icon {
+  pointer-events: none;
+  width: calc(var(--spacing) * 2);
+  height: calc(var(--spacing) * 2);
+  color: currentColor;
+  opacity: .6;
+  transition: opacity .15s var(--ease-out);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+.link .link__icon:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.link .link__icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.link .link__icon:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .link .link__icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .link .link__icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .link .link__icon:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.link .link__icon svg {
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+}
+
+.link .link__icon[data-default-icon=true] {
+  margin-left: calc(var(--spacing) * 1);
+  padding-bottom: calc(var(--spacing) * 1.5);
+}
+
+.link.button {
+  gap: calc(var(--spacing) * 0);
+  text-decoration-line: none;
+}

@@ -1,0 +1,189 @@
+/*
+ * HeroUI Pro — 组件 calendar-year-picker
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.calendar-year-picker__trigger {
+  justify-content: flex-start;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  border-radius: calc(var(--radius) * 1);
+  --tw-outline-style: none;
+  cursor: var(--cursor-interactive);
+  touch-action: manipulation;
+  outline-style: none;
+  flex: 1;
+  display: flex;
+}
+
+.calendar-year-picker__trigger:focus-visible {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.calendar-year-picker__trigger-heading {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  transition: color .15s var(--ease-out);
+}
+
+.calendar-year-picker__trigger-heading:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar-year-picker__trigger-heading:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar-year-picker__trigger-heading:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar-year-picker__trigger-heading:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar-year-picker__trigger-heading:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar-year-picker__trigger-heading:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar-year-picker__trigger-indicator {
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  color: var(--accent-soft-foreground);
+  transition: transform .15s var(--ease-out);
+}
+
+.calendar-year-picker__trigger-indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar-year-picker__trigger-indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar-year-picker__trigger-indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar-year-picker__trigger-indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar-year-picker__trigger-indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar-year-picker__trigger-indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar-year-picker__trigger[data-open=true] .calendar-year-picker__trigger-indicator {
+  transform: rotate(90deg);
+}
+
+.calendar-year-picker__trigger[data-open=true] .calendar-year-picker__trigger-heading {
+  color: var(--accent-soft-foreground);
+}
+
+.calendar-year-picker__year-grid {
+  pointer-events: none;
+  right: calc(var(--spacing) * 0);
+  left: calc(var(--spacing) * 0);
+  align-content: flex-start;
+  gap: calc(var(--spacing) * 1);
+  padding: calc(var(--spacing) * 1);
+  opacity: 0;
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
+  will-change: opacity;
+  grid-template-columns: repeat(3,1fr);
+  display: grid;
+  position: absolute;
+  overflow-y: auto;
+}
+
+.calendar-year-picker__year-grid[data-open=true] {
+  pointer-events: auto;
+  opacity: 1;
+  transition: opacity .2s var(--ease-out) 50ms;
+}
+
+.calendar-year-picker__year-grid[data-open=true]:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar-year-picker__year-grid[data-open=true]:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar-year-picker__year-grid[data-open=true]:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar-year-picker__year-grid[data-open=true]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar-year-picker__year-grid[data-open=true]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar-year-picker__year-grid[data-open=true]:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar-year-picker__year-cell {
+  height: calc(var(--spacing) * 8);
+  border-radius: calc(var(--radius) * 3);
+  padding-inline: calc(var(--spacing) * 2.5);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  --tw-outline-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: color .1s var(--ease-smooth), scale .1s var(--ease-smooth), opacity .1s var(--ease-smooth), background-color .1s var(--ease-smooth), box-shadow .1s var(--ease-out);
+  transform-origin: 50%;
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  outline-style: none;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+  position: relative;
+}
+
+.calendar-year-picker__year-cell:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.calendar-year-picker__year-cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.calendar-year-picker__year-cell:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .calendar-year-picker__year-cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .calendar-year-picker__year-cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .calendar-year-picker__year-cell:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.calendar-year-picker__year-cell {
+  cursor: var(--cursor-interactive);
+}
+
+@media (hover:hover) and (pointer:fine) {
+  .calendar-year-picker__year-cell:is(:hover,[data-hovered=true]):not([data-selected=true]) {
+    background-color: var(--default);
+    color: var(--default-foreground);
+  }
+}
+
+.calendar-year-picker__year-cell[data-selected=true],
+.calendar-year-picker__year-cell[aria-selected=true] {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+@media (hover:hover) and (pointer:fine) {
+  :is(.calendar-year-picker__year-cell[data-selected=true],.calendar-year-picker__year-cell[aria-selected=true]):is(:hover,[data-hovered=true]) {
+    background-color: var(--accent-hover);
+  }
+}
+
+.calendar-year-picker__year-cell:focus-visible {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}

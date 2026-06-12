@@ -1,0 +1,135 @@
+/*
+ * HeroUI Pro — 组件 tag
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.tag {
+  --optical-offset: .031em;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  border-radius: calc(var(--radius) * 1.5);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: color .1s var(--ease-smooth), scale .1s var(--ease-smooth), opacity .1s var(--ease-smooth), background-color .1s var(--ease-smooth), box-shadow .1s var(--ease-out);
+  transform-origin: 50%;
+  transform: translateZ(0) var(--tw-rotate-x,) var(--tw-rotate-y,) var(--tw-rotate-z,) var(--tw-skew-x,) var(--tw-skew-y,);
+  display: inline-flex;
+  position: relative;
+}
+
+.tag:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.tag:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.tag:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .tag:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .tag:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .tag:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.tag {
+  cursor: var(--cursor-interactive);
+}
+
+.tag svg {
+  pointer-events: none;
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  color: currentColor;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.tag:is([data-disabled=true],[aria-disabled=true]) {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}
+
+.tag:is(:focus-visible,[data-focus-visible]) {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.tag:is([data-selected=true],[aria-selected=true]) {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+@media (hover:hover) {
+  .tag:is([data-selected=true],[aria-selected=true]):is(:hover,[data-hovered=true]) {
+    background-color: var(--accent-soft-hover);
+  }
+}
+
+.tag--sm {
+  padding-inline: calc(var(--spacing) * 2);
+  padding-block: calc(var(--spacing) * .5);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+}
+
+.tag--md {
+  padding-inline: calc(var(--spacing) * 2);
+  padding-block: calc(var(--spacing) * 1);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+}
+
+.tag--lg {
+  border-radius: calc(var(--radius) * 2);
+  padding-inline: calc(var(--spacing) * 2.5);
+  padding-block: calc(var(--spacing) * 1.5);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.tag--default {
+  background-color: var(--default);
+  color: var(--default-foreground);
+}
+
+@media (hover:hover) {
+  .tag--default:is(:hover,[data-hovered=true]):not([data-selected=true]):not([data-disabled=true]) {
+    background-color: var(--default-hover);
+  }
+}
+
+.tag--surface {
+  background-color: var(--surface);
+  color: var(--surface-foreground);
+}
+
+@media (hover:hover) {
+  .tag--surface:is(:hover,[data-hovered=true]):not([data-selected=true]):not([data-disabled=true]) {
+    background-color: var(--surface-hover);
+  }
+}
+
+.tag__remove-button {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  color: inherit;
+}
+
+.tag__remove-button svg {
+  width: inherit;
+  height: inherit;
+  color: currentColor;
+  flex-shrink: 0;
+  align-self: center;
+}

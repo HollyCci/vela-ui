@@ -1,0 +1,246 @@
+/*
+ * HeroUI Pro — 组件 toast
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.toast {
+  pointer-events: auto;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 1.5);
+  background-color: var(--surface);
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 3);
+  --tw-shadow: var(--overlay-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  border-radius: min(32px, var(--radius-3xl));
+  flex-direction: row;
+  display: flex;
+  position: absolute;
+  left: 0;
+  right: 0;
+}
+
+.toast--bottom,
+.toast--bottom-start,
+.toast--bottom-end {
+  bottom: 0;
+}
+
+.toast--top,
+.toast--top-start,
+.toast--top-end {
+  top: 0;
+}
+
+.toast:not([data-frontmost=true]) {
+  pointer-events: none;
+  height: var(--front-height);
+  overflow: hidden;
+}
+
+.toast:not([data-frontmost=true]) .toast__close-button {
+  pointer-events: none;
+  opacity: 0;
+  outline: none;
+}
+
+.toast[data-hidden=true] {
+  pointer-events: none;
+  opacity: 0;
+  display: flex;
+}
+
+.toast:focus-visible {
+  outline-style: var(--tw-outline-style);
+  outline-offset: 2px;
+  outline-width: 2px;
+  outline-color: var(--focus);
+}
+
+.toast--bottom,
+.toast--bottom-start,
+.toast--bottom-end {
+  view-transition-class: toast-bottom;
+}
+
+.toast--top,
+.toast--top-start,
+.toast--top-end {
+  view-transition-class: toast-top;
+}
+
+.toast__content {
+  flex-direction: column;
+  flex-grow: 1;
+  align-self: center;
+  align-items: flex-start;
+  height: 100%;
+  display: flex;
+}
+
+.toast__indicator {
+  padding: calc(var(--spacing) * 1);
+  color: var(--overlay-foreground);
+  -webkit-user-select: none;
+  user-select: none;
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.toast__indicator [data-slot=toast-default-icon] {
+  box-sizing: content-box;
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.toast__indicator [data-slot=spinner],
+.toast__indicator [data-slot=spinner-icon] {
+  width: calc(var(--spacing) * 4);
+  height: calc(var(--spacing) * 4);
+}
+
+.toast__title {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: calc(var(--spacing) * 5);
+  line-height: calc(var(--spacing) * 5);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--overlay-foreground);
+}
+
+.toast__description {
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
+}
+
+.toast__close-button {
+  top: calc(var(--spacing) * 2.5);
+  right: calc(var(--spacing) * 2.5);
+  width: calc(var(--spacing) * 5);
+  height: calc(var(--spacing) * 5);
+  border-color: var(--border);
+  background-color: var(--default);
+  opacity: 1;
+  position: absolute;
+}
+
+@media (min-width:40rem) {
+  .toast__close-button {
+    pointer-events: none;
+    top: calc(var(--spacing) * -1);
+    right: calc(var(--spacing) * -1);
+    border-style: var(--tw-border-style);
+    background-color: var(--overlay);
+    opacity: 0;
+    border-width: 1px;
+  }
+}
+
+.toast__close-button {
+  transition: opacity .15s var(--ease-smooth);
+}
+
+.toast__close-button:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.toast__close-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.toast__close-button:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .toast__close-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .toast__close-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .toast__close-button:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.toast__close-button [data-slot=close-button-icon] {
+  width: calc(var(--spacing) * 3.5);
+  height: calc(var(--spacing) * 3.5);
+}
+
+@media (min-width:40rem) {
+  .toast__close-button [data-slot=close-button-icon] {
+    width: calc(var(--spacing) * 3);
+    height: calc(var(--spacing) * 3);
+  }
+}
+
+@media (hover:hover) {
+  .toast__close-button:hover,
+  .toast__close-button[data-hovered=true] {
+    background-color: var(--default);
+  }
+}
+
+.toast[data-frontmost=true]:hover .toast__close-button {
+  pointer-events: auto;
+  opacity: 1;
+}
+
+.toast__action {
+  margin-top: calc(var(--spacing) * 2);
+}
+
+@media (min-width:40rem) {
+  .toast__action {
+    margin-top: calc(var(--spacing) * 0);
+  }
+}
+
+.toast--accent .toast__title {
+  color: var(--accent-soft-foreground);
+}
+
+.toast--success .toast__title,
+.toast--success .toast__indicator {
+  color: var(--success-soft-foreground);
+}
+
+.toast--warning .toast__title,
+.toast--warning .toast__indicator {
+  color: var(--warning-soft-foreground);
+}
+
+.toast--danger .toast__title,
+.toast--danger .toast__indicator {
+  color: var(--danger-soft-foreground);
+}
+
+/* @keyframes */
+@keyframes toast-slide-bottom-in {
+  0% {
+    opacity: 0;
+    translate: 0 100%;
+  }
+}
+
+/* @keyframes */
+@keyframes toast-slide-bottom-out {
+  to {
+    opacity: 0;
+    translate: 0 100%;
+  }
+}
+
+/* @keyframes */
+@keyframes toast-slide-top-in {
+  0% {
+    opacity: 0;
+    translate: 0 -100%;
+  }
+}
+
+/* @keyframes */
+@keyframes toast-slide-top-out {
+  to {
+    opacity: 0;
+    translate: 0 -100%;
+  }
+}

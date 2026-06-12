@@ -1,0 +1,53 @@
+/*
+ * HeroUI Pro — 组件 breadcrumbs
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.breadcrumbs {
+  align-items: center;
+  display: flex;
+}
+
+.breadcrumbs .breadcrumbs__link {
+  padding-inline: calc(var(--spacing) * .5);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-leading: calc(var(--spacing) * 5);
+  line-height: calc(var(--spacing) * 5);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--muted);
+  opacity: 1;
+  text-decoration-line: none;
+  position: relative;
+}
+
+.breadcrumbs .breadcrumbs__link:hover,
+.breadcrumbs .breadcrumbs__link[data-hovered=true] {
+  text-decoration-line: underline;
+}
+
+.breadcrumbs .breadcrumbs__link[data-current=true] {
+  color: var(--link);
+  opacity: 1;
+}
+
+.breadcrumbs .breadcrumbs__item {
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing) * .5);
+  padding-inline: calc(var(--spacing) * .5);
+  flex-shrink: 0;
+  display: flex;
+}
+
+.breadcrumbs .breadcrumbs__separator {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  color: var(--muted);
+}
+
+.breadcrumbs .breadcrumbs__separator:where(:is(:lang(ae),:lang(ar),:lang(arc),:lang(bcc),:lang(bqi),:lang(ckb),:lang(dv),:lang(fa),:lang(glk),:lang(he),:lang(ku),:lang(mzn),:lang(nqo),:lang(pnb),:lang(ps),:lang(sd),:lang(ug),:lang(ur),:lang(yi)),[dir=rtl],[dir=rtl] *) {
+  rotate: 180deg;
+}

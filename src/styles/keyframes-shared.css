@@ -1,0 +1,334 @@
+/*
+ * HeroUI Pro — 共享动画 keyframes
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+@keyframes slot-value-in {
+  0% {
+    opacity: 0;
+    transform: translateY(8px)scale(.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0)scale(1);
+  }
+}
+
+@keyframes sd-fadeIn {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes sd-blurIn {
+  0% {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur();
+  }
+}
+
+@keyframes sd-slideUp {
+  0% {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float-stars {
+  0% {
+    transform: translateY(0)translate(0);
+  }
+  50% {
+    transform: translateY(-40px)translate(40px);
+  }
+  to {
+    transform: translateY(0)translate(0);
+  }
+}
+
+@keyframes float-stars-reverse {
+  0% {
+    transform: translateY(0)translate(0);
+  }
+  50% {
+    transform: translateY(40px)translate(-40px);
+  }
+  to {
+    transform: translateY(0)translate(0);
+  }
+}
+
+@keyframes shine {
+  0% {
+    translate: -100%;
+  }
+  to {
+    translate: 100%;
+  }
+}
+
+@keyframes scrolling-banner {
+  0% {
+    transform: translate(0);
+  }
+  to {
+    transform: translateX(calc(-50% - var(--gap) / 2));
+  }
+}
+
+@keyframes scrolling-banner-vertical {
+  0% {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(calc(-50% - var(--gap) / 2));
+  }
+}
+
+@keyframes custom-fade-in {
+  0% {
+    opacity: 0;
+    -webkit-backdrop-filter: blur()saturate(0%);
+    backdrop-filter: blur()saturate(0%);
+    background-color: #0000;
+  }
+  to {
+    opacity: 1;
+    -webkit-backdrop-filter: blur(8px)saturate(180%);
+    backdrop-filter: blur(8px)saturate(180%);
+    background-color: var(--color-backdrop);
+  }
+}
+
+@keyframes custom-fade-out {
+  0% {
+    opacity: 1;
+    -webkit-backdrop-filter: blur(8px);
+  }
+  to {
+    opacity: 0;
+    -webkit-backdrop-filter: blur();
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  50% {
+    opacity: .5;
+  }
+}
+
+@keyframes fd-sidebar-in {
+  0% {
+    transform: translateX(var(--fd-sidebar-drawer-offset));
+  }
+}
+
+@keyframes fd-sidebar-out {
+  to {
+    transform: translateX(var(--fd-sidebar-drawer-offset));
+  }
+}
+
+@keyframes fd-dialog-in {
+  0% {
+    opacity: 0;
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+@keyframes fd-dialog-out {
+  0% {
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+}
+
+@keyframes fd-popover-in {
+  0% {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}
+
+@keyframes fd-popover-out {
+  to {
+    opacity: 0;
+    transform: scale(.9);
+  }
+}
+
+@keyframes fd-fade-in {
+  0% {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fd-fade-out {
+  0% {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes fd-enterFromRight {
+  0% {
+    opacity: 0;
+    transform: translate(200px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes fd-enterFromLeft {
+  0% {
+    opacity: 0;
+    transform: translate(-200px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(0);
+  }
+}
+
+@keyframes fd-exitToRight {
+  0% {
+    opacity: 1;
+    transform: translate(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(200px);
+  }
+}
+
+@keyframes fd-exitToLeft {
+  0% {
+    opacity: 1;
+    transform: translate(0);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-200px);
+  }
+}
+
+@keyframes fd-collapsible-down {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  to {
+    height: var(--radix-collapsible-content-height);
+  }
+}
+
+@keyframes fd-collapsible-up {
+  0% {
+    height: var(--radix-collapsible-content-height);
+  }
+  to {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+@keyframes fd-accordion-down {
+  0% {
+    opacity: .5;
+    height: 0;
+  }
+  to {
+    height: var(--radix-accordion-content-height);
+  }
+}
+
+@keyframes fd-accordion-up {
+  0% {
+    height: var(--radix-accordion-content-height);
+  }
+  to {
+    opacity: .5;
+    height: 0;
+  }
+}
+
+@keyframes fd-nav-menu-in {
+  0% {
+    opacity: 0;
+    height: 0;
+  }
+  to {
+    opacity: 1;
+    height: var(--radix-navigation-menu-viewport-height);
+  }
+}
+
+@keyframes fd-nav-menu-out {
+  0% {
+    opacity: 1;
+    height: var(--radix-navigation-menu-viewport-height);
+  }
+  to {
+    opacity: 0;
+    height: 0;
+  }
+}
+
+@keyframes enter {
+  0% {
+    opacity: var(--tw-enter-opacity,1);
+    transform: translate3d(var(--tw-enter-translate-x,0),var(--tw-enter-translate-y,0),0)scale3d(var(--tw-enter-scale,1),var(--tw-enter-scale,1),var(--tw-enter-scale,1))rotate(var(--tw-enter-rotate,0));
+    filter: blur(var(--tw-enter-blur,0));
+  }
+}
+
+@keyframes exit {
+  to {
+    opacity: var(--tw-exit-opacity,1);
+    transform: translate3d(var(--tw-exit-translate-x,0),var(--tw-exit-translate-y,0),0)scale3d(var(--tw-exit-scale,1),var(--tw-exit-scale,1),var(--tw-exit-scale,1))rotate(var(--tw-exit-rotate,0));
+    filter: blur(var(--tw-exit-blur,0));
+  }
+}
+
+@keyframes caret-blink {
+  0%,
+  70%,
+  to {
+    opacity: 1;
+  }
+  20%,
+  50% {
+    opacity: 0;
+  }
+}

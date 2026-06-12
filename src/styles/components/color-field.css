@@ -1,0 +1,23 @@
+/*
+ * HeroUI Pro — 组件 color-field
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.color-field {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: flex;
+}
+
+:is(.color-field[data-invalid=true],.color-field[aria-invalid=true]) [data-slot=description] {
+  display: none;
+}
+
+.color-field [data-slot=label] {
+  width: fit-content;
+}
+
+.color-field--full-width {
+  width: 100%;
+}

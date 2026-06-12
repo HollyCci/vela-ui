@@ -1,0 +1,124 @@
+/*
+ * HeroUI Pro — 组件 avatar
+ * 来源: https://heroui.pro/docs（CSS bundle 提取，2026-06-12）
+ * 仅作设计参考，非项目代码。
+ */
+
+.avatar {
+  width: calc(var(--spacing) * 10);
+  height: calc(var(--spacing) * 10);
+  border-radius: calc(var(--radius) * 3);
+  background-color: var(--default);
+  flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.avatar__fallback {
+  background-color: var(--default);
+  width: 100%;
+  height: 100%;
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.avatar__image {
+  inset: calc(var(--spacing) * 0);
+  aspect-ratio: 1;
+  width: 100%;
+  height: 100%;
+  transition-property: opacity;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .25s;
+  transition-duration: .25s;
+  position: absolute;
+}
+
+.avatar__image:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.avatar__image:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.avatar__image:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  transition-property: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .avatar__image:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .avatar__image:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .avatar__image:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    transition-property: none;
+  }
+}
+
+.avatar--sm {
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
+  border-radius: calc(var(--radius) * 2);
+}
+
+.avatar--lg {
+  width: calc(var(--spacing) * 12);
+  height: calc(var(--spacing) * 12);
+  border-radius: calc(var(--radius) * 3);
+}
+
+.avatar--lg .avatar__fallback {
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
+}
+
+.avatar__fallback--accent {
+  color: var(--accent-soft-foreground);
+}
+
+.avatar__fallback--default {
+  color: var(--default-soft-foreground);
+}
+
+.avatar__fallback--success {
+  color: var(--success-soft-foreground);
+}
+
+.avatar__fallback--warning {
+  color: var(--warning-soft-foreground);
+}
+
+.avatar__fallback--danger {
+  color: var(--danger-soft-foreground);
+}
+
+.avatar--soft {
+  background-color: #0000;
+}
+
+.avatar--soft .avatar__fallback--accent {
+  background-color: var(--accent-soft);
+  color: var(--accent-soft-foreground);
+}
+
+.avatar--soft .avatar__fallback--success {
+  background-color: var(--success-soft);
+  color: var(--success-soft-foreground);
+}
+
+.avatar--soft .avatar__fallback--warning {
+  background-color: var(--warning-soft);
+  color: var(--warning-soft-foreground);
+}
+
+.avatar--soft .avatar__fallback--default {
+  background-color: var(--default-soft);
+  color: var(--default-soft-foreground);
+}
+
+.avatar--soft .avatar__fallback--danger {
+  background-color: var(--danger-soft);
+  color: var(--danger-soft-foreground);
+}
