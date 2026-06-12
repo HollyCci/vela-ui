@@ -1,36 +1,83 @@
-/* 展示站自身的布局样式（与组件库样式隔离，前缀 sc-） */
-.sc-layout {
-  display: grid;
-  grid-template-columns: 240px 1fr;
+/* 展示站布局（仿 heroui.pro 文档站，前缀 sc- 与组件样式隔离） */
+.sc-app {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
 }
 
-.sc-sidebar {
-  border-right: 1px solid var(--border);
-  background: var(--surface);
-  padding: 16px 12px;
-  overflow-y: auto;
+/* ── 顶栏 ───────────────────────────── */
+.sc-header {
   position: sticky;
   top: 0;
-  height: 100vh;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  height: 56px;
+  padding: 0 24px;
+  background: color-mix(in oklab, var(--surface) 85%, transparent);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--border);
 }
 
-.sc-sidebar__brand {
+.sc-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   font-size: 15px;
   font-weight: 700;
-  padding: 4px 8px 16px;
+}
+
+.sc-header__logo {
+  font-size: 18px;
+  line-height: 1;
+}
+
+.sc-header__nav {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+}
+
+.sc-header__nav-item {
+  color: var(--muted);
+}
+
+.sc-header__nav-item--on {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.sc-header__meta {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* ── 主体两栏 ───────────────────────── */
+.sc-body {
+  display: grid;
+  grid-template-columns: 256px minmax(0, 1fr);
+}
+
+.sc-sidebar {
+  position: sticky;
+  top: 56px;
+  height: calc(100vh - 56px);
+  overflow-y: auto;
+  padding: 16px 12px 48px;
+  border-right: 1px solid var(--border);
+  background: var(--surface);
 }
 
 .sc-sidebar__group {
   font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.05em;
   color: var(--muted);
-  padding: 14px 8px 6px;
+  padding: 16px 10px 6px;
 }
 
 .sc-sidebar__item {
@@ -41,9 +88,10 @@
   background: transparent;
   font: inherit;
   font-size: 13px;
+  line-height: 1.5;
   color: var(--foreground);
-  padding: 5px 8px;
-  border-radius: calc(var(--radius) * 1);
+  padding: 5px 10px;
+  border-radius: calc(var(--radius) * 1.5);
   cursor: pointer;
 }
 
@@ -56,38 +104,127 @@
   font-weight: 600;
 }
 
-.sc-sidebar__item--todo {
-  color: var(--muted);
-}
-
+/* ── 内容区 ─────────────────────────── */
 .sc-main {
-  padding: 32px 40px 120px;
-  max-width: 960px;
+  padding: 40px 48px 160px;
+  max-width: 980px;
 }
 
 .sc-main__title {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 700;
-  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+  margin: 0 0 6px;
 }
 
 .sc-main__subtitle {
   font-size: 14px;
   color: var(--muted);
-  margin: 0 0 28px;
+  margin: 0 0 36px;
+}
+
+.sc-section {
+  margin-bottom: 44px;
+}
+
+.sc-section__title {
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 12px;
+}
+
+/* ── 预览卡（仿文档站 demo 容器） ───── */
+.sc-preview {
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2.5);
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.sc-preview__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sc-preview__slug {
+  font-size: 12px;
+  color: var(--muted);
+  font-family: var(--font-mono);
+}
+
+.sc-preview__devices {
+  display: flex;
+  gap: 2px;
+  background: var(--default);
+  border-radius: calc(var(--radius) * 1.5);
+  padding: 2px;
+}
+
+.sc-preview__device {
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: 12px;
+  color: var(--muted);
+  padding: 3px 10px;
+  border-radius: calc(var(--radius) * 1.25);
+  cursor: pointer;
+}
+
+.sc-preview__device--on {
+  background: var(--surface);
+  color: var(--foreground);
+  font-weight: 500;
+  box-shadow: 0 1px 2px #0000000f;
+}
+
+.sc-preview__stage {
+  display: flex;
+  justify-content: center;
+  background: var(--background);
+}
+
+.sc-frame {
+  display: block;
+  border: 0;
+  max-width: 100%;
+}
+
+.sc-frame-loading {
+  width: 100%;
+  background: repeating-linear-gradient(90deg, var(--default), var(--surface) 200px);
+}
+
+.sc-frame-error {
+  padding: 24px;
+  font-size: 13px;
+  color: var(--danger);
+}
+
+/* ── React 实现对照区 ───────────────── */
+.sc-react-demo {
+  border: 1px dashed var(--border);
+  border-radius: calc(var(--radius) * 2.5);
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .sc-demo {
-  border: 1px solid var(--border);
-  border-radius: calc(var(--radius) * 2);
-  background: var(--surface);
-  padding: 32px;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 16px;
-  margin-bottom: 16px;
   position: relative;
+  border: 1px solid var(--border);
+  border-radius: calc(var(--radius) * 2);
+  background: var(--surface);
+  padding: 28px;
 }
 
 .sc-demo--column {
@@ -103,12 +240,4 @@
   color: var(--muted);
   background: var(--surface);
   padding: 0 6px;
-}
-
-.sc-todo {
-  border: 1px dashed var(--border);
-  border-radius: calc(var(--radius) * 2);
-  padding: 24px;
-  color: var(--muted);
-  font-size: 13px;
 }

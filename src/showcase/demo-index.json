@@ -1,0 +1,570 @@
+{
+  "action-bar": [
+    "action-bar-default",
+    "action-bar-with-data-grid"
+  ],
+  "agenda": [
+    "agenda-default"
+  ],
+  "app-layout": [
+    "app-layout-collapsible",
+    "app-layout-complex",
+    "app-layout-content-scroll",
+    "app-layout-default",
+    "app-layout-docs-site",
+    "app-layout-floating-sidebar",
+    "app-layout-inset-dashboard",
+    "app-layout-offcanvas",
+    "app-layout-resizable-aside",
+    "app-layout-resizable-sidebar",
+    "app-layout-with-aside",
+    "app-layout-with-breadcrumbs",
+    "app-layout-with-inset-sidebar",
+    "app-layout-with-toolbar"
+  ],
+  "area-chart": [
+    "area-chart-custom-tooltip",
+    "area-chart-default",
+    "area-chart-kpi-with-area-chart",
+    "area-chart-multi-area",
+    "area-chart-sparkline",
+    "area-chart-stacked"
+  ],
+  "bar-chart": [
+    "bar-chart-comparison",
+    "bar-chart-custom-tooltip",
+    "bar-chart-default",
+    "bar-chart-grouped",
+    "bar-chart-horizontal",
+    "bar-chart-horizontal-stacked",
+    "bar-chart-kpi-with-bar-chart",
+    "bar-chart-stacked"
+  ],
+  "carousel": [
+    "carousel-api-access",
+    "carousel-autoplay",
+    "carousel-default",
+    "carousel-loop",
+    "carousel-modal-type",
+    "carousel-multiple-slides"
+  ],
+  "cell-color-picker": [
+    "cell-color-picker-controlled",
+    "cell-color-picker-default",
+    "cell-color-picker-disabled",
+    "cell-color-picker-settings-group",
+    "cell-color-picker-variants",
+    "cell-color-picker-with-presets"
+  ],
+  "cell-select": [
+    "cell-select-controlled",
+    "cell-select-custom-value",
+    "cell-select-default",
+    "cell-select-disabled",
+    "cell-select-font-family",
+    "cell-select-settings-group",
+    "cell-select-variants"
+  ],
+  "cell-slider": [
+    "cell-slider-controlled",
+    "cell-slider-default",
+    "cell-slider-disabled",
+    "cell-slider-integer-step",
+    "cell-slider-secondary-group",
+    "cell-slider-settings-group",
+    "cell-slider-variants"
+  ],
+  "cell-switch": [
+    "cell-switch-controlled",
+    "cell-switch-default",
+    "cell-switch-disabled",
+    "cell-switch-feature-announcement",
+    "cell-switch-secondary-group",
+    "cell-switch-settings-group",
+    "cell-switch-variants"
+  ],
+  "chain-of-thought": [
+    "chain-of-thought-agent-trace",
+    "chain-of-thought-agent-trace-streaming",
+    "chain-of-thought-default",
+    "chain-of-thought-streaming"
+  ],
+  "chart-tooltip": [
+    "chart-tooltip-auto-content",
+    "chart-tooltip-chart-colors",
+    "chart-tooltip-custom-formatters",
+    "chart-tooltip-default",
+    "chart-tooltip-inactive",
+    "chart-tooltip-line-indicator",
+    "chart-tooltip-no-header"
+  ],
+  "chat-attachment": [
+    "chat-attachment-composer",
+    "chat-attachment-default",
+    "chat-attachment-grouped"
+  ],
+  "chat-conversation": [
+    "chat-conversation-default",
+    "chat-conversation-full-chat",
+    "chat-conversation-scroll-button"
+  ],
+  "chat-list-view": [
+    "chat-list-view-compact",
+    "chat-list-view-default"
+  ],
+  "chat-message-actions": [
+    "chat-message-actions-custom-icons",
+    "chat-message-actions-default",
+    "chat-message-actions-minimal"
+  ],
+  "chat-message": [
+    "chat-message-default",
+    "chat-message-loading",
+    "chat-message-with-markdown"
+  ],
+  "chat-source": [
+    "chat-source-composable",
+    "chat-source-default",
+    "chat-source-document",
+    "chat-source-grouped",
+    "chat-source-stacked-favicons"
+  ],
+  "chat-tool": [
+    "chat-tool-approval",
+    "chat-tool-composable",
+    "chat-tool-default",
+    "chat-tool-error-state",
+    "chat-tool-grouped",
+    "chat-tool-streaming"
+  ],
+  "checkbox-button-group": [
+    "checkbox-button-group-controlled",
+    "checkbox-button-group-custom-indicator",
+    "checkbox-button-group-default",
+    "checkbox-button-group-disabled-group",
+    "checkbox-button-group-grid-layout",
+    "checkbox-button-group-icon-cards",
+    "checkbox-button-group-no-indicator",
+    "checkbox-button-group-render-prop-children",
+    "checkbox-button-group-subscription-plans",
+    "checkbox-button-group-with-icons",
+    "checkbox-button-group-with-ripple"
+  ],
+  "code-block": [
+    "code-block-default"
+  ],
+  "command": [
+    "command-backdrop-variants",
+    "command-clean",
+    "command-default",
+    "command-dev-toolbar",
+    "command-launcher",
+    "command-minimal",
+    "command-multiple-search-terms",
+    "command-sizes",
+    "command-split-view"
+  ],
+  "composed-chart": [
+    "composed-chart-area-with-line",
+    "composed-chart-bar-with-area",
+    "composed-chart-default",
+    "composed-chart-multi-type",
+    "composed-chart-stacked-bar-with-line"
+  ],
+  "context-menu": [
+    "context-menu-controlled",
+    "context-menu-default",
+    "context-menu-disabled",
+    "context-menu-long-press",
+    "context-menu-with-sections",
+    "context-menu-with-selection",
+    "context-menu-with-submenus"
+  ],
+  "data-grid": [
+    "data-grid-async-loading",
+    "data-grid-bulk-actions",
+    "data-grid-default",
+    "data-grid-drag-and-drop",
+    "data-grid-editable-cells",
+    "data-grid-empty-state",
+    "data-grid-expandable-rows",
+    "data-grid-pinned-columns",
+    "data-grid-servers",
+    "data-grid-team-members",
+    "data-grid-users",
+    "data-grid-virtualized"
+  ],
+  "drop-zone": [
+    "drop-zone-compact-file-list",
+    "drop-zone-custom-icon",
+    "drop-zone-custom-triggers",
+    "drop-zone-default",
+    "drop-zone-disabled",
+    "drop-zone-image-only",
+    "drop-zone-max-size-limit",
+    "drop-zone-multiple-files",
+    "drop-zone-with-file-list"
+  ],
+  "emoji-picker": [
+    "emoji-picker-custom-categories",
+    "emoji-picker-default",
+    "emoji-picker-inline",
+    "emoji-picker-sizes"
+  ],
+  "emoji-reaction-button": [
+    "emoji-reaction-button-default",
+    "emoji-reaction-button-disabled",
+    "emoji-reaction-button-read-only",
+    "emoji-reaction-button-sizes"
+  ],
+  "empty-state": [
+    "empty-state-default",
+    "empty-state-full-height",
+    "empty-state-minimal",
+    "empty-state-outline",
+    "empty-state-sizes",
+    "empty-state-with-avatar",
+    "empty-state-with-avatar-group",
+    "empty-state-with-background"
+  ],
+  "file-tree": [
+    "file-tree-custom-indicator",
+    "file-tree-default",
+    "file-tree-drag-and-drop",
+    "file-tree-dynamic-collection",
+    "file-tree-guide-lines",
+    "file-tree-multiple-selection",
+    "file-tree-pr-file-review",
+    "file-tree-reduced-motion",
+    "file-tree-sizes",
+    "file-tree-with-icons"
+  ],
+  "floating-toc": [
+    "floating-toc-controlled",
+    "floating-toc-custom-delays",
+    "floating-toc-default",
+    "floating-toc-hierarchical",
+    "floating-toc-in-page-context",
+    "floating-toc-left-aligned-bars",
+    "floating-toc-left-placement",
+    "floating-toc-press-mode",
+    "floating-toc-press-mode-in-page",
+    "floating-toc-virtualized"
+  ],
+  "hover-card": [
+    "hover-card-controlled",
+    "hover-card-custom-delays",
+    "hover-card-default",
+    "hover-card-placements",
+    "hover-card-with-arrow",
+    "hover-card-with-image"
+  ],
+  "inline-select": [
+    "inline-select-custom-indicator",
+    "inline-select-default",
+    "inline-select-multi-select",
+    "inline-select-placements",
+    "inline-select-team-switcher"
+  ],
+  "item-card": [
+    "item-card-default",
+    "item-card-device-list",
+    "item-card-email-setting",
+    "item-card-pressable",
+    "item-card-title-only",
+    "item-card-variants",
+    "item-card-vertical-stack",
+    "item-card-wallet-card",
+    "item-card-with-multi-select",
+    "item-card-with-select",
+    "item-card-with-switch",
+    "item-card-without-icon"
+  ],
+  "item-card-group": [
+    "item-card-group-developer-settings",
+    "item-card-group-grid",
+    "item-card-group-grid-three-columns",
+    "item-card-group-linked-accounts",
+    "item-card-group-list",
+    "item-card-group-multiple-sections",
+    "item-card-group-notification-preferences",
+    "item-card-group-permission-levels",
+    "item-card-group-pressable",
+    "item-card-group-variants",
+    "item-card-group-wallet-list",
+    "item-card-group-with-header"
+  ],
+  "kanban": [
+    "kanban-default",
+    "kanban-notion-board",
+    "kanban-project-board",
+    "kanban-sizes"
+  ],
+  "kpi": [
+    "kpi-default",
+    "kpi-with-actions",
+    "kpi-with-chart-bottom",
+    "kpi-with-chart-inline",
+    "kpi-with-footer",
+    "kpi-with-icon",
+    "kpi-with-progress"
+  ],
+  "kpi-group": [
+    "kpi-group-horizontal",
+    "kpi-group-vertical",
+    "kpi-group-with-from-suffix"
+  ],
+  "line-chart": [
+    "line-chart-custom-tooltip",
+    "line-chart-dashed-comparison",
+    "line-chart-default",
+    "line-chart-kpi-with-chart",
+    "line-chart-multi-line-chart-colors",
+    "line-chart-portfolio",
+    "line-chart-sparkline",
+    "line-chart-stats-with-chart",
+    "line-chart-traffic-source",
+    "line-chart-with-dots"
+  ],
+  "list-view": [
+    "list-view-default",
+    "list-view-disabled-items",
+    "list-view-secondary",
+    "list-view-selection-modes",
+    "list-view-with-actions"
+  ],
+  "markdown": [
+    "markdown-default",
+    "markdown-streaming",
+    "markdown-with-streamdown"
+  ],
+  "native-select": [
+    "native-select-controlled",
+    "native-select-custom-indicator",
+    "native-select-default",
+    "native-select-disabled-select",
+    "native-select-form-example",
+    "native-select-full-width",
+    "native-select-invalid-state",
+    "native-select-variants",
+    "native-select-with-description",
+    "native-select-with-disabled-options",
+    "native-select-with-groups",
+    "native-select-with-label"
+  ],
+  "navbar": [
+    "navbar-compact",
+    "navbar-dashboard",
+    "navbar-default",
+    "navbar-docs-site",
+    "navbar-hide-on-scroll",
+    "navbar-with-dropdowns",
+    "navbar-with-menu"
+  ],
+  "number-stepper": [
+    "number-stepper-controlled",
+    "number-stepper-custom-icons",
+    "number-stepper-custom-value",
+    "number-stepper-default",
+    "number-stepper-disabled",
+    "number-stepper-guest-picker",
+    "number-stepper-min-max-values",
+    "number-stepper-reversed-layout",
+    "number-stepper-sizes",
+    "number-stepper-with-custom-buttons",
+    "number-stepper-with-format-options",
+    "number-stepper-with-label",
+    "number-stepper-with-step"
+  ],
+  "number-value": [
+    "number-value-compact",
+    "number-value-currency",
+    "number-value-default",
+    "number-value-format-options",
+    "number-value-percent",
+    "number-value-sign-display",
+    "number-value-tabular-nums",
+    "number-value-with-prefix-suffix"
+  ],
+  "pie-chart": [
+    "pie-chart-custom-tooltip",
+    "pie-chart-default",
+    "pie-chart-donut",
+    "pie-chart-donut-with-content",
+    "pie-chart-donut-with-label",
+    "pie-chart-nested-donut",
+    "pie-chart-with-breakdown"
+  ],
+  "pressable-feedback": [
+    "pressable-feedback-comparison",
+    "pressable-feedback-default",
+    "pressable-feedback-disabled",
+    "pressable-feedback-hold-confirm-callback",
+    "pressable-feedback-hold-confirm-durations",
+    "pressable-feedback-hold-confirm-sweep",
+    "pressable-feedback-pressable-cards",
+    "pressable-feedback-progress-feedback-callback",
+    "pressable-feedback-progress-feedback-durations",
+    "pressable-feedback-progress-feedback-no-reset",
+    "pressable-feedback-progress-feedback-sweep",
+    "pressable-feedback-standalone-highlight",
+    "pressable-feedback-standalone-ripple",
+    "pressable-feedback-with-highlight",
+    "pressable-feedback-with-hold-confirm",
+    "pressable-feedback-with-progress-feedback",
+    "pressable-feedback-with-ripple"
+  ],
+  "prompt-input": [
+    "prompt-input-default",
+    "prompt-input-inline",
+    "prompt-input-queue",
+    "prompt-input-run-state",
+    "prompt-input-secondary",
+    "prompt-input-with-suggestions"
+  ],
+  "prompt-suggestion": [
+    "prompt-suggestion-cards",
+    "prompt-suggestion-default"
+  ],
+  "radar-chart": [
+    "radar-chart-comparison",
+    "radar-chart-default",
+    "radar-chart-dots-only",
+    "radar-chart-multi-series",
+    "radar-chart-with-radius-axis"
+  ],
+  "radial-chart": [
+    "radial-chart-default",
+    "radial-chart-gauge",
+    "radial-chart-gauge-grid",
+    "radial-chart-progress-ring",
+    "radial-chart-with-legend"
+  ],
+  "radio-button-group": [
+    "radio-button-group-controlled",
+    "radio-button-group-custom-indicator",
+    "radio-button-group-default",
+    "radio-button-group-delivery-and-payment",
+    "radio-button-group-disabled-group",
+    "radio-button-group-grid-layout",
+    "radio-button-group-icon-cards",
+    "radio-button-group-no-indicator",
+    "radio-button-group-render-prop-children",
+    "radio-button-group-subscription-plans",
+    "radio-button-group-with-icons",
+    "radio-button-group-with-ripple"
+  ],
+  "rating": [
+    "rating-controlled",
+    "rating-custom-color",
+    "rating-custom-icon-heart",
+    "rating-custom-icon-per-item",
+    "rating-default",
+    "rating-disabled",
+    "rating-product-review",
+    "rating-read-only",
+    "rating-read-only-fractional",
+    "rating-render-function",
+    "rating-sizes",
+    "rating-with-label"
+  ],
+  "resizable": [
+    "resizable-default",
+    "resizable-nested",
+    "resizable-types",
+    "resizable-variants",
+    "resizable-vertical",
+    "resizable-with-collapse",
+    "resizable-with-indicator"
+  ],
+  "segment": [
+    "segment-controlled",
+    "segment-default",
+    "segment-disabled",
+    "segment-disabled-item",
+    "segment-ghost",
+    "segment-icon-expand",
+    "segment-sizes",
+    "segment-theme-switcher",
+    "segment-two-items",
+    "segment-with-icons",
+    "segment-without-separators"
+  ],
+  "sheet": [
+    "sheet-backdrop-variants",
+    "sheet-controlled",
+    "sheet-default",
+    "sheet-detached",
+    "sheet-emoji-picker-sheet",
+    "sheet-handle-only",
+    "sheet-nested",
+    "sheet-non-dismissable",
+    "sheet-placements",
+    "sheet-professions-picker",
+    "sheet-scrollable-content",
+    "sheet-slack-message-actions",
+    "sheet-snap-points",
+    "sheet-snap-points-custom-fade",
+    "sheet-snap-points-sequential",
+    "sheet-with-form"
+  ],
+  "sidebar": [
+    "sidebar-agent-hub",
+    "sidebar-agent-workspace",
+    "sidebar-collapsible",
+    "sidebar-collapsible-groups",
+    "sidebar-compact-with-user-menu",
+    "sidebar-complex",
+    "sidebar-default",
+    "sidebar-floating-variant",
+    "sidebar-icon-only",
+    "sidebar-inset-variant",
+    "sidebar-meeting-notes",
+    "sidebar-reduced-motion",
+    "sidebar-right-side",
+    "sidebar-with-avatar",
+    "sidebar-with-groups"
+  ],
+  "stepper": [
+    "stepper-bullet-steps",
+    "stepper-controlled",
+    "stepper-controlled-vertical",
+    "stepper-custom-color",
+    "stepper-custom-color-vertical",
+    "stepper-custom-completed-icon",
+    "stepper-default",
+    "stepper-display-only",
+    "stepper-dynamic-icon",
+    "stepper-free-trial-timeline",
+    "stepper-onboarding-timeline",
+    "stepper-package-tracking",
+    "stepper-render-function",
+    "stepper-sizes",
+    "stepper-vertical",
+    "stepper-vertical-sizes",
+    "stepper-vertical-with-icons",
+    "stepper-with-descriptions",
+    "stepper-with-icons"
+  ],
+  "text-shimmer": [
+    "text-shimmer-default"
+  ],
+  "trend-chip": [
+    "trend-chip-custom-indicator",
+    "trend-chip-default",
+    "trend-chip-prefix-and-suffix",
+    "trend-chip-sizes",
+    "trend-chip-tabular-nums",
+    "trend-chip-variants"
+  ],
+  "widget": [
+    "widget-dashboard-grid",
+    "widget-default",
+    "widget-usage-summary",
+    "widget-with-bar-chart",
+    "widget-with-kpis",
+    "widget-with-line-chart",
+    "widget-with-pie-chart",
+    "widget-with-table"
+  ]
+}
