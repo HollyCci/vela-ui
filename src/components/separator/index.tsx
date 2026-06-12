@@ -11,7 +11,8 @@ const Separator = forwardRef<HTMLDivElement, SeparatorProps>(
     <div
       ref={ref}
       role="separator"
-      aria-orientation={orientation}
+      data-orientation={orientation}
+      aria-orientation={orientation === 'vertical' ? 'vertical' : undefined}
       className={clsx('separator', `separator--${orientation}`, `separator--${color}`, className)}
       {...rest}
     />

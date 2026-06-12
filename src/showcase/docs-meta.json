@@ -1,0 +1,2671 @@
+{
+  "area-chart": {
+    "title": "Area Chart",
+    "description": "An area chart for visualizing trends with gradient fills, stacked series, and sparkline variants.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-areachart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "area-chart-default"
+      },
+      {
+        "heading": "Custom Tooltip",
+        "anchor": "custom-tooltip",
+        "demo": "area-chart-custom-tooltip"
+      },
+      {
+        "heading": "KPI With Area Chart",
+        "anchor": "kpi-with-area-chart",
+        "demo": "area-chart-kpi-with-area-chart"
+      },
+      {
+        "heading": "Multi Area",
+        "anchor": "multi-area",
+        "demo": "area-chart-multi-area"
+      },
+      {
+        "heading": "Sparkline",
+        "anchor": "sparkline",
+        "demo": "area-chart-sparkline"
+      },
+      {
+        "heading": "Stacked",
+        "anchor": "stacked",
+        "demo": "area-chart-stacked"
+      }
+    ]
+  },
+  "bar-chart": {
+    "title": "Bar Chart",
+    "description": "A bar chart for comparing categorical data with grouped, stacked, and horizontal layout support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-barchart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "bar-chart-default"
+      },
+      {
+        "heading": "Comparison",
+        "anchor": "comparison",
+        "demo": "bar-chart-comparison"
+      },
+      {
+        "heading": "Custom Tooltip",
+        "anchor": "custom-tooltip",
+        "demo": "bar-chart-custom-tooltip"
+      },
+      {
+        "heading": "Grouped",
+        "anchor": "grouped",
+        "demo": "bar-chart-grouped"
+      },
+      {
+        "heading": "Horizontal",
+        "anchor": "horizontal",
+        "demo": "bar-chart-horizontal"
+      },
+      {
+        "heading": "Horizontal Stacked",
+        "anchor": "horizontal-stacked",
+        "demo": "bar-chart-horizontal-stacked"
+      },
+      {
+        "heading": "KPIWith Bar Chart",
+        "anchor": "kpiwith-bar-chart",
+        "demo": "bar-chart-kpi-with-bar-chart"
+      },
+      {
+        "heading": "Stacked",
+        "anchor": "stacked",
+        "demo": "bar-chart-stacked"
+      }
+    ]
+  },
+  "chart-tooltip": {
+    "title": "Chart Tooltip",
+    "description": "A composable tooltip for chart data points with customizable indicators, labels, and value formatters.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-charttooltip--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chart-tooltip-default"
+      },
+      {
+        "heading": "Auto Content",
+        "anchor": "auto-content",
+        "demo": "chart-tooltip-auto-content"
+      },
+      {
+        "heading": "Chart Colors",
+        "anchor": "chart-colors",
+        "demo": "chart-tooltip-chart-colors"
+      },
+      {
+        "heading": "Custom Formatters",
+        "anchor": "custom-formatters",
+        "demo": "chart-tooltip-custom-formatters"
+      },
+      {
+        "heading": "Inactive",
+        "anchor": "inactive",
+        "demo": "chart-tooltip-inactive"
+      },
+      {
+        "heading": "Line Indicator",
+        "anchor": "line-indicator",
+        "demo": "chart-tooltip-line-indicator"
+      },
+      {
+        "heading": "No Header",
+        "anchor": "no-header",
+        "demo": "chart-tooltip-no-header"
+      }
+    ]
+  },
+  "composed-chart": {
+    "title": "Composed Chart",
+    "description": "A composed chart that combines Bar, Line, and Area series in a single cartesian chart for multi-metric dashboards.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-composedchart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "composed-chart-default"
+      },
+      {
+        "heading": "Stacked Bar With Line",
+        "anchor": "stacked-bar-with-line",
+        "demo": "composed-chart-stacked-bar-with-line"
+      },
+      {
+        "heading": "Area With Line",
+        "anchor": "area-with-line",
+        "demo": "composed-chart-area-with-line"
+      },
+      {
+        "heading": "Bar With Area",
+        "anchor": "bar-with-area",
+        "demo": "composed-chart-bar-with-area"
+      },
+      {
+        "heading": "Multi Type",
+        "anchor": "multi-type",
+        "demo": "composed-chart-multi-type"
+      }
+    ]
+  },
+  "line-chart": {
+    "title": "Line Chart",
+    "description": "A line chart for visualizing trends over time with multi-series, sparkline, and custom tooltip support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-linechart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "line-chart-default"
+      },
+      {
+        "heading": "Dashed Comparison",
+        "anchor": "dashed-comparison",
+        "demo": "line-chart-dashed-comparison"
+      },
+      {
+        "heading": "KPI With Chart",
+        "anchor": "kpi-with-chart",
+        "demo": "line-chart-kpi-with-chart"
+      },
+      {
+        "heading": "Multi Line Chart Colors",
+        "anchor": "multi-line-chart-colors",
+        "demo": "line-chart-multi-line-chart-colors"
+      },
+      {
+        "heading": "Portfolio",
+        "anchor": "portfolio",
+        "demo": "line-chart-portfolio"
+      },
+      {
+        "heading": "Sparkline",
+        "anchor": "sparkline",
+        "demo": "line-chart-sparkline"
+      },
+      {
+        "heading": "Stats With Chart",
+        "anchor": "stats-with-chart",
+        "demo": "line-chart-stats-with-chart"
+      },
+      {
+        "heading": "Traffic Source",
+        "anchor": "traffic-source",
+        "demo": "line-chart-traffic-source"
+      },
+      {
+        "heading": "With Custom Tooltip",
+        "anchor": "with-custom-tooltip",
+        "demo": "line-chart-custom-tooltip"
+      },
+      {
+        "heading": "With Dots",
+        "anchor": "with-dots",
+        "demo": "line-chart-with-dots"
+      }
+    ]
+  },
+  "pie-chart": {
+    "title": "Pie Chart",
+    "description": "A pie and donut chart for proportional data with labels, legends, and nested ring support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-piechart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "pie-chart-default"
+      },
+      {
+        "heading": "Custom Tooltip",
+        "anchor": "custom-tooltip",
+        "demo": "pie-chart-custom-tooltip"
+      },
+      {
+        "heading": "Donut",
+        "anchor": "donut",
+        "demo": "pie-chart-donut"
+      },
+      {
+        "heading": "Donut With Content",
+        "anchor": "donut-with-content",
+        "demo": "pie-chart-donut-with-content"
+      },
+      {
+        "heading": "Donut With Label",
+        "anchor": "donut-with-label",
+        "demo": "pie-chart-donut-with-label"
+      },
+      {
+        "heading": "Nested Donut",
+        "anchor": "nested-donut",
+        "demo": "pie-chart-nested-donut"
+      },
+      {
+        "heading": "With Breakdown",
+        "anchor": "with-breakdown",
+        "demo": "pie-chart-with-breakdown"
+      }
+    ]
+  },
+  "radar-chart": {
+    "title": "Radar Chart",
+    "description": "A radar chart for comparing multivariate data across axes with fill, dot, and multi-series variants.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-radarchart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "radar-chart-default"
+      },
+      {
+        "heading": "Comparison",
+        "anchor": "comparison",
+        "demo": "radar-chart-comparison"
+      },
+      {
+        "heading": "Dots Only",
+        "anchor": "dots-only",
+        "demo": "radar-chart-dots-only"
+      },
+      {
+        "heading": "Multi Series",
+        "anchor": "multi-series",
+        "demo": "radar-chart-multi-series"
+      },
+      {
+        "heading": "With Radius Axis",
+        "anchor": "with-radius-axis",
+        "demo": "radar-chart-with-radius-axis"
+      }
+    ]
+  },
+  "radial-chart": {
+    "title": "Radial Chart",
+    "description": "A radial chart for gauge, progress ring, and circular data visualizations with customizable arcs and labels.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-radialchart--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "radial-chart-default"
+      },
+      {
+        "heading": "Gauge",
+        "anchor": "gauge",
+        "demo": "radial-chart-gauge"
+      },
+      {
+        "heading": "Gauge Grid",
+        "anchor": "gauge-grid",
+        "demo": "radial-chart-gauge-grid"
+      },
+      {
+        "heading": "Progress Ring",
+        "anchor": "progress-ring",
+        "demo": "radial-chart-progress-ring"
+      },
+      {
+        "heading": "With Legend",
+        "anchor": "with-legend",
+        "demo": "radial-chart-with-legend"
+      }
+    ]
+  },
+  "agenda": {
+    "title": "Agenda",
+    "description": "A composable calendar component with day, week, and month views for displaying and managing events with drag interactions.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-agenda--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "agenda-default"
+      }
+    ]
+  },
+  "action-bar": {
+    "title": "Action Bar",
+    "description": "A floating toolbar for contextual actions — bulk selection, editing controls, or any set of actions that appear in response to user interaction.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-actionbar--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "action-bar-default"
+      },
+      {
+        "heading": "With Data Grid",
+        "anchor": "with-data-grid",
+        "demo": "action-bar-with-data-grid"
+      }
+    ]
+  },
+  "carousel": {
+    "title": "Carousel",
+    "description": "A content browsing component for navigating through a collection of images or items, with thumbnails, dots, and navigation controls.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-carousel--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "carousel-default"
+      },
+      {
+        "heading": "Modal Type",
+        "anchor": "modal-type",
+        "demo": "carousel-modal-type"
+      },
+      {
+        "heading": "Multiple Slides",
+        "anchor": "multiple-slides",
+        "demo": "carousel-multiple-slides"
+      },
+      {
+        "heading": "Infinite Loop",
+        "anchor": "infinite-loop",
+        "demo": "carousel-loop"
+      },
+      {
+        "heading": "Autoplay",
+        "anchor": "autoplay",
+        "demo": "carousel-autoplay"
+      },
+      {
+        "heading": "API Access",
+        "anchor": "api-access",
+        "demo": "carousel-api-access"
+      }
+    ]
+  },
+  "data-grid": {
+    "title": "Data Grid",
+    "description": "A full-featured data grid with sorting, selection, column resizing, pinned columns, drag-and-drop row reorder, virtualization, and async loading — built on the HeroUI Table.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-datagrid--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "data-grid-default"
+      },
+      {
+        "heading": "Pinned Columns",
+        "anchor": "pinned-columns",
+        "demo": "data-grid-pinned-columns"
+      },
+      {
+        "heading": "Drag and Drop",
+        "anchor": "drag-and-drop",
+        "demo": "data-grid-drag-and-drop"
+      },
+      {
+        "heading": "Expandable Rows",
+        "anchor": "expandable-rows",
+        "demo": "data-grid-expandable-rows"
+      },
+      {
+        "heading": "Editable Cells",
+        "anchor": "editable-cells",
+        "demo": "data-grid-editable-cells"
+      },
+      {
+        "heading": "Empty State",
+        "anchor": "empty-state",
+        "demo": "data-grid-empty-state"
+      },
+      {
+        "heading": "Async Loading",
+        "anchor": "async-loading",
+        "demo": "data-grid-async-loading"
+      },
+      {
+        "heading": "Virtualization",
+        "anchor": "virtualization",
+        "demo": "data-grid-virtualized"
+      },
+      {
+        "heading": "Bulk Actions",
+        "anchor": "bulk-actions",
+        "demo": "data-grid-bulk-actions"
+      },
+      {
+        "heading": "Users",
+        "anchor": "users",
+        "demo": "data-grid-users"
+      },
+      {
+        "heading": "Team Members",
+        "anchor": "team-members",
+        "demo": "data-grid-team-members"
+      },
+      {
+        "heading": "Servers",
+        "anchor": "servers",
+        "demo": "data-grid-servers"
+      }
+    ]
+  },
+  "empty-state": {
+    "title": "Empty State",
+    "description": "A placeholder for empty views with icon, title, description, and call-to-action to guide users.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emptystate--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "empty-state-default"
+      },
+      {
+        "heading": "Minimal",
+        "anchor": "minimal",
+        "demo": "empty-state-minimal"
+      },
+      {
+        "heading": "Outline",
+        "anchor": "outline",
+        "demo": "empty-state-outline"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "empty-state-sizes"
+      },
+      {
+        "heading": "Full Height",
+        "anchor": "full-height",
+        "demo": "empty-state-full-height"
+      },
+      {
+        "heading": "With Avatar",
+        "anchor": "with-avatar",
+        "demo": "empty-state-with-avatar"
+      },
+      {
+        "heading": "With Avatar Group",
+        "anchor": "with-avatar-group",
+        "demo": "empty-state-with-avatar-group"
+      },
+      {
+        "heading": "With Background",
+        "anchor": "with-background",
+        "demo": "empty-state-with-background"
+      }
+    ]
+  },
+  "file-tree": {
+    "title": "File Tree",
+    "description": "A hierarchical file explorer with expand/collapse, drag-and-drop, icons, and multi-selection support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-filetree--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "file-tree-default"
+      },
+      {
+        "heading": "Reduced Motion",
+        "anchor": "reduced-motion",
+        "demo": "file-tree-reduced-motion"
+      },
+      {
+        "heading": "With Icons",
+        "anchor": "with-icons",
+        "demo": "file-tree-with-icons"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "file-tree-custom-indicator"
+      },
+      {
+        "heading": "Drag And Drop",
+        "anchor": "drag-and-drop",
+        "demo": "file-tree-drag-and-drop"
+      },
+      {
+        "heading": "Dynamic Collection",
+        "anchor": "dynamic-collection",
+        "demo": "file-tree-dynamic-collection"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "file-tree-sizes"
+      },
+      {
+        "heading": "Guide Lines",
+        "anchor": "guide-lines",
+        "demo": "file-tree-guide-lines"
+      },
+      {
+        "heading": "Multiple Selection",
+        "anchor": "multiple-selection",
+        "demo": "file-tree-multiple-selection"
+      },
+      {
+        "heading": "PR File Review",
+        "anchor": "pr-file-review",
+        "demo": "file-tree-pr-file-review"
+      }
+    ]
+  },
+  "floating-toc": {
+    "title": "Floating TOC",
+    "description": "A floating table of contents that tracks scroll position and provides quick navigation to page sections.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-floatingtoc--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "floating-toc-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "floating-toc-controlled"
+      },
+      {
+        "heading": "Custom Delays",
+        "anchor": "custom-delays",
+        "demo": "floating-toc-custom-delays"
+      },
+      {
+        "heading": "Hierarchical",
+        "anchor": "hierarchical",
+        "demo": "floating-toc-hierarchical"
+      },
+      {
+        "heading": "In Page Context",
+        "anchor": "in-page-context",
+        "demo": "floating-toc-in-page-context"
+      },
+      {
+        "heading": "Left Aligned Bars",
+        "anchor": "left-aligned-bars",
+        "demo": "floating-toc-left-aligned-bars"
+      },
+      {
+        "heading": "Left Placement",
+        "anchor": "left-placement",
+        "demo": "floating-toc-left-placement"
+      },
+      {
+        "heading": "Press Mode",
+        "anchor": "press-mode",
+        "demo": "floating-toc-press-mode"
+      },
+      {
+        "heading": "Press Mode In Page",
+        "anchor": "press-mode-in-page",
+        "demo": "floating-toc-press-mode-in-page"
+      },
+      {
+        "heading": "Virtualized",
+        "anchor": "virtualized",
+        "demo": "floating-toc-virtualized"
+      }
+    ]
+  },
+  "hover-card": {
+    "title": "Hover Card",
+    "description": "A popover card that appears on hover to preview additional content without navigating away.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-hovercard--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "hover-card-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "hover-card-controlled"
+      },
+      {
+        "heading": "Custom Delays",
+        "anchor": "custom-delays",
+        "demo": "hover-card-custom-delays"
+      },
+      {
+        "heading": "Placements",
+        "anchor": "placements",
+        "demo": "hover-card-placements"
+      },
+      {
+        "heading": "With Arrow",
+        "anchor": "with-arrow",
+        "demo": "hover-card-with-arrow"
+      },
+      {
+        "heading": "With Image",
+        "anchor": "with-image",
+        "demo": "hover-card-with-image"
+      }
+    ]
+  },
+  "kanban": {
+    "title": "Kanban",
+    "description": "A drag-and-drop kanban board with columns, cards, and keyboard navigation for organizing tasks and workflows.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kanban--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "kanban-default"
+      },
+      {
+        "heading": "Notion Board",
+        "anchor": "notion-board",
+        "demo": "kanban-notion-board"
+      },
+      {
+        "heading": "Project Board",
+        "anchor": "project-board",
+        "demo": "kanban-project-board"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "kanban-sizes"
+      }
+    ]
+  },
+  "item-card": {
+    "title": "Item Card",
+    "description": "A versatile list card with icon, title, description, and optional trailing actions like switches or selects.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-itemcard--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "item-card-default"
+      },
+      {
+        "heading": "Device List",
+        "anchor": "device-list",
+        "demo": "item-card-device-list"
+      },
+      {
+        "heading": "Email Setting",
+        "anchor": "email-setting",
+        "demo": "item-card-email-setting"
+      },
+      {
+        "heading": "Pressable",
+        "anchor": "pressable",
+        "demo": "item-card-pressable"
+      },
+      {
+        "heading": "Title Only",
+        "anchor": "title-only",
+        "demo": "item-card-title-only"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "item-card-variants"
+      },
+      {
+        "heading": "Vertical Stack",
+        "anchor": "vertical-stack",
+        "demo": "item-card-vertical-stack"
+      },
+      {
+        "heading": "Wallet Card",
+        "anchor": "wallet-card",
+        "demo": "item-card-wallet-card"
+      },
+      {
+        "heading": "With Multi Select",
+        "anchor": "with-multi-select",
+        "demo": "item-card-with-multi-select"
+      },
+      {
+        "heading": "With Select",
+        "anchor": "with-select",
+        "demo": "item-card-with-select"
+      },
+      {
+        "heading": "With Switch",
+        "anchor": "with-switch",
+        "demo": "item-card-with-switch"
+      },
+      {
+        "heading": "Without Icon",
+        "anchor": "without-icon",
+        "demo": "item-card-without-icon"
+      }
+    ]
+  },
+  "item-card-group": {
+    "title": "Item Card Group",
+    "description": "A layout component for grouping item cards in list or grid arrangements with section headers and dividers.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-itemcardgroup--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "item-card-group-developer-settings"
+      },
+      {
+        "heading": "Grid",
+        "anchor": "grid",
+        "demo": "item-card-group-grid"
+      },
+      {
+        "heading": "Grid Three Columns",
+        "anchor": "grid-three-columns",
+        "demo": "item-card-group-grid-three-columns"
+      },
+      {
+        "heading": "Linked Accounts",
+        "anchor": "linked-accounts",
+        "demo": "item-card-group-linked-accounts"
+      },
+      {
+        "heading": "List",
+        "anchor": "list",
+        "demo": "item-card-group-list"
+      },
+      {
+        "heading": "Multiple Sections",
+        "anchor": "multiple-sections",
+        "demo": "item-card-group-multiple-sections"
+      },
+      {
+        "heading": "Notification Preferences",
+        "anchor": "notification-preferences",
+        "demo": "item-card-group-notification-preferences"
+      },
+      {
+        "heading": "Permission Levels",
+        "anchor": "permission-levels",
+        "demo": "item-card-group-permission-levels"
+      },
+      {
+        "heading": "Pressable",
+        "anchor": "pressable",
+        "demo": "item-card-group-pressable"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "item-card-group-variants"
+      },
+      {
+        "heading": "Wallet List",
+        "anchor": "wallet-list",
+        "demo": "item-card-group-wallet-list"
+      },
+      {
+        "heading": "With Header",
+        "anchor": "with-header",
+        "demo": "item-card-group-with-header"
+      }
+    ]
+  },
+  "kpi": {
+    "title": "KPI",
+    "description": "A key performance indicator card displaying a metric value with trend chip, sparkline chart, and contextual details.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kpi-key-performance-indicator--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "kpi-default"
+      },
+      {
+        "heading": "With Actions",
+        "anchor": "with-actions",
+        "demo": "kpi-with-actions"
+      },
+      {
+        "heading": "With Chart Bottom",
+        "anchor": "with-chart-bottom",
+        "demo": "kpi-with-chart-bottom"
+      },
+      {
+        "heading": "With Chart Inline",
+        "anchor": "with-chart-inline",
+        "demo": "kpi-with-chart-inline"
+      },
+      {
+        "heading": "With Footer",
+        "anchor": "with-footer",
+        "demo": "kpi-with-footer"
+      },
+      {
+        "heading": "With Icon",
+        "anchor": "with-icon",
+        "demo": "kpi-with-icon"
+      },
+      {
+        "heading": "With Progress",
+        "anchor": "with-progress",
+        "demo": "kpi-with-progress"
+      }
+    ]
+  },
+  "kpi-group": {
+    "title": "KPI Group",
+    "description": "A layout component for arranging multiple KPI cards in horizontal or vertical stacks with consistent spacing.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kpigroup--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "kpi-group-horizontal"
+      },
+      {
+        "heading": "Vertical",
+        "anchor": "vertical",
+        "demo": "kpi-group-vertical"
+      },
+      {
+        "heading": "With From Suffix",
+        "anchor": "with-from-suffix",
+        "demo": "kpi-group-with-from-suffix"
+      }
+    ]
+  },
+  "list-view": {
+    "title": "List View",
+    "description": "A single-column interactive list with keyboard navigation, selection, and accessible item actions — built on RAC GridList.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-listview--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "list-view-default"
+      },
+      {
+        "heading": "Selection Modes",
+        "anchor": "selection-modes",
+        "demo": "list-view-selection-modes"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "list-view-default"
+      },
+      {
+        "heading": "Disabled Items",
+        "anchor": "disabled-items",
+        "demo": "list-view-disabled-items"
+      },
+      {
+        "heading": "With Action Bar",
+        "anchor": "with-action-bar",
+        "demo": "list-view-with-actions"
+      }
+    ]
+  },
+  "widget": {
+    "title": "Widget",
+    "description": "A dashboard container that wraps charts, tables, KPIs, or any content with a consistent surface treatment — secondary background shell with an elevated white content area.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-widget--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "widget-default"
+      },
+      {
+        "heading": "With Bar Chart",
+        "anchor": "with-bar-chart",
+        "demo": "widget-with-bar-chart"
+      },
+      {
+        "heading": "With Line Chart",
+        "anchor": "with-line-chart",
+        "demo": "widget-with-line-chart"
+      },
+      {
+        "heading": "With Pie Chart",
+        "anchor": "with-pie-chart",
+        "demo": "widget-with-pie-chart"
+      },
+      {
+        "heading": "With KPIs",
+        "anchor": "with-kpis",
+        "demo": "widget-with-kpis"
+      },
+      {
+        "heading": "Usage Summary",
+        "anchor": "usage-summary",
+        "demo": "widget-usage-summary"
+      },
+      {
+        "heading": "With Table",
+        "anchor": "with-table",
+        "demo": "widget-with-table"
+      },
+      {
+        "heading": "Dashboard Grid",
+        "anchor": "dashboard-grid",
+        "demo": "widget-dashboard-grid"
+      }
+    ]
+  },
+  "chain-of-thought": {
+    "title": "Chain Of ThoughtNew",
+    "description": "A collapsible reasoning timeline for assistant thinking, progress, and agent traces.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chainofthought--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chain-of-thought-default"
+      },
+      {
+        "heading": "Streaming",
+        "anchor": "streaming",
+        "demo": "chain-of-thought-streaming"
+      },
+      {
+        "heading": "Agent Trace",
+        "anchor": "agent-trace",
+        "demo": "chain-of-thought-agent-trace"
+      },
+      {
+        "heading": "Agent Trace Streaming",
+        "anchor": "agent-trace-streaming",
+        "demo": "chain-of-thought-agent-trace-streaming"
+      }
+    ]
+  },
+  "chat-attachment": {
+    "title": "Chat AttachmentNew",
+    "description": "Attachment previews and composer file input helpers for AI chat surfaces.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatattachment--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-attachment-default"
+      },
+      {
+        "heading": "Composer",
+        "anchor": "composer",
+        "demo": "chat-attachment-composer"
+      },
+      {
+        "heading": "Grouped",
+        "anchor": "grouped",
+        "demo": "chat-attachment-grouped"
+      }
+    ]
+  },
+  "chat-conversation": {
+    "title": "Chat ConversationNew",
+    "description": "A stick-to-bottom conversation viewport for streaming chat messages.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatconversation--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-conversation-default"
+      },
+      {
+        "heading": "Full Chat",
+        "anchor": "full-chat",
+        "demo": "chat-conversation-full-chat"
+      },
+      {
+        "heading": "Scroll Button",
+        "anchor": "scroll-button",
+        "demo": "chat-conversation-scroll-button"
+      }
+    ]
+  },
+  "chat-list-view": {
+    "title": "Chat List ViewNew",
+    "description": "Thread list rows for chat sidebars and conversation pickers.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatlistview--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-list-view-default"
+      },
+      {
+        "heading": "Compact",
+        "anchor": "compact",
+        "demo": "chat-list-view-compact"
+      }
+    ]
+  },
+  "chat-loader": {
+    "title": "Chat LoaderNew",
+    "description": "Loading skeletons and typing placeholders for assistant responses.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatloader--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-loader-default"
+      }
+    ]
+  },
+  "chat-message": {
+    "title": "Chat MessageNew",
+    "description": "Composable user and assistant message layouts for AI chat.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatmessage--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-message-default"
+      },
+      {
+        "heading": "With Markdown",
+        "anchor": "with-markdown",
+        "demo": "chat-message-with-markdown"
+      },
+      {
+        "heading": "Loading",
+        "anchor": "loading",
+        "demo": "chat-message-loading"
+      }
+    ]
+  },
+  "chat-message-actions": {
+    "title": "Chat Message ActionsNew",
+    "description": "Inline action buttons for assistant and user messages.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatmessageactions--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-message-actions-default"
+      },
+      {
+        "heading": "Minimal",
+        "anchor": "minimal",
+        "demo": "chat-message-actions-minimal"
+      },
+      {
+        "heading": "Custom Icons",
+        "anchor": "custom-icons",
+        "demo": "chat-message-actions-custom-icons"
+      }
+    ]
+  },
+  "chat-source": {
+    "title": "Chat SourceNew",
+    "description": "Citation chips and grouped source lists for AI responses.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatsource--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-source-default"
+      },
+      {
+        "heading": "Document",
+        "anchor": "document",
+        "demo": "chat-source-document"
+      },
+      {
+        "heading": "Grouped",
+        "anchor": "grouped",
+        "demo": "chat-source-grouped"
+      },
+      {
+        "heading": "Stacked Favicons",
+        "anchor": "stacked-favicons",
+        "demo": "chat-source-stacked-favicons"
+      },
+      {
+        "heading": "Composable",
+        "anchor": "composable",
+        "demo": "chat-source-composable"
+      }
+    ]
+  },
+  "chat-tool": {
+    "title": "Chat ToolNew",
+    "description": "Collapsible tool-call cards for inputs, outputs, errors, approvals, and grouped tool activity.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chattool--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "chat-tool-default"
+      },
+      {
+        "heading": "Streaming",
+        "anchor": "streaming",
+        "demo": "chat-tool-streaming"
+      },
+      {
+        "heading": "Error",
+        "anchor": "error",
+        "demo": "chat-tool-error-state"
+      },
+      {
+        "heading": "Approval",
+        "anchor": "approval",
+        "demo": "chat-tool-approval"
+      },
+      {
+        "heading": "Grouped",
+        "anchor": "grouped",
+        "demo": "chat-tool-grouped"
+      },
+      {
+        "heading": "Composable",
+        "anchor": "composable",
+        "demo": "chat-tool-composable"
+      }
+    ]
+  },
+  "code-block": {
+    "title": "Code BlockNew",
+    "description": "Syntax-highlighted code blocks with language labels and copy actions for AI markdown.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-codeblock--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "code-block-default"
+      }
+    ]
+  },
+  "markdown": {
+    "title": "MarkdownNew",
+    "description": "Render AI responses with rich markdown, memoized streaming blocks, and optional Streamdown rendering.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-markdown--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "markdown-default"
+      },
+      {
+        "heading": "Streaming",
+        "anchor": "streaming",
+        "demo": "markdown-streaming"
+      },
+      {
+        "heading": "With Streamdown",
+        "anchor": "with-streamdown",
+        "demo": "markdown-with-streamdown"
+      }
+    ]
+  },
+  "prompt-input": {
+    "title": "Prompt InputNew",
+    "description": "A composable AI prompt composer with attachments, toolbar actions, send states, queued prompts, and drag-and-drop support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-promptinput--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "prompt-input-default"
+      },
+      {
+        "heading": "Secondary",
+        "anchor": "secondary",
+        "demo": "prompt-input-secondary"
+      },
+      {
+        "heading": "Inline",
+        "anchor": "inline",
+        "demo": "prompt-input-inline"
+      },
+      {
+        "heading": "With Suggestions",
+        "anchor": "with-suggestions",
+        "demo": "prompt-input-with-suggestions"
+      },
+      {
+        "heading": "Run State",
+        "anchor": "run-state",
+        "demo": "prompt-input-run-state"
+      },
+      {
+        "heading": "Queue",
+        "anchor": "queue",
+        "demo": "prompt-input-queue"
+      },
+      {
+        "heading": "With Attachments",
+        "anchor": "with-attachments",
+        "demo": "chat-attachment-composer"
+      }
+    ]
+  },
+  "prompt-suggestion": {
+    "title": "Prompt SuggestionNew",
+    "description": "Suggested prompts and starter actions for AI chat empty states.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-promptsuggestion--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "prompt-suggestion-default"
+      },
+      {
+        "heading": "Cards",
+        "anchor": "cards",
+        "demo": "prompt-suggestion-cards"
+      }
+    ]
+  },
+  "text-shimmer": {
+    "title": "Text ShimmerNew",
+    "description": "Animated shimmer text for streaming, thinking, and loading labels.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-textshimmer--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "text-shimmer-default"
+      }
+    ]
+  },
+  "emoji-reaction-button": {
+    "title": "Emoji Reaction Button",
+    "description": "An animated emoji reaction button with count display and toggle state for social interactions.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emojireactionbutton--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "emoji-reaction-button-default"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "emoji-reaction-button-disabled"
+      },
+      {
+        "heading": "Read-only",
+        "anchor": "read-only",
+        "demo": "emoji-reaction-button-read-only"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "emoji-reaction-button-sizes"
+      }
+    ]
+  },
+  "number-value": {
+    "title": "Number Value",
+    "description": "A formatted number display with locale-aware rendering for currency, percentages, and compact notation.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-numbervalue--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "number-value-default"
+      },
+      {
+        "heading": "Compact",
+        "anchor": "compact",
+        "demo": "number-value-compact"
+      },
+      {
+        "heading": "Currency",
+        "anchor": "currency",
+        "demo": "number-value-currency"
+      },
+      {
+        "heading": "Format Options",
+        "anchor": "format-options",
+        "demo": "number-value-format-options"
+      },
+      {
+        "heading": "Percent",
+        "anchor": "percent",
+        "demo": "number-value-percent"
+      },
+      {
+        "heading": "Sign Display",
+        "anchor": "sign-display",
+        "demo": "number-value-sign-display"
+      },
+      {
+        "heading": "Tabular Nums",
+        "anchor": "tabular-nums",
+        "demo": "number-value-tabular-nums"
+      },
+      {
+        "heading": "With Prefix Suffix",
+        "anchor": "with-prefix-suffix",
+        "demo": "number-value-with-prefix-suffix"
+      }
+    ]
+  },
+  "pressable-feedback": {
+    "title": "Pressable Feedback",
+    "description": "A press interaction layer adding ripple, highlight, hold-to-confirm, and progress feedback effects to any element.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-pressablefeedback--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "pressable-feedback-default"
+      },
+      {
+        "heading": "Comparison",
+        "anchor": "comparison",
+        "demo": "pressable-feedback-comparison"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "pressable-feedback-disabled"
+      },
+      {
+        "heading": "Hold Confirm Callback",
+        "anchor": "hold-confirm-callback",
+        "demo": "pressable-feedback-hold-confirm-callback"
+      },
+      {
+        "heading": "Hold Confirm Durations",
+        "anchor": "hold-confirm-durations",
+        "demo": "pressable-feedback-hold-confirm-durations"
+      },
+      {
+        "heading": "Hold Confirm Sweep",
+        "anchor": "hold-confirm-sweep",
+        "demo": "pressable-feedback-hold-confirm-sweep"
+      },
+      {
+        "heading": "Pressable Cards",
+        "anchor": "pressable-cards",
+        "demo": "pressable-feedback-pressable-cards"
+      },
+      {
+        "heading": "Progress Feedback Callback",
+        "anchor": "progress-feedback-callback",
+        "demo": "pressable-feedback-progress-feedback-callback"
+      },
+      {
+        "heading": "Progress Feedback Durations",
+        "anchor": "progress-feedback-durations",
+        "demo": "pressable-feedback-progress-feedback-durations"
+      },
+      {
+        "heading": "Progress Feedback No Reset",
+        "anchor": "progress-feedback-no-reset",
+        "demo": "pressable-feedback-progress-feedback-no-reset"
+      },
+      {
+        "heading": "Progress Feedback Sweep",
+        "anchor": "progress-feedback-sweep",
+        "demo": "pressable-feedback-progress-feedback-sweep"
+      },
+      {
+        "heading": "Standalone Highlight",
+        "anchor": "standalone-highlight",
+        "demo": "pressable-feedback-standalone-highlight"
+      },
+      {
+        "heading": "Standalone Ripple",
+        "anchor": "standalone-ripple",
+        "demo": "pressable-feedback-standalone-ripple"
+      },
+      {
+        "heading": "With Highlight",
+        "anchor": "with-highlight",
+        "demo": "pressable-feedback-with-highlight"
+      },
+      {
+        "heading": "With Hold Confirm",
+        "anchor": "with-hold-confirm",
+        "demo": "pressable-feedback-with-hold-confirm"
+      },
+      {
+        "heading": "With Progress Feedback",
+        "anchor": "with-progress-feedback",
+        "demo": "pressable-feedback-with-progress-feedback"
+      },
+      {
+        "heading": "With Ripple",
+        "anchor": "with-ripple",
+        "demo": "pressable-feedback-with-ripple"
+      }
+    ]
+  },
+  "rating": {
+    "title": "Rating",
+    "description": "A star rating input with fractional read-only display, custom icons, sizes, and interactive selection.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-rating--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "rating-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "rating-controlled"
+      },
+      {
+        "heading": "Custom Color",
+        "anchor": "custom-color",
+        "demo": "rating-custom-color"
+      },
+      {
+        "heading": "Custom Icon Heart",
+        "anchor": "custom-icon-heart",
+        "demo": "rating-custom-icon-heart"
+      },
+      {
+        "heading": "Custom Icon Per Item",
+        "anchor": "custom-icon-per-item",
+        "demo": "rating-custom-icon-per-item"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "rating-disabled"
+      },
+      {
+        "heading": "Product Review",
+        "anchor": "product-review",
+        "demo": "rating-product-review"
+      },
+      {
+        "heading": "Read Only",
+        "anchor": "read-only",
+        "demo": "rating-read-only"
+      },
+      {
+        "heading": "Read Only Fractional",
+        "anchor": "read-only-fractional",
+        "demo": "rating-read-only-fractional"
+      },
+      {
+        "heading": "Render Function",
+        "anchor": "render-function",
+        "demo": "rating-render-function"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "rating-sizes"
+      },
+      {
+        "heading": "With Label",
+        "anchor": "with-label",
+        "demo": "rating-with-label"
+      }
+    ]
+  },
+  "trend-chip": {
+    "title": "Trend Chip",
+    "description": "A compact chip displaying a trend direction with percentage value, icon indicator, and contextual suffix.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-trendchip--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "trend-chip-default"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "trend-chip-custom-indicator"
+      },
+      {
+        "heading": "Prefix And Suffix",
+        "anchor": "prefix-and-suffix",
+        "demo": "trend-chip-prefix-and-suffix"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "trend-chip-sizes"
+      },
+      {
+        "heading": "Tabular Nums",
+        "anchor": "tabular-nums",
+        "demo": "trend-chip-tabular-nums"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "trend-chip-variants"
+      }
+    ]
+  },
+  "resizable": {
+    "title": "Resizable",
+    "description": "Resizable panel groups with composable handle types and variants. Built on react-resizable-panels, wired up with HeroUI design tokens.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-resizable--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "resizable-default"
+      },
+      {
+        "heading": "Vertical",
+        "anchor": "vertical",
+        "demo": "resizable-vertical"
+      },
+      {
+        "heading": "Handle Types",
+        "anchor": "handle-types",
+        "demo": "resizable-types"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "resizable-variants"
+      },
+      {
+        "heading": "Nested Groups",
+        "anchor": "nested-groups",
+        "demo": "resizable-nested"
+      },
+      {
+        "heading": "Collapsible Panels",
+        "anchor": "collapsible-panels",
+        "demo": "resizable-with-collapse"
+      },
+      {
+        "heading": "With Indicator",
+        "anchor": "with-indicator",
+        "demo": "resizable-with-indicator"
+      }
+    ]
+  },
+  "cell-color-picker": {
+    "title": "Cell Color Picker",
+    "description": "A compact color picker styled as a settings cell with preset palettes and custom color input.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellcolorpicker--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "cell-color-picker-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "cell-color-picker-controlled"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "cell-color-picker-disabled"
+      },
+      {
+        "heading": "Settings Group",
+        "anchor": "settings-group",
+        "demo": "cell-color-picker-settings-group"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "cell-color-picker-variants"
+      },
+      {
+        "heading": "With Presets",
+        "anchor": "with-presets",
+        "demo": "cell-color-picker-with-presets"
+      }
+    ]
+  },
+  "cell-select": {
+    "title": "Cell Select",
+    "description": "A compact select input styled as a settings cell, ideal for preference panels and configuration forms.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellselect--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "cell-select-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "cell-select-controlled"
+      },
+      {
+        "heading": "Custom Value",
+        "anchor": "custom-value",
+        "demo": "cell-select-custom-value"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "cell-select-disabled"
+      },
+      {
+        "heading": "Font Family",
+        "anchor": "font-family",
+        "demo": "cell-select-font-family"
+      },
+      {
+        "heading": "Settings Group",
+        "anchor": "settings-group",
+        "demo": "cell-select-settings-group"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "cell-select-variants"
+      }
+    ]
+  },
+  "cell-slider": {
+    "title": "Cell Slider",
+    "description": "A range slider styled as a settings cell with label, value display, and step configuration.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellslider--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "cell-slider-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "cell-slider-controlled"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "cell-slider-disabled"
+      },
+      {
+        "heading": "Integer Step",
+        "anchor": "integer-step",
+        "demo": "cell-slider-integer-step"
+      },
+      {
+        "heading": "Secondary Group",
+        "anchor": "secondary-group",
+        "demo": "cell-slider-secondary-group"
+      },
+      {
+        "heading": "Settings Group",
+        "anchor": "settings-group",
+        "demo": "cell-slider-settings-group"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "cell-slider-variants"
+      }
+    ]
+  },
+  "cell-switch": {
+    "title": "Cell Switch",
+    "description": "A toggle switch styled as a settings cell with label and description, ideal for preference panels.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellswitch--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "cell-switch-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "cell-switch-controlled"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "cell-switch-disabled"
+      },
+      {
+        "heading": "Feature Announcement",
+        "anchor": "feature-announcement",
+        "demo": "cell-switch-feature-announcement"
+      },
+      {
+        "heading": "Secondary Group",
+        "anchor": "secondary-group",
+        "demo": "cell-switch-secondary-group"
+      },
+      {
+        "heading": "Settings Group",
+        "anchor": "settings-group",
+        "demo": "cell-switch-settings-group"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "cell-switch-variants"
+      }
+    ]
+  },
+  "checkbox-button-group": {
+    "title": "Checkbox Button Group",
+    "description": "A multi-selection button group with card-style checkboxes, icons, and custom indicators.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-checkboxbuttongroup--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "checkbox-button-group-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "checkbox-button-group-controlled"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "checkbox-button-group-custom-indicator"
+      },
+      {
+        "heading": "Disabled Group",
+        "anchor": "disabled-group",
+        "demo": "checkbox-button-group-disabled-group"
+      },
+      {
+        "heading": "Grid Layout",
+        "anchor": "grid-layout",
+        "demo": "checkbox-button-group-grid-layout"
+      },
+      {
+        "heading": "Icon Cards",
+        "anchor": "icon-cards",
+        "demo": "checkbox-button-group-icon-cards"
+      },
+      {
+        "heading": "No Indicator",
+        "anchor": "no-indicator",
+        "demo": "checkbox-button-group-no-indicator"
+      },
+      {
+        "heading": "Render Prop Children",
+        "anchor": "render-prop-children",
+        "demo": "checkbox-button-group-render-prop-children"
+      },
+      {
+        "heading": "Subscription Plans",
+        "anchor": "subscription-plans",
+        "demo": "checkbox-button-group-subscription-plans"
+      },
+      {
+        "heading": "With Icons",
+        "anchor": "with-icons",
+        "demo": "checkbox-button-group-with-icons"
+      },
+      {
+        "heading": "With Ripple",
+        "anchor": "with-ripple",
+        "demo": "checkbox-button-group-with-ripple"
+      }
+    ]
+  },
+  "drop-zone": {
+    "title": "Drop Zone",
+    "description": "A drag-and-drop file upload area with file type filtering, size limits, and file list preview.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-dropzone--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "drop-zone-default"
+      },
+      {
+        "heading": "With File List",
+        "anchor": "with-file-list",
+        "demo": "drop-zone-with-file-list"
+      },
+      {
+        "heading": "Compact File List",
+        "anchor": "compact-file-list",
+        "demo": "drop-zone-compact-file-list"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "drop-zone-disabled"
+      },
+      {
+        "heading": "Image Only",
+        "anchor": "image-only",
+        "demo": "drop-zone-image-only"
+      },
+      {
+        "heading": "Max Size Limit",
+        "anchor": "max-size-limit",
+        "demo": "drop-zone-max-size-limit"
+      },
+      {
+        "heading": "Multiple Files",
+        "anchor": "multiple-files",
+        "demo": "drop-zone-multiple-files"
+      },
+      {
+        "heading": "Custom Icon",
+        "anchor": "custom-icon",
+        "demo": "drop-zone-custom-icon"
+      },
+      {
+        "heading": "Custom Triggers",
+        "anchor": "custom-triggers",
+        "demo": "drop-zone-custom-triggers"
+      }
+    ]
+  },
+  "inline-select": {
+    "title": "Inline Select",
+    "description": "A minimal inline dropdown that blends into surrounding text for contextual selections without a full form field.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-inlineselect--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "inline-select-default"
+      },
+      {
+        "heading": "Team Switcher",
+        "anchor": "team-switcher",
+        "demo": "inline-select-team-switcher"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "inline-select-custom-indicator"
+      },
+      {
+        "heading": "Multi Select",
+        "anchor": "multi-select",
+        "demo": "inline-select-multi-select"
+      },
+      {
+        "heading": "Placements",
+        "anchor": "placements",
+        "demo": "inline-select-placements"
+      }
+    ]
+  },
+  "native-select": {
+    "title": "Native Select",
+    "description": "A styled wrapper around the native HTML select element with label, description, and validation support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-nativeselect--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "native-select-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "native-select-controlled"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "native-select-custom-indicator"
+      },
+      {
+        "heading": "Disabled Select",
+        "anchor": "disabled-select",
+        "demo": "native-select-disabled-select"
+      },
+      {
+        "heading": "Form Example",
+        "anchor": "form-example",
+        "demo": "native-select-form-example"
+      },
+      {
+        "heading": "Full Width",
+        "anchor": "full-width",
+        "demo": "native-select-full-width"
+      },
+      {
+        "heading": "Invalid State",
+        "anchor": "invalid-state",
+        "demo": "native-select-invalid-state"
+      },
+      {
+        "heading": "Variants",
+        "anchor": "variants",
+        "demo": "native-select-variants"
+      },
+      {
+        "heading": "With Description",
+        "anchor": "with-description",
+        "demo": "native-select-with-description"
+      },
+      {
+        "heading": "With Disabled Options",
+        "anchor": "with-disabled-options",
+        "demo": "native-select-with-disabled-options"
+      },
+      {
+        "heading": "With Groups",
+        "anchor": "with-groups",
+        "demo": "native-select-with-groups"
+      },
+      {
+        "heading": "With Label",
+        "anchor": "with-label",
+        "demo": "native-select-with-label"
+      }
+    ]
+  },
+  "number-stepper": {
+    "title": "Number Stepper",
+    "description": "A numeric input with increment/decrement buttons, min/max bounds, step intervals, and custom formatting.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-numberstepper--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "number-stepper-default"
+      },
+      {
+        "heading": "Guest Picker",
+        "anchor": "guest-picker",
+        "demo": "number-stepper-guest-picker"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "number-stepper-controlled"
+      },
+      {
+        "heading": "Custom Icons",
+        "anchor": "custom-icons",
+        "demo": "number-stepper-custom-icons"
+      },
+      {
+        "heading": "Custom Value",
+        "anchor": "custom-value",
+        "demo": "number-stepper-custom-value"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "number-stepper-disabled"
+      },
+      {
+        "heading": "Min Max Values",
+        "anchor": "min-max-values",
+        "demo": "number-stepper-min-max-values"
+      },
+      {
+        "heading": "Reversed Layout",
+        "anchor": "reversed-layout",
+        "demo": "number-stepper-reversed-layout"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "number-stepper-sizes"
+      },
+      {
+        "heading": "With Custom Buttons",
+        "anchor": "with-custom-buttons",
+        "demo": "number-stepper-with-custom-buttons"
+      },
+      {
+        "heading": "With Format Options",
+        "anchor": "with-format-options",
+        "demo": "number-stepper-with-format-options"
+      },
+      {
+        "heading": "With Label",
+        "anchor": "with-label",
+        "demo": "number-stepper-with-label"
+      },
+      {
+        "heading": "With Step",
+        "anchor": "with-step",
+        "demo": "number-stepper-with-step"
+      }
+    ]
+  },
+  "radio-button-group": {
+    "title": "Radio Button Group",
+    "description": "A single-selection button group with card-style radio options, icons, and custom indicators.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-radiobuttongroup--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "radio-button-group-default"
+      },
+      {
+        "heading": "Delivery And Payment",
+        "anchor": "delivery-and-payment",
+        "demo": "radio-button-group-delivery-and-payment"
+      },
+      {
+        "heading": "Subscription Plans",
+        "anchor": "subscription-plans",
+        "demo": "radio-button-group-subscription-plans"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "radio-button-group-controlled"
+      },
+      {
+        "heading": "Custom Indicator",
+        "anchor": "custom-indicator",
+        "demo": "radio-button-group-custom-indicator"
+      },
+      {
+        "heading": "Disabled Group",
+        "anchor": "disabled-group",
+        "demo": "radio-button-group-disabled-group"
+      },
+      {
+        "heading": "Grid Layout",
+        "anchor": "grid-layout",
+        "demo": "radio-button-group-grid-layout"
+      },
+      {
+        "heading": "Icon Cards",
+        "anchor": "icon-cards",
+        "demo": "radio-button-group-icon-cards"
+      },
+      {
+        "heading": "No Indicator",
+        "anchor": "no-indicator",
+        "demo": "radio-button-group-no-indicator"
+      },
+      {
+        "heading": "Render Prop Children",
+        "anchor": "render-prop-children",
+        "demo": "radio-button-group-render-prop-children"
+      },
+      {
+        "heading": "With Icons",
+        "anchor": "with-icons",
+        "demo": "radio-button-group-with-icons"
+      },
+      {
+        "heading": "With Ripple",
+        "anchor": "with-ripple",
+        "demo": "radio-button-group-with-ripple"
+      }
+    ]
+  },
+  "app-layout": {
+    "title": "AppLayout",
+    "description": "A scaffold layout that composes a full-height sidebar, a sticky navbar, a main content area, and an optional right-side aside panel.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-applayout--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "app-layout-default"
+      },
+      {
+        "heading": "Collapsible",
+        "anchor": "collapsible",
+        "demo": "app-layout-collapsible"
+      },
+      {
+        "heading": "Offcanvas",
+        "anchor": "offcanvas",
+        "demo": "app-layout-offcanvas"
+      },
+      {
+        "heading": "Inset Sidebar",
+        "anchor": "inset-sidebar",
+        "demo": "app-layout-with-inset-sidebar"
+      },
+      {
+        "heading": "Floating Sidebar",
+        "anchor": "floating-sidebar",
+        "demo": "app-layout-floating-sidebar"
+      },
+      {
+        "heading": "Inset Dashboard",
+        "anchor": "inset-dashboard",
+        "demo": "app-layout-inset-dashboard"
+      },
+      {
+        "heading": "Docs Site",
+        "anchor": "docs-site",
+        "demo": "app-layout-docs-site"
+      },
+      {
+        "heading": "With Breadcrumbs",
+        "anchor": "with-breadcrumbs",
+        "demo": "app-layout-with-breadcrumbs"
+      },
+      {
+        "heading": "With Aside",
+        "anchor": "with-aside",
+        "demo": "app-layout-with-aside"
+      },
+      {
+        "heading": "Content Scroll Mode",
+        "anchor": "content-scroll-mode",
+        "demo": "app-layout-content-scroll"
+      },
+      {
+        "heading": "Complex",
+        "anchor": "complex",
+        "demo": "app-layout-complex"
+      },
+      {
+        "heading": "Resizable Sidebar and Aside",
+        "anchor": "resizable-sidebar-and-aside",
+        "demo": "app-layout-resizable-sidebar"
+      },
+      {
+        "heading": "Toolbar and Footer",
+        "anchor": "toolbar-and-footer",
+        "demo": "app-layout-with-toolbar"
+      }
+    ]
+  },
+  "command": {
+    "title": "Command",
+    "description": "A command palette with fuzzy search, keyboard navigation, and nested groups for quick actions.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-command--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "command-default"
+      },
+      {
+        "heading": "Clean",
+        "anchor": "clean",
+        "demo": "command-clean"
+      },
+      {
+        "heading": "Dev Toolbar",
+        "anchor": "dev-toolbar",
+        "demo": "command-dev-toolbar"
+      },
+      {
+        "heading": "Launcher",
+        "anchor": "launcher",
+        "demo": "command-launcher"
+      },
+      {
+        "heading": "Minimal",
+        "anchor": "minimal",
+        "demo": "command-minimal"
+      },
+      {
+        "heading": "Split View",
+        "anchor": "split-view",
+        "demo": "command-split-view"
+      },
+      {
+        "heading": "Multiple Search Terms",
+        "anchor": "multiple-search-terms",
+        "demo": "command-multiple-search-terms"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "command-sizes"
+      },
+      {
+        "heading": "Backdrop Variants",
+        "anchor": "backdrop-variants",
+        "demo": "command-backdrop-variants"
+      }
+    ]
+  },
+  "context-menu": {
+    "title": "Context Menu",
+    "description": "A right-click context menu with nested submenus, selection state, and long-press support for touch.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-contextmenu--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "context-menu-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "context-menu-controlled"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "context-menu-disabled"
+      },
+      {
+        "heading": "Long Press",
+        "anchor": "long-press",
+        "demo": "context-menu-long-press"
+      },
+      {
+        "heading": "With Sections",
+        "anchor": "with-sections",
+        "demo": "context-menu-with-sections"
+      },
+      {
+        "heading": "With Selection",
+        "anchor": "with-selection",
+        "demo": "context-menu-with-selection"
+      },
+      {
+        "heading": "With Submenus",
+        "anchor": "with-submenus",
+        "demo": "context-menu-with-submenus"
+      }
+    ]
+  },
+  "navbar": {
+    "title": "Navbar",
+    "description": "A composable top navigation bar with hide-on-scroll, responsive mobile menu, and client-side routing support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-navbar--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "navbar-default"
+      },
+      {
+        "heading": "Docs Site",
+        "anchor": "docs-site",
+        "demo": "navbar-docs-site"
+      },
+      {
+        "heading": "With Dropdowns",
+        "anchor": "with-dropdowns",
+        "demo": "navbar-with-dropdowns"
+      },
+      {
+        "heading": "Dashboard",
+        "anchor": "dashboard",
+        "demo": "navbar-dashboard"
+      },
+      {
+        "heading": "Compact",
+        "anchor": "compact",
+        "demo": "navbar-compact"
+      },
+      {
+        "heading": "With Menu",
+        "anchor": "with-menu",
+        "demo": "navbar-with-menu"
+      },
+      {
+        "heading": "Hide on Scroll",
+        "anchor": "hide-on-scroll",
+        "demo": "navbar-hide-on-scroll"
+      }
+    ]
+  },
+  "segment": {
+    "title": "Segment",
+    "description": "A segmented control for toggling between a small set of mutually exclusive options.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-segment--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "segment-default"
+      },
+      {
+        "heading": "Ghost",
+        "anchor": "ghost",
+        "demo": "segment-ghost"
+      },
+      {
+        "heading": "Without Separators",
+        "anchor": "without-separators",
+        "demo": "segment-without-separators"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "segment-controlled"
+      },
+      {
+        "heading": "Disabled",
+        "anchor": "disabled",
+        "demo": "segment-disabled"
+      },
+      {
+        "heading": "Disabled Item",
+        "anchor": "disabled-item",
+        "demo": "segment-disabled-item"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "segment-sizes"
+      },
+      {
+        "heading": "Theme Switcher",
+        "anchor": "theme-switcher",
+        "demo": "segment-theme-switcher"
+      },
+      {
+        "heading": "Two Items",
+        "anchor": "two-items",
+        "demo": "segment-two-items"
+      },
+      {
+        "heading": "With Icons",
+        "anchor": "with-icons",
+        "demo": "segment-with-icons"
+      },
+      {
+        "heading": "Icon Expand",
+        "anchor": "icon-expand",
+        "demo": "segment-icon-expand"
+      }
+    ]
+  },
+  "sidebar": {
+    "title": "Sidebar",
+    "description": "A responsive sidebar navigation component with collapsible groups, rail mode, and mobile sheet support.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-sidebar--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "sidebar-default"
+      },
+      {
+        "heading": "Complex",
+        "anchor": "complex",
+        "demo": "sidebar-complex"
+      },
+      {
+        "heading": "Compact With User Menu",
+        "anchor": "compact-with-user-menu",
+        "demo": "sidebar-compact-with-user-menu"
+      },
+      {
+        "heading": "Meeting Notes",
+        "anchor": "meeting-notes",
+        "demo": "sidebar-meeting-notes"
+      },
+      {
+        "heading": "Agent Hub",
+        "anchor": "agent-hub",
+        "demo": "sidebar-agent-hub"
+      },
+      {
+        "heading": "Agent Workspace",
+        "anchor": "agent-workspace",
+        "demo": "sidebar-agent-workspace"
+      },
+      {
+        "heading": "Inset Variant",
+        "anchor": "inset-variant",
+        "demo": "sidebar-inset-variant"
+      },
+      {
+        "heading": "With Groups",
+        "anchor": "with-groups",
+        "demo": "sidebar-with-groups"
+      },
+      {
+        "heading": "Collapsible Groups",
+        "anchor": "collapsible-groups",
+        "demo": "sidebar-collapsible-groups"
+      },
+      {
+        "heading": "Collapsible",
+        "anchor": "collapsible",
+        "demo": "sidebar-collapsible"
+      },
+      {
+        "heading": "Reduced Motion",
+        "anchor": "reduced-motion",
+        "demo": "sidebar-reduced-motion"
+      },
+      {
+        "heading": "Floating Variant",
+        "anchor": "floating-variant",
+        "demo": "sidebar-floating-variant"
+      },
+      {
+        "heading": "With Avatar",
+        "anchor": "with-avatar",
+        "demo": "sidebar-with-avatar"
+      },
+      {
+        "heading": "Right Side",
+        "anchor": "right-side",
+        "demo": "sidebar-right-side"
+      },
+      {
+        "heading": "Icon Only",
+        "anchor": "icon-only",
+        "demo": "sidebar-icon-only"
+      }
+    ]
+  },
+  "stepper": {
+    "title": "Stepper",
+    "description": "A step-by-step progress indicator with numbered, icon, and bullet variants in horizontal or vertical layouts.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-stepper--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "stepper-default"
+      },
+      {
+        "heading": "Package Tracking",
+        "anchor": "package-tracking",
+        "demo": "stepper-package-tracking"
+      },
+      {
+        "heading": "Bullet Steps",
+        "anchor": "bullet-steps",
+        "demo": "stepper-bullet-steps"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "stepper-controlled"
+      },
+      {
+        "heading": "Controlled Vertical",
+        "anchor": "controlled-vertical",
+        "demo": "stepper-controlled-vertical"
+      },
+      {
+        "heading": "Custom Color",
+        "anchor": "custom-color",
+        "demo": "stepper-custom-color"
+      },
+      {
+        "heading": "Custom Color Vertical",
+        "anchor": "custom-color-vertical",
+        "demo": "stepper-custom-color-vertical"
+      },
+      {
+        "heading": "Custom Completed Icon",
+        "anchor": "custom-completed-icon",
+        "demo": "stepper-custom-completed-icon"
+      },
+      {
+        "heading": "Display Only",
+        "anchor": "display-only",
+        "demo": "stepper-display-only"
+      },
+      {
+        "heading": "Dynamic Icon",
+        "anchor": "dynamic-icon",
+        "demo": "stepper-dynamic-icon"
+      },
+      {
+        "heading": "Free Trial Timeline",
+        "anchor": "free-trial-timeline",
+        "demo": "stepper-free-trial-timeline"
+      },
+      {
+        "heading": "Onboarding Timeline",
+        "anchor": "onboarding-timeline",
+        "demo": "stepper-onboarding-timeline"
+      },
+      {
+        "heading": "Render Function",
+        "anchor": "render-function",
+        "demo": "stepper-render-function"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "stepper-sizes"
+      },
+      {
+        "heading": "Vertical",
+        "anchor": "vertical",
+        "demo": "stepper-vertical"
+      },
+      {
+        "heading": "Vertical Sizes",
+        "anchor": "vertical-sizes",
+        "demo": "stepper-vertical-sizes"
+      },
+      {
+        "heading": "Vertical With Icons",
+        "anchor": "vertical-with-icons",
+        "demo": "stepper-vertical-with-icons"
+      },
+      {
+        "heading": "With Descriptions",
+        "anchor": "with-descriptions",
+        "demo": "stepper-with-descriptions"
+      },
+      {
+        "heading": "With Icons",
+        "anchor": "with-icons",
+        "demo": "stepper-with-icons"
+      }
+    ]
+  },
+  "emoji-picker": {
+    "title": "Emoji Picker",
+    "description": "A searchable emoji picker with virtualized list, category navigation, skin tone selection, and recent emoji tracking.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emojipicker--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "emoji-picker-default"
+      },
+      {
+        "heading": "Custom Categories",
+        "anchor": "custom-categories",
+        "demo": "emoji-picker-custom-categories"
+      },
+      {
+        "heading": "Inline",
+        "anchor": "inline",
+        "demo": "emoji-picker-inline"
+      },
+      {
+        "heading": "Sizes",
+        "anchor": "sizes",
+        "demo": "emoji-picker-sizes"
+      }
+    ]
+  },
+  "sheet": {
+    "title": "Sheet",
+    "description": "A bottom sheet overlay with snap points, swipe-to-dismiss, and placement options for mobile-friendly dialogs.",
+    "storybook": "https://storybook.heroui.pro/?path=/docs/components-sheet--docs",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "sheet-default"
+      },
+      {
+        "heading": "Backdrop Variants",
+        "anchor": "backdrop-variants",
+        "demo": "sheet-backdrop-variants"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "sheet-controlled"
+      },
+      {
+        "heading": "Detached",
+        "anchor": "detached",
+        "demo": "sheet-detached"
+      },
+      {
+        "heading": "Emoji Picker Sheet",
+        "anchor": "emoji-picker-sheet",
+        "demo": "sheet-emoji-picker-sheet"
+      },
+      {
+        "heading": "Handle Only",
+        "anchor": "handle-only",
+        "demo": "sheet-handle-only"
+      },
+      {
+        "heading": "Nested",
+        "anchor": "nested",
+        "demo": "sheet-nested"
+      },
+      {
+        "heading": "Non Dismissable",
+        "anchor": "non-dismissable",
+        "demo": "sheet-non-dismissable"
+      },
+      {
+        "heading": "Placements",
+        "anchor": "placements",
+        "demo": "sheet-placements"
+      },
+      {
+        "heading": "Professions Picker",
+        "anchor": "professions-picker",
+        "demo": "sheet-professions-picker"
+      },
+      {
+        "heading": "Scrollable Content",
+        "anchor": "scrollable-content",
+        "demo": "sheet-scrollable-content"
+      },
+      {
+        "heading": "Slack Message Actions",
+        "anchor": "slack-message-actions",
+        "demo": "sheet-slack-message-actions"
+      },
+      {
+        "heading": "Snap Points",
+        "anchor": "snap-points",
+        "demo": "sheet-snap-points"
+      },
+      {
+        "heading": "Snap Points Custom Fade",
+        "anchor": "snap-points-custom-fade",
+        "demo": "sheet-snap-points-custom-fade"
+      },
+      {
+        "heading": "Snap Points Sequential",
+        "anchor": "snap-points-sequential",
+        "demo": "sheet-snap-points-sequential"
+      },
+      {
+        "heading": "With Form",
+        "anchor": "with-form",
+        "demo": "sheet-with-form"
+      }
+    ]
+  }
+}

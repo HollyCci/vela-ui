@@ -30,7 +30,9 @@ const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
         {showImage ? (
           <img className="avatar__image" src={src} alt={alt} onError={handleError} />
         ) : (
-          <span className={clsx('avatar__fallback', `avatar__fallback--${color}`)}>{fallback}</span>
+          <span data-slot="avatar-fallback" className={clsx('avatar__fallback', `avatar__fallback--${color}`)}>
+            {fallback}
+          </span>
         )}
       </span>
     );

@@ -4,13 +4,19 @@ import clsx from 'clsx';
 export type KbdProps = HTMLAttributes<HTMLElement> & {
   /** 修饰键缩写，如 ⌘ ⇧ */
   abbr?: ReactNode;
+  /** abbr 的完整名称（原站为 abbr 标签的 title，如 Command） */
+  abbrTitle?: string;
   isLight?: boolean;
 };
 
 const Kbd = forwardRef<HTMLElement, KbdProps>(
-  ({ abbr, isLight = false, className, children, ...rest }, ref) => (
+  ({ abbr, abbrTitle, isLight = false, className, children, ...rest }, ref) => (
     <kbd ref={ref} className={clsx('kbd', isLight && 'kbd--light', className)} {...rest}>
-      {abbr !== undefined && <abbr className="kbd__abbr">{abbr}</abbr>}
+      {abbr !== undefined && (
+        <abbr className="kbd__abbr" title={abbrTitle}>
+          {abbr}
+        </abbr>
+      )}
       <span className="kbd__content">{children}</span>
     </kbd>
   ),

@@ -1,8 +1,16 @@
-/* HeroUI Replica 样式总入口：完整原站 bundle（properties/theme/base/components/utilities 全层）+ 自托管 Inter */
-@import './fonts.css';
-@import './heroui-full.css';
+/**
+ * 样式总入口（HeroUI v3 官方层级架构）
+ * 顺序：tailwindcss → @heroui/styles（OSS 主题/组件）→ @heroui-pro/react/css（Pro，登录拉取后启用）
+ * @heroui/styles 内部已 @import "tailwindcss"，此处再次声明以确保工具类扫描层就绪。
+ */
+@import 'tailwindcss';
+@import '@heroui/styles';
 
-/* 原站通过 next/font 在 html 上注入的变量 */
+/* 登录并 `npx heroui-pro install` 后取消注释，接入 Pro 组件样式 */
+/* @import '@heroui-pro/react/css'; */
+
+@import './fonts.css';
+
 :root {
-  --font-inter: "Inter", "Inter Fallback";
+  --font-inter: 'Inter', 'Inter Fallback';
 }

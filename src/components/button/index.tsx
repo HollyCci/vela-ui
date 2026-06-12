@@ -21,6 +21,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   suffix?: ReactNode;
 };
 
+/** 与原站 DOM 一致：始终带尺寸修饰符，并带 react-aria 的 data 标记 */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {
@@ -41,11 +42,14 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <button
         ref={ref}
         type={type}
+        data-slot="button"
+        data-rac=""
+        data-react-aria-pressable="true"
         className={clsx(
           'button',
-          `button--${variant}`,
-          size !== 'md' && `button--${size}`,
           isIconOnly && 'button--icon-only',
+          `button--${size}`,
+          `button--${variant}`,
           isFullWidth && 'button--full-width',
           className,
         )}

@@ -1,4 +1,4 @@
-# HeroUI Replica
+# Vela UI
 
 复刻 [HeroUI Pro](https://heroui.pro) 全部组件的设计风格：样式层直接采用从其线上 CSS bundle 提取的源样式（tokens + 153 个组件的 BEM CSS），React 层为自实现的类型化封装，并配有按分类浏览的展示站。
 

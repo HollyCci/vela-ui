@@ -2,7 +2,7 @@ import { forwardRef, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 
 export type ChipColor = 'default' | 'accent' | 'success' | 'warning' | 'danger';
-export type ChipVariant = 'primary' | 'tertiary';
+export type ChipVariant = 'primary' | 'soft' | 'tertiary';
 export type ChipSize = 'sm' | 'md' | 'lg';
 
 export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
@@ -11,14 +11,18 @@ export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
   size?: ChipSize;
 };
 
+/** 与原站一致：chip chip--<color> chip--<size> chip--<variant>，文本包在 chip__label */
 const Chip = forwardRef<HTMLSpanElement, ChipProps>(
   ({ color = 'default', variant = 'primary', size = 'md', className, children, ...rest }, ref) => (
     <span
       ref={ref}
-      className={clsx('chip', `chip--${variant}`, `chip--${color}`, `chip--${size}`, className)}
+      data-slot="chip"
+      className={clsx('chip', `chip--${color}`, `chip--${size}`, `chip--${variant}`, className)}
       {...rest}
     >
-      {children}
+      <span className="chip__label" data-slot="chip-label">
+        {children}
+      </span>
     </span>
   ),
 );

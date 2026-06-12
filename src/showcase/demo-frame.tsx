@@ -2,8 +2,8 @@ import { memo, useEffect, useState } from 'react';
 
 export type DemoFrameProps = {
   slug: string;
-  width: number | '100%';
-  height?: number;
+  width?: number | '100%';
+  height?: number | undefined;
 };
 
 const FRAME_HEAD = `<!doctype html><html class="light" style="--font-inter:'Inter','Inter Fallback'">
@@ -17,7 +17,7 @@ const FRAME_HEAD = `<!doctype html><html class="light" style="--font-inter:'Inte
 const cache = new Map<string, string>();
 
 /** 以原站完整 CSS + 采集的基准 DOM 在隔离 iframe 中渲染 demo，保证像素级一致 */
-const DemoFrame = memo(({ slug, width, height = 520 }: DemoFrameProps) => {
+const DemoFrame = memo(({ slug, width = '100%', height = 520 }: DemoFrameProps) => {
   const [html, setHtml] = useState<string | null>(cache.get(slug) ?? null);
   const [error, setError] = useState<string | null>(null);
 

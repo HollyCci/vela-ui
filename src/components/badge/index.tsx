@@ -14,22 +14,28 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   placement?: BadgePlacement;
 };
 
+/** 类名顺序与原站一致：badge badge--<color> [badge--<placement>] badge--<size> badge--<variant> */
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ color = 'default', variant = 'primary', size = 'md', placement, className, children, ...rest }, ref) => {
     return (
       <span
         ref={ref}
+        data-slot="badge"
         className={clsx(
           'badge',
-          `badge--${variant}`,
           `badge--${color}`,
-          size !== 'md' && `badge--${size}`,
           placement && `badge--${placement}`,
+          `badge--${size}`,
+          `badge--${variant}`,
           className,
         )}
         {...rest}
       >
-        <span className="badge__label">{children}</span>
+        {children !== undefined && children !== null && (
+          <span className="badge__label" data-slot="badge-label">
+            {children}
+          </span>
+        )}
       </span>
     );
   },
@@ -41,7 +47,7 @@ export type BadgeAnchorProps = HTMLAttributes<HTMLSpanElement> & { children: Rea
 
 export const BadgeAnchor = forwardRef<HTMLSpanElement, BadgeAnchorProps>(
   ({ className, children, ...rest }, ref) => (
-    <span ref={ref} className={clsx('badge-anchor', className)} {...rest}>
+    <span ref={ref} data-slot="badge-anchor" className={clsx('badge-anchor', className)} {...rest}>
       {children}
     </span>
   ),
