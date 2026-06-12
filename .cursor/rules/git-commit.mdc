@@ -1,0 +1,23 @@
+---
+description: Git commit gate - read docs/git-commit-spec.md before writing commit messages
+globs:
+alwaysApply: true
+---
+
+# Git Commit Specification
+
+Before writing any commit message, read `docs/git-commit-spec.md` and follow it exactly.
+
+Summary:
+
+`<type>(<scope>): <Chinese subject>`
+
+- Allowed types: `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `style`, `chore`, `revert`.
+- Scope must come from the Vela UI scope list in `docs/git-commit-spec.md`.
+- Scope must be lowercase kebab-case.
+- Do not use Chinese, PascalCase, camelCase, or file-location scopes.
+- There must be one space after the colon.
+- Header must be 72 characters or fewer.
+- Run `git diff --cached` before deciding the message.
+- Split unrelated changes instead of hiding them under one vague commit.
+- Do not include AI signature footers.

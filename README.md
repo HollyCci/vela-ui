@@ -37,6 +37,11 @@ pnpm preview     # Preview the production build
 pnpm type-check  # Run TypeScript checks
 ```
 
+## Development
+
+Commit messages follow the project specification in `docs/git-commit-spec.md`.
+Use the format `<type>(<scope>): <Chinese subject>` and inspect staged changes before committing.
+
 ## Project Structure
 
 - `src/components/` - React component implementations
