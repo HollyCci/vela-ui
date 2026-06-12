@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
 
-export type InlineSelectProps = HTMLAttributes<HTMLDivElement> & {
+export type InlineSelectProps = Omit<HTMLAttributes<HTMLDivElement>, 'popover'> & {
   value?: ReactNode;
   isOpen?: boolean;
   isDisabled?: boolean;

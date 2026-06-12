@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
 
-export type CellSelectProps = HTMLAttributes<HTMLDivElement> & {
+export type CellSelectProps = Omit<HTMLAttributes<HTMLDivElement>, 'popover'> & {
   label?: ReactNode;
   value?: ReactNode;
   variant?: 'default' | 'secondary';
