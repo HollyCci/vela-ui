@@ -480,7 +480,7 @@ const App = () => {
               {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
             </section>
             {sections.map((s) => (
-              <div key={s.demo} className="contents">
+              <div key={s.anchor} className="contents">
                 <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
                 <ComponentPreview component={activeId} slug={s.demo} />
               </div>
