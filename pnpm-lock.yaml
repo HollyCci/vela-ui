@@ -23,6 +23,9 @@ importers:
       react:
         specifier: ^19.2.7
         version: 19.2.7
+      react-aria-components:
+        specifier: 1.17.0
+        version: 1.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
       react-dom:
         specifier: ^19.2.7
         version: 19.2.7(react@19.2.7)
@@ -2551,7 +2554,7 @@ snapshots:
   react-aria-components@1.17.0(react-dom@19.2.7(react@19.2.7))(react@19.2.7):
     dependencies:
       '@internationalized/date': 3.12.2
-      '@react-types/shared': 3.34.0(react@19.2.7)
+      '@react-types/shared': 3.35.0(react@19.2.7)
       '@swc/helpers': 0.5.23
       client-only: 0.0.1
       react: 19.2.7
@@ -2575,7 +2578,7 @@ snapshots:
       '@internationalized/date': 3.12.2
       '@internationalized/number': 3.6.7
       '@internationalized/string': 3.2.9
-      '@react-types/shared': 3.34.0(react@19.2.7)
+      '@react-types/shared': 3.35.0(react@19.2.7)
       '@swc/helpers': 0.5.23
       aria-hidden: 1.2.6
       clsx: 2.1.1
@@ -2623,7 +2626,7 @@ snapshots:
       '@internationalized/date': 3.12.2
       '@internationalized/number': 3.6.7
       '@internationalized/string': 3.2.9
-      '@react-types/shared': 3.34.0(react@19.2.7)
+      '@react-types/shared': 3.35.0(react@19.2.7)
       '@swc/helpers': 0.5.23
       react: 19.2.7
       use-sync-external-store: 1.6.0(react@19.2.7)
