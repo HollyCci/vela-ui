@@ -1,26 +1,71 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { useEffect, useState, forwardRef, type HTMLAttributes } from 'react';
+import { Toolbar, type ToolbarProps } from '@heroui/react';
 import clsx from 'clsx';
-import Toolbar from '../toolbar';
 
-export type ActionBarProps = HTMLAttributes<HTMLDivElement> & {
-  isOpen?: boolean;
-  children: ReactNode;
+export type ActionBarProps = Omit<ToolbarProps, 'className'> & {
+  /** 控制显隐，带进出场动画（原站 API 为必填） */
+  isOpen: boolean;
+  /** 追加到 toolbar wrapper 上的类名（与原站 API 一致） */
+  className?: string;
 };
 
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
-const ActionBarRoot = forwardRef<HTMLDivElement, ActionBarProps>(
-  ({ isOpen = true, className, children, ...rest }, ref) => {
-    if (!isOpen) return null;
-    return (
-      <div ref={ref} className={clsx('action-bar', className)} {...rest}>
-        <Toolbar isAttached className="action-bar__wrapper">
-          {children}
-        </Toolbar>
-      </div>
-    );
-  },
-);
+/** 进场/退场动画类（tw-animate-css），与原站「animates in/out based on isOpen」行为对齐 */
+const ENTER_MOTION = 'animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-200';
+const EXIT_MOTION =
+  'animate-out fade-out-0 zoom-out-95 slide-out-to-bottom-4 duration-200 fill-mode-forwards';
+
+/** 退场卸载兜底：动画被节流或禁用（如系统减弱动态效果）时 animationend 不可靠 */
+const EXIT_FALLBACK_MS = 300;
+
+/**
+ * 基于 @heroui/react Toolbar 的浮动操作条。
+ * Root 扩展 ToolbarProps（aria-label 默认 "Actions"，isAttached 默认 true），
+ * 退场动画结束后再卸载 DOM。
+ */
+const ActionBarRoot = ({
+  isOpen,
+  isAttached = true,
+  'aria-label': ariaLabel = 'Actions',
+  className,
+  children,
+  ...rest
+}: ActionBarProps) => {
+  const [isPresent, setIsPresent] = useState(isOpen);
+
+  useEffect(() => {
+    if (isOpen) {
+      setIsPresent(true);
+      return undefined;
+    }
+    const timer = setTimeout(() => setIsPresent(false), EXIT_FALLBACK_MS);
+    return () => clearTimeout(timer);
+  }, [isOpen]);
+
+  const handleAnimationEnd = () => {
+    if (!isOpen) setIsPresent(false);
+  };
+
+  if (!isPresent) return null;
+
+  return (
+    <div
+      className="action-bar"
+      data-state={isOpen ? 'open' : 'closed'}
+      onAnimationEnd={handleAnimationEnd}
+    >
+      <Toolbar
+        aria-label={ariaLabel}
+        isAttached={isAttached}
+        className={clsx('action-bar__wrapper', isOpen ? ENTER_MOTION : EXIT_MOTION, className)}
+        {...rest}
+      >
+        {children}
+      </Toolbar>
+    </div>
+  );
+};
 
 ActionBarRoot.displayName = 'ActionBar';
 

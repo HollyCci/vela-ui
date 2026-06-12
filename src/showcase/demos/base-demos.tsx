@@ -14,6 +14,12 @@ import {
   Spinner,
   Toolbar,
 } from '../../components';
+import {
+  Button as UIButton,
+  Chip as UIChip,
+  Separator as UISeparator,
+  Tooltip as UITooltip,
+} from '@heroui/react';
 import DemoSection from '../demo-section';
 
 const ButtonDemo = () => (
@@ -157,6 +163,24 @@ const ToolbarDemo = () => (
   </DemoSection>
 );
 
+const XmarkIcon = () => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    height="16"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="1.5"
+    viewBox="0 0 24 24"
+    width="16"
+  >
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+XmarkIcon.displayName = 'XmarkIcon';
+
+/** 原站 anatomy 同构：OSS Chip/Button/Separator/Tooltip 填充 ActionBar 各分区 */
 const ActionBarDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
   const handleToggle = () => setIsOpen((v) => !v);
@@ -164,28 +188,36 @@ const ActionBarDemo = () => {
 
   return (
     <DemoSection>
-      <Button onClick={handleToggle}>{isOpen ? '隐藏' : '显示'} Action Bar</Button>
+      <UIButton variant="secondary" onPress={handleToggle}>
+        {isOpen ? '隐藏' : '显示'} Action Bar
+      </UIButton>
       <ActionBar isOpen={isOpen}>
         <ActionBar.Prefix>
-          <Badge color="accent">2</Badge>
+          <UIChip color="accent" size="sm">
+            2
+          </UIChip>
+          <ActionBar.Label>已选择</ActionBar.Label>
         </ActionBar.Prefix>
-        <Separator orientation="vertical" />
+        <UISeparator />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost">
-            <ActionBar.Label>编辑</ActionBar.Label>
-          </Button>
-          <Button size="sm" variant="ghost">
-            <ActionBar.Label>导出</ActionBar.Label>
-          </Button>
-          <Button size="sm" variant="ghost" className="text-danger">
-            <ActionBar.Label>删除</ActionBar.Label>
-          </Button>
+          <UIButton size="sm" variant="ghost">
+            编辑
+          </UIButton>
+          <UIButton size="sm" variant="ghost">
+            导出
+          </UIButton>
+          <UIButton className="text-danger" size="sm" variant="ghost">
+            删除
+          </UIButton>
         </ActionBar.Content>
-        <Separator orientation="vertical" />
+        <UISeparator />
         <ActionBar.Suffix>
-          <Button size="sm" variant="ghost" isIconOnly aria-label="关闭" onClick={handleClose}>
-            ✕
-          </Button>
+          <UITooltip>
+            <UIButton aria-label="清除选择" isIconOnly size="sm" variant="ghost" onPress={handleClose}>
+              <XmarkIcon />
+            </UIButton>
+            <UITooltip.Content>清除选择</UITooltip.Content>
+          </UITooltip>
         </ActionBar.Suffix>
       </ActionBar>
     </DemoSection>
