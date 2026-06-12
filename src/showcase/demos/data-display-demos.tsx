@@ -1,4 +1,12 @@
 import { useState, type ReactNode } from 'react';
+import type { Selection } from 'react-aria-components';
+import {
+  Button as UIButton,
+  Chip as UIChip,
+  Separator as UISeparator,
+  Tooltip as UITooltip,
+} from '@heroui/react';
+import ActionBar from '../../components/action-bar';
 import Badge from '../../components/badge';
 import Button from '../../components/button';
 import Carousel from '../../components/carousel';
@@ -167,45 +175,142 @@ const ItemCardGroupDemo = () => (
   </DemoSection>
 );
 
+const XmarkIcon = () => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    height="16"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="1.5"
+    viewBox="0 0 24 24"
+    width="16"
+  >
+    <path d="M18 6 6 18M6 6l12 12" />
+  </svg>
+);
+XmarkIcon.displayName = 'XmarkIcon';
+
+const LIST_VIEW_FILES = [
+  { id: '1', name: 'Project proposal.pdf', size: '2.4 MB' },
+  { id: '2', name: 'Q4 financial report.xlsx', size: '1.8 MB' },
+  { id: '3', name: 'Design assets.zip', size: '24 MB' },
+  { id: '4', name: 'Meeting notes.docx', size: '356 KB' },
+  { id: '5', name: 'Customer interviews.mp4', size: '512 MB' },
+];
+
+/** 原站「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
 const ListViewDemo = () => {
-  const [selectedKey, setSelectedKey] = useState('s2');
-  const students = [
-    { key: 's1', name: '王晓萌', plan: '雅思 7 分计划 · 第 12 天' },
-    { key: 's2', name: '李子轩', plan: '考研词汇 · 第 45 天' },
-    { key: 's3', name: '陈雨桐', plan: '四级冲刺 · 第 8 天' },
-  ];
-  const handleSelectS1 = () => setSelectedKey('s1');
-  const handleSelectS2 = () => setSelectedKey('s2');
-  const handleSelectS3 = () => setSelectedKey('s3');
-  const handlers: Record<string, () => void> = {
-    s1: handleSelectS1,
-    s2: handleSelectS2,
-    s3: handleSelectS3,
-  };
+  const [selected, setSelected] = useState<Selection>(new Set());
+  const count = selected === 'all' ? LIST_VIEW_FILES.length : selected.size;
+  const handleClear = () => setSelected(new Set());
+
   return (
-    <DemoSection isColumn>
-      <ListView style={{ width: 380 }}>
-        {students.map((student) => (
-          <ListView.Item
-            key={student.key}
-            isSelected={student.key === selectedKey}
-            onClick={handlers[student.key]}
-          >
+    <>
+      <DemoSection isColumn label="multiple selection + action bar">
+        <ListView
+          aria-label="Files"
+          items={LIST_VIEW_FILES}
+          selectedKeys={selected}
+          selectionMode="multiple"
+          style={{ width: 420 }}
+          onSelectionChange={setSelected}
+        >
+          {(file) => (
+            <ListView.Item id={file.id} textValue={file.name}>
+              <ListView.ItemContent>
+                <FileIcon />
+                <div>
+                  <ListView.Title>{file.name}</ListView.Title>
+                  <ListView.Description>{file.size}</ListView.Description>
+                </div>
+              </ListView.ItemContent>
+            </ListView.Item>
+          )}
+        </ListView>
+        <ActionBar isOpen={count > 0}>
+          <ActionBar.Prefix>
+            <UIChip color="accent" size="sm">
+              {count}
+            </UIChip>
+            <ActionBar.Label>已选择</ActionBar.Label>
+          </ActionBar.Prefix>
+          <UISeparator />
+          <ActionBar.Content>
+            <UIButton size="sm" variant="ghost">
+              下载
+            </UIButton>
+            <UIButton size="sm" variant="ghost">
+              移动
+            </UIButton>
+            <UIButton className="text-danger" size="sm" variant="ghost">
+              删除
+            </UIButton>
+          </ActionBar.Content>
+          <UISeparator />
+          <ActionBar.Suffix>
+            <UITooltip>
+              <UIButton
+                aria-label="清除选择"
+                isIconOnly
+                size="sm"
+                variant="ghost"
+                onPress={handleClear}
+              >
+                <XmarkIcon />
+              </UIButton>
+              <UITooltip.Content>清除选择</UITooltip.Content>
+            </UITooltip>
+          </ActionBar.Suffix>
+        </ActionBar>
+      </DemoSection>
+      <DemoSection isColumn label="secondary · single selection · disabled item">
+        <ListView
+          aria-label="Students"
+          defaultSelectedKeys={['s2']}
+          disabledKeys={['s3']}
+          selectionMode="single"
+          style={{ width: 380 }}
+          variant="secondary"
+        >
+          <ListView.Item id="s1" textValue="王晓萌">
             <ListView.ItemContent>
               <div>
-                <ListView.Title>{student.name}</ListView.Title>
-                <ListView.Description>{student.plan}</ListView.Description>
+                <ListView.Title>王晓萌</ListView.Title>
+                <ListView.Description>雅思 7 分计划 · 第 12 天</ListView.Description>
               </div>
             </ListView.ItemContent>
             <ListView.ItemAction>
-              <Button size="sm" variant="ghost">
+              <UIButton size="sm" variant="ghost">
                 辅导
-              </Button>
+              </UIButton>
             </ListView.ItemAction>
           </ListView.Item>
-        ))}
-      </ListView>
-    </DemoSection>
+          <ListView.Item id="s2" textValue="李子轩">
+            <ListView.ItemContent>
+              <div>
+                <ListView.Title>李子轩</ListView.Title>
+                <ListView.Description>考研词汇 · 第 45 天</ListView.Description>
+              </div>
+            </ListView.ItemContent>
+            <ListView.ItemAction>
+              <UIButton size="sm" variant="ghost">
+                辅导
+              </UIButton>
+            </ListView.ItemAction>
+          </ListView.Item>
+          <ListView.Item id="s3" textValue="陈雨桐">
+            <ListView.ItemContent>
+              <div>
+                <ListView.Title>陈雨桐</ListView.Title>
+                <ListView.Description>四级冲刺 · 第 8 天</ListView.Description>
+              </div>
+            </ListView.ItemContent>
+          </ListView.Item>
+        </ListView>
+      </DemoSection>
+    </>
   );
 };
 
