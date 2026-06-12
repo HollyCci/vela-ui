@@ -485,13 +485,13 @@ const App = () => {
                 <ComponentPreview component={activeId} slug={s.demo} />
               </div>
             ))}
-            {reactDemo !== undefined && (
-              <div className="contents">
-                <SectionHeading anchor="react-implementation">React Implementation</SectionHeading>
-                <div className="sc-react-demo">{reactDemo}</div>
-              </div>
-            )}
           </>
+        )}
+        {reactDemo !== undefined && (
+          <div className="contents">
+            <SectionHeading anchor="react-implementation">React Implementation</SectionHeading>
+            <div className="sc-react-demo">{reactDemo}</div>
+          </div>
         )}
       </article>
       <div
