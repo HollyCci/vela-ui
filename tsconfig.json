@@ -14,14 +14,5 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true
   },
-  "include": ["src"],
-  "exclude": [
-    "src/components",
-    "src/showcase/App.tsx",
-    "src/showcase/demos",
-    "src/showcase/registry.ts",
-    "src/showcase/demo-frame.tsx",
-    "src/showcase/demo-section.tsx",
-    "src/showcase/icons.tsx"
-  ]
+  "include": ["src"]
 }
