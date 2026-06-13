@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { Key, Selection } from 'react-aria-components';
+import type { Key, Selection, SortDescriptor } from 'react-aria-components';
 import {
   Button as UIButton,
   Chip as UIChip,
@@ -19,7 +19,7 @@ import FloatingToc from '../../components/floating-toc';
 import HoverCard from '../../components/hover-card';
 import ItemCard from '../../components/item-card';
 import ItemCardGroup from '../../components/item-card-group';
-import Kanban from '../../components/kanban';
+import Kanban, { useKanban, useKanbanColumn } from '../../components/kanban';
 import Kpi from '../../components/kpi';
 import KpiGroup from '../../components/kpi-group';
 import ListView from '../../components/list-view';
@@ -461,59 +461,111 @@ const FileTreeDemo = () => {
   );
 };
 
-const KanbanDemo = () => (
-  <DemoSection isColumn>
-    <Kanban size="sm" style={{ width: 760 }}>
-      <Kanban.Column>
-        <Kanban.ColumnHeader title="待跟进" count="2" indicatorColor="var(--warning)" />
-        <Kanban.ColumnBody>
-          <Kanban.CardList>
-            <Kanban.Card size="sm">
-              <div>学员「王晓萌」连续 3 天未打卡</div>
-              <Chip size="sm" color="warning">
-                高优
-              </Chip>
+type KanbanTask = {
+  id: string;
+  title: string;
+  status: string;
+  priority: 'low' | 'normal' | 'high';
+};
+
+const KANBAN_TASKS: KanbanTask[] = [
+  { id: 't1', title: '学员「王晓萌」连续 3 天未打卡', status: 'todo', priority: 'high' },
+  { id: 't2', title: '订单 #20260611 申请退费待审核', status: 'todo', priority: 'normal' },
+  { id: 't3', title: '雅思口语班课件待补充', status: 'todo', priority: 'low' },
+  { id: 't4', title: '考研班排课冲突，与教务沟通中', status: 'doing', priority: 'high' },
+  { id: 't5', title: '暑期活动海报终稿设计', status: 'doing', priority: 'normal' },
+  { id: 't6', title: '六月续费名单已导出', status: 'done', priority: 'low' },
+];
+
+const KANBAN_COLUMNS: { id: string; title: string; color: string }[] = [
+  { id: 'todo', title: '待跟进', color: 'var(--warning)' },
+  { id: 'doing', title: '处理中', color: 'var(--accent)' },
+  { id: 'done', title: '已完成', color: 'var(--success)' },
+];
+
+const KANBAN_PRIORITY: Record<KanbanTask['priority'], { label: string; color: 'danger' | 'warning' | 'success' }> = {
+  high: { label: '高优', color: 'danger' },
+  normal: { label: '常规', color: 'warning' },
+  low: { label: '低优', color: 'success' },
+};
+
+const getKanbanColumn = (task: KanbanTask) => task.status;
+const setKanbanColumn = (task: KanbanTask, column: string): KanbanTask => ({
+  ...task,
+  status: column,
+});
+
+type KanbanColumnViewProps = {
+  kanban: ReturnType<typeof useKanban<KanbanTask>>;
+  column: { id: string; title: string; color: string };
+};
+
+const KanbanColumnView = ({ kanban, column }: KanbanColumnViewProps) => {
+  const { items, dragAndDropHooks } = useKanbanColumn(kanban, column.id);
+  return (
+    <Kanban.Column>
+      <Kanban.ColumnHeader title={column.title} count={items.length} indicatorColor={column.color} />
+      <Kanban.ColumnBody>
+        <Kanban.CardList
+          aria-label={column.title}
+          items={items}
+          dragAndDropHooks={dragAndDropHooks}
+          renderEmptyState={renderKanbanEmpty}
+        >
+          {(task: KanbanTask) => (
+            <Kanban.Card id={task.id} textValue={task.title}>
+              <Kanban.CardContent>
+                <span style={{ fontWeight: 600, lineHeight: 1.4 }}>{task.title}</span>
+                <Chip size="sm" color={KANBAN_PRIORITY[task.priority].color}>
+                  {KANBAN_PRIORITY[task.priority].label}
+                </Chip>
+              </Kanban.CardContent>
             </Kanban.Card>
-            <Kanban.Card size="sm">
-              <div>订单 #20260611 申请退费待审核</div>
-            </Kanban.Card>
-          </Kanban.CardList>
-        </Kanban.ColumnBody>
-      </Kanban.Column>
-      <Kanban.Column>
-        <Kanban.ColumnHeader title="处理中" count="1" indicatorColor="var(--accent)" />
-        <Kanban.ColumnBody>
-          <Kanban.CardList>
-            <Kanban.Card size="sm" isSelected>
-              <div>考研班排课冲突，与教务沟通中</div>
-            </Kanban.Card>
-          </Kanban.CardList>
-        </Kanban.ColumnBody>
-      </Kanban.Column>
-      <Kanban.Column>
-        <Kanban.ColumnHeader title="已完成" count="0" indicatorColor="var(--success)" />
-        <Kanban.ColumnBody>
-          <Kanban.CardList isEmpty>
-            <Kanban.Empty>暂无任务</Kanban.Empty>
-          </Kanban.CardList>
-        </Kanban.ColumnBody>
-      </Kanban.Column>
-    </Kanban>
-  </DemoSection>
-);
+          )}
+        </Kanban.CardList>
+      </Kanban.ColumnBody>
+    </Kanban.Column>
+  );
+};
+
+const renderKanbanEmpty = () => <Kanban.Empty>拖拽卡片到此</Kanban.Empty>;
+
+const KanbanDemo = () => {
+  const kanban = useKanban<KanbanTask>({
+    initialItems: KANBAN_TASKS,
+    getColumn: getKanbanColumn,
+    setColumn: setKanbanColumn,
+  });
+
+  const distribution = KANBAN_COLUMNS.map(
+    (column) => `${column.title} ${kanban.list.items.filter((task) => task.status === column.id).length}`,
+  ).join(' · ');
+
+  return (
+    <DemoSection isColumn label="多列 · HTML5 拖拽换列 / 列内排序（回显各列数量）">
+      <Kanban size="sm" style={{ width: 820 }}>
+        {KANBAN_COLUMNS.map((column) => (
+          <KanbanColumnView key={column.id} kanban={kanban} column={column} />
+        ))}
+      </Kanban>
+      <div style={{ fontSize: 13, color: 'var(--foreground)' }}>当前分布：{distribution}</div>
+    </DemoSection>
+  );
+};
 
 type OrderRow = {
   id: string;
   student: string;
   course: string;
-  amount: string;
+  amount: number;
   status: string;
 };
 
 const ORDER_ROWS: OrderRow[] = [
-  { id: '20260612001', student: '王晓萌', course: '雅思 7 分计划', amount: '¥3,980', status: '已支付' },
-  { id: '20260612002', student: '李子轩', course: '考研英语冲刺班', amount: '¥2,680', status: '待支付' },
-  { id: '20260612003', student: '陈雨桐', course: '四级真题精讲营', amount: '¥1,280', status: '已退款' },
+  { id: '20260612001', student: '王晓萌', course: '雅思 7 分计划', amount: 3980, status: '已支付' },
+  { id: '20260612002', student: '李子轩', course: '考研英语冲刺班', amount: 2680, status: '待支付' },
+  { id: '20260612003', student: '陈雨桐', course: '四级真题精讲营', amount: 1280, status: '已退款' },
+  { id: '20260612004', student: '赵梓涵', course: '商务英语口语营', amount: 4680, status: '已支付' },
 ];
 
 const renderOrderStatus = (row: OrderRow) => {
@@ -525,28 +577,72 @@ const renderOrderStatus = (row: OrderRow) => {
   );
 };
 
+const renderOrderAmount = (row: OrderRow) => `¥${row.amount.toLocaleString('zh-CN')}`;
+
 const ORDER_COLUMNS: DataGridColumn<OrderRow>[] = [
-  { key: 'id', title: '订单号', width: 140 },
-  { key: 'student', title: '学员' },
-  { key: 'course', title: '课程' },
-  { key: 'amount', title: '金额', align: 'right' },
-  { key: 'status', title: '状态', render: renderOrderStatus },
+  { id: 'id', header: '订单号', accessorKey: 'id', isRowHeader: true, width: 150 },
+  { id: 'student', header: '学员', accessorKey: 'student', allowsSorting: true, width: 100 },
+  { id: 'course', header: '课程', accessorKey: 'course' },
+  { id: 'amount', header: '金额', accessorKey: 'amount', allowsSorting: true, align: 'end', cell: renderOrderAmount },
+  { id: 'status', header: '状态', accessorKey: 'status', cell: renderOrderStatus },
 ];
 
-const orderRowKey = (row: OrderRow) => row.id;
+const orderRowId = (row: OrderRow) => row.id;
 
-const DataGridDemo = () => (
-  <DemoSection isColumn>
-    <div style={{ width: 640 }}>
-      <DataGrid
-        columns={ORDER_COLUMNS}
-        rows={ORDER_ROWS}
-        rowKey={orderRowKey}
-        selectedKeys={['20260612001']}
-      />
-    </div>
-  </DemoSection>
-);
+const sortOrderRows = (rows: OrderRow[], descriptor: SortDescriptor): OrderRow[] => {
+  const column = descriptor.column;
+  if (column === undefined) {
+    return rows;
+  }
+  const sorted = [...rows].sort((a, b) => {
+    const av = a[column as keyof OrderRow];
+    const bv = b[column as keyof OrderRow];
+    if (typeof av === 'number' && typeof bv === 'number') {
+      return av - bv;
+    }
+    return String(av).localeCompare(String(bv));
+  });
+  return descriptor.direction === 'descending' ? sorted.reverse() : sorted;
+};
+
+const DataGridDemo = () => {
+  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+    column: 'amount',
+    direction: 'descending',
+  });
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['20260612001']));
+
+  // 受控排序：调用方据 descriptor 自行重排数据（服务端排序的本地等价）
+  const rows = sortOrderRows(ORDER_ROWS, sortDescriptor);
+
+  const selectedLabel =
+    selectedKeys === 'all' ? '全部' : [...selectedKeys].map(String).join('、') || '（未选择）';
+  const sortLabel = `${String(sortDescriptor.column)}（${
+    sortDescriptor.direction === 'ascending' ? '升序' : '降序'
+  }）`;
+
+  return (
+    <DemoSection isColumn label="受控排序（点列头切换 aria-sort）+ 多选回显">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="订单"
+          columns={ORDER_COLUMNS}
+          data={rows}
+          getRowId={orderRowId}
+          selectionMode="multiple"
+          showSelectionCheckboxes
+          selectedKeys={selectedKeys}
+          onSelectionChange={setSelectedKeys}
+          sortDescriptor={sortDescriptor}
+          onSortChange={setSortDescriptor}
+        />
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
+        排序：{sortLabel} · 已选：{selectedLabel}
+      </div>
+    </DemoSection>
+  );
+};
 
 const CAROUSEL_SLIDES = ['暑期班招生海报', '教师节活动物料', '新版 App 上线公告'];
 
