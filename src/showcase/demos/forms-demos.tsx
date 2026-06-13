@@ -143,20 +143,68 @@ const TagDemo = () => (
   </DemoSection>
 );
 
-const CheckboxButtonGroupDemo = () => (
-  <DemoSection>
-    <CheckboxButtonGroup isGrid columns={2} style={{ width: 480 }}>
-      <CheckboxButtonGroup.Item defaultSelected icon={<BookIcon />}>
-        <strong>阅读训练</strong>
-        <span>精读与泛读结合</span>
-      </CheckboxButtonGroup.Item>
-      <CheckboxButtonGroup.Item icon={<EarIcon />}>
-        <strong>听力训练</strong>
-        <span>分级听写练习</span>
-      </CheckboxButtonGroup.Item>
-    </CheckboxButtonGroup>
-  </DemoSection>
-);
+const CheckboxButtonGroupDemo = () => {
+  const [modules, setModules] = useState<string[]>(['reading']);
+  const handleModulesChange = (value: string[]) => setModules(value);
+
+  return (
+    <DemoSection isColumn>
+      <CheckboxButtonGroup
+        aria-label="训练模块（受控）"
+        layout="grid"
+        value={modules}
+        onChange={handleModulesChange}
+        style={{ width: 480, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+      >
+        <CheckboxButtonGroup.Item value="reading">
+          <CheckboxButtonGroup.Indicator />
+          <CheckboxButtonGroup.ItemIcon>
+            <BookIcon />
+          </CheckboxButtonGroup.ItemIcon>
+          <CheckboxButtonGroup.ItemContent>
+            <strong>阅读训练</strong>
+            <span>精读与泛读结合</span>
+          </CheckboxButtonGroup.ItemContent>
+        </CheckboxButtonGroup.Item>
+        <CheckboxButtonGroup.Item value="listening">
+          <CheckboxButtonGroup.Indicator />
+          <CheckboxButtonGroup.ItemIcon>
+            <EarIcon />
+          </CheckboxButtonGroup.ItemIcon>
+          <CheckboxButtonGroup.ItemContent>
+            <strong>听力训练</strong>
+            <span>分级听写练习</span>
+          </CheckboxButtonGroup.ItemContent>
+        </CheckboxButtonGroup.Item>
+      </CheckboxButtonGroup>
+      <CheckboxButtonGroup
+        aria-label="禁用组（自定义指示器）"
+        isDisabled
+        defaultValue={['spelling']}
+        style={{ width: 480 }}
+      >
+        <CheckboxButtonGroup.Item value="spelling">
+          <CheckboxButtonGroup.Indicator>
+            <CheckCircleIcon />
+          </CheckboxButtonGroup.Indicator>
+          <CheckboxButtonGroup.ItemContent>
+            <strong>拼写训练</strong>
+            <span>禁用且选中</span>
+          </CheckboxButtonGroup.ItemContent>
+        </CheckboxButtonGroup.Item>
+        <CheckboxButtonGroup.Item value="grammar">
+          <CheckboxButtonGroup.Indicator>
+            <CheckCircleIcon />
+          </CheckboxButtonGroup.Indicator>
+          <CheckboxButtonGroup.ItemContent>
+            <strong>语法训练</strong>
+            <span>禁用未选中</span>
+          </CheckboxButtonGroup.ItemContent>
+        </CheckboxButtonGroup.Item>
+      </CheckboxButtonGroup>
+    </DemoSection>
+  );
+};
 
 const RadioButtonGroupDemo = () => (
   <DemoSection>
@@ -278,13 +326,38 @@ const DropZoneDemo = () => (
   </DemoSection>
 );
 
-const CellSwitchDemo = () => (
-  <DemoSection isColumn>
-    <CellSwitch label="开启课堂提醒" defaultSelected style={{ width: 320 }} />
-    <CellSwitch label="次级样式" variant="secondary" style={{ width: 320 }} />
-    <CellSwitch label="禁用项" isDisabled style={{ width: 320 }} />
-  </DemoSection>
-);
+const CellSwitchDemo = () => {
+  const [isReminderOn, setIsReminderOn] = useState(true);
+  const handleReminderChange = (isSelected: boolean) => setIsReminderOn(isSelected);
+
+  return (
+    <DemoSection isColumn>
+      <CellSwitch
+        aria-label="开启课堂提醒"
+        isSelected={isReminderOn}
+        onChange={handleReminderChange}
+        style={{ width: 320 }}
+      >
+        <CellSwitch.Trigger>
+          <CellSwitch.Label>开启课堂提醒（受控：{isReminderOn ? '开' : '关'}）</CellSwitch.Label>
+          <CellSwitch.Control />
+        </CellSwitch.Trigger>
+      </CellSwitch>
+      <CellSwitch aria-label="次级样式" variant="secondary" defaultSelected style={{ width: 320 }}>
+        <CellSwitch.Trigger>
+          <CellSwitch.Label>次级样式</CellSwitch.Label>
+          <CellSwitch.Control />
+        </CellSwitch.Trigger>
+      </CellSwitch>
+      <CellSwitch aria-label="禁用项" isDisabled style={{ width: 320 }}>
+        <CellSwitch.Trigger>
+          <CellSwitch.Label>禁用项</CellSwitch.Label>
+          <CellSwitch.Control />
+        </CellSwitch.Trigger>
+      </CellSwitch>
+    </DemoSection>
+  );
+};
 
 const CellSelectDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -314,6 +387,18 @@ const BookIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
     <path d="M4 19.5A2.5 2.5 0 016.5 17H20" />
     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z" />
+  </svg>
+);
+
+/** 原站 custom-indicator 基准快照中的对勾圆图标 */
+const CheckCircleIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" aria-hidden="true">
+    <path
+      fill="currentColor"
+      fillRule="evenodd"
+      d="M8 15A7 7 0 1 0 8 1a7 7 0 0 0 0 14m3.1-8.55a.75.75 0 1 0-1.2-.9L7.419 8.858 6.03 7.47a.75.75 0 0 0-1.06 1.06l2 2a.75.75 0 0 0 1.13-.08z"
+      clipRule="evenodd"
+    />
   </svg>
 );
 

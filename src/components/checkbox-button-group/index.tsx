@@ -1,99 +1,123 @@
+import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
 import {
-  forwardRef,
-  useState,
-  type ButtonHTMLAttributes,
-  type CSSProperties,
-  type HTMLAttributes,
-  type ReactNode,
-} from 'react';
+  Checkbox,
+  CheckboxGroup,
+  type CheckboxGroupProps,
+  type CheckboxProps,
+} from '@heroui/react';
 import clsx from 'clsx';
 
-export type CheckboxButtonGroupProps = HTMLAttributes<HTMLDivElement> & {
-  isGrid?: boolean;
-  columns?: number;
+export type CheckboxButtonGroupLayout = 'flex' | 'grid';
+
+export type CheckboxButtonGroupProps = Omit<CheckboxGroupProps, 'className' | 'style'> & {
+  /** 布局模式（原站 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
+  layout?: CheckboxButtonGroupLayout;
+  className?: string;
+  style?: CSSProperties;
 };
 
-const CheckboxButtonGroupRoot = forwardRef<HTMLDivElement, CheckboxButtonGroupProps>(
-  ({ isGrid = false, columns, className, style, ...rest }, ref) => {
-    const gridStyle: CSSProperties | undefined =
-      isGrid && columns !== undefined
-        ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, ...style }
-        : style;
-
-    return (
-      <div
-        ref={ref}
-        role="group"
-        className={clsx(
-          'checkbox-button-group',
-          isGrid && 'checkbox-button-group--grid',
-          className,
-        )}
-        style={gridStyle}
-        {...rest}
-      />
-    );
-  },
-);
-CheckboxButtonGroupRoot.displayName = 'CheckboxButtonGroup';
-
-export type CheckboxButtonGroupItemProps = Omit<
-  ButtonHTMLAttributes<HTMLButtonElement>,
-  'children'
-> & {
-  isSelected?: boolean;
-  defaultSelected?: boolean;
-  onSelectedChange?: (isSelected: boolean) => void;
-  icon?: ReactNode;
-  children?: ReactNode;
+export type CheckboxButtonGroupItemProps = Omit<CheckboxProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
 };
 
-const Item = forwardRef<HTMLButtonElement, CheckboxButtonGroupItemProps>(
-  (
-    { isSelected, defaultSelected = false, onSelectedChange, icon, className, children, ...rest },
-    ref,
-  ) => {
-    const [innerSelected, setInnerSelected] = useState(defaultSelected);
-    const selected = isSelected ?? innerSelected;
+export type CheckboxButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 
-    const handleClick = () => {
-      const next = !selected;
-      if (isSelected === undefined) setInnerSelected(next);
-      onSelectedChange?.(next);
-    };
+export type CheckboxButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>;
 
-    return (
-      <button
-        ref={ref}
-        type="button"
-        role="checkbox"
-        aria-checked={selected}
-        className={clsx('checkbox-button-group__item', className)}
-        data-selected={selected || undefined}
-        onClick={handleClick}
-        {...rest}
-      >
-        <span className="checkbox-button-group__indicator" data-custom="true" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M8 12.5l2.5 2.5L16 9.5" />
-          </svg>
-        </span>
-        {icon !== undefined && <span className="checkbox-button-group__item-icon">{icon}</span>}
-        <span className="checkbox-button-group__item-content">{children}</span>
-      </button>
-    );
-  },
+export type CheckboxButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
+
+/** 卡片式可选项；render-prop children（访问选中态）由 OSS Checkbox 原样支持 */
+const Item = ({ className, ...rest }: CheckboxButtonGroupItemProps) => (
+  <Checkbox
+    data-slot="checkbox-button-group-item"
+    className={clsx('checkbox-button-group__item', className)}
+    {...rest}
+  />
 );
 Item.displayName = 'CheckboxButtonGroup.Item';
 
-const CheckboxButtonGroup = Object.assign(CheckboxButtonGroupRoot, { Item });
+/**
+ * 右上角选择指示器（原站 API）：
+ * 无 children 渲染默认 OSS Checkbox.Control + Indicator（对勾）；
+ * 有 children 渲染 data-custom 的普通 span，仅选中时可见由 CSS
+ * `[data-selected=true]>.checkbox-button-group__indicator[data-custom=true]` 控制。
+ */
+const Indicator = ({ className, children, ...rest }: CheckboxButtonGroupIndicatorProps) => {
+  if (children === undefined) {
+    return (
+      <Checkbox.Control
+        data-slot="checkbox-button-group-indicator"
+        className={clsx('checkbox-button-group__indicator', className)}
+        {...rest}
+      >
+        <Checkbox.Indicator />
+      </Checkbox.Control>
+    );
+  }
+
+  return (
+    <span
+      data-custom="true"
+      data-slot="checkbox-button-group-indicator"
+      className={clsx('checkbox-button-group__indicator', className)}
+      {...rest}
+    >
+      {children}
+    </span>
+  );
+};
+Indicator.displayName = 'CheckboxButtonGroup.Indicator';
+
+/** 包装 OSS Checkbox.Content 的文本内容区 */
+const ItemContent = ({ className, ...rest }: CheckboxButtonGroupItemContentProps) => (
+  <Checkbox.Content
+    data-slot="checkbox-button-group-item-content"
+    className={clsx('checkbox-button-group__item-content', className)}
+    {...rest}
+  />
+);
+ItemContent.displayName = 'CheckboxButtonGroup.ItemContent';
+
+const ItemIcon = forwardRef<HTMLDivElement, CheckboxButtonGroupItemIconProps>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="checkbox-button-group-item-icon"
+      className={clsx('checkbox-button-group__item-icon', className)}
+      {...rest}
+    />
+  ),
+);
+ItemIcon.displayName = 'CheckboxButtonGroup.ItemIcon';
+
+/**
+ * 包装 OSS CheckboxGroup 的卡片多选组（原站 API）：
+ * 受控 value/onChange、isDisabled、键盘交互由底座提供。
+ * 原站快照所有 demo 根类均为 checkbox-group--secondary，故默认 variant=secondary（可透传覆盖）。
+ */
+const CheckboxButtonGroupRoot = forwardRef<HTMLDivElement, CheckboxButtonGroupProps>(
+  ({ layout = 'flex', className, ...rest }, ref) => (
+    <CheckboxGroup
+      ref={ref}
+      data-slot="checkbox-button-group"
+      variant="secondary"
+      className={clsx(
+        'checkbox-button-group',
+        layout === 'grid' && 'checkbox-button-group--grid',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+);
+CheckboxButtonGroupRoot.displayName = 'CheckboxButtonGroup';
+
+const CheckboxButtonGroup = Object.assign(CheckboxButtonGroupRoot, {
+  Item,
+  Indicator,
+  ItemContent,
+  ItemIcon,
+});
 
 export default CheckboxButtonGroup;

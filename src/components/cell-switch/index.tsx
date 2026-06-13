@@ -1,123 +1,103 @@
 import {
+  createContext,
   forwardRef,
-  useState,
+  useContext,
   type CSSProperties,
-  type ChangeEvent,
-  type InputHTMLAttributes,
-  type ReactNode,
+  type HTMLAttributes,
 } from 'react';
+import { Switch, type SwitchControlProps, type SwitchProps } from '@heroui/react';
 import clsx from 'clsx';
 
-const VISUALLY_HIDDEN: CSSProperties = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  margin: -1,
-  padding: 0,
-  border: 0,
-  clipPath: 'inset(50%)',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
+export type CellSwitchVariant = 'default' | 'secondary';
+
+export type CellSwitchProps = Omit<SwitchProps, 'className' | 'style'> & {
+  /** 视觉变体（原站 API；OSS Switch 本身无 variant，不冲突） */
+  variant?: CellSwitchVariant;
+  className?: string;
+  style?: CSSProperties;
 };
 
-export type CellSwitchProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'checked' | 'defaultChecked' | 'onChange' | 'children'
-> & {
-  label?: ReactNode;
-  variant?: 'default' | 'secondary';
-  isSelected?: boolean;
-  defaultSelected?: boolean;
-  onSelectedChange?: (isSelected: boolean) => void;
-  isDisabled?: boolean;
-};
+export type CellSwitchTriggerProps = HTMLAttributes<HTMLDivElement>;
 
-const CellSwitch = forwardRef<HTMLInputElement, CellSwitchProps>(
-  (
-    {
-      label,
-      variant = 'default',
-      isSelected,
-      defaultSelected = false,
-      onSelectedChange,
-      isDisabled = false,
-      className,
-      ...rest
-    },
-    ref,
-  ) => {
-    const [innerSelected, setInnerSelected] = useState(defaultSelected);
-    const [isHovered, setIsHovered] = useState(false);
-    const [isPressed, setIsPressed] = useState(false);
-    const [isFocusVisible, setIsFocusVisible] = useState(false);
-    const selected = isSelected ?? innerSelected;
-    const isSecondary = variant === 'secondary';
+export type CellSwitchLabelProps = HTMLAttributes<HTMLSpanElement>;
 
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-      if (isSelected === undefined) setInnerSelected(event.target.checked);
-      onSelectedChange?.(event.target.checked);
-    };
+export type CellSwitchControlProps = SwitchControlProps;
 
-    const handleMouseEnter = () => setIsHovered(true);
-    const handleMouseLeave = () => {
-      setIsHovered(false);
-      setIsPressed(false);
-    };
-    const handlePointerDown = () => setIsPressed(true);
-    const handlePointerUp = () => setIsPressed(false);
-    const handleFocus = () => setIsFocusVisible(true);
-    const handleBlur = () => setIsFocusVisible(false);
+/** Trigger/Control 需要根据根组件 variant 渲染对应修饰类 */
+const CellSwitchContext = createContext<CellSwitchVariant>('default');
+
+/** 可见的整行单元格容器；快照中 default 变体也带 --default 修饰类 */
+const Trigger = forwardRef<HTMLDivElement, CellSwitchTriggerProps>(
+  ({ className, ...rest }, ref) => {
+    const variant = useContext(CellSwitchContext);
 
     return (
-      <label
-        className={clsx('cell-switch', className)}
-        data-hovered={isHovered || undefined}
-        data-pressed={isPressed || undefined}
-        data-focus-visible={isFocusVisible || undefined}
-        data-disabled={isDisabled || undefined}
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-      >
-        <span
-          className={clsx(
-            'cell-switch__trigger',
-            isSecondary && 'cell-switch__trigger--secondary',
-          )}
-        >
-          <span className="cell-switch__label">{label}</span>
-          <span
-            className={clsx(
-              'cell-switch__control',
-              'switch',
-              isSecondary && 'cell-switch__control--secondary',
-            )}
-            data-selected={selected || undefined}
-            aria-hidden="true"
-          >
-            <span className="switch__control">
-              <span className="switch__thumb" />
-            </span>
-          </span>
-        </span>
-        <input
-          ref={ref}
-          type="checkbox"
-          role="switch"
-          style={VISUALLY_HIDDEN}
-          checked={selected}
-          onChange={handleChange}
-          onFocus={handleFocus}
-          onBlur={handleBlur}
-          disabled={isDisabled}
-          {...rest}
-        />
-      </label>
+      <div
+        ref={ref}
+        data-slot="cell-switch-trigger"
+        className={clsx('cell-switch__trigger', `cell-switch__trigger--${variant}`, className)}
+        {...rest}
+      />
     );
   },
 );
+Trigger.displayName = 'CellSwitch.Trigger';
 
-CellSwitch.displayName = 'CellSwitch';
+const Label = forwardRef<HTMLSpanElement, CellSwitchLabelProps>(({ className, ...rest }, ref) => (
+  <span
+    ref={ref}
+    data-slot="cell-switch-label"
+    className={clsx('cell-switch__label', className)}
+    {...rest}
+  />
+));
+Label.displayName = 'CellSwitch.Label';
+
+/** 包装 OSS Switch.Control；无 children 时渲染默认 Switch.Thumb（原站 API） */
+const Control = ({ className, children, ...rest }: CellSwitchControlProps) => {
+  const variant = useContext(CellSwitchContext);
+
+  return (
+    <Switch.Control
+      data-slot="cell-switch-control"
+      className={clsx(
+        'cell-switch__control',
+        variant === 'secondary' && 'cell-switch__control--secondary',
+        className,
+      )}
+      {...rest}
+    >
+      {children ?? <Switch.Thumb />}
+    </Switch.Control>
+  );
+};
+Control.displayName = 'CellSwitch.Control';
+
+/**
+ * 包装 OSS Switch 的单元格开关（原站 API）：根即 label，点击整行切换；
+ * 受控（isSelected/onChange）、键盘与 data-hovered/pressed/focus-visible/disabled
+ * 状态属性均由底座提供，CSS 依赖这些 data 属性着色。
+ */
+const CellSwitchRoot = forwardRef<HTMLLabelElement, CellSwitchProps>(
+  ({ variant = 'default', className, children, ...rest }, ref) => (
+    <CellSwitchContext.Provider value={variant}>
+      <Switch
+        ref={ref}
+        data-slot="cell-switch"
+        className={clsx(
+          'cell-switch',
+          variant === 'secondary' && 'cell-switch--secondary',
+          className,
+        )}
+        {...rest}
+      >
+        {children}
+      </Switch>
+    </CellSwitchContext.Provider>
+  ),
+);
+CellSwitchRoot.displayName = 'CellSwitch';
+
+const CellSwitch = Object.assign(CellSwitchRoot, { Trigger, Label, Control });
 
 export default CellSwitch;
