@@ -35,9 +35,11 @@ export type PromptInputStatus = 'ready' | 'submitted' | 'streaming' | 'error';
 export type PromptInputProps = Omit<HTMLAttributes<HTMLDivElement>, 'onSubmit'> & {
   /** 受控输入值；缺省时内部维护（原站 API） */
   value?: string;
+  /** 非受控初始值（原站 API） */
+  defaultValue?: string;
   onValueChange?: (value: string) => void;
   /** Enter 或发送按钮触发（仅 ready/error 且非空文本时调用） */
-  onSubmit?: () => void;
+  onSubmit?: (value: string) => void;
   /** submitted/streaming 可停状态下发送按钮触发（原站 API） */
   onStop?: () => void;
   status?: PromptInputStatus;
@@ -849,6 +851,7 @@ QueueItemAction.displayName = 'PromptInput.Queue.Item.Action';
  */
 const PromptInputRoot = ({
   value: valueProp,
+  defaultValue = '',
   onValueChange,
   onSubmit,
   onStop,
@@ -861,7 +864,7 @@ const PromptInputRoot = ({
   className,
   ...rest
 }: PromptInputProps) => {
-  const [internalValue, setInternalValue] = useState('');
+  const [internalValue, setInternalValue] = useState(defaultValue);
   const [isExpanded, setIsExpanded] = useState(false);
   const isControlled = valueProp !== undefined;
   const value = isControlled ? valueProp : internalValue;
@@ -883,7 +886,7 @@ const PromptInputRoot = ({
     if (value.trim().length === 0) {
       return;
     }
-    onSubmit?.();
+    onSubmit?.(value);
   }, [isDisabled, status, value, onSubmit]);
 
   const stop = useCallback(() => {

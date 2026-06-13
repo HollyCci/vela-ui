@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Key, Selection } from 'react-aria-components';
-import { Description, Label } from '@heroui/react';
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
@@ -247,9 +246,9 @@ const PromptInputDemo = () => {
   }, []);
 
   // 模拟一次运行：submitted（约 0.8s）→ streaming（点停止或约 4s 后回 ready）
-  const handleSubmit = useCallback(() => {
+  const handleSubmit = useCallback((submittedValue: string) => {
     clearTimers();
-    setLastSent(value);
+    setLastSent(submittedValue);
     setValue('');
     setAttachments([]);
     setStatus('submitted');
@@ -263,7 +262,7 @@ const PromptInputDemo = () => {
         setStatus('ready');
       }, 4800),
     );
-  }, [clearTimers, value]);
+  }, [clearTimers]);
 
   const handleStop = useCallback(() => {
     clearTimers();
@@ -524,17 +523,17 @@ const DropdownDemo = () => {
         <Dropdown.Popover placement="bottom">
           <Dropdown.Menu aria-label="操作菜单">
             <MenuItem textValue="编辑学员信息">
-              <Label>编辑学员信息</Label>
+              <MenuItem.Label>编辑学员信息</MenuItem.Label>
             </MenuItem>
             <MenuItem textValue="导出记录">
-              <Label>导出记录</Label>
-              <Description>导出为 Excel 文件</Description>
+              <MenuItem.Label>导出记录</MenuItem.Label>
+              <MenuItem.Description>导出为 Excel 文件</MenuItem.Description>
             </MenuItem>
             <MenuItem isDisabled textValue="归档（无权限）">
-              <Label>归档（无权限）</Label>
+              <MenuItem.Label>归档（无权限）</MenuItem.Label>
             </MenuItem>
             <MenuItem variant="danger" textValue="删除学员">
-              <Label>删除学员</Label>
+              <MenuItem.Label>删除学员</MenuItem.Label>
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown.Popover>
@@ -715,15 +714,15 @@ const MenuItemDemo = () => {
           >
             <MenuItem id="created" textValue="按创建时间排序">
               <MenuItem.Indicator />
-              <Label>按创建时间排序</Label>
+              <MenuItem.Label>按创建时间排序</MenuItem.Label>
             </MenuItem>
             <MenuItem id="updated" textValue="按更新时间排序">
               <MenuItem.Indicator />
-              <Label>按更新时间排序</Label>
+              <MenuItem.Label>按更新时间排序</MenuItem.Label>
             </MenuItem>
             <MenuItem id="name" textValue="按学员姓名排序">
               <MenuItem.Indicator />
-              <Label>按学员姓名排序</Label>
+              <MenuItem.Label>按学员姓名排序</MenuItem.Label>
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown.Popover>
@@ -733,17 +732,17 @@ const MenuItemDemo = () => {
         <Dropdown.Popover placement="bottom start">
           <Dropdown.Menu aria-label="学员操作" onAction={handleStudentAction}>
             <MenuItem id="edit" textValue="编辑学员信息">
-              <Label>编辑学员信息</Label>
+              <MenuItem.Label>编辑学员信息</MenuItem.Label>
             </MenuItem>
             <MenuItem id="export" textValue="导出记录">
-              <Label>导出记录</Label>
-              <Description>导出为 Excel 文件</Description>
+              <MenuItem.Label>导出记录</MenuItem.Label>
+              <MenuItem.Description>导出为 Excel 文件</MenuItem.Description>
             </MenuItem>
             <MenuItem id="archive" isDisabled textValue="归档（无权限）">
-              <Label>归档（无权限）</Label>
+              <MenuItem.Label>归档（无权限）</MenuItem.Label>
             </MenuItem>
             <MenuItem id="delete" variant="danger" textValue="删除学员">
-              <Label>删除学员</Label>
+              <MenuItem.Label>删除学员</MenuItem.Label>
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown.Popover>

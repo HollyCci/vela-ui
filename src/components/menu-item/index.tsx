@@ -1,5 +1,7 @@
-import type { CSSProperties, HTMLAttributes } from 'react';
+import type { ComponentProps, CSSProperties, HTMLAttributes } from 'react';
 import {
+  Description as HeroDescription,
+  Label as HeroLabel,
   MenuItem as HeroMenuItem,
   type MenuItemRootProps as HeroMenuItemRootProps,
 } from '@heroui/react';
@@ -19,6 +21,10 @@ export type MenuItemIndicatorProps = HTMLAttributes<HTMLSpanElement> & {
 
 export type MenuItemSubmenuIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 
+export type MenuItemLabelProps = ComponentProps<typeof HeroLabel>;
+
+export type MenuItemDescriptionProps = ComponentProps<typeof HeroDescription>;
+
 const MenuItemRoot = ({ className, style, ...rest }: MenuItemProps) => (
   <HeroMenuItem className={className} style={style} {...rest} />
 );
@@ -26,6 +32,12 @@ MenuItemRoot.displayName = 'MenuItem';
 
 const Indicator = (props: MenuItemIndicatorProps) => <HeroMenuItem.Indicator {...props} />;
 Indicator.displayName = 'MenuItem.Indicator';
+
+const Label = (props: MenuItemLabelProps) => <HeroLabel {...props} />;
+Label.displayName = 'MenuItem.Label';
+
+const Description = (props: MenuItemDescriptionProps) => <HeroDescription {...props} />;
+Description.displayName = 'MenuItem.Description';
 
 /** 仅在项处于 SubmenuTrigger 内（hasSubmenu）时渲染，否则底座返回 null */
 const SubmenuIndicator = (props: MenuItemSubmenuIndicatorProps) => (
@@ -38,6 +50,6 @@ SubmenuIndicator.displayName = 'MenuItem.SubmenuIndicator';
  * 键盘导航、hover/press/disabled、单选/多选选中态均由底座提供；
  * variant="danger" 输出 menu-item--danger，类名天然对齐原站 CSS。
  */
-const MenuItem = Object.assign(MenuItemRoot, { Indicator, SubmenuIndicator });
+const MenuItem = Object.assign(MenuItemRoot, { Indicator, Label, Description, SubmenuIndicator });
 
 export default MenuItem;
