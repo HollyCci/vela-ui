@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type ComponentProps,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
@@ -13,13 +14,58 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
+  Brush,
+  ReferenceLine,
+  ReferenceArea,
+  ReferenceDot,
+  Cell,
+  Label,
+  LabelList,
 } from 'recharts';
 
 type ChartDatum = Record<string, number | string>;
 
 type ChartMargin = { top?: number; right?: number; bottom?: number; left?: number };
+type RechartsBarChartProps = ComponentProps<typeof RechartsBarChart>;
+type BarChartLevelProps = Pick<
+  RechartsBarChartProps,
+  | 'accessibilityLayer'
+  | 'barCategoryGap'
+  | 'barGap'
+  | 'barSize'
+  | 'baseValue'
+  | 'compact'
+  | 'cursor'
+  | 'dataKey'
+  | 'desc'
+  | 'layout'
+  | 'maxBarSize'
+  | 'responsive'
+  | 'reverseStackOrder'
+  | 'stackOffset'
+  | 'syncId'
+  | 'syncMethod'
+  | 'throttleDelay'
+  | 'throttledEvents'
+  | 'onClick'
+  | 'onContextMenu'
+  | 'onDoubleClick'
+  | 'onMouseDown'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onTouchEnd'
+  | 'onTouchMove'
+  | 'onTouchStart'
+>;
+type BarChartContainerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style' | keyof BarChartLevelProps
+>;
 
-export type BarChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type BarChartProps = BarChartContainerProps & BarChartLevelProps & {
   className?: string;
   style?: CSSProperties;
   /** 图表数据：每条记录对应一个分类，字段为各系列数值 */
@@ -101,32 +147,94 @@ TooltipContent.displayName = 'BarChart.TooltipContent';
 const BarChartRoot = forwardRef<HTMLDivElement, BarChartProps>(
   (
     {
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
+      barSize,
+      baseValue,
       className,
+      compact,
+      cursor,
       style,
       data,
+      dataKey,
+      desc,
       height = 300,
       width = '100%',
       layout = 'horizontal',
       margin = DEFAULT_MARGIN,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
       children,
       ...rest
     },
     ref,
-  ) => (
-    <div
-      ref={ref}
-      className={clsx('bar-chart', className)}
-      style={style}
-      data-slot="bar-chart"
-      {...rest}
-    >
-      <ResponsiveContainer width={width} height={height}>
-        <RechartsBarChart data={data} layout={layout} margin={margin}>
-          {children}
-        </RechartsBarChart>
-      </ResponsiveContainer>
-    </div>
-  ),
+  ) => {
+    const chartProps: BarChartLevelProps = {
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
+      barSize,
+      baseValue,
+      compact,
+      cursor,
+      dataKey,
+      desc,
+      layout,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={clsx('bar-chart', className)}
+        style={style}
+        data-slot="bar-chart"
+        {...rest}
+      >
+        <ResponsiveContainer width={width} height={height}>
+          <RechartsBarChart data={data} margin={margin} {...chartProps}>
+            {children}
+          </RechartsBarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  },
 );
 BarChartRoot.displayName = 'BarChart';
 
@@ -136,6 +244,14 @@ const BarChart = Object.assign(BarChartRoot, {
   YAxis,
   Grid: CartesianGrid,
   Tooltip,
+  Legend,
+  Brush,
+  ReferenceLine,
+  ReferenceArea,
+  ReferenceDot,
+  Cell,
+  Label,
+  LabelList,
   TooltipContent,
 });
 

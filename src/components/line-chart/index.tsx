@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type ComponentProps,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
@@ -13,14 +14,58 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
+  Legend,
+  Brush,
+  ReferenceLine,
+  ReferenceArea,
+  ReferenceDot,
+  Label,
+  LabelList,
 } from 'recharts';
 import ChartTooltip from '../chart-tooltip';
 
 type ChartDatum = Record<string, number | string>;
 
 type RechartsMargin = { top?: number; right?: number; bottom?: number; left?: number };
+type RechartsLineChartProps = ComponentProps<typeof RechartsLineChart>;
+type LineChartLevelProps = Pick<
+  RechartsLineChartProps,
+  | 'accessibilityLayer'
+  | 'barCategoryGap'
+  | 'barGap'
+  | 'barSize'
+  | 'baseValue'
+  | 'compact'
+  | 'cursor'
+  | 'dataKey'
+  | 'desc'
+  | 'layout'
+  | 'maxBarSize'
+  | 'responsive'
+  | 'reverseStackOrder'
+  | 'stackOffset'
+  | 'syncId'
+  | 'syncMethod'
+  | 'throttleDelay'
+  | 'throttledEvents'
+  | 'onClick'
+  | 'onContextMenu'
+  | 'onDoubleClick'
+  | 'onMouseDown'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onTouchEnd'
+  | 'onTouchMove'
+  | 'onTouchStart'
+>;
+type LineChartContainerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style' | keyof LineChartLevelProps
+>;
 
-export type LineChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type LineChartProps = LineChartContainerProps & LineChartLevelProps & {
   className?: string;
   style?: CSSProperties;
   /** 图表数据：每条记录是一组 series 字段的对象 */
@@ -40,24 +85,94 @@ const DEFAULT_MARGIN: RechartsMargin = { top: 8, right: 8, bottom: 0, left: 0 };
 const LineChartRoot = forwardRef<HTMLDivElement, LineChartProps>(
   (
     {
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
+      barSize,
+      baseValue,
       className,
+      compact,
+      cursor,
       data,
+      dataKey,
+      desc,
       height = 300,
+      layout,
       width = '100%',
       margin = DEFAULT_MARGIN,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      style,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
       children,
       ...rest
     },
     ref,
-  ) => (
-    <div ref={ref} className={clsx('line-chart', className)} data-slot="line-chart" {...rest}>
-      <ResponsiveContainer width={width} height={height}>
-        <RechartsLineChart data={data} margin={margin}>
-          {children}
-        </RechartsLineChart>
-      </ResponsiveContainer>
-    </div>
-  ),
+  ) => {
+    const chartProps: LineChartLevelProps = {
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
+      barSize,
+      baseValue,
+      compact,
+      cursor,
+      dataKey,
+      desc,
+      layout,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={clsx('line-chart', className)}
+        style={style}
+        data-slot="line-chart"
+        {...rest}
+      >
+        <ResponsiveContainer width={width} height={height}>
+          <RechartsLineChart data={data} margin={margin} {...chartProps}>
+            {children}
+          </RechartsLineChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  },
 );
 LineChartRoot.displayName = 'LineChart';
 
@@ -123,6 +238,13 @@ const LineChart = Object.assign(LineChartRoot, {
   YAxis,
   Grid: CartesianGrid,
   Tooltip,
+  Legend,
+  Brush,
+  ReferenceLine,
+  ReferenceArea,
+  ReferenceDot,
+  Label,
+  LabelList,
   TooltipContent,
 });
 

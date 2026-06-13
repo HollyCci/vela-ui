@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type ComponentProps,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
@@ -11,12 +12,57 @@ import {
   RadialBar,
   Cell,
   PolarAngleAxis,
+  PolarRadiusAxis,
   Tooltip,
+  Legend,
+  Label,
+  LabelList,
 } from 'recharts';
 
 type ChartDatum = Record<string, number | string>;
+type RechartsRadialBarChartProps = ComponentProps<typeof RadialBarChart>;
+type RadialChartLevelProps = Pick<
+  RechartsRadialBarChartProps,
+  | 'accessibilityLayer'
+  | 'barCategoryGap'
+  | 'barGap'
+  | 'barSize'
+  | 'cursor'
+  | 'cx'
+  | 'cy'
+  | 'dataKey'
+  | 'desc'
+  | 'endAngle'
+  | 'innerRadius'
+  | 'margin'
+  | 'maxBarSize'
+  | 'outerRadius'
+  | 'responsive'
+  | 'reverseStackOrder'
+  | 'stackOffset'
+  | 'startAngle'
+  | 'syncId'
+  | 'syncMethod'
+  | 'throttleDelay'
+  | 'throttledEvents'
+  | 'onClick'
+  | 'onContextMenu'
+  | 'onDoubleClick'
+  | 'onMouseDown'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onTouchEnd'
+  | 'onTouchMove'
+  | 'onTouchStart'
+>;
+type RadialChartContainerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style' | keyof RadialChartLevelProps
+>;
 
-export type RadialChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type RadialChartProps = RadialChartContainerProps & RadialChartLevelProps & {
   className?: string;
   style?: CSSProperties;
   /** 图表数据，每个对象对应一个同心环 */
@@ -109,40 +155,99 @@ const RadialChartRoot = forwardRef<HTMLDivElement, RadialChartProps>(
     {
       className,
       style,
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
       data,
+      dataKey,
+      desc,
       height = 300,
       width = '100%',
       barSize = 10,
+      cursor,
+      cx,
+      cy,
       innerRadius = '30%',
       outerRadius = '80%',
       startAngle = 90,
       endAngle = -270,
+      margin,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
       children,
       ...rest
     },
     ref,
-  ) => (
-    <div
-      ref={ref}
-      className={clsx('radial-chart', className)}
-      style={style}
-      data-slot="radial-chart"
-      {...rest}
-    >
-      <ResponsiveContainer width={width} height={height}>
-        <RadialBarChart
-          data={data}
-          barSize={barSize}
-          innerRadius={innerRadius}
-          outerRadius={outerRadius}
-          startAngle={startAngle}
-          endAngle={endAngle}
-        >
-          {children}
-        </RadialBarChart>
-      </ResponsiveContainer>
-    </div>
-  ),
+  ) => {
+    const chartProps: RadialChartLevelProps = {
+      accessibilityLayer,
+      barCategoryGap,
+      barGap,
+      barSize,
+      cursor,
+      cx,
+      cy,
+      dataKey,
+      desc,
+      endAngle,
+      innerRadius,
+      margin,
+      maxBarSize,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      outerRadius,
+      responsive,
+      reverseStackOrder,
+      stackOffset,
+      startAngle,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={clsx('radial-chart', className)}
+        style={style}
+        data-slot="radial-chart"
+        {...rest}
+      >
+        <ResponsiveContainer width={width} height={height}>
+          <RadialBarChart data={data} {...chartProps}>
+            {children}
+          </RadialBarChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  },
 );
 RadialChartRoot.displayName = 'RadialChart';
 
@@ -150,7 +255,11 @@ const RadialChart = Object.assign(RadialChartRoot, {
   Bar: RadialBar,
   Cell,
   AngleAxis: PolarAngleAxis,
+  RadiusAxis: PolarRadiusAxis,
   Tooltip,
+  Legend,
+  Label,
+  LabelList,
   TooltipContent,
 });
 

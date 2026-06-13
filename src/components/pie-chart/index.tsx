@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type ComponentProps,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
@@ -11,12 +12,50 @@ import {
   Pie,
   Cell,
   Label,
+  LabelList,
   Tooltip,
+  Legend,
 } from 'recharts';
 
 type ChartDatum = Record<string, number | string>;
+type RechartsPieChartProps = ComponentProps<typeof RechartsPieChart>;
+type PieChartLevelProps = Pick<
+  RechartsPieChartProps,
+  | 'accessibilityLayer'
+  | 'cursor'
+  | 'cx'
+  | 'cy'
+  | 'data'
+  | 'dataKey'
+  | 'desc'
+  | 'endAngle'
+  | 'innerRadius'
+  | 'margin'
+  | 'outerRadius'
+  | 'responsive'
+  | 'startAngle'
+  | 'syncId'
+  | 'syncMethod'
+  | 'throttleDelay'
+  | 'throttledEvents'
+  | 'onClick'
+  | 'onContextMenu'
+  | 'onDoubleClick'
+  | 'onMouseDown'
+  | 'onMouseEnter'
+  | 'onMouseLeave'
+  | 'onMouseMove'
+  | 'onMouseUp'
+  | 'onTouchEnd'
+  | 'onTouchMove'
+  | 'onTouchStart'
+>;
+type PieChartContainerProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style' | keyof PieChartLevelProps
+>;
 
-export type PieChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type PieChartProps = PieChartContainerProps & PieChartLevelProps & {
   className?: string;
   style?: CSSProperties;
   /** 图表高度（像素），默认 300 */
@@ -93,19 +132,90 @@ function TooltipContent({
 TooltipContent.displayName = 'PieChart.TooltipContent';
 
 const PieChartRoot = forwardRef<HTMLDivElement, PieChartProps>(
-  ({ className, style, height = 300, width = '100%', children, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={clsx('pie-chart', className)}
-      style={style}
-      data-slot="pie-chart"
-      {...rest}
-    >
-      <ResponsiveContainer width={width} height={height}>
-        <RechartsPieChart>{children}</RechartsPieChart>
-      </ResponsiveContainer>
-    </div>
-  ),
+  (
+    {
+      accessibilityLayer,
+      className,
+      cursor,
+      cx,
+      cy,
+      data,
+      dataKey,
+      desc,
+      endAngle,
+      height = 300,
+      innerRadius,
+      margin,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      outerRadius,
+      responsive,
+      startAngle,
+      style,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
+      width = '100%',
+      children,
+      ...rest
+    },
+    ref,
+  ) => {
+    const chartProps: PieChartLevelProps = {
+      accessibilityLayer,
+      cursor,
+      cx,
+      cy,
+      data,
+      dataKey,
+      desc,
+      endAngle,
+      innerRadius,
+      margin,
+      onClick,
+      onContextMenu,
+      onDoubleClick,
+      onMouseDown,
+      onMouseEnter,
+      onMouseLeave,
+      onMouseMove,
+      onMouseUp,
+      onTouchEnd,
+      onTouchMove,
+      onTouchStart,
+      outerRadius,
+      responsive,
+      startAngle,
+      syncId,
+      syncMethod,
+      throttleDelay,
+      throttledEvents,
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={clsx('pie-chart', className)}
+        style={style}
+        data-slot="pie-chart"
+        {...rest}
+      >
+        <ResponsiveContainer width={width} height={height}>
+          <RechartsPieChart {...chartProps}>{children}</RechartsPieChart>
+        </ResponsiveContainer>
+      </div>
+    );
+  },
 );
 PieChartRoot.displayName = 'PieChart';
 
@@ -113,7 +223,9 @@ const PieChart = Object.assign(PieChartRoot, {
   Pie,
   Cell,
   Label,
+  LabelList,
   Tooltip,
+  Legend,
   TooltipContent,
 });
 
