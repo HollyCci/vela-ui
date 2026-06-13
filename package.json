@@ -8,7 +8,9 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "type-check": "tsc -b --noEmit",
-    "audit:pro": "node scripts/audit-pro-coverage.cjs"
+    "audit:pro": "node scripts/audit-pro-coverage.cjs && node scripts/audit-pro-interactivity.cjs",
+    "audit:pro:coverage": "node scripts/audit-pro-coverage.cjs",
+    "audit:pro:interactivity": "node scripts/audit-pro-interactivity.cjs"
   },
   "dependencies": {
     "@heroui-pro/react": "1.0.0-beta.5",
