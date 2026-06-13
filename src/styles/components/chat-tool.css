@@ -66,8 +66,19 @@
 }
 
 .chat-tool--streaming .chat-tool__trigger,
+.chat-tool--pending .chat-tool__trigger,
 .chat-tool--running .chat-tool__trigger {
   color: var(--foreground);
+}
+
+.chat-tool--success {
+  border-color: var(--success);
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .chat-tool--success {
+    border-color: color-mix(in oklab, var(--success) 30%, transparent);
+  }
 }
 
 .chat-tool--error {
@@ -196,11 +207,76 @@
 }
 
 .chat-tool__status {
-  width: calc(var(--spacing) * 3.5);
-  height: calc(var(--spacing) * 3.5);
+  min-width: calc(var(--spacing) * 3.5);
+  min-height: calc(var(--spacing) * 3.5);
   color: var(--muted);
   flex-shrink: 0;
   justify-content: center;
   align-items: center;
+  gap: calc(var(--spacing) * 1.5);
   display: inline-flex;
+}
+
+.chat-tool__status-label {
+  font-size: 10px;
+  line-height: 1;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.chat-tool__status-indicator {
+  width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  background-color: var(--muted);
+  display: inline-block;
+}
+
+.chat-tool--pending .chat-tool__status-indicator {
+  opacity: .72;
+  animation: chat-tool-pulse 1.4s ease-in-out infinite;
+}
+
+.chat-tool--running .chat-tool__status-indicator,
+.chat-tool--streaming .chat-tool__status-indicator {
+  width: 12px;
+  height: 12px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: var(--accent);
+  border-right-color: transparent;
+  background-color: transparent;
+  animation: chat-tool-spin .8s linear infinite;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .chat-tool--running .chat-tool__status-indicator,
+  .chat-tool--streaming .chat-tool__status-indicator {
+    border-color: color-mix(in oklab, var(--accent) 34%, transparent);
+    border-right-color: var(--accent);
+  }
+}
+
+.chat-tool--success .chat-tool__status-indicator {
+  background-color: var(--success);
+}
+
+.chat-tool--error .chat-tool__status-indicator {
+  background-color: var(--danger);
+}
+
+.chat-tool--requires-action .chat-tool__status-indicator {
+  background-color: var(--warning);
+}
+
+@keyframes chat-tool-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes chat-tool-pulse {
+  50% {
+    opacity: .35;
+  }
 }

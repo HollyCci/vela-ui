@@ -12,7 +12,7 @@ import ChatMessage from '../../components/chat-message';
 import ChatMessageActions from '../../components/chat-message-actions';
 import ChatSource from '../../components/chat-source';
 import Markdown from '../../components/markdown';
-import ChatTool from '../../components/chat-tool';
+import ChatTool, { type ChatToolStatus } from '../../components/chat-tool';
 import CodeBlock from '../../components/code-block';
 import Drawer from '../../components/drawer';
 import Dropdown from '../../components/dropdown';
@@ -126,8 +126,78 @@ const ChatSourceDemo = () => {
   );
 };
 
+type DemoToolRunStatus = Extract<ChatToolStatus, 'pending' | 'running' | 'success' | 'error'>;
+
+const CHAT_TOOL_ARGS = `{
+  "table": "users",
+  "limit": 10,
+  "fields": ["name", "role", "lastLogin"]
+}`;
+
+const CHAT_TOOL_RESULT = `{
+  "rowCount": 10,
+  "elapsedMs": 42,
+  "cache": "warm"
+}`;
+
+const CHAT_TOOL_STATUS_LABELS: Record<DemoToolRunStatus, string> = {
+  pending: '等待',
+  running: '运行中',
+  success: '成功',
+  error: '错误',
+};
+
 const ChatToolDemo = () => {
+  const [toolStatus, setToolStatus] = useState<DemoToolRunStatus>('pending');
+  const [isToolExpanded, setIsToolExpanded] = useState(true);
+  const [attempt, setAttempt] = useState(0);
   const [approvalResult, setApprovalResult] = useState<'pending' | 'rejected' | 'approved'>('pending');
+  const lifecycleTimerRef = useRef<number | null>(null);
+
+  const clearLifecycleTimer = useCallback(() => {
+    if (lifecycleTimerRef.current !== null) {
+      window.clearTimeout(lifecycleTimerRef.current);
+      lifecycleTimerRef.current = null;
+    }
+  }, []);
+
+  useEffect(
+    () => () => {
+      clearLifecycleTimer();
+    },
+    [clearLifecycleTimer],
+  );
+
+  const runTool = useCallback(
+    (shouldFail = false) => {
+      clearLifecycleTimer();
+      setIsToolExpanded(true);
+      setAttempt((current) => current + 1);
+      setToolStatus('running');
+      lifecycleTimerRef.current = window.setTimeout(() => {
+        setToolStatus(shouldFail ? 'error' : 'success');
+        lifecycleTimerRef.current = null;
+      }, 1400);
+    },
+    [clearLifecycleTimer],
+  );
+
+  const handleRun = useCallback(() => {
+    runTool(false);
+  }, [runTool]);
+
+  const handleFail = useCallback(() => {
+    clearLifecycleTimer();
+    setIsToolExpanded(true);
+    setToolStatus('error');
+  }, [clearLifecycleTimer]);
+
+  const handleReset = useCallback(() => {
+    clearLifecycleTimer();
+    setIsToolExpanded(true);
+    setAttempt(0);
+    setToolStatus('pending');
+  }, [clearLifecycleTimer]);
 
   const handleReject = useCallback(() => {
     setApprovalResult('rejected');
@@ -144,28 +214,77 @@ const ChatToolDemo = () => {
         ? '已拒绝删除分支'
         : '删除分支需要确认';
   const approvalStatus =
-    approvalResult === 'approved' ? 'running' : approvalResult === 'rejected' ? 'error' : 'requires-action';
+    approvalResult === 'approved' ? 'success' : approvalResult === 'rejected' ? 'error' : 'requires-action';
   const approvalText =
     approvalResult === 'approved'
       ? '已允许操作，模拟执行删除远程分支。'
       : approvalResult === 'rejected'
         ? '已拒绝操作，远程分支保持不变。'
         : '该操作不可撤销，是否允许删除远程分支？';
+  const toolLabel =
+    toolStatus === 'running' ? (
+      <TextShimmer>正在调用 user.lookup</TextShimmer>
+    ) : toolStatus === 'success' ? (
+      'user.lookup 调用完成'
+    ) : toolStatus === 'error' ? (
+      'user.lookup 调用失败'
+    ) : (
+      'user.lookup 等待执行'
+    );
 
   return (
-    <DemoSection label="工具调用" isColumn>
-      <ChatTool label="查询数据库：用户表" statusIcon="▾" defaultExpanded>
+    <DemoSection label="工具调用生命周期" isColumn>
+      <ChatTool
+        label={toolLabel}
+        status={toolStatus}
+        statusLabel={CHAT_TOOL_STATUS_LABELS[toolStatus]}
+        isExpanded={isToolExpanded}
+        onExpandedChange={setIsToolExpanded}
+      >
         <ChatTool.Args>
           <CodeBlock>
-            <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
+            <CodeBlock.Header>
+              <span className="text-muted text-xs uppercase">json</span>
+              <CodeBlock.CopyButton code={CHAT_TOOL_ARGS} />
+            </CodeBlock.Header>
+            <CodeBlock.Code code={CHAT_TOOL_ARGS} language="json" />
           </CodeBlock>
         </ChatTool.Args>
-        <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
+        {toolStatus === 'error' ? (
+          <ChatTool.Error>接口返回 403：当前账号缺少 users.read 权限。</ChatTool.Error>
+        ) : (
+          <ChatTool.Result>
+            {toolStatus === 'pending' && '已排队，等待调度执行。'}
+            {toolStatus === 'running' && <TextShimmer>正在查询用户表并汇总字段…</TextShimmer>}
+            {toolStatus === 'success' && (
+              <CodeBlock>
+                <CodeBlock.Header>
+                  <span className="text-muted text-xs uppercase">json</span>
+                  <CodeBlock.CopyButton code={CHAT_TOOL_RESULT} />
+                </CodeBlock.Header>
+                <CodeBlock.Code code={CHAT_TOOL_RESULT} language="json" />
+              </CodeBlock>
+            )}
+          </ChatTool.Result>
+        )}
+        <ChatTool.Meta>
+          attempt={attempt} status={toolStatus}
+        </ChatTool.Meta>
       </ChatTool>
-      <ChatTool label={<TextShimmer>正在执行检索…</TextShimmer>} status="running" isExpandable={false} />
-      <ChatTool label="写入文件失败" status="error" defaultExpanded>
-        <ChatTool.Error>没有目标目录的写入权限。</ChatTool.Error>
-      </ChatTool>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
+        <Button size="sm" disabled={toolStatus === 'running'} onClick={handleRun}>
+          {toolStatus === 'error' ? '重试' : toolStatus === 'pending' ? '开始' : '再次运行'}
+        </Button>
+        <Button variant="ghost" size="sm" disabled={toolStatus !== 'running'} onClick={handleFail}>
+          模拟失败
+        </Button>
+        <Button variant="ghost" size="sm" onClick={() => setIsToolExpanded((current) => !current)}>
+          {isToolExpanded ? '收起' : '展开'}
+        </Button>
+        <Button variant="ghost" size="sm" disabled={toolStatus === 'pending'} onClick={handleReset}>
+          重置
+        </Button>
+      </div>
       <ChatTool label={approvalLabel} status={approvalStatus} defaultExpanded>
         <ChatTool.Approval
           actions={
@@ -471,12 +590,21 @@ const TextShimmerDemo = () => (
   </DemoSection>
 );
 
-const CODE_SAMPLE = `function greet(name: string) {
-  return \`你好，\${name}！\`;
+const CODE_SAMPLE = `type Status = 'idle' | 'running' | 'success';
+
+export function formatStatus(status: Status) {
+  if (status === 'running') {
+    return '同步中';
+  }
+
+  return status.toUpperCase();
 }`;
 
+const SHELL_SAMPLE = `pnpm type-check
+pnpm audit:pro`;
+
 const CodeBlockDemo = () => (
-  <DemoSection label="语言标签 + 复制按钮（点击切换成功态对勾）" isColumn>
+  <DemoSection label="语言标签 + token 高亮 + 复制反馈" isColumn>
     <CodeBlock>
       <CodeBlock.Header>
         <span className="text-muted text-xs uppercase">typescript</span>
@@ -485,7 +613,11 @@ const CodeBlockDemo = () => (
       <CodeBlock.Code code={CODE_SAMPLE} language="typescript" />
     </CodeBlock>
     <CodeBlock>
-      <CodeBlock.Code code="pnpm install" language="shellscript" />
+      <CodeBlock.Header>
+        <span className="text-muted text-xs uppercase">shell</span>
+        <CodeBlock.CopyButton code={SHELL_SAMPLE} />
+      </CodeBlock.Header>
+      <CodeBlock.Code code={SHELL_SAMPLE} language="shellscript" />
     </CodeBlock>
   </DemoSection>
 );
@@ -1000,7 +1132,12 @@ const ChainOfThoughtVariantDemo = ({ variant }: { variant: ChainOfThoughtVariant
         </ChainOfThought.Content>
       </ChainOfThought>
       {isTrace && (
-        <ChatTool label={isStreaming ? <TextShimmer>调用 learner_progress.search</TextShimmer> : 'learner_progress.search'} status={isStreaming ? 'running' : 'idle'} defaultExpanded>
+        <ChatTool
+          label={isStreaming ? <TextShimmer>调用 learner_progress.search</TextShimmer> : 'learner_progress.search'}
+          status={isStreaming ? 'running' : 'success'}
+          statusLabel={isStreaming ? '运行中' : '成功'}
+          defaultExpanded
+        >
           <ChatTool.Args>
             <CodeBlock>
               <CodeBlock.Code code={'{ "range": "7d", "groupBy": "class" }'} language="json" />
@@ -1390,7 +1527,7 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
 
     return (
       <DemoSection label="chat-tool-approval" isColumn>
-        <ChatTool label="需要权限：发送家长通知" status={resolved ? (approval === 'approved' ? 'running' : 'error') : 'requires-action'} defaultExpanded>
+        <ChatTool label="需要权限：发送家长通知" status={resolved ? (approval === 'approved' ? 'success' : 'error') : 'requires-action'} defaultExpanded>
           <ChatTool.Approval
             actions={
               <>
@@ -1419,7 +1556,7 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
       <DemoSection label="chat-tool-composable" isColumn>
         <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
           <Markdown>{'我会先读取学习记录，再给出可执行建议。'}</Markdown>
-          <ChatTool label="learning_record.read" status="idle" defaultExpanded>
+          <ChatTool label="learning_record.read" status="success" statusLabel="成功" defaultExpanded>
             <ChatTool.Args>
               <CodeBlock>
                 <CodeBlock.Code code={'{ "studentId": "stu_1024", "days": 14 }'} language="json" />
@@ -1435,7 +1572,7 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
   if (variant === 'grouped') {
     return (
       <DemoSection label="chat-tool-grouped" isColumn>
-        <ChatTool label="读取学习记录" status="idle" defaultExpanded>
+        <ChatTool label="读取学习记录" status="success" statusLabel="成功" defaultExpanded>
           <ChatTool.Result>读取完成。</ChatTool.Result>
         </ChatTool>
         <ChatTool label={<TextShimmer>生成行动建议</TextShimmer>} status="running" isExpandable={false} />
@@ -1475,7 +1612,8 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
     <DemoSection label={`chat-tool-${variant}`} isColumn>
       <ChatTool
         label={variant === 'error-state' ? '写入学习计划失败' : '生成学习计划'}
-        status={variant === 'error-state' ? 'error' : 'idle'}
+        status={variant === 'error-state' ? 'error' : 'success'}
+        statusLabel={variant === 'error-state' ? '错误' : '成功'}
         isExpanded={expanded}
         onExpandedChange={setExpanded}
       >

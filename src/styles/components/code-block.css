@@ -41,10 +41,56 @@
 
 .code-block__code code {
   font-family: var(--font-mono);
+  min-width: max-content;
+  display: block;
 }
 
 .code-block__code .line {
   padding-inline: 0 !important;
+}
+
+.code-block__line {
+  min-height: 1lh;
+  white-space: pre;
+  display: block;
+}
+
+.code-block__token--comment {
+  color: var(--muted);
+  font-style: italic;
+}
+
+.code-block__token--function {
+  color: var(--accent);
+}
+
+.code-block__token--keyword {
+  color: var(--accent);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+}
+
+.code-block__token--number {
+  color: var(--warning);
+}
+
+.code-block__token--operator,
+.code-block__token--punctuation {
+  color: var(--muted);
+}
+
+.code-block__token--property {
+  color: var(--foreground);
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+}
+
+.code-block__token--string {
+  color: var(--success);
+}
+
+.code-block__token--variable {
+  color: var(--danger);
 }
 
 .code-block__code .shiki,

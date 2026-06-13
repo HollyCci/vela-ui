@@ -8,12 +8,20 @@ import {
 } from 'react';
 import clsx from 'clsx';
 
-export type ChatToolStatus = 'idle' | 'running' | 'streaming' | 'error' | 'requires-action';
+export type ChatToolStatus =
+  | 'idle'
+  | 'pending'
+  | 'running'
+  | 'streaming'
+  | 'success'
+  | 'error'
+  | 'requires-action';
 
 export type ChatToolProps = HTMLAttributes<HTMLDivElement> & {
   label: ReactNode;
   status?: ChatToolStatus;
   statusIcon?: ReactNode;
+  statusLabel?: ReactNode;
   isExpanded?: boolean;
   defaultExpanded?: boolean;
   isExpandable?: boolean;
@@ -24,11 +32,20 @@ export type ChatToolProps = HTMLAttributes<HTMLDivElement> & {
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
 const STATUS_MODIFIERS: Partial<Record<ChatToolStatus, string>> = {
+  pending: 'chat-tool--pending',
   running: 'chat-tool--running',
   streaming: 'chat-tool--streaming',
+  success: 'chat-tool--success',
   error: 'chat-tool--error',
   'requires-action': 'chat-tool--requires-action',
 };
+
+const RUNNING_STATUSES = new Set<ChatToolStatus>(['pending', 'running', 'streaming']);
+
+const StatusIndicator = ({ status }: { status: ChatToolStatus }) => (
+  <span className="chat-tool__status-indicator" data-status={status} aria-hidden="true" />
+);
+StatusIndicator.displayName = 'ChatTool.StatusIndicator';
 
 const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
   (
@@ -36,6 +53,7 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
       label,
       status = 'idle',
       statusIcon,
+      statusLabel,
       isExpanded,
       defaultExpanded = false,
       isExpandable = true,
@@ -53,7 +71,10 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
     const triggerLabel = (
       <>
         <span className="chat-tool__trigger-label">{label}</span>
-        {statusIcon !== undefined && <span className="chat-tool__status">{statusIcon}</span>}
+        <span className="chat-tool__status">
+          {statusLabel !== undefined && <span className="chat-tool__status-label">{statusLabel}</span>}
+          {statusIcon ?? <StatusIndicator status={status} />}
+        </span>
       </>
     );
 
@@ -65,7 +86,13 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
     };
 
     return (
-      <div ref={ref} className={clsx('chat-tool', STATUS_MODIFIERS[status], className)} {...rest}>
+      <div
+        ref={ref}
+        className={clsx('chat-tool', STATUS_MODIFIERS[status], className)}
+        data-status={status}
+        aria-busy={RUNNING_STATUSES.has(status) || undefined}
+        {...rest}
+      >
         <div data-slot="disclosure-heading">
           {isExpandable ? (
             <button
