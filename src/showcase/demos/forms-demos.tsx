@@ -9,7 +9,7 @@ import Slider from '../../components/slider';
 import NativeSelect from '../../components/native-select';
 import SearchField from '../../components/search-field';
 import NumberField from '../../components/number-field';
-import Tag, { TagGroup } from '../../components/tag';
+import Tag, { TagGroup, type TagSize, type TagVariant } from '../../components/tag';
 import CheckboxButtonGroup from '../../components/checkbox-button-group';
 import RadioButtonGroup from '../../components/radio-button-group';
 import NumberStepper from '../../components/number-stepper';
@@ -228,19 +228,38 @@ const NumberFieldDemo = () => (
 
 const REMOVABLE_TAGS = ['React', 'TypeScript'];
 
+const PREFERENCE_TAGS: { label: string; size?: TagSize; variant?: TagVariant }[] = [
+  { label: '听力' },
+  { label: '阅读' },
+  { label: '拼写', variant: 'surface' },
+  { label: '句型', size: 'sm' },
+  { label: '填空', size: 'lg' },
+];
+
 const TagDemo = () => {
   const [tags, setTags] = useState(REMOVABLE_TAGS);
   const handleRemove = (tag: string) =>
     setTags((prev) => prev.filter((item) => item !== tag));
+  const [selectedPreferences, setSelectedPreferences] = useState<string[]>(['听力']);
+  const handleTogglePreference = (label: string) =>
+    setSelectedPreferences((prev) =>
+      prev.includes(label) ? prev.filter((item) => item !== label) : [...prev, label],
+    );
 
   return (
     <DemoSection isColumn>
       <TagGroup label="学习偏好" description="点选标签可切换选中态">
-        <Tag isSelected>听力</Tag>
-        <Tag>阅读</Tag>
-        <Tag variant="surface">拼写</Tag>
-        <Tag size="sm">句型</Tag>
-        <Tag size="lg">填空</Tag>
+        {PREFERENCE_TAGS.map((tag) => (
+          <Tag
+            key={tag.label}
+            size={tag.size}
+            variant={tag.variant}
+            isSelected={selectedPreferences.includes(tag.label)}
+            onClick={() => handleTogglePreference(tag.label)}
+          >
+            {tag.label}
+          </Tag>
+        ))}
         <Tag isDisabled>禁用</Tag>
       </TagGroup>
       <TagGroup label="可移除标签">

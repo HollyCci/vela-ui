@@ -340,11 +340,12 @@ const ToastDemo = () => {
 
 const PaginationDemo = () => {
   const [page, setPage] = useState(3);
+  const [compactPage, setCompactPage] = useState(2);
 
   return (
     <DemoSection isColumn>
       <Pagination count={12} page={page} onPageChange={setPage} summary={`共 120 条 · 第 ${page} 页`} />
-      <Pagination count={5} page={2} size="sm" />
+      <Pagination count={5} page={compactPage} size="sm" onPageChange={setCompactPage} />
     </DemoSection>
   );
 };

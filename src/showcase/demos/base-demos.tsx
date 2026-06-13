@@ -34,7 +34,12 @@ const SelectDemo = () => {
 
   return (
     <DemoSection label="受控单选（点击打开真实弹层）">
-      <Select aria-label="框架" value={framework} onChange={handleChange} style={{ width: 220 }}>
+      <Select
+        aria-label="框架"
+        selectedKey={framework}
+        onSelectionChange={handleChange}
+        style={{ width: 220 }}
+      >
         <Select.Trigger>
           <Select.Value />
           <Select.Indicator />
