@@ -16,6 +16,7 @@
  * Pro 正版接入后删除本行，由上面的 @heroui-pro/react/css 接管。
  */
 @import './heroui-full.css';
+@import './components/data-grid.css';
 
 @import './fonts.css';
 

@@ -26,6 +26,7 @@ export type DataGridSortDescriptor = SortDescriptor;
 export type DataGridSortDirection = SortDirection;
 export type DataGridVariant = 'primary' | 'secondary';
 export type DataGridAlign = 'start' | 'center' | 'end';
+export type DataGridPinnedSide = 'left' | 'right';
 
 /** 排序状态信息，传给 header 渲染函数（原站 API） */
 export type DataGridSortInfo = {
@@ -51,12 +52,27 @@ export type DataGridVirtualRange = {
 };
 
 type DataGridDragPoint = Pick<MouseEvent | PointerEvent, 'clientX' | 'clientY'>;
+type DataGridPinnedStyle = CSSProperties & {
+  '--data-grid-pinned-offset'?: string;
+};
+type DataGridRootStyle = CSSProperties & {
+  '--data-grid-scroll-left'?: string;
+  '--data-grid-scroll-max-left'?: string;
+};
+type DataGridPinnedMeta = {
+  side: DataGridPinnedSide;
+  offset: string;
+  boundary?: 'start' | 'end';
+};
 
 const DEFAULT_VIRTUAL_ROW_HEIGHT = 45;
 const DEFAULT_VIRTUAL_MAX_HEIGHT = 360;
 const DEFAULT_VIRTUAL_OVERSCAN = 4;
+const DEFAULT_PINNED_COLUMN_WIDTH = 160;
 const VIRTUAL_TOP_SPACER_KEY = '__data-grid_virtual_top_spacer__';
 const VIRTUAL_BOTTOM_SPACER_KEY = '__data-grid_virtual_bottom_spacer__';
+const DRAG_HANDLE_COLUMN_ID = '__data-grid_drag_handle_column__';
+const SELECTION_COLUMN_ID = '__data-grid_selection_column__';
 
 export type DataGridColumn<TRow> = {
   /** 唯一列标识，同时作为排序 key（原站 API，必填） */
@@ -75,6 +91,8 @@ export type DataGridColumn<TRow> = {
   sortFn?: (a: TRow, b: TRow) => number;
   /** 单元格对齐，end/center 通过 data-align 输出 */
   align?: DataGridAlign;
+  /** 固定列方向，组件负责 th/td sticky offset 与边界阴影 */
+  pin?: DataGridPinnedSide;
   /** 初始/受控列宽（px / % / fr） */
   width?: ColumnWidth;
   /** th 追加 className */
@@ -201,6 +219,21 @@ const compareValues = (a: unknown, b: unknown): number => {
   const sb = b === null || b === undefined ? '' : String(b);
   return collator ? collator.compare(sa, sb) : sa.localeCompare(sb);
 };
+
+const toCssLength = (width: ColumnWidth | undefined, fallback = DEFAULT_PINNED_COLUMN_WIDTH) => {
+  if (typeof width === 'number') return `${width}px`;
+  if (typeof width === 'string' && width.length > 0) return width;
+  return `${fallback}px`;
+};
+
+const sumCssLengths = (lengths: string[]) => {
+  if (lengths.length === 0) return '0px';
+  if (lengths.length === 1) return lengths[0];
+  return `calc(${lengths.join(' + ')})`;
+};
+
+const getPinnedStyle = (meta: DataGridPinnedMeta | undefined): DataGridPinnedStyle | undefined =>
+  meta === undefined ? undefined : { '--data-grid-pinned-offset': meta.offset };
 
 /** 选择 checkbox（原站在选择列/行内用 slot="selection" 的 OSS Checkbox） */
 const DataGridSelectionCheckbox = () => (
@@ -330,6 +363,8 @@ function DataGrid<TRow extends object>({
   const [virtualViewportHeight, setVirtualViewportHeight] = useState(
     typeof virtualMaxHeight === 'number' ? virtualMaxHeight : DEFAULT_VIRTUAL_MAX_HEIGHT,
   );
+  const [horizontalScrollLeft, setHorizontalScrollLeft] = useState(0);
+  const [horizontalScrollMaxLeft, setHorizontalScrollMaxLeft] = useState(0);
 
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
@@ -338,6 +373,48 @@ function DataGrid<TRow extends object>({
   const withRowReordering = enableRowReordering && onRowReorder !== undefined;
   const withDragHandles = withRowReordering && showRowDragHandles;
   const isVirtualized = virtualized && data.length > 0;
+  const leftPinnedColumns = columns.filter((column) => column.pin === 'left');
+  const rightPinnedColumns = columns.filter((column) => column.pin === 'right');
+  const hasLeftPinnedColumns = leftPinnedColumns.length > 0;
+  const hasPinnedColumns = hasLeftPinnedColumns || rightPinnedColumns.length > 0;
+  const shouldPinLeadingUtilityColumns = hasLeftPinnedColumns && (withDragHandles || withSelection);
+  const leadingPinnedMeta = new Map<string, DataGridPinnedMeta>();
+  const pinnedColumnMeta = new Map<string, DataGridPinnedMeta>();
+  const leftOffsetParts: string[] = [];
+  if (shouldPinLeadingUtilityColumns && withDragHandles) {
+    leadingPinnedMeta.set(DRAG_HANDLE_COLUMN_ID, {
+      side: 'left',
+      offset: sumCssLengths(leftOffsetParts),
+    });
+    leftOffsetParts.push('var(--data-grid-drag-handle-column-width)');
+  }
+  if (shouldPinLeadingUtilityColumns && withSelection) {
+    leadingPinnedMeta.set(SELECTION_COLUMN_ID, {
+      side: 'left',
+      offset: sumCssLengths(leftOffsetParts),
+    });
+    leftOffsetParts.push('var(--data-grid-selection-column-width)');
+  }
+  for (const column of columns) {
+    if (column.pin !== 'left') continue;
+    pinnedColumnMeta.set(column.id, {
+      side: 'left',
+      offset: sumCssLengths(leftOffsetParts),
+      boundary: column.id === leftPinnedColumns[leftPinnedColumns.length - 1]?.id ? 'end' : undefined,
+    });
+    leftOffsetParts.push(toCssLength(column.width));
+  }
+  const rightOffsetParts: string[] = [];
+  const firstRightPinnedId = rightPinnedColumns[0]?.id;
+  for (const column of [...columns].reverse()) {
+    if (column.pin !== 'right') continue;
+    pinnedColumnMeta.set(column.id, {
+      side: 'right',
+      offset: sumCssLengths(rightOffsetParts),
+      boundary: column.id === firstRightPinnedId ? 'start' : undefined,
+    });
+    rightOffsetParts.push(toCssLength(column.width));
+  }
   const safeVirtualRowHeight = Math.max(1, virtualRowHeight);
   const safeVirtualOverscan = Math.max(0, Math.floor(virtualOverscan));
   onVirtualRangeChangeRef.current = onVirtualRangeChange;
@@ -408,6 +485,13 @@ function DataGrid<TRow extends object>({
       : sortedData.length,
     total: sortedData.length,
   };
+  const rootStyle: DataGridRootStyle | undefined = hasPinnedColumns
+    ? {
+        ...style,
+        '--data-grid-scroll-left': `${horizontalScrollLeft}px`,
+        '--data-grid-scroll-max-left': `${horizontalScrollMaxLeft}px`,
+      }
+    : style;
 
   const setActiveDropTarget = (
     next: { key: Key; position: DataGridRowReorderPosition } | null,
@@ -568,30 +652,44 @@ function DataGrid<TRow extends object>({
   );
 
   useEffect(() => {
-    if (!isVirtualized) {
+    if (!isVirtualized && !hasPinnedColumns) {
       setVirtualScrollTop(0);
+      setHorizontalScrollLeft(0);
+      setHorizontalScrollMaxLeft(0);
       return;
     }
 
     const node = scrollContainerRef.current;
     if (!node) return;
 
-    const updateVirtualMetrics = () => {
-      setVirtualScrollTop(node.scrollTop);
-      setVirtualViewportHeight(node.clientHeight || DEFAULT_VIRTUAL_MAX_HEIGHT);
+    const updateScrollMetrics = () => {
+      if (isVirtualized) {
+        setVirtualScrollTop(node.scrollTop);
+        setVirtualViewportHeight(node.clientHeight || DEFAULT_VIRTUAL_MAX_HEIGHT);
+      } else {
+        setVirtualScrollTop(0);
+      }
+
+      if (hasPinnedColumns) {
+        setHorizontalScrollLeft(node.scrollLeft);
+        setHorizontalScrollMaxLeft(Math.max(0, node.scrollWidth - node.clientWidth));
+      } else {
+        setHorizontalScrollLeft(0);
+        setHorizontalScrollMaxLeft(0);
+      }
     };
 
-    updateVirtualMetrics();
+    updateScrollMetrics();
     const resizeObserver =
-      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateVirtualMetrics) : null;
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateScrollMetrics) : null;
     resizeObserver?.observe(node);
-    node.addEventListener('scroll', updateVirtualMetrics, { passive: true });
+    node.addEventListener('scroll', updateScrollMetrics, { passive: true });
 
     return () => {
       resizeObserver?.disconnect();
-      node.removeEventListener('scroll', updateVirtualMetrics);
+      node.removeEventListener('scroll', updateScrollMetrics);
     };
-  }, [isVirtualized, virtualMaxHeight]);
+  }, [isVirtualized, hasPinnedColumns, virtualMaxHeight]);
 
   useEffect(() => {
     if (!isVirtualized) return;
@@ -609,6 +707,8 @@ function DataGrid<TRow extends object>({
     const rowKey = getRowId(item);
     const isDragging = draggedKey === rowKey;
     const isDropTarget = dropTarget?.key === rowKey;
+    const dragHandlePinnedMeta = leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID);
+    const selectionPinnedMeta = leadingPinnedMeta.get(SELECTION_COLUMN_ID);
     const rowDragProps = withRowReordering
       ? {
           'data-row-reorderable': true,
@@ -622,7 +722,12 @@ function DataGrid<TRow extends object>({
     return (
       <Table.Row id={rowKey} key={rowKey} {...rowDragProps}>
         {withDragHandles && (
-          <Table.Cell className="data-grid__drag-handle-cell">
+          <Table.Cell
+            className="data-grid__drag-handle-cell"
+            data-pinned={dragHandlePinnedMeta?.side}
+            data-pinned-boundary={dragHandlePinnedMeta?.boundary}
+            style={getPinnedStyle(dragHandlePinnedMeta)}
+          >
             <DataGridDragHandle
               onMouseDown={(event) => handleRowMouseDown(rowKey, event)}
               onPointerDown={(event) => handleRowPointerDown(rowKey, event)}
@@ -633,19 +738,30 @@ function DataGrid<TRow extends object>({
           </Table.Cell>
         )}
         {withSelection && (
-          <Table.Cell className="data-grid__selection-cell">
+          <Table.Cell
+            className="data-grid__selection-cell"
+            data-pinned={selectionPinnedMeta?.side}
+            data-pinned-boundary={selectionPinnedMeta?.boundary}
+            style={getPinnedStyle(selectionPinnedMeta)}
+          >
             <DataGridSelectionCheckbox />
           </Table.Cell>
         )}
-        {columns.map((column) => (
-          <Table.Cell
-            key={column.id}
-            data-align={column.align !== 'start' ? column.align : undefined}
-            className={column.cellClassName}
-          >
-            {renderCell(item, column)}
-          </Table.Cell>
-        ))}
+        {columns.map((column) => {
+          const pinnedMeta = pinnedColumnMeta.get(column.id);
+          return (
+            <Table.Cell
+              key={column.id}
+              data-align={column.align !== 'start' ? column.align : undefined}
+              data-pinned={pinnedMeta?.side}
+              data-pinned-boundary={pinnedMeta?.boundary}
+              className={column.cellClassName}
+              style={getPinnedStyle(pinnedMeta)}
+            >
+              {renderCell(item, column)}
+            </Table.Cell>
+          );
+        })}
       </Table.Row>
     );
   };
@@ -677,7 +793,7 @@ function DataGrid<TRow extends object>({
       data-virtual-total={isVirtualized ? virtualRange.total : undefined}
       variant={variant}
       className={clsx('data-grid', className)}
-      style={style}
+      style={rootStyle}
       {...rest}
     >
       <Table.ScrollContainer
@@ -700,18 +816,29 @@ function DataGrid<TRow extends object>({
         >
           <Table.Header>
             {withDragHandles && (
-              <Table.Column className="data-grid__drag-handle-column">
+              <Table.Column
+                className="data-grid__drag-handle-column"
+                data-pinned={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.side}
+                data-pinned-boundary={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.boundary}
+                style={getPinnedStyle(leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID))}
+              >
                 <span className="sr-only">拖拽排序</span>
               </Table.Column>
             )}
             {withSelection && (
-              <Table.Column className="data-grid__selection-column">
+              <Table.Column
+                className="data-grid__selection-column"
+                data-pinned={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.side}
+                data-pinned-boundary={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.boundary}
+                style={getPinnedStyle(leadingPinnedMeta.get(SELECTION_COLUMN_ID))}
+              >
                 {selectionMode === 'multiple' ? <DataGridSelectionCheckbox /> : null}
               </Table.Column>
             )}
             {columns.map((column) => {
               const isSorted = activeSort?.column === column.id;
               const sortDirection = isSorted ? activeSort?.direction : undefined;
+              const pinnedMeta = pinnedColumnMeta.get(column.id);
               const headerNode =
                 typeof column.header === 'function'
                   ? column.header({ sortDirection })
@@ -723,8 +850,11 @@ function DataGrid<TRow extends object>({
                   isRowHeader={column.isRowHeader}
                   allowsSorting={column.allowsSorting}
                   data-align={column.align !== 'start' ? column.align : undefined}
-                  width={column.width}
+                  data-pinned={pinnedMeta?.side}
+                  data-pinned-boundary={pinnedMeta?.boundary}
+                  width={column.width ?? (pinnedMeta ? DEFAULT_PINNED_COLUMN_WIDTH : undefined)}
                   className={column.headerClassName}
+                  style={getPinnedStyle(pinnedMeta)}
                 >
                   <span data-slot="data-grid-sort-header">
                     {headerNode}

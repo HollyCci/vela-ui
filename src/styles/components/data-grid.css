@@ -28,6 +28,36 @@
   background-color: transparent;
 }
 
+.data-grid [data-pinned] {
+  position: relative;
+  z-index: 2;
+  transform: translateX(var(--data-grid-pinned-translate,0px));
+  will-change: transform;
+  background-clip: padding-box;
+}
+
+.data-grid [data-slot=table-column][data-pinned] {
+  z-index: 4;
+}
+
+.data-grid [data-pinned=left] {
+  --data-grid-pinned-translate: var(--data-grid-scroll-left,0px);
+}
+
+.data-grid [data-pinned=right] {
+  --data-grid-pinned-translate: calc(
+    var(--data-grid-scroll-left,0px) - var(--data-grid-scroll-max-left,0px)
+  );
+}
+
+.data-grid [data-pinned-boundary=end] {
+  box-shadow: 1px 0 0 var(--separator), 12px 0 18px -18px rgb(0 0 0 / .35);
+}
+
+.data-grid [data-pinned-boundary=start] {
+  box-shadow: -1px 0 0 var(--separator), -12px 0 18px -18px rgb(0 0 0 / .35);
+}
+
 .data-grid__selection-column {
   width: var(--data-grid-selection-column-width);
   padding-right: calc(var(--spacing) * 0);

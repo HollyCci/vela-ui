@@ -1784,18 +1784,9 @@ const DataGridPinnedColumnsVariantDemo = () => {
   const columns: DataGridColumn<OrderRow>[] = [
     {
       ...ORDER_COLUMNS[0],
+      pin: 'left',
       cell: (row) => (
-        <span
-          style={{
-            position: 'sticky',
-            left: 0,
-            zIndex: 1,
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 6,
-            background: 'var(--surface)',
-          }}
-        >
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
           <Badge color="accent">固定</Badge>
           {row.id}
         </span>
@@ -1803,22 +1794,22 @@ const DataGridPinnedColumnsVariantDemo = () => {
     },
     ...ORDER_COLUMNS.slice(1),
     { id: 'teacher', header: '顾问', cell: (row) => (row.status === '已支付' ? '周老师' : '李老师'), width: 120 },
-    { id: 'campus', header: '校区', cell: () => '线上', width: 120 },
+    { id: 'campus', header: '校区', cell: () => '线上', width: 120, pin: 'right' },
   ];
 
   return (
-    <DemoSection isColumn label="pinned leading column composition">
+    <DemoSection isColumn label="pinned columns">
       <div style={{ width: 620 }}>
         <DataGrid
           aria-label="固定列订单"
           columns={columns}
-          contentClassName="min-w-[920px]"
+          contentClassName="min-w-[1040px]"
           data={ORDER_ROWS}
           getRowId={orderRowId}
           scrollContainerClassName="overflow-x-auto"
         />
       </div>
-      <span style={demoMutedStyle}>首列单元格用 sticky 内容保留在横向滚动视野中。</span>
+      <span style={demoMutedStyle}>列定义使用 pin API，表头与单元格同步固定在横向滚动两侧。</span>
     </DemoSection>
   );
 };
