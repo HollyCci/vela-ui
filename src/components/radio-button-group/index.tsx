@@ -1,114 +1,118 @@
-import {
-  createContext,
-  forwardRef,
-  useContext,
-  useMemo,
-  useState,
-  type ButtonHTMLAttributes,
-  type CSSProperties,
-  type HTMLAttributes,
-  type ReactNode,
-} from 'react';
+import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
+import { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from '@heroui/react';
 import clsx from 'clsx';
 
-type RadioButtonGroupContextValue = {
-  value: string | undefined;
-  setValue: (value: string) => void;
+export type RadioButtonGroupLayout = 'flex' | 'grid';
+
+export type RadioButtonGroupProps = Omit<RadioGroupProps, 'className' | 'style'> & {
+  /** 布局模式（原站 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
+  layout?: RadioButtonGroupLayout;
+  className?: string;
+  style?: CSSProperties;
 };
 
-const RadioButtonGroupContext = createContext<RadioButtonGroupContextValue | null>(null);
-
-export type RadioButtonGroupProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
-  value?: string;
-  defaultValue?: string;
-  onValueChange?: (value: string) => void;
-  isGrid?: boolean;
-  columns?: number;
+export type RadioButtonGroupItemProps = Omit<RadioProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
 };
 
-const RadioButtonGroupRoot = forwardRef<HTMLDivElement, RadioButtonGroupProps>(
-  (
-    { value, defaultValue, onValueChange, isGrid = false, columns, className, style, ...rest },
-    ref,
-  ) => {
-    const [innerValue, setInnerValue] = useState(defaultValue);
-    const currentValue = value ?? innerValue;
+export type RadioButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 
-    const contextValue = useMemo<RadioButtonGroupContextValue>(
-      () => ({
-        value: currentValue,
-        setValue: (next: string) => {
-          if (value === undefined) setInnerValue(next);
-          onValueChange?.(next);
-        },
-      }),
-      [currentValue, value, onValueChange],
-    );
+export type RadioButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>;
 
-    const gridStyle: CSSProperties | undefined =
-      isGrid && columns !== undefined
-        ? { gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))`, ...style }
-        : style;
+export type RadioButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
 
-    return (
-      <RadioButtonGroupContext.Provider value={contextValue}>
-        <div
-          ref={ref}
-          role="radiogroup"
-          className={clsx('radio-button-group', isGrid && 'radio-button-group--grid', className)}
-          style={gridStyle}
-          {...rest}
-        />
-      </RadioButtonGroupContext.Provider>
-    );
-  },
-);
-RadioButtonGroupRoot.displayName = 'RadioButtonGroup';
-
-export type RadioButtonGroupItemProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'value'> & {
-  value: string;
-  icon?: ReactNode;
-};
-
-const Item = forwardRef<HTMLButtonElement, RadioButtonGroupItemProps>(
-  ({ value, icon, className, children, ...rest }, ref) => {
-    const context = useContext(RadioButtonGroupContext);
-    const isSelected = context?.value === value;
-
-    const handleClick = () => context?.setValue(value);
-
-    return (
-      <button
-        ref={ref}
-        type="button"
-        role="radio"
-        aria-checked={isSelected}
-        className={clsx('radio-button-group__item', className)}
-        data-selected={isSelected || undefined}
-        onClick={handleClick}
-        {...rest}
-      >
-        <span className="radio-button-group__indicator" data-custom="true" aria-hidden="true">
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <circle cx="12" cy="12" r="10" />
-            <path d="M8 12.5l2.5 2.5L16 9.5" />
-          </svg>
-        </span>
-        {icon !== undefined && <span className="radio-button-group__item-icon">{icon}</span>}
-        <span className="radio-button-group__item-content">{children}</span>
-      </button>
-    );
-  },
+/** 卡片式单选项；render-prop children（访问选中态）由 OSS Radio 原样支持 */
+const Item = ({ className, ...rest }: RadioButtonGroupItemProps) => (
+  <Radio
+    data-slot="radio-button-group-item"
+    className={clsx('radio-button-group__item', className)}
+    {...rest}
+  />
 );
 Item.displayName = 'RadioButtonGroup.Item';
 
-const RadioButtonGroup = Object.assign(RadioButtonGroupRoot, { Item });
+/**
+ * 右上角选择指示器（原站 API）：
+ * 无 children 渲染默认 OSS Radio.Control + Indicator（圆点）；
+ * 有 children 渲染 data-custom 的普通 span，仅选中时可见由 CSS
+ * `[data-selected=true]>.radio-button-group__indicator[data-custom=true]` 控制。
+ */
+const Indicator = ({ className, children, ...rest }: RadioButtonGroupIndicatorProps) => {
+  if (children === undefined) {
+    return (
+      <Radio.Control
+        data-slot="radio-button-group-indicator"
+        className={clsx('radio-button-group__indicator', className)}
+        {...rest}
+      >
+        <Radio.Indicator />
+      </Radio.Control>
+    );
+  }
+
+  return (
+    <span
+      data-custom="true"
+      data-slot="radio-button-group-indicator"
+      className={clsx('radio-button-group__indicator', className)}
+      {...rest}
+    >
+      {children}
+    </span>
+  );
+};
+Indicator.displayName = 'RadioButtonGroup.Indicator';
+
+/** 包装 OSS Radio.Content 的文本内容区 */
+const ItemContent = ({ className, ...rest }: RadioButtonGroupItemContentProps) => (
+  <Radio.Content
+    data-slot="radio-button-group-item-content"
+    className={clsx('radio-button-group__item-content', className)}
+    {...rest}
+  />
+);
+ItemContent.displayName = 'RadioButtonGroup.ItemContent';
+
+const ItemIcon = forwardRef<HTMLDivElement, RadioButtonGroupItemIconProps>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="radio-button-group-item-icon"
+      className={clsx('radio-button-group__item-icon', className)}
+      {...rest}
+    />
+  ),
+);
+ItemIcon.displayName = 'RadioButtonGroup.ItemIcon';
+
+/**
+ * 包装 OSS RadioGroup 的卡片单选组（原站 API）：
+ * 受控 value/onChange、isDisabled、键盘/方向键交互由底座提供。
+ * 原站快照默认 demo 根类为 radio-group--secondary，故默认 variant=secondary（可透传覆盖）。
+ */
+const RadioButtonGroupRoot = forwardRef<HTMLDivElement, RadioButtonGroupProps>(
+  ({ layout = 'flex', className, ...rest }, ref) => (
+    <RadioGroup
+      ref={ref}
+      data-slot="radio-button-group"
+      variant="secondary"
+      className={clsx(
+        'radio-button-group',
+        layout === 'grid' && 'radio-button-group--grid',
+        className,
+      )}
+      {...rest}
+    />
+  ),
+);
+RadioButtonGroupRoot.displayName = 'RadioButtonGroup';
+
+const RadioButtonGroup = Object.assign(RadioButtonGroupRoot, {
+  Item,
+  Indicator,
+  ItemContent,
+  ItemIcon,
+});
 
 export default RadioButtonGroup;

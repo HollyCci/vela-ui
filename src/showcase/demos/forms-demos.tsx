@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import { isFileDropItem } from 'react-aria-components';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -13,7 +14,7 @@ import CheckboxButtonGroup from '../../components/checkbox-button-group';
 import RadioButtonGroup from '../../components/radio-button-group';
 import NumberStepper from '../../components/number-stepper';
 import InlineSelect from '../../components/inline-select';
-import DropZone from '../../components/drop-zone';
+import DropZone, { type DropZoneAreaProps } from '../../components/drop-zone';
 import CellSwitch from '../../components/cell-switch';
 import CellSelect from '../../components/cell-select';
 import DemoSection from '../demo-section';
@@ -206,20 +207,76 @@ const CheckboxButtonGroupDemo = () => {
   );
 };
 
-const RadioButtonGroupDemo = () => (
-  <DemoSection>
-    <RadioButtonGroup defaultValue="weekly" isGrid columns={2} style={{ width: 480 }}>
-      <RadioButtonGroup.Item value="weekly">
-        <strong>每周报告</strong>
-        <span>每周一汇总学习数据</span>
-      </RadioButtonGroup.Item>
-      <RadioButtonGroup.Item value="monthly">
-        <strong>每月报告</strong>
-        <span>每月初汇总学习数据</span>
-      </RadioButtonGroup.Item>
-    </RadioButtonGroup>
-  </DemoSection>
-);
+const RadioButtonGroupDemo = () => {
+  const [reportCycle, setReportCycle] = useState('weekly');
+  const handleReportCycleChange = (value: string) => setReportCycle(value);
+
+  return (
+    <DemoSection isColumn>
+      <RadioButtonGroup
+        aria-label="报告周期（受控）"
+        layout="grid"
+        value={reportCycle}
+        onChange={handleReportCycleChange}
+        style={{ width: 480, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+      >
+        <RadioButtonGroup.Item value="weekly">
+          <RadioButtonGroup.Indicator />
+          <RadioButtonGroup.ItemContent>
+            <strong>每周报告</strong>
+            <span>每周一汇总学习数据</span>
+          </RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+        <RadioButtonGroup.Item value="monthly">
+          <RadioButtonGroup.Indicator />
+          <RadioButtonGroup.ItemContent>
+            <strong>每月报告</strong>
+            <span>每月初汇总学习数据</span>
+          </RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+      </RadioButtonGroup>
+      <RadioButtonGroup
+        aria-label="训练模式（自定义指示器 + 图标）"
+        defaultValue="reading"
+        style={{ width: 480 }}
+      >
+        <RadioButtonGroup.Item value="reading">
+          <RadioButtonGroup.Indicator>
+            <CheckCircleIcon />
+          </RadioButtonGroup.Indicator>
+          <RadioButtonGroup.ItemIcon>
+            <BookIcon />
+          </RadioButtonGroup.ItemIcon>
+          <RadioButtonGroup.ItemContent>
+            <strong>阅读模式</strong>
+            <span>精读与泛读结合</span>
+          </RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+        <RadioButtonGroup.Item value="listening">
+          <RadioButtonGroup.Indicator>
+            <CheckCircleIcon />
+          </RadioButtonGroup.Indicator>
+          <RadioButtonGroup.ItemIcon>
+            <EarIcon />
+          </RadioButtonGroup.ItemIcon>
+          <RadioButtonGroup.ItemContent>
+            <strong>听力模式</strong>
+            <span>分级听写练习</span>
+          </RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+        <RadioButtonGroup.Item value="spelling" isDisabled>
+          <RadioButtonGroup.Indicator>
+            <CheckCircleIcon />
+          </RadioButtonGroup.Indicator>
+          <RadioButtonGroup.ItemContent>
+            <strong>拼写模式</strong>
+            <span>暂未开放（禁用项）</span>
+          </RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+      </RadioButtonGroup>
+    </DemoSection>
+  );
+};
 
 const STEPPER_PARTS = (
   <NumberStepper.Group>
@@ -283,48 +340,98 @@ const InlineSelectDemo = () => {
   );
 };
 
-const DropZoneDemo = () => (
-  <DemoSection isColumn>
-    <DropZone style={{ width: 420 }}>
-      <DropZone.Area
-        label="拖拽文件到此处上传"
-        description="支持 PDF、Word，单个不超过 20MB"
-        accept=".pdf,.doc,.docx"
-        isMultiple
-      />
-      <DropZone.FileList>
-        <DropZone.FileItem
-          name="学员名单-2026春季班.xlsx"
-          meta="1.2 MB · 上传中"
-          format="xlsx"
-          formatColor="green"
-          status="uploading"
-          progress={45}
-          onRemove={noop}
-        />
-        <DropZone.FileItem
-          name="教学大纲.pdf"
-          meta="3.4 MB · 已完成"
-          format="pdf"
-          formatColor="red"
-          status="complete"
-          progress={100}
-          onRemove={noop}
-        />
-        <DropZone.FileItem
-          name="课件备份.zip"
-          meta="18 MB · 上传失败"
-          format="zip"
-          formatColor="orange"
-          status="failed"
-          progress={30}
-          onRetry={noop}
-          onRemove={noop}
-        />
-      </DropZone.FileList>
-    </DropZone>
-  </DemoSection>
-);
+/** 从文件名提取大写扩展名作为格式徽标 */
+const getFileFormat = (name: string) => {
+  const ext = name.includes('.') ? name.split('.').pop() : undefined;
+  return ext !== undefined && ext !== '' ? ext.toUpperCase() : 'FILE';
+};
+
+type DemoFileEntryProps = {
+  name: string;
+  onRemove: (name: string) => void;
+};
+
+/** 回显条目：单独成组件以便事件处理具名（JSX 内禁匿名函数） */
+const DemoFileEntry = ({ name, onRemove }: DemoFileEntryProps) => {
+  const handleRemove = () => onRemove(name);
+
+  return (
+    <DropZone.FileItem status="complete">
+      <DropZone.FileFormatIcon format={getFileFormat(name)} color="blue" />
+      <DropZone.FileInfo>
+        <DropZone.FileName>{name}</DropZone.FileName>
+        <DropZone.FileMeta>刚刚添加</DropZone.FileMeta>
+      </DropZone.FileInfo>
+      <DropZone.FileRemoveTrigger aria-label={`移除 ${name}`} onPress={handleRemove} />
+    </DropZone.FileItem>
+  );
+};
+
+const DropZoneDemo = () => {
+  const [fileNames, setFileNames] = useState<string[]>([]);
+
+  // 拖放：RAC DropZone 的 onDrop（拖入高亮 [data-drop-target] 由底座 + CSS 提供）
+  const handleDrop: NonNullable<DropZoneAreaProps['onDrop']> = (event) => {
+    const names = event.items.filter(isFileDropItem).map((item) => item.name);
+    if (names.length > 0) setFileNames(names);
+  };
+  // 文件选择器：DropZone.Input 的 onSelect（原站 API 签名 FileList）
+  const handleSelect = (files: FileList) =>
+    setFileNames(Array.from(files).map((file) => file.name));
+  const handleRemoveFile = (name: string) =>
+    setFileNames((prev) => prev.filter((item) => item !== name));
+
+  return (
+    <>
+      <DemoSection label="拖放高亮 + 文件选择回显" isColumn>
+        <DropZone style={{ width: 420 }}>
+          <DropZone.Area onDrop={handleDrop}>
+            <DropZone.Icon />
+            <DropZone.Label>拖拽文件到此处上传</DropZone.Label>
+            <DropZone.Description>支持 PDF、Word，单个不超过 20MB</DropZone.Description>
+            <DropZone.Trigger>选择文件</DropZone.Trigger>
+          </DropZone.Area>
+          <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
+          {fileNames.length > 0 && (
+            <DropZone.FileList>
+              {fileNames.map((name) => (
+                <DemoFileEntry key={name} name={name} onRemove={handleRemoveFile} />
+              ))}
+            </DropZone.FileList>
+          )}
+        </DropZone>
+      </DemoSection>
+      <DemoSection label="文件列表状态">
+        <DropZone style={{ width: 420 }}>
+          <DropZone.FileList>
+            <DropZone.FileItem status="uploading">
+              <DropZone.FileFormatIcon format="XLSX" color="green" />
+              <DropZone.FileInfo>
+                <DropZone.FileName>学员名单-2026春季班.xlsx</DropZone.FileName>
+                <DropZone.FileMeta>1.2 MB | 上传中…</DropZone.FileMeta>
+                <DropZone.FileProgress value={45} aria-label="上传进度">
+                  <DropZone.FileProgressTrack>
+                    <DropZone.FileProgressFill />
+                  </DropZone.FileProgressTrack>
+                </DropZone.FileProgress>
+              </DropZone.FileInfo>
+              <DropZone.FileRemoveTrigger aria-label="移除 学员名单-2026春季班.xlsx" onPress={noop} />
+            </DropZone.FileItem>
+            <DropZone.FileItem status="failed">
+              <DropZone.FileFormatIcon format="ZIP" color="orange" />
+              <DropZone.FileInfo>
+                <DropZone.FileName>课件备份.zip</DropZone.FileName>
+                <DropZone.FileMeta>18 MB | 上传失败</DropZone.FileMeta>
+                <DropZone.FileRetryTrigger onPress={noop}>重试</DropZone.FileRetryTrigger>
+              </DropZone.FileInfo>
+              <DropZone.FileRemoveTrigger aria-label="移除 课件备份.zip" onPress={noop} />
+            </DropZone.FileItem>
+          </DropZone.FileList>
+        </DropZone>
+      </DemoSection>
+    </>
+  );
+};
 
 const CellSwitchDemo = () => {
   const [isReminderOn, setIsReminderOn] = useState(true);
