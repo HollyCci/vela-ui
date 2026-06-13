@@ -4,6 +4,7 @@ import { formsDemos } from './demos/forms-demos';
 import { dataDisplayDemos } from './demos/data-display-demos';
 import { feedbackNavDemos } from './demos/feedback-nav-demos';
 import { aiOverlayDemos } from './demos/ai-overlay-demos';
+import { chartsDemos } from './demos/charts-demos';
 import demoIndexJson from './demo-index.json';
 
 /** 组件 → 该组件全部基准 demo slug（采集自 heroui.pro 文档站） */
@@ -119,6 +120,7 @@ export const demoRegistry: Record<string, ReactNode> = {
   ...dataDisplayDemos,
   ...feedbackNavDemos,
   ...aiOverlayDemos,
+  ...chartsDemos,
 };
 
 const TITLE_OVERRIDES: Record<string, string> = {
