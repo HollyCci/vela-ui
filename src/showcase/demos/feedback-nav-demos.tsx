@@ -1,4 +1,4 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import type { Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
@@ -380,16 +380,44 @@ const STEPPER_STEPS = [
   { title: '完成', description: '开通成功' },
 ];
 
-const StepperDemo = () => (
-  <>
-    <DemoSection label="水平" isColumn>
-      <Stepper steps={STEPPER_STEPS} currentStep={2} style={{ maxWidth: 560 }} />
-    </DemoSection>
-    <DemoSection label="垂直 / 小尺寸">
-      <Stepper steps={STEPPER_STEPS} currentStep={1} orientation="vertical" size="sm" />
-    </DemoSection>
-  </>
-);
+const StepperDemo = () => {
+  const [currentStep, setCurrentStep] = useState(1);
+
+  const handleStepChange = (step: number) => setCurrentStep(step);
+
+  return (
+    <>
+      <DemoSection label="受控 + 可点击（点任意步骤跳转，连接线随进度填充）" isColumn>
+        <Stepper currentStep={currentStep} onStepChange={handleStepChange} style={{ maxWidth: 560 }}>
+          {STEPPER_STEPS.map((step) => (
+            <Stepper.Step key={step.title}>
+              <Stepper.Indicator />
+              <Stepper.Content>
+                <Stepper.Title>{step.title}</Stepper.Title>
+              </Stepper.Content>
+            </Stepper.Step>
+          ))}
+        </Stepper>
+        <span>
+          当前第 {currentStep + 1} 步：{STEPPER_STEPS[currentStep].title}
+        </span>
+      </DemoSection>
+      <DemoSection label="垂直 / 小尺寸 / 展示型（无 onStepChange 不可点击）">
+        <Stepper orientation="vertical" size="sm" currentStep={1}>
+          {STEPPER_STEPS.map((step) => (
+            <Stepper.Step key={step.title}>
+              <Stepper.Indicator />
+              <Stepper.Content>
+                <Stepper.Title>{step.title}</Stepper.Title>
+                <Stepper.Description>{step.description}</Stepper.Description>
+              </Stepper.Content>
+            </Stepper.Step>
+          ))}
+        </Stepper>
+      </DemoSection>
+    </>
+  );
+};
 
 const LinkDemo = () => (
   <DemoSection>
@@ -403,31 +431,97 @@ const LinkDemo = () => (
   </DemoSection>
 );
 
-const NavbarDemo = () => (
-  <DemoSection isColumn>
-    <div style={{ width: '100%', border: '1px solid var(--border)', borderRadius: 8, overflow: 'hidden' }}>
-      <Navbar>
-        <Navbar.Header maxWidth="full">
-          <Navbar.Brand>
-            <strong>Matrix</strong>
-          </Navbar.Brand>
-          <Navbar.Content>
-            <Navbar.Item href="#" isCurrent>
-              工作台
-            </Navbar.Item>
-            <Navbar.Item href="#">学员管理</Navbar.Item>
-            <Navbar.Item href="#">排班</Navbar.Item>
-          </Navbar.Content>
-          <Navbar.Spacer />
-          <Navbar.Content>
-            <Navbar.Separator />
-            <Navbar.Item href="#">设置</Navbar.Item>
-          </Navbar.Content>
-        </Navbar.Header>
-      </Navbar>
-    </div>
-  </DemoSection>
-);
+const NAVBAR_LINKS = [
+  { href: '#dashboard', label: '工作台', isCurrent: true },
+  { href: '#students', label: '学员管理', isCurrent: false },
+  { href: '#schedule', label: '排班', isCurrent: false },
+];
+
+const NAVBAR_SCROLL_CONTAINER_STYLE: CSSProperties = {
+  width: '100%',
+  height: 240,
+  overflowY: 'auto',
+  border: '1px solid var(--border)',
+  borderRadius: 8,
+};
+
+const NAVBAR_SCROLL_FILLER_STYLE: CSSProperties = {
+  height: 720,
+  padding: 16,
+  color: 'var(--muted)',
+};
+
+const NAVBAR_MENU_CONTAINER_STYLE: CSSProperties = {
+  width: '100%',
+  height: 280,
+  position: 'relative',
+  overflow: 'hidden',
+  border: '1px solid var(--border)',
+  borderRadius: 8,
+};
+
+const NavbarDemo = () => {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  const handleMenuOpenChange = (isOpen: boolean) => setIsMenuOpen(isOpen);
+
+  return (
+    <>
+      <DemoSection label="hide-on-scroll（在容器内下滑隐藏、上滑恢复）" isColumn>
+        <div ref={scrollContainerRef} style={NAVBAR_SCROLL_CONTAINER_STYLE}>
+          <Navbar maxWidth="full" hideOnScroll parentRef={scrollContainerRef}>
+            <Navbar.Header>
+              <Navbar.Brand>
+                <strong>Matrix</strong>
+              </Navbar.Brand>
+              <Navbar.Content>
+                {NAVBAR_LINKS.map((link) => (
+                  <Navbar.Item key={link.href} href={link.href} isCurrent={link.isCurrent}>
+                    {link.label}
+                  </Navbar.Item>
+                ))}
+              </Navbar.Content>
+              <Navbar.Spacer />
+              <Navbar.Content>
+                <Navbar.Separator />
+                <Navbar.Item href="#settings">设置</Navbar.Item>
+              </Navbar.Content>
+            </Navbar.Header>
+          </Navbar>
+          <div style={NAVBAR_SCROLL_FILLER_STYLE}>向下滚动隐藏导航栏，向上滚动立即恢复。</div>
+        </div>
+      </DemoSection>
+      <DemoSection label="移动菜单（受控 MenuToggle，汉堡图标切换为关闭）" isColumn>
+        <div style={NAVBAR_MENU_CONTAINER_STYLE}>
+          <Navbar
+            position="static"
+            maxWidth="full"
+            isMenuOpen={isMenuOpen}
+            onMenuOpenChange={handleMenuOpenChange}
+            shouldBlockScroll={false}
+          >
+            <Navbar.Header>
+              <Navbar.Brand>
+                <strong>Matrix</strong>
+              </Navbar.Brand>
+              <Navbar.Spacer />
+              <Navbar.MenuToggle />
+            </Navbar.Header>
+            <Navbar.Menu>
+              {NAVBAR_LINKS.map((link) => (
+                <Navbar.MenuItem key={link.href} href={link.href} isCurrent={link.isCurrent}>
+                  {link.label}
+                </Navbar.MenuItem>
+              ))}
+            </Navbar.Menu>
+          </Navbar>
+        </div>
+        <span>移动菜单{isMenuOpen ? '已展开（点菜单项自动收起）' : '已收起'}</span>
+      </DemoSection>
+    </>
+  );
+};
 
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
