@@ -17,6 +17,25 @@
   border-radius: 0;
 }
 
+.item-card-group>[data-slot=item-card][data-selected=true] {
+  background-color: var(--accent-soft);
+}
+
+.item-card-group>[data-slot=item-card][data-selected=true]>[data-slot=item-card-icon] {
+  background-color: var(--accent);
+  color: var(--accent-foreground);
+}
+
+@media (hover:hover) {
+  .item-card-group>[data-slot=item-card][data-pressable=true]:hover:not([data-selected=true]) {
+    background-color: var(--surface-hover);
+  }
+
+  .item-card-group>[data-slot=item-card][data-selected=true]:hover {
+    background-color: var(--accent-soft-hover);
+  }
+}
+
 .item-card-group--default {
   background-color: var(--surface);
   --tw-shadow: var(--surface-shadow);

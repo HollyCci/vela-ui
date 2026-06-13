@@ -2599,13 +2599,20 @@ const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
   if (variant === 'with-multi-select') {
     const toggle = (name: string, selected: boolean) =>
       setSelectedCards((current) =>
-        selected ? [...current, name] : current.filter((item) => item !== name),
+        selected
+          ? current.includes(name) ? current : [...current, name]
+          : current.filter((item) => item !== name),
       );
 
     return (
       <DemoSection isColumn label="multi select">
         {SIMPLE_COURSES.map((course) => (
-          <ItemCard key={course.id} style={{ width: 400 }}>
+          <ItemCard
+            key={course.id}
+            isSelected={selectedCards.includes(course.name)}
+            style={{ width: 400 }}
+            onSelectedChange={(selected) => toggle(course.name, selected)}
+          >
             <ItemCard.Icon>
               <BookIcon />
             </ItemCard.Icon>
@@ -2633,11 +2640,12 @@ const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
         {SIMPLE_COURSES.map((course) => (
           <ItemCard
             key={course.id}
-            role="button"
-            tabIndex={0}
+            isSelected={message === course.name}
             variant={message === course.name ? 'outline' : 'default'}
             style={{ width: 400 }}
-            onClick={() => setMessage(course.name)}
+            onSelectedChange={(selected) => {
+              if (selected) setMessage(course.name);
+            }}
           >
             <ItemCard.Icon>
               <BookIcon />
@@ -2683,10 +2691,9 @@ const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
     return (
       <DemoSection isColumn label="pressable">
         <ItemCard
-          role="button"
-          tabIndex={0}
-          style={{ width: 380, cursor: 'var(--cursor-interactive)' }}
-          onClick={() => setMessage('已打开课程详情')}
+          isPressable
+          style={{ width: 380 }}
+          onPress={() => setMessage('已打开课程详情')}
         >
           <ItemCard.Icon>
             <BookIcon />
@@ -2854,9 +2861,18 @@ const ItemCardGroupVariantDemo = ({ variant }: { variant: ItemCardGroupVariantKe
     <DemoSection isColumn label={variant}>
       <ItemCardGroup
         columns={columns}
+        isPressable={variant === 'pressable' ? true : undefined}
         layout={isGrid ? 'grid' : 'list'}
         style={{ width: isGrid ? 620 : 420 }}
         variant={variant === 'wallet-list' ? 'outline' : 'default'}
+        onItemPress={
+          variant === 'pressable'
+            ? (key) => {
+                const course = SIMPLE_COURSES.find((item) => item.id === key);
+                setPressed(course?.name ?? String(key));
+              }
+            : undefined
+        }
       >
         {(variant === 'with-header' || variant !== 'list') && (
           <ItemCardGroup.Header>
@@ -2866,10 +2882,8 @@ const ItemCardGroupVariantDemo = ({ variant }: { variant: ItemCardGroupVariantKe
         )}
         {SIMPLE_COURSES.map((course) => (
           <ItemCard
+            id={course.id}
             key={course.id}
-            role={variant === 'pressable' ? 'button' : undefined}
-            tabIndex={variant === 'pressable' ? 0 : undefined}
-            onClick={variant === 'pressable' ? () => setPressed(course.name) : undefined}
           >
             <ItemCard.Icon>
               {variant === 'wallet-list' ? <Badge color="accent">¥</Badge> : <BookIcon />}
