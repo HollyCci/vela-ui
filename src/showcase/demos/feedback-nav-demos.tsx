@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import type { Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
@@ -104,16 +104,88 @@ const NumberValueDemo = () => (
   </DemoSection>
 );
 
-const PressableFeedbackDemo = () => (
-  <DemoSection label="按压高亮反馈">
-    <PressableFeedback style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)' }}>
-      悬停 / 按住试试
-    </PressableFeedback>
-    <PressableFeedback isDisabled style={{ padding: '8px 16px', borderRadius: 8, border: '1px solid var(--border)' }}>
-      已禁用
-    </PressableFeedback>
-  </DemoSection>
-);
+const PRESSABLE_BOX_STYLE: CSSProperties = {
+  padding: '8px 16px',
+  borderRadius: 8,
+  border: '1px solid var(--border)',
+};
+
+const HOLD_OVERLAY_STYLE: CSSProperties = {
+  background: 'var(--danger)',
+  color: 'var(--danger-foreground)',
+};
+
+const PROGRESS_OVERLAY_STYLE: CSSProperties = {
+  background: 'var(--accent)',
+  color: 'var(--accent-foreground)',
+};
+
+const PressableFeedbackDemo = () => {
+  const [holdCount, setHoldCount] = useState(0);
+  const [isProgressDone, setIsProgressDone] = useState(false);
+
+  const handleHoldComplete = () => setHoldCount((count) => count + 1);
+  const handleProgressComplete = () => setIsProgressDone(true);
+  const handleProgressReset = () => setIsProgressDone(false);
+
+  return (
+    <>
+      <DemoSection label="高亮反馈（悬停 / 按压）">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Highlight />
+          悬停 / 按住试试
+        </PressableFeedback>
+        <PressableFeedback isDisabled style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Highlight />
+          已禁用
+        </PressableFeedback>
+      </DemoSection>
+      <DemoSection label="波纹反馈（M3 径向扩散）">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Ripple />
+          点击看波纹
+        </PressableFeedback>
+        <PressableFeedback isDisabled style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Ripple isDisabled />
+          已禁用
+        </PressableFeedback>
+      </DemoSection>
+      <DemoSection label="按住确认（按住 2 秒触发，提前松手回弹）">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm style={HOLD_OVERLAY_STYLE} onComplete={handleHoldComplete}>
+            确认删除！
+          </PressableFeedback.HoldConfirm>
+          按住删除
+        </PressableFeedback>
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm
+            sweep="up"
+            duration={1000}
+            style={PROGRESS_OVERLAY_STYLE}
+            onComplete={handleHoldComplete}
+          >
+            已确认
+          </PressableFeedback.HoldConfirm>
+          按住 1 秒（向上扫入）
+        </PressableFeedback>
+        <span>已确认 {holdCount} 次</span>
+      </DemoSection>
+      <DemoSection label="点击进度（自动扫入，完成 1.5 秒后复位）">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback
+            style={PROGRESS_OVERLAY_STYLE}
+            onComplete={handleProgressComplete}
+            onReset={handleProgressReset}
+          >
+            购买中…
+          </PressableFeedback.ProgressFeedback>
+          点击购买
+        </PressableFeedback>
+        <span>{isProgressDone ? '已完成' : '待操作'}</span>
+      </DemoSection>
+    </>
+  );
+};
 
 const EmojiReactionButtonDemo = () => {
   const [isLiked, setIsLiked] = useState(false);
@@ -149,20 +221,33 @@ const EmojiReactionButtonDemo = () => {
 };
 
 const TooltipDemo = () => (
-  <DemoSection label="悬停显示提示">
-    <Tooltip content="顶部提示" placement="top">
-      <Button variant="secondary">上</Button>
-    </Tooltip>
-    <Tooltip content="底部提示" placement="bottom">
-      <Button variant="secondary">下</Button>
-    </Tooltip>
-    <Tooltip content="左侧提示" placement="left">
-      <Button variant="secondary">左</Button>
-    </Tooltip>
-    <Tooltip content="一直展示的受控提示" isOpen placement="right">
-      <Button variant="secondary">受控</Button>
-    </Tooltip>
-  </DemoSection>
+  <>
+    <DemoSection label="悬停 / 聚焦显示提示（content 便捷用法）">
+      <Tooltip content="顶部提示" placement="top" delay={0} closeDelay={0}>
+        <Button variant="secondary">上</Button>
+      </Tooltip>
+      <Tooltip content="底部提示" placement="bottom" delay={0} closeDelay={0}>
+        <Button variant="secondary">下</Button>
+      </Tooltip>
+      <Tooltip content="左侧提示" placement="left" delay={0} closeDelay={0}>
+        <Button variant="secondary">左</Button>
+      </Tooltip>
+      <Tooltip content="一直展示的受控提示" isOpen placement="right">
+        <Button variant="secondary">受控</Button>
+      </Tooltip>
+    </DemoSection>
+    <DemoSection label="compound 组合用法（带箭头）">
+      <Tooltip delay={0} closeDelay={0}>
+        <Tooltip.Trigger>
+          <Button variant="secondary">带箭头</Button>
+        </Tooltip.Trigger>
+        <Tooltip.Content placement="top" showArrow>
+          <Tooltip.Arrow />
+          组合用法的提示内容
+        </Tooltip.Content>
+      </Tooltip>
+    </DemoSection>
+  </>
 );
 
 const ToastNoop = () => undefined;
