@@ -1,9 +1,9 @@
 import type { ReactNode } from 'react';
 import { baseDemos } from './demos/base-demos';
 import { formsDemos, formsVariantDemos } from './demos/forms-demos';
-import { dataDisplayDemos } from './demos/data-display-demos';
-import { feedbackNavDemos } from './demos/feedback-nav-demos';
-import { aiOverlayDemos } from './demos/ai-overlay-demos';
+import { dataDisplayDemos, dataDisplayVariantDemos } from './demos/data-display-demos';
+import { feedbackNavDemos, feedbackNavVariantDemos } from './demos/feedback-nav-demos';
+import { aiOverlayDemos, aiOverlayVariantDemos } from './demos/ai-overlay-demos';
 import { chartsDemos, chartsVariantDemos } from './demos/charts-demos';
 import demoIndexJson from './demo-index.json';
 
@@ -126,6 +126,9 @@ export const demoRegistry: Record<string, ReactNode> = {
 /** demo slug → 独立变体演示；未覆盖时页面会回退到组件级 demo */
 export const variantDemoRegistry: Record<string, ReactNode> = {
   ...formsVariantDemos,
+  ...dataDisplayVariantDemos,
+  ...feedbackNavVariantDemos,
+  ...aiOverlayVariantDemos,
   ...chartsVariantDemos,
 };
 

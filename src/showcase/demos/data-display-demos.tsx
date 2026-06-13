@@ -1,15 +1,17 @@
-import { useState, type ReactNode } from 'react';
-import type { Key, Selection, SortDescriptor } from 'react-aria-components';
+import { useEffect, useState, type ReactNode } from 'react';
+import { useTreeData, type Key, type Selection, type SortDescriptor } from 'react-aria-components';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
+import Avatar from '../../components/avatar';
 import Badge from '../../components/badge';
 import Button from '../../components/button';
-import Carousel from '../../components/carousel';
+import Carousel, { type CarouselApi } from '../../components/carousel';
 import ChartTooltip from '../../components/chart-tooltip';
+import Checkbox from '../../components/checkbox';
 import Chip from '../../components/chip';
 import DataGrid, { type DataGridColumn } from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
-import FileTree from '../../components/file-tree';
+import FileTree, { useFileTree, useFileTreeDrag } from '../../components/file-tree';
 import FloatingToc from '../../components/floating-toc';
 import HoverCard from '../../components/hover-card';
 import ItemCard from '../../components/item-card';
@@ -18,7 +20,9 @@ import Kanban, { useKanban, useKanbanColumn } from '../../components/kanban';
 import Kpi from '../../components/kpi';
 import KpiGroup from '../../components/kpi-group';
 import ListView from '../../components/list-view';
+import ProgressBar from '../../components/progress-bar';
 import Separator from '../../components/separator';
+import Switch from '../../components/switch';
 import Tooltip from '../../components/tooltip';
 import Widget from '../../components/widget';
 import DemoSection from '../demo-section';
@@ -1159,6 +1163,1969 @@ const AgendaDemo = () => {
   );
 };
 
+const demoTextStyle = { fontSize: 13, color: 'var(--foreground)' } as const;
+const demoMutedStyle = { fontSize: 12, color: 'var(--muted)' } as const;
+
+const MiniBars = ({
+  values,
+  color = 'var(--accent)',
+  height = 48,
+}: {
+  values: number[];
+  color?: string;
+  height?: number;
+}) => {
+  const max = Math.max(...values, 1);
+
+  return (
+    <div
+      aria-hidden="true"
+      style={{
+        height,
+        display: 'flex',
+        alignItems: 'end',
+        gap: 4,
+      }}
+    >
+      {values.map((value, index) => (
+        <span
+          // eslint-disable-next-line react/no-array-index-key -- sparkline bars are positional
+          key={index}
+          style={{
+            flex: 1,
+            minWidth: 6,
+            height: `${Math.max((value / max) * 100, 8)}%`,
+            borderRadius: 4,
+            background: color,
+            opacity: 0.35 + (value / max) * 0.65,
+          }}
+        />
+      ))}
+    </div>
+  );
+};
+
+const MiniLine = ({
+  values,
+  color = 'var(--accent)',
+}: {
+  values: number[];
+  color?: string;
+}) => {
+  const max = Math.max(...values, 1);
+  const min = Math.min(...values);
+  const range = Math.max(max - min, 1);
+  const points = values
+    .map((value, index) => {
+      const x = (index / Math.max(values.length - 1, 1)) * 120;
+      const y = 40 - ((value - min) / range) * 32 - 4;
+      return `${x},${y}`;
+    })
+    .join(' ');
+
+  return (
+    <svg aria-hidden="true" viewBox="0 0 120 44" style={{ width: '100%', height: 52 }}>
+      <polyline
+        fill="none"
+        points={points}
+        stroke={color}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeWidth="3"
+      />
+      {values.map((value, index) => {
+        const x = (index / Math.max(values.length - 1, 1)) * 120;
+        const y = 40 - ((value - min) / range) * 32 - 4;
+        return <circle key={`${value}-${index}`} cx={x} cy={y} fill={color} r="2.5" />;
+      })}
+    </svg>
+  );
+};
+
+const MiniDonut = ({ value, label }: { value: number; label: string }) => (
+  <div
+    aria-label={`${label} ${value}%`}
+    role="img"
+    style={{
+      width: 96,
+      height: 96,
+      borderRadius: '50%',
+      display: 'grid',
+      placeItems: 'center',
+      background: `conic-gradient(var(--accent) 0 ${value}%, var(--surface-secondary) ${value}% 100%)`,
+    }}
+  >
+    <span
+      style={{
+        width: 62,
+        height: 62,
+        borderRadius: '50%',
+        display: 'grid',
+        placeItems: 'center',
+        background: 'var(--surface)',
+        color: 'var(--foreground)',
+        fontSize: 14,
+        fontWeight: 700,
+      }}
+    >
+      {value}%
+    </span>
+  </div>
+);
+
+const CourseCover = ({ title }: { title: string }) => (
+  <div
+    aria-hidden="true"
+    style={{
+      width: '100%',
+      height: 84,
+      borderRadius: 8,
+      display: 'grid',
+      placeItems: 'center',
+      color: 'var(--accent-foreground)',
+      background: 'linear-gradient(135deg, var(--accent), var(--success))',
+      fontSize: 14,
+      fontWeight: 700,
+    }}
+  >
+    {title}
+  </div>
+);
+
+const SIMPLE_COURSES = [
+  { id: 'c1', name: '雅思 7 分计划', owner: '王晓萌', progress: 86 },
+  { id: 'c2', name: '考研英语冲刺班', owner: '李子轩', progress: 64 },
+  { id: 'c3', name: '商务英语口语营', owner: '赵梓涵', progress: 42 },
+];
+
+type StudentRow = {
+  id: string;
+  name: string;
+  group: string;
+  active: string;
+  score: number;
+};
+
+const STUDENT_ROWS: StudentRow[] = [
+  { id: 'u1', name: '王晓萌', group: '雅思 7 分计划', active: '今天', score: 92 },
+  { id: 'u2', name: '李子轩', group: '考研英语冲刺班', active: '昨天', score: 86 },
+  { id: 'u3', name: '陈雨桐', group: '四级真题精讲营', active: '3 天前', score: 74 },
+  { id: 'u4', name: '赵梓涵', group: '商务英语口语营', active: '今天', score: 88 },
+];
+
+const STUDENT_COLUMNS: DataGridColumn<StudentRow>[] = [
+  { id: 'name', header: '学员', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
+  { id: 'group', header: '课程', accessorKey: 'group', width: 180 },
+  { id: 'active', header: '最近学习', accessorKey: 'active', width: 110 },
+  { id: 'score', header: '掌握度', accessorKey: 'score', allowsSorting: true, align: 'end' },
+];
+
+const COURSE_COLUMNS: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
+  { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true },
+  { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
+  {
+    id: 'progress',
+    header: '进度',
+    accessorKey: 'progress',
+    width: 160,
+    cell: (row) => (
+      <ProgressBar
+        aria-label={`${row.name} 进度`}
+        color={row.progress > 80 ? 'success' : 'accent'}
+        isShowValue={false}
+        size="sm"
+        value={row.progress}
+      />
+    ),
+  },
+];
+
+const studentRowId = (row: StudentRow) => row.id;
+const courseRowId = (row: (typeof SIMPLE_COURSES)[number]) => row.id;
+
+const ActionBarDefaultVariantDemo = () => {
+  const [open, setOpen] = useState(true);
+  const [action, setAction] = useState('等待操作');
+
+  return (
+    <DemoSection isColumn label="default · controlled visibility">
+      <Button size="sm" variant="secondary" onClick={() => setOpen((value) => !value)}>
+        {open ? '收起操作条' : '显示操作条'}
+      </Button>
+      <ActionBar isOpen={open}>
+        <ActionBar.Prefix>
+          <Badge color="accent">3</Badge>
+          <ActionBar.Label>待处理课程</ActionBar.Label>
+        </ActionBar.Prefix>
+        <Separator orientation="vertical" />
+        <ActionBar.Content>
+          <Button size="sm" variant="ghost" onClick={() => setAction('已标记 3 门课程完成')}>
+            标记完成
+          </Button>
+          <Button size="sm" variant="danger-soft" onClick={() => setAction('已忽略待处理课程')}>
+            忽略
+          </Button>
+        </ActionBar.Content>
+      </ActionBar>
+      <span style={demoTextStyle}>{action}</span>
+    </DemoSection>
+  );
+};
+
+const ActionBarWithDataGridVariantDemo = () => {
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['20260612001']));
+  const [action, setAction] = useState('选择订单后执行批量操作');
+  const count = selectedKeys === 'all' ? ORDER_ROWS.length : selectedKeys.size;
+
+  return (
+    <DemoSection isColumn label="data grid selection drives action bar">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="批量订单"
+          columns={ORDER_COLUMNS}
+          data={ORDER_ROWS}
+          getRowId={orderRowId}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          showSelectionCheckboxes
+          onSelectionChange={setSelectedKeys}
+        />
+      </div>
+      <ActionBar isOpen={count > 0}>
+        <ActionBar.Prefix>
+          <Chip color="accent" size="sm">
+            {count}
+          </Chip>
+          <ActionBar.Label>已选择订单</ActionBar.Label>
+        </ActionBar.Prefix>
+        <Separator orientation="vertical" />
+        <ActionBar.Content>
+          <Button size="sm" variant="ghost" onClick={() => setAction(`已导出 ${count} 条订单`)}>
+            导出
+          </Button>
+          <Button
+            size="sm"
+            variant="danger-soft"
+            onClick={() => {
+              setAction(`已批量关闭 ${count} 条订单`);
+              setSelectedKeys(new Set());
+            }}
+          >
+            批量关闭
+          </Button>
+        </ActionBar.Content>
+      </ActionBar>
+      <span style={demoTextStyle}>{action}</span>
+    </DemoSection>
+  );
+};
+
+const CarouselSlide = ({ title, meta }: { title: string; meta: string }) => (
+  <div
+    style={{
+      height: 168,
+      display: 'flex',
+      flexDirection: 'column',
+      justifyContent: 'space-between',
+      borderRadius: 8,
+      padding: 18,
+      background: 'var(--surface-secondary)',
+      color: 'var(--foreground)',
+    }}
+  >
+    <strong>{title}</strong>
+    <span style={demoMutedStyle}>{meta}</span>
+  </div>
+);
+
+type CarouselVariant =
+  | 'api-access'
+  | 'autoplay'
+  | 'default'
+  | 'loop'
+  | 'modal-type'
+  | 'multiple-slides';
+
+const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
+  const [api, setApi] = useState<CarouselApi | null>(null);
+  const [apiMessage, setApiMessage] = useState('API 尚未调用');
+  const [isPlaying, setIsPlaying] = useState(variant === 'autoplay');
+
+  useEffect(() => {
+    if (variant !== 'autoplay' || !isPlaying || api === null) return undefined;
+    const timer = window.setInterval(() => {
+      if (api.canScrollNext()) api.scrollNext();
+      else api.scrollTo(0);
+    }, 1800);
+    return () => window.clearInterval(timer);
+  }, [api, isPlaying, variant]);
+
+  const isMultiple = variant === 'multiple-slides';
+  const carouselType = variant === 'modal-type' ? 'modal' : 'in-place';
+  const opts = variant === 'loop' || variant === 'autoplay' ? { loop: true } : undefined;
+
+  const handleApiJump = () => {
+    api?.scrollTo(2);
+    setApiMessage('已通过 Embla API 跳到第 3 张');
+  };
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <Carousel
+        aria-label="课程运营轮播"
+        opts={opts}
+        setApi={setApi}
+        style={{ width: variant === 'modal-type' ? 360 : 460 }}
+        type={carouselType}
+      >
+        <Carousel.Content>
+          {CAROUSEL_SLIDES.map((slide, index) => (
+            <Carousel.Item
+              key={slide}
+              style={isMultiple ? { flex: '0 0 58%', paddingRight: 12 } : undefined}
+            >
+              <CarouselSlide meta={`第 ${index + 1} 张 · 可拖动切换`} title={slide} />
+            </Carousel.Item>
+          ))}
+        </Carousel.Content>
+        <Carousel.Previous />
+        <Carousel.Next />
+        <Carousel.Dots
+          renderDot={
+            variant === 'api-access'
+              ? ({ index, isSelected }) => (
+                  <button
+                    key={index}
+                    aria-label={`跳到第 ${index + 1} 张`}
+                    data-selected={isSelected || undefined}
+                    style={{
+                      width: isSelected ? 18 : 8,
+                      height: 8,
+                      border: 0,
+                      borderRadius: 999,
+                      background: isSelected ? 'var(--accent)' : 'var(--default)',
+                    }}
+                    type="button"
+                    onClick={() => api?.scrollTo(index)}
+                  />
+                )
+              : undefined
+          }
+        />
+      </Carousel>
+      {variant === 'api-access' && (
+        <>
+          <Button size="sm" variant="secondary" onClick={handleApiJump}>
+            调用 setApi 跳转
+          </Button>
+          <span style={demoTextStyle}>{apiMessage}</span>
+        </>
+      )}
+      {variant === 'autoplay' && (
+        <Switch isSelected={isPlaying} size="sm" onSelectedChange={setIsPlaying}>
+          自动轮播
+        </Switch>
+      )}
+    </DemoSection>
+  );
+};
+
+const DataGridDefaultVariantDemo = () => (
+  <DemoSection isColumn label="default sorting + row actions">
+    <div style={{ width: 720 }}>
+      <DataGrid
+        aria-label="学员列表"
+        columns={STUDENT_COLUMNS}
+        data={STUDENT_ROWS}
+        defaultSortDescriptor={{ column: 'score', direction: 'descending' }}
+        getRowId={studentRowId}
+        onRowAction={() => undefined}
+      />
+    </div>
+  </DemoSection>
+);
+
+const DataGridAsyncLoadingVariantDemo = () => {
+  const [isLoading, setIsLoading] = useState(true);
+  const rows = isLoading ? [] : STUDENT_ROWS;
+
+  return (
+    <DemoSection isColumn label="async loading state">
+      <Button size="sm" variant="secondary" onClick={() => setIsLoading((value) => !value)}>
+        {isLoading ? '加载数据' : '显示加载态'}
+      </Button>
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="异步学员"
+          columns={STUDENT_COLUMNS}
+          data={rows}
+          getRowId={studentRowId}
+          renderEmptyState={() => (
+            <div className="data-grid__empty-state">
+              {isLoading ? '正在加载学员数据…' : '暂无学员'}
+            </div>
+          )}
+        />
+      </div>
+    </DemoSection>
+  );
+};
+
+const DataGridBulkActionsVariantDemo = () => {
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['u1', 'u2']));
+  const count = selectedKeys === 'all' ? STUDENT_ROWS.length : selectedKeys.size;
+
+  return (
+    <DemoSection isColumn label="bulk actions">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="批量学员"
+          columns={STUDENT_COLUMNS}
+          data={STUDENT_ROWS}
+          getRowId={studentRowId}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          showSelectionCheckboxes
+          onSelectionChange={setSelectedKeys}
+        />
+      </div>
+      <ActionBar isOpen={count > 0}>
+        <ActionBar.Prefix>
+          <Chip color="accent" size="sm">
+            {count}
+          </Chip>
+          <ActionBar.Label>已选学员</ActionBar.Label>
+        </ActionBar.Prefix>
+        <Separator orientation="vertical" />
+        <ActionBar.Content>
+          <Button size="sm" variant="ghost">
+            分班
+          </Button>
+          <Button size="sm" variant="ghost">
+            发通知
+          </Button>
+        </ActionBar.Content>
+      </ActionBar>
+    </DemoSection>
+  );
+};
+
+type ReorderRow = StudentRow & { order: number };
+
+const REORDER_ROWS: ReorderRow[] = STUDENT_ROWS.map((row, index) => ({
+  ...row,
+  order: index + 1,
+}));
+
+const DataGridDragAndDropVariantDemo = () => {
+  const [rows, setRows] = useState(REORDER_ROWS);
+
+  const moveRow = (id: string, direction: -1 | 1) => {
+    setRows((current) => {
+      const index = current.findIndex((row) => row.id === id);
+      const nextIndex = index + direction;
+      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
+      const next = [...current];
+      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
+      return next.map((row, rowIndex) => ({ ...row, order: rowIndex + 1 }));
+    });
+  };
+
+  const columns: DataGridColumn<ReorderRow>[] = [
+    {
+      id: 'order',
+      header: '',
+      width: 56,
+      cell: (row) => (
+        <div style={{ display: 'flex', gap: 2 }}>
+          <Button
+            aria-label="上移"
+            isIconOnly
+            size="sm"
+            variant="ghost"
+            onClick={() => moveRow(row.id, -1)}
+          >
+            ↑
+          </Button>
+          <Button
+            aria-label="下移"
+            isIconOnly
+            size="sm"
+            variant="ghost"
+            onClick={() => moveRow(row.id, 1)}
+          >
+            ↓
+          </Button>
+        </div>
+      ),
+    },
+    { id: 'name', header: '学员', accessorKey: 'name', isRowHeader: true },
+    { id: 'group', header: '课程', accessorKey: 'group', width: 180 },
+    { id: 'active', header: '最近学习', accessorKey: 'active', width: 110 },
+    { id: 'score', header: '掌握度', accessorKey: 'score', align: 'end' },
+  ];
+
+  return (
+    <DemoSection isColumn label="drag ordering intent · current wrapper exposes stateful reordering">
+      <div style={{ width: 760 }}>
+        <DataGrid aria-label="可重排学员" columns={columns} data={rows} getRowId={studentRowId} />
+      </div>
+      <span style={demoTextStyle}>当前顺序：{rows.map((row) => row.name).join(' / ')}</span>
+    </DemoSection>
+  );
+};
+
+const DataGridEditableCellsVariantDemo = () => {
+  const [rows, setRows] = useState(SIMPLE_COURSES);
+  const columns: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
+    { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true },
+    { id: 'owner', header: '负责人', accessorKey: 'owner' },
+    {
+      id: 'progress',
+      header: '掌握度',
+      accessorKey: 'progress',
+      align: 'end',
+      cell: (row) => (
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() =>
+            setRows((current) =>
+              current.map((item) =>
+                item.id === row.id
+                  ? { ...item, progress: item.progress >= 90 ? 35 : item.progress + 10 }
+                  : item,
+              ),
+            )
+          }
+        >
+          {row.progress}%
+        </Button>
+      ),
+    },
+  ];
+
+  return (
+    <DemoSection isColumn label="editable cells">
+      <div style={{ width: 640 }}>
+        <DataGrid aria-label="可编辑课程" columns={columns} data={rows} getRowId={courseRowId} />
+      </div>
+      <span style={demoMutedStyle}>点击掌握度单元格更新数值。</span>
+    </DemoSection>
+  );
+};
+
+const DataGridEmptyStateVariantDemo = () => (
+  <DemoSection label="empty state">
+    <div style={{ width: 640 }}>
+      <DataGrid
+        aria-label="空课程表"
+        columns={COURSE_COLUMNS}
+        data={[]}
+        getRowId={courseRowId}
+        renderEmptyState={() => (
+          <div className="data-grid__empty-state">
+            <EmptyState size="sm">
+              <EmptyState.Header>
+                <EmptyState.Title>暂无课程数据</EmptyState.Title>
+                <EmptyState.Description>筛选条件下没有可展示的课程</EmptyState.Description>
+              </EmptyState.Header>
+            </EmptyState>
+          </div>
+        )}
+      />
+    </div>
+  </DemoSection>
+);
+
+type ExpandableCourse = (typeof SIMPLE_COURSES)[number] & { detail: string };
+
+const EXPANDABLE_ROWS: ExpandableCourse[] = SIMPLE_COURSES.map((course) => ({
+  ...course,
+  detail: `${course.owner} 正在跟进 ${course.progress}% 的课程节点。`,
+}));
+
+const DataGridExpandableRowsVariantDemo = () => {
+  const [expanded, setExpanded] = useState<Key>('c1');
+  const columns: DataGridColumn<ExpandableCourse>[] = [
+    {
+      id: 'name',
+      header: '课程',
+      isRowHeader: true,
+      cell: (row) => {
+        const isExpanded = expanded === row.id;
+        return (
+          <div className="data-grid__tree-cell">
+            <Button
+              aria-label={isExpanded ? '收起' : '展开'}
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              onClick={() => setExpanded(isExpanded ? '' : row.id)}
+            >
+              {isExpanded ? '⌄' : '›'}
+            </Button>
+            <div>
+              <strong>{row.name}</strong>
+              {isExpanded && <div style={demoMutedStyle}>{row.detail}</div>}
+            </div>
+          </div>
+        );
+      },
+    },
+    { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
+    { id: 'progress', header: '进度', accessorKey: 'progress', align: 'end' },
+  ];
+
+  return (
+    <DemoSection isColumn label="expandable rows">
+      <div style={{ width: 680 }}>
+        <DataGrid aria-label="展开课程表" columns={columns} data={EXPANDABLE_ROWS} getRowId={courseRowId} />
+      </div>
+    </DemoSection>
+  );
+};
+
+const DataGridPinnedColumnsVariantDemo = () => {
+  const columns: DataGridColumn<OrderRow>[] = [
+    {
+      ...ORDER_COLUMNS[0],
+      cell: (row) => (
+        <span
+          style={{
+            position: 'sticky',
+            left: 0,
+            zIndex: 1,
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 6,
+            background: 'var(--surface)',
+          }}
+        >
+          <Badge color="accent">固定</Badge>
+          {row.id}
+        </span>
+      ),
+    },
+    ...ORDER_COLUMNS.slice(1),
+    { id: 'teacher', header: '顾问', cell: (row) => (row.status === '已支付' ? '周老师' : '李老师'), width: 120 },
+    { id: 'campus', header: '校区', cell: () => '线上', width: 120 },
+  ];
+
+  return (
+    <DemoSection isColumn label="pinned leading column composition">
+      <div style={{ width: 620 }}>
+        <DataGrid
+          aria-label="固定列订单"
+          columns={columns}
+          contentClassName="min-w-[920px]"
+          data={ORDER_ROWS}
+          getRowId={orderRowId}
+          scrollContainerClassName="overflow-x-auto"
+        />
+      </div>
+      <span style={demoMutedStyle}>首列单元格用 sticky 内容保留在横向滚动视野中。</span>
+    </DemoSection>
+  );
+};
+
+const SERVER_ROWS = [
+  { id: 'srv-1', name: 'api-gateway', region: '华东', status: 'healthy', cpu: 48 },
+  { id: 'srv-2', name: 'lesson-worker', region: '华北', status: 'warming', cpu: 72 },
+  { id: 'srv-3', name: 'billing-sync', region: '华南', status: 'healthy', cpu: 35 },
+];
+
+type ServerRow = (typeof SERVER_ROWS)[number];
+
+const SERVER_COLUMNS: DataGridColumn<ServerRow>[] = [
+  { id: 'name', header: '服务', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
+  { id: 'region', header: '区域', accessorKey: 'region', width: 100 },
+  {
+    id: 'status',
+    header: '状态',
+    accessorKey: 'status',
+    cell: (row) => (
+      <Chip color={row.status === 'healthy' ? 'success' : 'warning'} size="sm">
+        {row.status}
+      </Chip>
+    ),
+  },
+  { id: 'cpu', header: 'CPU', accessorKey: 'cpu', align: 'end', allowsSorting: true },
+];
+
+const DataGridServersVariantDemo = () => (
+  <DemoSection label="servers">
+    <div style={{ width: 680 }}>
+      <DataGrid
+        aria-label="服务状态"
+        columns={SERVER_COLUMNS}
+        data={SERVER_ROWS}
+        defaultSortDescriptor={{ column: 'cpu', direction: 'descending' }}
+        getRowId={(row) => row.id}
+      />
+    </div>
+  </DemoSection>
+);
+
+const DataGridTeamMembersVariantDemo = () => (
+  <DemoSection label="team members">
+    <div style={{ width: 680 }}>
+      <DataGrid
+        aria-label="团队成员"
+        columns={[
+          {
+            id: 'name',
+            header: '成员',
+            isRowHeader: true,
+            cell: (row: StudentRow) => (
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
+                <Avatar fallback={row.name.slice(0, 1)} size="sm" />
+                {row.name}
+              </span>
+            ),
+          },
+          { id: 'group', header: '负责课程', accessorKey: 'group' },
+          { id: 'score', header: '满意度', accessorKey: 'score', align: 'end' },
+        ]}
+        data={STUDENT_ROWS}
+        getRowId={studentRowId}
+      />
+    </div>
+  </DemoSection>
+);
+
+const DataGridUsersVariantDemo = () => (
+  <DemoSection label="users">
+    <div style={{ width: 680 }}>
+      <DataGrid
+        aria-label="用户列表"
+        columns={STUDENT_COLUMNS}
+        data={STUDENT_ROWS}
+        getRowId={studentRowId}
+        selectionMode="single"
+      />
+    </div>
+  </DemoSection>
+);
+
+const VIRTUAL_ROWS = Array.from({ length: 40 }, (_, index) => ({
+  id: `v${index + 1}`,
+  name: `学员 ${index + 1}`,
+  group: index % 2 === 0 ? '雅思 7 分计划' : '考研英语冲刺班',
+  active: index % 3 === 0 ? '今天' : '本周',
+  score: 60 + ((index * 7) % 38),
+}));
+
+const DataGridVirtualizedVariantDemo = () => {
+  const [start, setStart] = useState(0);
+  const visibleRows = VIRTUAL_ROWS.slice(start, start + 8);
+
+  return (
+    <DemoSection isColumn label="virtualized window intent">
+      <div style={{ width: 680 }}>
+        <DataGrid
+          aria-label="大数据学员窗口"
+          columns={STUDENT_COLUMNS}
+          data={visibleRows}
+          getRowId={studentRowId}
+        />
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+        <Button size="sm" variant="secondary" onClick={() => setStart((value) => Math.max(value - 8, 0))}>
+          上一屏
+        </Button>
+        <span style={demoTextStyle}>
+          {start + 1}-{start + visibleRows.length} / {VIRTUAL_ROWS.length}
+        </span>
+        <Button
+          size="sm"
+          variant="secondary"
+          onClick={() => setStart((value) => Math.min(value + 8, VIRTUAL_ROWS.length - 8))}
+        >
+          下一屏
+        </Button>
+      </div>
+    </DemoSection>
+  );
+};
+
+type EmptyStateVariant =
+  | 'default'
+  | 'full-height'
+  | 'minimal'
+  | 'outline'
+  | 'sizes'
+  | 'with-avatar'
+  | 'with-avatar-group'
+  | 'with-background';
+
+const EmptyStateVariantDemo = ({ variant }: { variant: EmptyStateVariant }) => {
+  const [count, setCount] = useState(0);
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection>
+        {(['sm', 'md', 'lg'] as const).map((size) => (
+          <EmptyState key={size} size={size} style={{ width: 220 }}>
+            <EmptyState.Header>
+              <EmptyState.Media variant="icon">
+                <FileIcon />
+              </EmptyState.Media>
+              <EmptyState.Title>{size.toUpperCase()} 空态</EmptyState.Title>
+              <EmptyState.Description>尺寸对比</EmptyState.Description>
+            </EmptyState.Header>
+          </EmptyState>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  const showMedia = variant !== 'minimal';
+  const style =
+    variant === 'full-height'
+      ? { width: 360, minHeight: 320 }
+      : variant === 'outline'
+        ? { width: 360, border: '1px dashed var(--border)', borderRadius: 8 }
+        : variant === 'with-background'
+          ? {
+              width: 360,
+              background: 'linear-gradient(135deg, var(--surface), var(--surface-secondary))',
+              borderRadius: 8,
+            }
+          : { width: 360 };
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <EmptyState size={variant === 'minimal' ? 'sm' : 'md'} style={style}>
+        <EmptyState.Header>
+          {showMedia && (
+            <EmptyState.Media variant="icon">
+              {variant === 'with-avatar' ? (
+                <Avatar fallback="王" color="accent" />
+              ) : variant === 'with-avatar-group' ? (
+                <span style={{ display: 'inline-flex', marginLeft: 12 }}>
+                  <Avatar fallback="王" color="accent" size="sm" />
+                  <Avatar fallback="李" color="success" size="sm" style={{ marginLeft: -8 }} />
+                  <Avatar fallback="陈" color="warning" size="sm" style={{ marginLeft: -8 }} />
+                </span>
+              ) : (
+                <FileIcon />
+              )}
+            </EmptyState.Media>
+          )}
+          <EmptyState.Title>暂无匹配课程</EmptyState.Title>
+          <EmptyState.Description>
+            {variant === 'minimal' ? '精简空态，只保留关键文案。' : '调整筛选条件或刷新列表后重试。'}
+          </EmptyState.Description>
+        </EmptyState.Header>
+        {variant !== 'minimal' && (
+          <EmptyState.Content>
+            <Button size="sm" variant="secondary" onClick={() => setCount((value) => value + 1)}>
+              刷新 {count}
+            </Button>
+          </EmptyState.Content>
+        )}
+      </EmptyState>
+    </DemoSection>
+  );
+};
+
+type DemoFileNode = {
+  id: string;
+  name: string;
+  type: 'folder' | 'file';
+  status?: string;
+  children?: DemoFileNode[];
+};
+
+type DemoTreeNode = {
+  key: Key;
+  value: DemoFileNode;
+  children: DemoTreeNode[] | null;
+};
+
+const FILE_TREE_ITEMS: DemoFileNode[] = [
+  {
+    id: 'courses',
+    name: 'courses',
+    type: 'folder',
+    children: [
+      { id: 'ielts-plan', name: 'ielts-plan.md', type: 'file', status: 'modified' },
+      { id: 'cet4-paper', name: 'cet4-paper.pdf', type: 'file', status: 'added' },
+    ],
+  },
+  {
+    id: 'ops',
+    name: 'operations',
+    type: 'folder',
+    children: [
+      { id: 'poster', name: 'summer-poster.fig', type: 'file' },
+      { id: 'brief', name: 'campaign-brief.docx', type: 'file', status: 'review' },
+    ],
+  },
+];
+
+const nodeIcon = (node: DemoFileNode) => (node.type === 'folder' ? <FolderIcon /> : <FileIcon />);
+
+const renderDemoFileNode = (node: DemoFileNode): ReactNode => (
+  <FileTree.Item key={node.id} id={node.id} icon={nodeIcon(node)} title={node.name}>
+    {node.children?.map(renderDemoFileNode)}
+  </FileTree.Item>
+);
+
+const renderTreeDataNode = (node: DemoTreeNode): ReactNode => (
+  <FileTree.Item key={node.key} id={node.key} icon={nodeIcon(node.value)} title={node.value.name}>
+    {node.children?.map(renderTreeDataNode)}
+  </FileTree.Item>
+);
+
+type FileTreeVariant =
+  | 'custom-indicator'
+  | 'default'
+  | 'drag-and-drop'
+  | 'dynamic-collection'
+  | 'guide-lines'
+  | 'multiple-selection'
+  | 'pr-file-review'
+  | 'reduced-motion'
+  | 'sizes'
+  | 'with-icons';
+
+const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
+  const [query, setQuery] = useState('course');
+  const tree = useTreeData<DemoFileNode>({
+    initialItems: FILE_TREE_ITEMS,
+    getKey: (item) => item.id,
+    getChildren: (item) => item.children ?? [],
+  });
+  const drag = useFileTreeDrag({ tree });
+  const helpers = useFileTree({ items: FILE_TREE_ITEMS });
+  const visibleItems =
+    variant === 'dynamic-collection'
+      ? helpers.filterTree((node) => node.name.toLowerCase().includes(query.toLowerCase()))
+      : FILE_TREE_ITEMS;
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection>
+        {(['sm', 'md', 'lg'] as const).map((size) => (
+          <div key={size} style={{ width: 240 }}>
+            <FileTree
+              aria-label={`${size} file tree`}
+              defaultExpandedKeys={['courses']}
+              selectionMode="single"
+              size={size}
+            >
+              {FILE_TREE_ITEMS.slice(0, 1).map(renderDemoFileNode)}
+            </FileTree>
+          </div>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-indicator') {
+    return (
+      <DemoSection label="custom indicator">
+        <div style={{ width: 300 }}>
+          <FileTree aria-label="自定义展开图标" defaultExpandedKeys={['courses']}>
+            <FileTree.Item id="courses" icon={<FolderIcon />} title="courses">
+              <FileTree.Indicator>
+                <span style={{ fontSize: 12 }}>+</span>
+              </FileTree.Indicator>
+              <FileTree.Item id="course-outline" icon={<FileIcon />} title="outline.md" />
+            </FileTree.Item>
+          </FileTree>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'drag-and-drop') {
+    return (
+      <DemoSection isColumn label="drag and drop">
+        <div style={{ width: 320 }}>
+          <FileTree
+            aria-label="可拖拽文件树"
+            defaultExpandedKeys={['courses', 'ops']}
+            dragAndDropHooks={drag.dragAndDropHooks}
+            selectionMode="multiple"
+          >
+            {(tree.items as DemoTreeNode[]).map(renderTreeDataNode)}
+          </FileTree>
+        </div>
+        <span style={demoMutedStyle}>拖动文件可在同级或目录间移动。</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'dynamic-collection') {
+    return (
+      <DemoSection isColumn label="dynamic collection">
+        <div style={{ display: 'flex', gap: 6 }}>
+          {['course', 'poster', 'brief'].map((value) => (
+            <Button key={value} size="sm" variant={query === value ? 'secondary' : 'ghost'} onClick={() => setQuery(value)}>
+              {value}
+            </Button>
+          ))}
+        </div>
+        <div style={{ width: 320 }}>
+          <FileTree
+            aria-label="动态文件树"
+            defaultExpandedKeys={helpers.expandableKeys}
+            selectionMode="single"
+          >
+            {visibleItems.map(renderDemoFileNode)}
+          </FileTree>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'pr-file-review') {
+    return (
+      <DemoSection label="pull request review">
+        <div style={{ width: 360 }}>
+          <FileTree aria-label="PR 文件评审" defaultExpandedKeys={['courses', 'ops']} selectionMode="multiple">
+            {FILE_TREE_ITEMS.map((node) => (
+              <FileTree.Item key={node.id} id={node.id} icon={<FolderIcon />} title={node.name}>
+                {node.children?.map((child) => (
+                  <FileTree.Item
+                    key={child.id}
+                    id={child.id}
+                    icon={<FileIcon />}
+                    title={
+                      <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+                        {child.name}
+                        {child.status !== undefined && (
+                          <Chip color={child.status === 'added' ? 'success' : 'warning'} size="sm">
+                            {child.status}
+                          </Chip>
+                        )}
+                      </span>
+                    }
+                    textValue={child.name}
+                  />
+                ))}
+              </FileTree.Item>
+            ))}
+          </FileTree>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant}>
+      <div style={{ width: 320 }}>
+        <FileTree
+          aria-label="课程文件树"
+          defaultExpandedKeys={['courses']}
+          defaultSelectedKeys={variant === 'multiple-selection' ? ['ielts-plan', 'poster'] : ['ielts-plan']}
+          reduceMotion={variant === 'reduced-motion'}
+          selectionMode={variant === 'multiple-selection' ? 'multiple' : 'single'}
+          showGuideLines={variant === 'guide-lines' ? 'hover' : true}
+        >
+          {FILE_TREE_ITEMS.map((node) =>
+            variant === 'with-icons' || variant === 'default' || variant === 'guide-lines' || variant === 'multiple-selection' || variant === 'reduced-motion'
+              ? renderDemoFileNode(node)
+              : renderDemoFileNode(node),
+          )}
+        </FileTree>
+      </div>
+    </DemoSection>
+  );
+};
+
+type FloatingTocVariant =
+  | 'controlled'
+  | 'custom-delays'
+  | 'default'
+  | 'hierarchical'
+  | 'in-page-context'
+  | 'left-aligned-bars'
+  | 'left-placement'
+  | 'press-mode'
+  | 'press-mode-in-page'
+  | 'virtualized';
+
+const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) => {
+  const [open, setOpen] = useState(true);
+  const [active, setActive] = useState('students');
+  const manyItems = Array.from({ length: 24 }, (_, index) => ({
+    key: `section-${index + 1}`,
+    label: `章节 ${index + 1}`,
+    level: index % 4 === 0 ? 1 : 2,
+  }));
+  const items = variant === 'virtualized' ? manyItems : TOC_ITEMS;
+  const placement = variant === 'left-placement' || variant === 'left-aligned-bars' ? 'left' : 'right';
+  const triggerMode = variant === 'press-mode' || variant === 'press-mode-in-page' ? 'press' : 'hover';
+  const controlledProps =
+    variant === 'controlled' ? { open, onOpenChange: setOpen } : { defaultOpen: true };
+
+  const toc = (
+    <FloatingToc
+      closeDelay={variant === 'custom-delays' ? 900 : 300}
+      openDelay={variant === 'custom-delays' ? 0 : 200}
+      placement={placement}
+      triggerMode={triggerMode}
+      {...controlledProps}
+    >
+      <FloatingToc.Trigger>
+        {items.slice(0, 8).map((entry) => (
+          <FloatingToc.Bar
+            key={entry.key}
+            active={entry.key === active}
+            level={variant === 'hierarchical' || variant === 'virtualized' ? entry.level : 1}
+          />
+        ))}
+      </FloatingToc.Trigger>
+      <FloatingToc.Content>
+        <div
+          style={
+            variant === 'virtualized'
+              ? { maxHeight: 220, overflow: 'auto', paddingRight: 4 }
+              : undefined
+          }
+        >
+          {items.map((entry) => (
+            <FloatingToc.Item
+              key={entry.key}
+              active={entry.key === active}
+              level={variant === 'hierarchical' || variant === 'virtualized' ? entry.level : 1}
+              onPress={() => setActive(entry.key)}
+            >
+              {entry.label}
+            </FloatingToc.Item>
+          ))}
+        </div>
+      </FloatingToc.Content>
+    </FloatingToc>
+  );
+
+  if (variant === 'in-page-context' || variant === 'press-mode-in-page') {
+    return (
+      <DemoSection label={variant}>
+        <div
+          style={{
+            position: 'relative',
+            width: 520,
+            minHeight: 220,
+            padding: '16px 88px 16px 16px',
+            border: '1px solid var(--border)',
+            borderRadius: 8,
+            background: 'var(--surface)',
+          }}
+        >
+          <strong>课程运营报告</strong>
+          <p style={demoMutedStyle}>滚动阅读内容时，右侧目录用于定位章节。</p>
+          <div style={{ display: 'grid', gap: 8 }}>
+            {TOC_ITEMS.slice(0, 3).map((entry) => (
+              <div key={entry.key} style={{ padding: 10, borderRadius: 8, background: 'var(--surface-secondary)' }}>
+                {entry.label}
+              </div>
+            ))}
+          </div>
+          <div style={{ position: 'absolute', top: 24, right: 24 }}>{toc}</div>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection isColumn label={variant}>
+      {variant === 'controlled' && (
+        <Button size="sm" variant="secondary" onClick={() => setOpen((value) => !value)}>
+          {open ? '关闭目录' : '打开目录'}
+        </Button>
+      )}
+      <div style={{ padding: '8px 160px 8px 8px' }}>{toc}</div>
+      <span style={demoTextStyle}>当前章节：{active}</span>
+    </DemoSection>
+  );
+};
+
+type HoverCardVariant =
+  | 'controlled'
+  | 'custom-delays'
+  | 'default'
+  | 'placements'
+  | 'with-arrow'
+  | 'with-image';
+
+const HoverCardContentBox = ({ withImage = false }: { withImage?: boolean }) => (
+  <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
+    {withImage && <CourseCover title="IELTS" />}
+    <strong style={{ fontSize: 14 }}>王晓萌</strong>
+    <span style={demoMutedStyle}>雅思 7 分计划 · 连续学习 12 天</span>
+    <ProgressBar color="success" isShowValue={false} size="sm" value={86} />
+  </div>
+);
+
+const HoverCardVariantDemo = ({ variant }: { variant: HoverCardVariant }) => {
+  const [open, setOpen] = useState(true);
+  const [placement, setPlacement] = useState<'top' | 'right' | 'bottom' | 'left'>('bottom');
+
+  if (variant === 'placements') {
+    return (
+      <DemoSection isColumn label="placements">
+        <div style={{ display: 'flex', gap: 6 }}>
+          {(['top', 'right', 'bottom', 'left'] as const).map((item) => (
+            <Button key={item} size="sm" variant={placement === item ? 'secondary' : 'ghost'} onClick={() => setPlacement(item)}>
+              {item}
+            </Button>
+          ))}
+        </div>
+        <HoverCard open>
+          <HoverCard.Trigger>
+            <Chip color="accent">切换浮层方向</Chip>
+          </HoverCard.Trigger>
+          <HoverCard.Content placement={placement}>
+            <HoverCardContentBox />
+          </HoverCard.Content>
+        </HoverCard>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection isColumn label={variant}>
+      {variant === 'controlled' && (
+        <Switch isSelected={open} size="sm" onSelectedChange={setOpen}>
+          受控打开
+        </Switch>
+      )}
+      <HoverCard
+        closeDelay={variant === 'custom-delays' ? 700 : 300}
+        open={variant === 'controlled' ? open : undefined}
+        openDelay={variant === 'custom-delays' ? 0 : 300}
+        defaultOpen={variant !== 'controlled'}
+      >
+        <HoverCard.Trigger>
+          <Chip color="accent">学员档案</Chip>
+        </HoverCard.Trigger>
+        <HoverCard.Content placement="bottom">
+          {variant === 'with-arrow' && <HoverCard.Arrow />}
+          <HoverCardContentBox withImage={variant === 'with-image'} />
+        </HoverCard.Content>
+      </HoverCard>
+    </DemoSection>
+  );
+};
+
+const KanbanNotionVariantDemo = () => {
+  const kanban = useKanban<KanbanTask>({
+    initialItems: KANBAN_TASKS.slice(0, 5),
+    getColumn: getKanbanColumn,
+    setColumn: setKanbanColumn,
+  });
+
+  return (
+    <DemoSection label="notion board">
+      <Kanban size="md" style={{ width: 760 }}>
+        {KANBAN_COLUMNS.map((column) => (
+          <KanbanColumnView
+            key={column.id}
+            kanban={kanban}
+            column={column}
+            actions={<Chip size="sm">{column.id}</Chip>}
+          />
+        ))}
+      </Kanban>
+    </DemoSection>
+  );
+};
+
+const KanbanSizesVariantDemo = () => (
+  <DemoSection isColumn label="sizes">
+    {(['sm', 'md', 'lg'] as const).map((size) => (
+      <Kanban key={size} size={size} style={{ width: 560 }}>
+        <Kanban.Column>
+          <Kanban.ColumnHeader indicatorColor="var(--accent)" title={`${size} 待办`} count={2} />
+          <Kanban.ColumnBody>
+            <Kanban.CardList
+              aria-label={`${size} tasks`}
+              items={KANBAN_TASKS.slice(0, 2)}
+            >
+              {(task) => (
+                <Kanban.Card id={task.id} textValue={task.title}>
+                  <Kanban.CardContent>
+                    <span>{task.title}</span>
+                  </Kanban.CardContent>
+                </Kanban.Card>
+              )}
+            </Kanban.CardList>
+          </Kanban.ColumnBody>
+        </Kanban.Column>
+      </Kanban>
+    ))}
+  </DemoSection>
+);
+
+type ItemCardVariantKey =
+  | 'default'
+  | 'device-list'
+  | 'email-setting'
+  | 'pressable'
+  | 'title-only'
+  | 'variants'
+  | 'vertical-stack'
+  | 'wallet-card'
+  | 'with-multi-select'
+  | 'with-select'
+  | 'with-switch'
+  | 'without-icon';
+
+const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
+  const [message, setMessage] = useState('尚未选择');
+  const [selectedCards, setSelectedCards] = useState<string[]>(['雅思 7 分计划']);
+  const [enabled, setEnabled] = useState(true);
+
+  if (variant === 'variants') {
+    return (
+      <DemoSection isColumn label="visual variants">
+        {(['default', 'secondary', 'tertiary', 'outline', 'transparent'] as const).map((item) => (
+          <ItemCard key={item} variant={item} style={{ width: 360 }}>
+            <ItemCard.Icon>
+              <BookIcon />
+            </ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{item}</ItemCard.Title>
+              <ItemCard.Description>课程卡片视觉层级</ItemCard.Description>
+            </ItemCard.Content>
+          </ItemCard>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-multi-select') {
+    const toggle = (name: string, selected: boolean) =>
+      setSelectedCards((current) =>
+        selected ? [...current, name] : current.filter((item) => item !== name),
+      );
+
+    return (
+      <DemoSection isColumn label="multi select">
+        {SIMPLE_COURSES.map((course) => (
+          <ItemCard key={course.id} style={{ width: 400 }}>
+            <ItemCard.Icon>
+              <BookIcon />
+            </ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{course.name}</ItemCard.Title>
+              <ItemCard.Description>{course.owner} · {course.progress}%</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              <Checkbox
+                aria-label={`选择 ${course.name}`}
+                isSelected={selectedCards.includes(course.name)}
+                onSelectedChange={(selected) => toggle(course.name, selected)}
+              />
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+        <span style={demoTextStyle}>已选：{selectedCards.join('、') || '无'}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-select') {
+    return (
+      <DemoSection isColumn label="single select">
+        {SIMPLE_COURSES.map((course) => (
+          <ItemCard
+            key={course.id}
+            role="button"
+            tabIndex={0}
+            variant={message === course.name ? 'outline' : 'default'}
+            style={{ width: 400 }}
+            onClick={() => setMessage(course.name)}
+          >
+            <ItemCard.Icon>
+              <BookIcon />
+            </ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{course.name}</ItemCard.Title>
+              <ItemCard.Description>点击切换当前课程</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              <Chip color={message === course.name ? 'success' : 'default'} size="sm">
+                {message === course.name ? '当前' : '选择'}
+              </Chip>
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+        <span style={demoTextStyle}>当前：{message}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-switch' || variant === 'email-setting') {
+    return (
+      <DemoSection isColumn label={variant}>
+        <ItemCard style={{ width: 420 }}>
+          <ItemCard.Icon>
+            <FileIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>{variant === 'email-setting' ? '邮件学习报告' : '自动提醒'}</ItemCard.Title>
+            <ItemCard.Description>
+              {enabled ? '已开启，每日 20:00 发送' : '已关闭，暂停自动发送'}
+            </ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <Switch aria-label="切换提醒" isSelected={enabled} size="sm" onSelectedChange={setEnabled} />
+          </ItemCard.Action>
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'pressable') {
+    return (
+      <DemoSection isColumn label="pressable">
+        <ItemCard
+          role="button"
+          tabIndex={0}
+          style={{ width: 380, cursor: 'var(--cursor-interactive)' }}
+          onClick={() => setMessage('已打开课程详情')}
+        >
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>雅思核心词汇</ItemCard.Title>
+            <ItemCard.Description>整卡可点击</ItemCard.Description>
+          </ItemCard.Content>
+        </ItemCard>
+        <span style={demoTextStyle}>{message}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'device-list') {
+    return (
+      <DemoSection isColumn label="device list">
+        {['iPhone 15', 'MacBook Air'].map((device, index) => (
+          <ItemCard key={device} style={{ width: 380 }}>
+            <ItemCard.Icon>
+              <FileIcon />
+            </ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{device}</ItemCard.Title>
+              <ItemCard.Description>{index === 0 ? '当前设备' : '上次登录：昨天'}</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              <Chip color={index === 0 ? 'success' : 'default'} size="sm">
+                {index === 0 ? '在线' : '离线'}
+              </Chip>
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'wallet-card') {
+    return (
+      <DemoSection label="wallet card">
+        <ItemCard variant="outline" style={{ width: 380 }}>
+          <ItemCard.Icon>
+            <Badge color="accent">¥</Badge>
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>课程余额</ItemCard.Title>
+            <ItemCard.Description>可用课时 18 节 · 优惠券 3 张</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <strong>¥2,680</strong>
+          </ItemCard.Action>
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant}>
+      <ItemCard style={{ width: variant === 'vertical-stack' ? 280 : 380 }}>
+        {variant !== 'without-icon' && (
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+        )}
+        <ItemCard.Content
+          style={
+            variant === 'vertical-stack'
+              ? { alignItems: 'flex-start', gap: 8 }
+              : undefined
+          }
+        >
+          <ItemCard.Title>
+            {variant === 'title-only' ? '雅思核心词汇' : '雅思核心词汇 · 第 3 期'}
+          </ItemCard.Title>
+          {variant !== 'title-only' && (
+            <ItemCard.Description>已报名 86 人 · 开课时间 6 月 20 日</ItemCard.Description>
+          )}
+        </ItemCard.Content>
+        {variant === 'default' && (
+          <ItemCard.Action>
+            <Button size="sm" variant="outline" onClick={() => setMessage('已打开课程详情')}>
+              查看
+            </Button>
+          </ItemCard.Action>
+        )}
+      </ItemCard>
+      {variant === 'default' && <span style={demoTextStyle}>{message}</span>}
+    </DemoSection>
+  );
+};
+
+type ItemCardGroupVariantKey =
+  | 'developer-settings'
+  | 'grid'
+  | 'grid-three-columns'
+  | 'linked-accounts'
+  | 'list'
+  | 'multiple-sections'
+  | 'notification-preferences'
+  | 'permission-levels'
+  | 'pressable'
+  | 'variants'
+  | 'wallet-list'
+  | 'with-header';
+
+const GroupCourseCard = ({ name, meta }: { name: string; meta: string }) => (
+  <ItemCard>
+    <ItemCard.Icon>
+      <BookIcon />
+    </ItemCard.Icon>
+    <ItemCard.Content>
+      <ItemCard.Title>{name}</ItemCard.Title>
+      <ItemCard.Description>{meta}</ItemCard.Description>
+    </ItemCard.Content>
+  </ItemCard>
+);
+
+const ItemCardGroupVariantDemo = ({ variant }: { variant: ItemCardGroupVariantKey }) => {
+  const [pressed, setPressed] = useState('未点击');
+
+  if (variant === 'variants') {
+    return (
+      <DemoSection isColumn label="group variants">
+        {(['default', 'secondary', 'tertiary', 'outline', 'transparent'] as const).map((item) => (
+          <ItemCardGroup key={item} layout="list" variant={item} style={{ width: 360 }}>
+            <GroupCourseCard meta="视觉变体" name={item} />
+          </ItemCardGroup>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'multiple-sections') {
+    return (
+      <DemoSection isColumn label="multiple sections">
+        {['热门课程', '待审核课程'].map((title) => (
+          <ItemCardGroup key={title} layout="list" style={{ width: 420 }}>
+            <ItemCardGroup.Header>
+              <ItemCardGroup.Title>{title}</ItemCardGroup.Title>
+            </ItemCardGroup.Header>
+            <GroupCourseCard meta="本周更新" name="雅思核心词汇" />
+            <GroupCourseCard meta="教研待确认" name="四级真题精讲" />
+          </ItemCardGroup>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  const isGrid = variant === 'grid' || variant === 'grid-three-columns';
+  const columns = variant === 'grid-three-columns' ? 3 : 2;
+  const title =
+    variant === 'linked-accounts'
+      ? '已连接账号'
+      : variant === 'wallet-list'
+        ? '钱包列表'
+        : variant === 'developer-settings'
+          ? '开发者设置'
+          : variant === 'notification-preferences'
+            ? '通知偏好'
+            : variant === 'permission-levels'
+              ? '权限级别'
+              : '课程分组';
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <ItemCardGroup
+        columns={columns}
+        layout={isGrid ? 'grid' : 'list'}
+        style={{ width: isGrid ? 620 : 420 }}
+        variant={variant === 'wallet-list' ? 'outline' : 'default'}
+      >
+        {(variant === 'with-header' || variant !== 'list') && (
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>{title}</ItemCardGroup.Title>
+            <ItemCardGroup.Description>组合不同卡片内容与动作</ItemCardGroup.Description>
+          </ItemCardGroup.Header>
+        )}
+        {SIMPLE_COURSES.map((course) => (
+          <ItemCard
+            key={course.id}
+            role={variant === 'pressable' ? 'button' : undefined}
+            tabIndex={variant === 'pressable' ? 0 : undefined}
+            onClick={variant === 'pressable' ? () => setPressed(course.name) : undefined}
+          >
+            <ItemCard.Icon>
+              {variant === 'wallet-list' ? <Badge color="accent">¥</Badge> : <BookIcon />}
+            </ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{course.name}</ItemCard.Title>
+              <ItemCard.Description>
+                {variant === 'permission-levels'
+                  ? course.progress > 70 ? '管理员' : '成员'
+                  : `${course.owner} · ${course.progress}%`}
+              </ItemCard.Description>
+            </ItemCard.Content>
+            {(variant === 'notification-preferences' || variant === 'developer-settings') && (
+              <ItemCard.Action>
+                <Switch aria-label={course.name} defaultSelected={course.progress > 60} size="sm" />
+              </ItemCard.Action>
+            )}
+          </ItemCard>
+        ))}
+      </ItemCardGroup>
+      {variant === 'pressable' && <span style={demoTextStyle}>已点击：{pressed}</span>}
+    </DemoSection>
+  );
+};
+
+type KpiVariantKey =
+  | 'default'
+  | 'with-actions'
+  | 'with-chart-bottom'
+  | 'with-chart-inline'
+  | 'with-footer'
+  | 'with-icon'
+  | 'with-progress';
+
+const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
+  const [period, setPeriod] = useState<'week' | 'month'>('week');
+  const value = period === 'week' ? '1,286' : '5,214';
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <Kpi style={{ width: 320 }}>
+        <Kpi.Header>
+          {variant === 'with-icon' && (
+            <Kpi.Icon status="success">
+              <BookIcon />
+            </Kpi.Icon>
+          )}
+          <Kpi.Title>完课学员</Kpi.Title>
+          {variant === 'with-actions' && (
+            <Kpi.Actions>
+              <Button size="sm" variant="ghost" onClick={() => setPeriod(period === 'week' ? 'month' : 'week')}>
+                {period === 'week' ? '本周' : '本月'}
+              </Button>
+            </Kpi.Actions>
+          )}
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>{value}</Kpi.Value>
+          <Kpi.Trend>
+            <Chip color="success" size="sm">
+              +12.4%
+            </Chip>
+          </Kpi.Trend>
+          {variant === 'with-chart-inline' && (
+            <Kpi.Chart style={{ width: 96 }}>
+              <MiniLine values={[20, 32, 28, 44, 52, 48]} />
+            </Kpi.Chart>
+          )}
+        </Kpi.Content>
+        {variant === 'with-progress' && (
+          <Kpi.Progress>
+            <ProgressBar color="success" label="目标完成" size="sm" value={76} />
+          </Kpi.Progress>
+        )}
+        {variant === 'with-chart-bottom' && (
+          <Kpi.Chart>
+            <MiniBars values={[18, 28, 42, 35, 52, 46, 60]} />
+          </Kpi.Chart>
+        )}
+        {variant === 'with-footer' && (
+          <>
+            <Kpi.Separator />
+            <Kpi.Footer>
+              <span style={demoMutedStyle}>较上周同期增长 142 人</span>
+            </Kpi.Footer>
+          </>
+        )}
+      </Kpi>
+    </DemoSection>
+  );
+};
+
+const KpiGroupVariantDemo = ({ variant }: { variant: 'horizontal' | 'vertical' | 'with-from-suffix' }) => (
+  <DemoSection label={variant}>
+    <KpiGroup orientation={variant === 'vertical' ? 'vertical' : 'horizontal'} style={{ width: variant === 'vertical' ? 280 : 680 }}>
+      <Kpi>
+        <Kpi.Header>
+          <Kpi.Title>新增学员</Kpi.Title>
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>{variant === 'with-from-suffix' ? 'from 328' : '328'}</Kpi.Value>
+        </Kpi.Content>
+      </Kpi>
+      <KpiGroup.Separator />
+      <Kpi>
+        <Kpi.Header>
+          <Kpi.Title>续费率</Kpi.Title>
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>{variant === 'with-from-suffix' ? '76.5% suffix' : '76.5%'}</Kpi.Value>
+        </Kpi.Content>
+      </Kpi>
+    </KpiGroup>
+  </DemoSection>
+);
+
+type ListViewVariantKey = 'default' | 'disabled-items' | 'secondary' | 'selection-modes' | 'with-actions';
+
+const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
+  const [selected, setSelected] = useState<Selection>(new Set(['1']));
+  const [message, setMessage] = useState('尚未操作');
+
+  if (variant === 'selection-modes') {
+    return (
+      <DemoSection isColumn label="selection modes">
+        <ListView
+          aria-label="多选文件"
+          items={LIST_VIEW_FILES.slice(0, 3)}
+          selectedKeys={selected}
+          selectionMode="multiple"
+          style={{ width: 420 }}
+          onSelectionChange={setSelected}
+        >
+          {(file) => (
+            <ListView.Item id={file.id} textValue={file.name}>
+              <ListView.ItemContent>
+                <FileIcon />
+                <ListView.Title>{file.name}</ListView.Title>
+              </ListView.ItemContent>
+            </ListView.Item>
+          )}
+        </ListView>
+        <span style={demoTextStyle}>已选择：{selected === 'all' ? '全部' : selected.size}</span>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <ListView
+        aria-label="文件列表"
+        disabledKeys={variant === 'disabled-items' ? ['3'] : undefined}
+        items={LIST_VIEW_FILES.slice(0, 4)}
+        selectionMode={variant === 'default' ? 'none' : 'single'}
+        style={{ width: 420 }}
+        variant={variant === 'secondary' ? 'secondary' : 'primary'}
+      >
+        {(file) => (
+          <ListView.Item id={file.id} textValue={file.name}>
+            <ListView.ItemContent>
+              <FileIcon />
+              <div>
+                <ListView.Title>{file.name}</ListView.Title>
+                <ListView.Description>{file.size}</ListView.Description>
+              </div>
+            </ListView.ItemContent>
+            {variant === 'with-actions' && (
+              <ListView.ItemAction>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setMessage(`已下载 ${file.name}`);
+                  }}
+                >
+                  下载
+                </Button>
+              </ListView.ItemAction>
+            )}
+          </ListView.Item>
+        )}
+      </ListView>
+      {variant === 'with-actions' && <span style={demoTextStyle}>{message}</span>}
+    </DemoSection>
+  );
+};
+
+type WidgetVariantKey =
+  | 'dashboard-grid'
+  | 'default'
+  | 'usage-summary'
+  | 'with-bar-chart'
+  | 'with-kpis'
+  | 'with-line-chart'
+  | 'with-pie-chart'
+  | 'with-table';
+
+const WidgetVariantDemo = ({ variant }: { variant: WidgetVariantKey }) => {
+  if (variant === 'dashboard-grid') {
+    return (
+      <DemoSection label="dashboard grid">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, width: 720 }}>
+          <Widget>
+            <Widget.Header>
+              <Widget.Title>关键指标</Widget.Title>
+            </Widget.Header>
+            <Widget.Content>
+              <KpiGroup orientation="horizontal">
+                <Kpi>
+                  <Kpi.Header>
+                    <Kpi.Title>活跃</Kpi.Title>
+                  </Kpi.Header>
+                  <Kpi.Content>
+                    <Kpi.Value>1,486</Kpi.Value>
+                  </Kpi.Content>
+                </Kpi>
+                <KpiGroup.Separator />
+                <Kpi>
+                  <Kpi.Header>
+                    <Kpi.Title>续费</Kpi.Title>
+                  </Kpi.Header>
+                  <Kpi.Content>
+                    <Kpi.Value>76%</Kpi.Value>
+                  </Kpi.Content>
+                </Kpi>
+              </KpiGroup>
+            </Widget.Content>
+          </Widget>
+          <Widget>
+            <Widget.Header>
+              <Widget.Title>学习趋势</Widget.Title>
+              <Widget.Legend>
+                <Widget.LegendItem color="var(--accent)">阅读</Widget.LegendItem>
+                <Widget.LegendItem color="var(--success)">词汇</Widget.LegendItem>
+              </Widget.Legend>
+            </Widget.Header>
+            <Widget.Content>
+              <MiniBars values={[18, 28, 42, 35, 52, 46, 60]} />
+            </Widget.Content>
+          </Widget>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-table') {
+    return (
+      <DemoSection label="widget table">
+        <Widget style={{ width: 620 }}>
+          <Widget.Header>
+            <Widget.Title>课程排行</Widget.Title>
+            <Widget.Description>按本周学习时长排序</Widget.Description>
+          </Widget.Header>
+          <Widget.Content>
+            <DataGrid aria-label="课程排行" columns={COURSE_COLUMNS} data={SIMPLE_COURSES} getRowId={courseRowId} />
+          </Widget.Content>
+        </Widget>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant}>
+      <Widget style={{ width: 420 }}>
+        <Widget.Header>
+          <Widget.Title>
+            {variant === 'usage-summary'
+              ? '使用摘要'
+              : variant === 'with-kpis'
+                ? '关键指标'
+                : '学习趋势'}
+          </Widget.Title>
+          {(variant === 'with-bar-chart' || variant === 'with-line-chart' || variant === 'with-pie-chart') && (
+            <Widget.Legend>
+              <Widget.LegendItem color="var(--accent)">阅读</Widget.LegendItem>
+              <Widget.LegendItem color="var(--success)">词汇</Widget.LegendItem>
+            </Widget.Legend>
+          )}
+        </Widget.Header>
+        <Widget.Content>
+          {variant === 'with-kpis' ? (
+            <KpiGroup orientation="horizontal">
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>活跃</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>1,486</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+              <KpiGroup.Separator />
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>续费</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>76%</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+            </KpiGroup>
+          ) : variant === 'with-line-chart' ? (
+            <MiniLine values={[18, 22, 31, 28, 44, 52, 58]} />
+          ) : variant === 'with-pie-chart' ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+              <MiniDonut label="课程完成率" value={72} />
+              <span style={demoMutedStyle}>72% 学员完成本周目标</span>
+            </div>
+          ) : (
+            <MiniBars values={variant === 'usage-summary' ? [32, 46, 38, 58, 42, 64, 70] : [18, 28, 42, 35, 52, 46, 60]} />
+          )}
+        </Widget.Content>
+        <Widget.Footer>
+          <span style={demoMutedStyle}>数据每小时更新</span>
+        </Widget.Footer>
+      </Widget>
+    </DemoSection>
+  );
+};
+
+type ChartTooltipVariantKey =
+  | 'auto-content'
+  | 'chart-colors'
+  | 'custom-formatters'
+  | 'default'
+  | 'inactive'
+  | 'line-indicator'
+  | 'no-header';
+
+const ChartTooltipVariantDemo = ({ variant }: { variant: ChartTooltipVariantKey }) => (
+  <DemoSection label={variant}>
+    {variant === 'inactive' ? (
+      <span style={demoMutedStyle}>Tooltip inactive: 当前没有悬停数据点。</span>
+    ) : (
+      <ChartTooltip>
+        {variant !== 'no-header' && <ChartTooltip.Header>{variant === 'auto-content' ? '自动内容' : '6 月 11 日'}</ChartTooltip.Header>}
+        <ChartTooltip.Item
+          indicator={variant === 'line-indicator' ? 'line' : 'dot'}
+          indicatorColor={variant === 'chart-colors' ? 'var(--chart-1)' : 'var(--accent)'}
+          label="新增学员"
+          value={variant === 'custom-formatters' ? '+328 人' : '328'}
+        />
+        <ChartTooltip.Item
+          indicator={variant === 'line-indicator' ? 'line' : 'dot'}
+          indicatorColor={variant === 'chart-colors' ? 'var(--chart-2)' : 'var(--success)'}
+          label="完课学员"
+          value={variant === 'custom-formatters' ? '1,286 人' : '1,286'}
+        />
+      </ChartTooltip>
+    )}
+  </DemoSection>
+);
+
 export const dataDisplayDemos: Record<string, ReactNode> = {
   agenda: <AgendaDemo />,
   kpi: <KpiDemo />,
@@ -1175,4 +3142,120 @@ export const dataDisplayDemos: Record<string, ReactNode> = {
   'floating-toc': <FloatingTocDemo />,
   'hover-card': <HoverCardDemo />,
   'chart-tooltip': <ChartTooltipDemo />,
+};
+
+export const dataDisplayVariantDemos: Record<string, ReactNode> = {
+  'agenda-default': <AgendaDemo />,
+  'action-bar-default': <ActionBarDefaultVariantDemo />,
+  'action-bar-with-data-grid': <ActionBarWithDataGridVariantDemo />,
+  'carousel-api-access': <CarouselVariantDemo variant="api-access" />,
+  'carousel-autoplay': <CarouselVariantDemo variant="autoplay" />,
+  'carousel-default': <CarouselVariantDemo variant="default" />,
+  'carousel-loop': <CarouselVariantDemo variant="loop" />,
+  'carousel-modal-type': <CarouselVariantDemo variant="modal-type" />,
+  'carousel-multiple-slides': <CarouselVariantDemo variant="multiple-slides" />,
+  'data-grid-async-loading': <DataGridAsyncLoadingVariantDemo />,
+  'data-grid-bulk-actions': <DataGridBulkActionsVariantDemo />,
+  'data-grid-default': <DataGridDefaultVariantDemo />,
+  'data-grid-drag-and-drop': <DataGridDragAndDropVariantDemo />,
+  'data-grid-editable-cells': <DataGridEditableCellsVariantDemo />,
+  'data-grid-empty-state': <DataGridEmptyStateVariantDemo />,
+  'data-grid-expandable-rows': <DataGridExpandableRowsVariantDemo />,
+  'data-grid-pinned-columns': <DataGridPinnedColumnsVariantDemo />,
+  'data-grid-servers': <DataGridServersVariantDemo />,
+  'data-grid-team-members': <DataGridTeamMembersVariantDemo />,
+  'data-grid-users': <DataGridUsersVariantDemo />,
+  'data-grid-virtualized': <DataGridVirtualizedVariantDemo />,
+  'empty-state-default': <EmptyStateVariantDemo variant="default" />,
+  'empty-state-full-height': <EmptyStateVariantDemo variant="full-height" />,
+  'empty-state-minimal': <EmptyStateVariantDemo variant="minimal" />,
+  'empty-state-outline': <EmptyStateVariantDemo variant="outline" />,
+  'empty-state-sizes': <EmptyStateVariantDemo variant="sizes" />,
+  'empty-state-with-avatar': <EmptyStateVariantDemo variant="with-avatar" />,
+  'empty-state-with-avatar-group': <EmptyStateVariantDemo variant="with-avatar-group" />,
+  'empty-state-with-background': <EmptyStateVariantDemo variant="with-background" />,
+  'file-tree-custom-indicator': <FileTreeVariantDemo variant="custom-indicator" />,
+  'file-tree-default': <FileTreeVariantDemo variant="default" />,
+  'file-tree-drag-and-drop': <FileTreeVariantDemo variant="drag-and-drop" />,
+  'file-tree-dynamic-collection': <FileTreeVariantDemo variant="dynamic-collection" />,
+  'file-tree-guide-lines': <FileTreeVariantDemo variant="guide-lines" />,
+  'file-tree-multiple-selection': <FileTreeVariantDemo variant="multiple-selection" />,
+  'file-tree-pr-file-review': <FileTreeVariantDemo variant="pr-file-review" />,
+  'file-tree-reduced-motion': <FileTreeVariantDemo variant="reduced-motion" />,
+  'file-tree-sizes': <FileTreeVariantDemo variant="sizes" />,
+  'file-tree-with-icons': <FileTreeVariantDemo variant="with-icons" />,
+  'floating-toc-controlled': <FloatingTocVariantDemo variant="controlled" />,
+  'floating-toc-custom-delays': <FloatingTocVariantDemo variant="custom-delays" />,
+  'floating-toc-default': <FloatingTocVariantDemo variant="default" />,
+  'floating-toc-hierarchical': <FloatingTocVariantDemo variant="hierarchical" />,
+  'floating-toc-in-page-context': <FloatingTocVariantDemo variant="in-page-context" />,
+  'floating-toc-left-aligned-bars': <FloatingTocVariantDemo variant="left-aligned-bars" />,
+  'floating-toc-left-placement': <FloatingTocVariantDemo variant="left-placement" />,
+  'floating-toc-press-mode': <FloatingTocVariantDemo variant="press-mode" />,
+  'floating-toc-press-mode-in-page': <FloatingTocVariantDemo variant="press-mode-in-page" />,
+  'floating-toc-virtualized': <FloatingTocVariantDemo variant="virtualized" />,
+  'hover-card-controlled': <HoverCardVariantDemo variant="controlled" />,
+  'hover-card-custom-delays': <HoverCardVariantDemo variant="custom-delays" />,
+  'hover-card-default': <HoverCardVariantDemo variant="default" />,
+  'hover-card-placements': <HoverCardVariantDemo variant="placements" />,
+  'hover-card-with-arrow': <HoverCardVariantDemo variant="with-arrow" />,
+  'hover-card-with-image': <HoverCardVariantDemo variant="with-image" />,
+  'kanban-default': <KanbanDemo />,
+  'kanban-notion-board': <KanbanNotionVariantDemo />,
+  'kanban-project-board': <KanbanDemo />,
+  'kanban-sizes': <KanbanSizesVariantDemo />,
+  'item-card-default': <ItemCardVariantDemo variant="default" />,
+  'item-card-device-list': <ItemCardVariantDemo variant="device-list" />,
+  'item-card-email-setting': <ItemCardVariantDemo variant="email-setting" />,
+  'item-card-pressable': <ItemCardVariantDemo variant="pressable" />,
+  'item-card-title-only': <ItemCardVariantDemo variant="title-only" />,
+  'item-card-variants': <ItemCardVariantDemo variant="variants" />,
+  'item-card-vertical-stack': <ItemCardVariantDemo variant="vertical-stack" />,
+  'item-card-wallet-card': <ItemCardVariantDemo variant="wallet-card" />,
+  'item-card-with-multi-select': <ItemCardVariantDemo variant="with-multi-select" />,
+  'item-card-with-select': <ItemCardVariantDemo variant="with-select" />,
+  'item-card-with-switch': <ItemCardVariantDemo variant="with-switch" />,
+  'item-card-without-icon': <ItemCardVariantDemo variant="without-icon" />,
+  'item-card-group-developer-settings': <ItemCardGroupVariantDemo variant="developer-settings" />,
+  'item-card-group-grid': <ItemCardGroupVariantDemo variant="grid" />,
+  'item-card-group-grid-three-columns': <ItemCardGroupVariantDemo variant="grid-three-columns" />,
+  'item-card-group-linked-accounts': <ItemCardGroupVariantDemo variant="linked-accounts" />,
+  'item-card-group-list': <ItemCardGroupVariantDemo variant="list" />,
+  'item-card-group-multiple-sections': <ItemCardGroupVariantDemo variant="multiple-sections" />,
+  'item-card-group-notification-preferences': <ItemCardGroupVariantDemo variant="notification-preferences" />,
+  'item-card-group-permission-levels': <ItemCardGroupVariantDemo variant="permission-levels" />,
+  'item-card-group-pressable': <ItemCardGroupVariantDemo variant="pressable" />,
+  'item-card-group-variants': <ItemCardGroupVariantDemo variant="variants" />,
+  'item-card-group-wallet-list': <ItemCardGroupVariantDemo variant="wallet-list" />,
+  'item-card-group-with-header': <ItemCardGroupVariantDemo variant="with-header" />,
+  'kpi-default': <KpiVariantDemo variant="default" />,
+  'kpi-with-actions': <KpiVariantDemo variant="with-actions" />,
+  'kpi-with-chart-bottom': <KpiVariantDemo variant="with-chart-bottom" />,
+  'kpi-with-chart-inline': <KpiVariantDemo variant="with-chart-inline" />,
+  'kpi-with-footer': <KpiVariantDemo variant="with-footer" />,
+  'kpi-with-icon': <KpiVariantDemo variant="with-icon" />,
+  'kpi-with-progress': <KpiVariantDemo variant="with-progress" />,
+  'kpi-group-horizontal': <KpiGroupVariantDemo variant="horizontal" />,
+  'kpi-group-vertical': <KpiGroupVariantDemo variant="vertical" />,
+  'kpi-group-with-from-suffix': <KpiGroupVariantDemo variant="with-from-suffix" />,
+  'list-view-default': <ListViewVariantDemo variant="default" />,
+  'list-view-disabled-items': <ListViewVariantDemo variant="disabled-items" />,
+  'list-view-secondary': <ListViewVariantDemo variant="secondary" />,
+  'list-view-selection-modes': <ListViewVariantDemo variant="selection-modes" />,
+  'list-view-with-actions': <ListViewVariantDemo variant="with-actions" />,
+  'widget-dashboard-grid': <WidgetVariantDemo variant="dashboard-grid" />,
+  'widget-default': <WidgetVariantDemo variant="default" />,
+  'widget-usage-summary': <WidgetVariantDemo variant="usage-summary" />,
+  'widget-with-bar-chart': <WidgetVariantDemo variant="with-bar-chart" />,
+  'widget-with-kpis': <WidgetVariantDemo variant="with-kpis" />,
+  'widget-with-line-chart': <WidgetVariantDemo variant="with-line-chart" />,
+  'widget-with-pie-chart': <WidgetVariantDemo variant="with-pie-chart" />,
+  'widget-with-table': <WidgetVariantDemo variant="with-table" />,
+  'chart-tooltip-auto-content': <ChartTooltipVariantDemo variant="auto-content" />,
+  'chart-tooltip-chart-colors': <ChartTooltipVariantDemo variant="chart-colors" />,
+  'chart-tooltip-custom-formatters': <ChartTooltipVariantDemo variant="custom-formatters" />,
+  'chart-tooltip-default': <ChartTooltipVariantDemo variant="default" />,
+  'chart-tooltip-inactive': <ChartTooltipVariantDemo variant="inactive" />,
+  'chart-tooltip-line-indicator': <ChartTooltipVariantDemo variant="line-indicator" />,
+  'chart-tooltip-no-header': <ChartTooltipVariantDemo variant="no-header" />,
 };

@@ -6,14 +6,16 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
-import type { Key } from 'react-aria-components';
+import { Popover as AriaPopover, SubmenuTrigger, type Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
 import Command from '../../components/command';
 import ContextMenu from '../../components/context-menu';
+import Dropdown from '../../components/dropdown';
 import Kbd from '../../components/kbd';
 import EmojiReactionButton from '../../components/emoji-reaction-button';
 import Link from '../../components/link';
+import MenuItem from '../../components/menu-item';
 import Meter from '../../components/meter';
 import Navbar from '../../components/navbar';
 import NumberValue from '../../components/number-value';
@@ -26,7 +28,7 @@ import Resizable from '../../components/resizable';
 import AppLayout from '../../components/app-layout';
 import Sidebar from '../../components/sidebar';
 import Segment from '../../components/segment';
-import Stepper from '../../components/stepper';
+import Stepper, { useStepperStep } from '../../components/stepper';
 import Tabs from '../../components/tabs';
 import Toast, { Toaster, useToast } from '../../components/toast';
 import Tooltip from '../../components/tooltip';
@@ -1011,6 +1013,1682 @@ const SidebarDemo = () => {
   );
 };
 
+type VariantDemoProps = {
+  variant: string;
+};
+
+const VARIANT_ROW_STYLE: CSSProperties = {
+  display: 'flex',
+  flexWrap: 'wrap',
+  gap: 12,
+  alignItems: 'center',
+};
+
+const VARIANT_COLUMN_STYLE: CSSProperties = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 12,
+};
+
+const VARIANT_PANEL_STYLE: CSSProperties = {
+  border: '1px solid var(--separator)',
+  borderRadius: 8,
+  padding: 16,
+};
+
+const VARIANT_MUTED_STYLE: CSSProperties = {
+  color: 'var(--muted)',
+  fontSize: 13,
+};
+
+const VARIANT_CARD_STYLE: CSSProperties = {
+  ...VARIANT_PANEL_STYLE,
+  minWidth: 180,
+};
+
+const RatingItems = ({
+  children,
+}: {
+  children?: (value: number) => ReactNode;
+}) => (
+  <>
+    {RATING_VALUES.map((value) => (
+      <Rating.Item key={value} value={value}>
+        {children?.(value)}
+      </Rating.Item>
+    ))}
+  </>
+);
+
+const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [isSelected, setSelected] = useState(variant !== 'disabled');
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection label="sizes">
+        <EmojiReactionButton size="sm" defaultSelected>
+          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>8</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton defaultSelected>
+          <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>24</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton size="lg" defaultSelected>
+          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>128</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'disabled') {
+    return (
+      <DemoSection label="disabled">
+        <EmojiReactionButton isDisabled>
+          <EmojiReactionButton.Emoji>🔥</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>0</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton isDisabled isSelected>
+          <EmojiReactionButton.Emoji>👏</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>19</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'read-only') {
+    return (
+      <DemoSection label="read only">
+        <EmojiReactionButton isReadOnly isSelected>
+          <EmojiReactionButton.Emoji>👀</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>42</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <span style={VARIANT_MUTED_STYLE}>只读态保留选中展示，不响应点击或键盘切换。</span>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="default">
+      <EmojiReactionButton isSelected={isSelected} onChange={setSelected}>
+        <EmojiReactionButton.Emoji>{isSelected ? '💙' : '🤍'}</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>{isSelected ? 33 : 32}</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+      <span style={VARIANT_MUTED_STYLE}>{isSelected ? '已回应' : '点击回应'}</span>
+    </DemoSection>
+  );
+};
+
+const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
+  if (variant === 'compact') {
+    return (
+      <DemoSection label="compact">
+        <NumberValue value={1284000} formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }} />
+        <NumberValue value={987654321} formatOptions={{ notation: 'compact', compactDisplay: 'long' }} />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'currency') {
+    return (
+      <DemoSection label="currency">
+        <NumberValue value={9988} formatOptions={{ style: 'currency', currency: 'CNY' }} />
+        <NumberValue value={1249.5} locale="en-US" formatOptions={{ style: 'currency', currency: 'USD' }} />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'format-options') {
+    return (
+      <DemoSection label="format options">
+        <NumberValue value={1234.567} formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
+        <NumberValue value={42} formatOptions={{ style: 'unit', unit: 'kilometer-per-hour' }} />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'percent') {
+    return (
+      <DemoSection label="percent">
+        <NumberValue value={0.4567} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
+        <NumberValue value={0.032} formatOptions={{ style: 'percent', signDisplay: 'exceptZero' }} />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'sign-display') {
+    return (
+      <DemoSection label="sign display">
+        <NumberValue value={0.128} formatOptions={{ style: 'percent', signDisplay: 'always' }} />
+        <NumberValue value={-0.034} formatOptions={{ style: 'percent', signDisplay: 'always' }} />
+        <NumberValue value={0} formatOptions={{ signDisplay: 'exceptZero' }} />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'tabular-nums') {
+    return (
+      <DemoSection label="tabular nums" isColumn>
+        {[1024, 998.5, 87.25].map((value) => (
+          <NumberValue
+            key={value}
+            value={value}
+            suffix="ms"
+            style={{ fontVariantNumeric: 'tabular-nums', minWidth: 96 }}
+            formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+          />
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-prefix-suffix') {
+    return (
+      <DemoSection label="prefix / suffix">
+        <NumberValue value={8472} prefix="ARR" suffix="/月" />
+        <NumberValue value={72} prefix="排名 #" suffix=" / 180" />
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="default">
+      <NumberValue value={1234567.89} />
+      <NumberValue value={-4200} />
+    </DemoSection>
+  );
+};
+
+const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
+  if (variant === 'sizes') {
+    return (
+      <DemoSection label="sizes">
+        <TrendChip trend="up" value="4.8%" size="sm" />
+        <TrendChip trend="up" value="7.2%" />
+        <TrendChip trend="up" value="11.4%" size="lg" />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'variants') {
+    return (
+      <DemoSection label="variants">
+        <TrendChip trend="up" value="12%" variant="primary" />
+        <TrendChip trend="down" value="3%" variant="soft" />
+        <TrendChip trend="neutral" value="0%" variant="tertiary" />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'prefix-and-suffix') {
+    return (
+      <DemoSection label="prefix and suffix">
+        <TrendChip trend="up" value={<><span>营收</span> 18.2%</>} suffix="环比" />
+        <TrendChip trend="down" value={<><span>流失</span> 2.1%</>} suffix="较上周" />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'tabular-nums') {
+    return (
+      <DemoSection label="tabular nums" isColumn>
+        {['+12.40%', '+8.05%', '-1.20%'].map((value) => (
+          <TrendChip
+            key={value}
+            trend={value.startsWith('-') ? 'down' : 'up'}
+            value={value}
+            style={{ fontVariantNumeric: 'tabular-nums', width: 112, justifyContent: 'center' }}
+          />
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-indicator') {
+    return (
+      <DemoSection label="custom indicator composition">
+        <TrendChip trend="up" value={<><span aria-hidden="true">目标</span> 96%</>} suffix="达成" />
+        <TrendChip trend="neutral" value={<><span aria-hidden="true">SLA</span> 99.9%</>} />
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="default">
+      <TrendChip trend="up" value="12.5%" suffix="环比" />
+      <TrendChip trend="down" value="3.2%" suffix="较昨日" />
+      <TrendChip trend="neutral" value="0.0%" />
+    </DemoSection>
+  );
+};
+
+const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [score, setScore] = useState(3);
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection label="sizes">
+        <Rating aria-label="小评分" size="sm" value={2} isReadOnly>
+          <RatingItems />
+        </Rating>
+        <Rating aria-label="中评分" value={3} isReadOnly>
+          <RatingItems />
+        </Rating>
+        <Rating aria-label="大评分" size="lg" value={4} isReadOnly>
+          <RatingItems />
+        </Rating>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'disabled') {
+    return (
+      <DemoSection label="disabled">
+        <Rating aria-label="禁用评分" value={2} isDisabled>
+          <RatingItems />
+        </Rating>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'read-only' || variant === 'read-only-fractional') {
+    return (
+      <DemoSection label={variant}>
+        <Rating aria-label="只读评分" value={variant === 'read-only-fractional' ? 3.5 : 4} isReadOnly>
+          <RatingItems />
+        </Rating>
+        <span style={VARIANT_MUTED_STYLE}>
+          {variant === 'read-only-fractional' ? '小数值展示局部填充。' : '只读态保留分值展示。'}
+        </span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-color' || variant === 'custom-color-vertical') {
+    return (
+      <DemoSection label="custom color">
+        <Rating
+          aria-label="品牌评分"
+          value={4}
+          isReadOnly
+          style={{ color: 'var(--warning)' }}
+        >
+          <RatingItems />
+        </Rating>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-icon-heart') {
+    return (
+      <DemoSection label="custom icon heart">
+        <Rating aria-label="心形评分" value={4} icon={<span aria-hidden="true">♥</span>} isReadOnly>
+          <RatingItems />
+        </Rating>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-icon-per-item') {
+    return (
+      <DemoSection label="custom icon per item">
+        <Rating aria-label="分项图标评分" value={4} isReadOnly>
+          <RatingItems>{(value) => <span aria-hidden="true">{['○', '◐', '●', '◆', '★'][value - 1]}</span>}</RatingItems>
+        </Rating>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'render-function') {
+    return (
+      <DemoSection label="render function">
+        <Rating aria-label="渲染函数评分" value={score} onValueChange={setScore}>
+          {RATING_VALUES.map((value) => (
+            <Rating.Item key={value} value={value}>
+              {({ isActive, isPartial }) => (
+                <span aria-hidden="true">{isPartial ? '◒' : isActive ? '●' : '○'}</span>
+              )}
+            </Rating.Item>
+          ))}
+        </Rating>
+        <span style={VARIANT_MUTED_STYLE}>{score} / 5</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'product-review' || variant === 'with-label') {
+    return (
+      <DemoSection label={variant} isColumn>
+        <div style={VARIANT_ROW_STYLE}>
+          <strong>{variant === 'product-review' ? 'Vela Pro 组件库' : '满意度'}</strong>
+          <Rating aria-label="评分标签" value={4.5} isReadOnly>
+            <RatingItems />
+          </Rating>
+          <NumberValue value={4.8} suffix="/5" />
+        </div>
+        <span style={VARIANT_MUTED_STYLE}>128 条评价 · 最近 30 天</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'controlled') {
+    return (
+      <DemoSection label="controlled">
+        <Rating aria-label="受控评分" value={score} onValueChange={setScore}>
+          <RatingItems />
+        </Rating>
+        <Button size="sm" variant="secondary" onClick={() => setScore((score % 5) + 1)}>
+          下一档
+        </Button>
+        <span style={VARIANT_MUTED_STYLE}>{score} 分</span>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="default">
+      <Rating aria-label="默认评分" defaultValue={3}>
+        <RatingItems />
+      </Rating>
+    </DemoSection>
+  );
+};
+
+const StandaloneFeedbackHost = ({ kind }: { kind: 'highlight' | 'ripple' }) => (
+  <div
+    role="button"
+    tabIndex={0}
+    style={{
+      ...VARIANT_CARD_STYLE,
+      position: 'relative',
+      overflow: 'hidden',
+      minHeight: 84,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+    }}
+  >
+    {kind === 'highlight' ? <PressableFeedback.Highlight /> : <PressableFeedback.Ripple />}
+    standalone {kind}
+  </div>
+);
+
+const PressableFeedbackVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [holdCount, setHoldCount] = useState(0);
+  const [progressCount, setProgressCount] = useState(0);
+  const [resetCount, setResetCount] = useState(0);
+
+  const handleHoldComplete = () => setHoldCount((value) => value + 1);
+  const handleProgressComplete = () => setProgressCount((value) => value + 1);
+  const handleProgressReset = () => setResetCount((value) => value + 1);
+
+  const progressLabel = `完成 ${progressCount} 次 · 复位 ${resetCount} 次`;
+
+  if (variant === 'comparison') {
+    return (
+      <DemoSection label="comparison">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Highlight />
+          Highlight
+        </PressableFeedback>
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Ripple />
+          Ripple
+        </PressableFeedback>
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm style={HOLD_OVERLAY_STYLE}>Done</PressableFeedback.HoldConfirm>
+          Hold
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'disabled') {
+    return (
+      <DemoSection label="disabled">
+        <PressableFeedback isDisabled style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Highlight />
+          已禁用
+        </PressableFeedback>
+        <PressableFeedback isDisabled style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Ripple isDisabled />
+          禁用波纹
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'hold-confirm-callback') {
+    return (
+      <DemoSection label="hold confirm callback">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm style={HOLD_OVERLAY_STYLE} onComplete={handleHoldComplete}>
+            已确认
+          </PressableFeedback.HoldConfirm>
+          按住确认
+        </PressableFeedback>
+        <span style={VARIANT_MUTED_STYLE}>触发 {holdCount} 次</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'hold-confirm-durations') {
+    return (
+      <DemoSection label="hold confirm durations">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm duration={700} style={PROGRESS_OVERLAY_STYLE}>
+            快速
+          </PressableFeedback.HoldConfirm>
+          700ms
+        </PressableFeedback>
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm duration={1800} releaseDuration={450} style={HOLD_OVERLAY_STYLE}>
+            慢速
+          </PressableFeedback.HoldConfirm>
+          1800ms
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'hold-confirm-sweep') {
+    return (
+      <DemoSection label="hold confirm sweep">
+        {(['right', 'left', 'up', 'down'] as const).map((sweep) => (
+          <PressableFeedback key={sweep} style={PRESSABLE_BOX_STYLE}>
+            <PressableFeedback.HoldConfirm sweep={sweep} duration={900} style={PROGRESS_OVERLAY_STYLE}>
+              {sweep}
+            </PressableFeedback.HoldConfirm>
+            {sweep}
+          </PressableFeedback>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'pressable-cards') {
+    return (
+      <DemoSection label="pressable cards">
+        {['Growth', 'Retention'].map((label) => (
+          <PressableFeedback key={label} style={{ ...VARIANT_CARD_STYLE, position: 'relative', overflow: 'hidden' }}>
+            <PressableFeedback.Ripple />
+            <strong>{label}</strong>
+            <span style={VARIANT_MUTED_STYLE}>点击查看指标</span>
+          </PressableFeedback>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'progress-feedback-callback') {
+    return (
+      <DemoSection label="progress feedback callback">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback
+            onComplete={handleProgressComplete}
+            onReset={handleProgressReset}
+            style={PROGRESS_OVERLAY_STYLE}
+          >
+            已同步
+          </PressableFeedback.ProgressFeedback>
+          点击同步
+        </PressableFeedback>
+        <span style={VARIANT_MUTED_STYLE}>{progressLabel}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'progress-feedback-durations') {
+    return (
+      <DemoSection label="progress feedback durations">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback duration={700} resetDelay={600} style={PROGRESS_OVERLAY_STYLE}>
+            快
+          </PressableFeedback.ProgressFeedback>
+          700ms
+        </PressableFeedback>
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback duration={1800} resetDelay={1000} style={HOLD_OVERLAY_STYLE}>
+            慢
+          </PressableFeedback.ProgressFeedback>
+          1800ms
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'progress-feedback-no-reset') {
+    return (
+      <DemoSection label="progress feedback no reset">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback autoReset={false} style={PROGRESS_OVERLAY_STYLE}>
+            保持完成
+          </PressableFeedback.ProgressFeedback>
+          点击发布
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'progress-feedback-sweep') {
+    return (
+      <DemoSection label="progress feedback sweep">
+        {(['right', 'left', 'up', 'down'] as const).map((sweep) => (
+          <PressableFeedback key={sweep} style={PRESSABLE_BOX_STYLE}>
+            <PressableFeedback.ProgressFeedback sweep={sweep} duration={900} style={PROGRESS_OVERLAY_STYLE}>
+              {sweep}
+            </PressableFeedback.ProgressFeedback>
+            {sweep}
+          </PressableFeedback>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'standalone-highlight') {
+    return (
+      <DemoSection label="standalone highlight">
+        <StandaloneFeedbackHost kind="highlight" />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'standalone-ripple') {
+    return (
+      <DemoSection label="standalone ripple">
+        <StandaloneFeedbackHost kind="ripple" />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-hold-confirm') {
+    return (
+      <DemoSection label="with hold confirm">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.HoldConfirm style={HOLD_OVERLAY_STYLE}>确认</PressableFeedback.HoldConfirm>
+          按住删除
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-progress-feedback') {
+    return (
+      <DemoSection label="with progress feedback">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.ProgressFeedback style={PROGRESS_OVERLAY_STYLE}>完成</PressableFeedback.ProgressFeedback>
+          点击购买
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-ripple') {
+    return (
+      <DemoSection label="with ripple">
+        <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+          <PressableFeedback.Ripple hoverOpacity={0.08} pressedOpacity={0.18} />
+          点击看波纹
+        </PressableFeedback>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant === 'with-highlight' ? 'with highlight' : 'default'}>
+      <PressableFeedback style={PRESSABLE_BOX_STYLE}>
+        <PressableFeedback.Highlight />
+        悬停 / 按下
+      </PressableFeedback>
+    </DemoSection>
+  );
+};
+
+const RESIZABLE_VARIANT_FRAME_STYLE: CSSProperties = {
+  width: 520,
+  height: 220,
+  border: '1px solid var(--separator)',
+  borderRadius: 8,
+};
+
+const ResizableTwoPanel = ({
+  orientation = 'horizontal',
+  handleType = 'line',
+  handleVariant = 'primary',
+  withIndicator = false,
+  onLayout,
+}: {
+  orientation?: 'horizontal' | 'vertical';
+  handleType?: 'line' | 'drag' | 'pill' | 'handle';
+  handleVariant?: 'primary' | 'secondary' | 'tertiary';
+  withIndicator?: boolean;
+  onLayout?: (sizes: number[]) => void;
+}) => (
+  <Resizable
+    orientation={orientation}
+    onLayout={onLayout}
+    style={{
+      ...RESIZABLE_VARIANT_FRAME_STYLE,
+      width: orientation === 'vertical' ? 360 : 520,
+      height: orientation === 'vertical' ? 280 : 220,
+    }}
+  >
+    <Resizable.Panel defaultSize={36} minSize={18} style={RESIZABLE_PANEL_STYLE}>
+      面板 A
+    </Resizable.Panel>
+    <Resizable.Handle type={handleType} variant={handleVariant} withIndicator={withIndicator} />
+    <Resizable.Panel defaultSize={64} minSize={24} style={RESIZABLE_PANEL_STYLE}>
+      面板 B
+    </Resizable.Panel>
+  </Resizable>
+);
+
+const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [layout, setLayout] = useState<number[]>([36, 64]);
+  const [collapseState, setCollapseState] = useState('拖拽到最小宽度可折叠');
+
+  if (variant === 'nested') {
+    return (
+      <DemoSection label="nested" isColumn>
+        <Resizable style={{ ...RESIZABLE_VARIANT_FRAME_STYLE, height: 260 }}>
+          <Resizable.Panel defaultSize={34} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+            导航
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={66} minSize={30} style={{ padding: 0 }}>
+            <Resizable orientation="vertical" style={{ width: '100%', height: '100%' }}>
+              <Resizable.Panel defaultSize={42} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+                详情
+              </Resizable.Panel>
+              <Resizable.Handle type="drag" />
+              <Resizable.Panel defaultSize={58} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+                日志
+              </Resizable.Panel>
+            </Resizable>
+          </Resizable.Panel>
+        </Resizable>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'types') {
+    return (
+      <DemoSection label="handle types" isColumn>
+        {(['line', 'drag', 'pill', 'handle'] as const).map((type) => (
+          <ResizableTwoPanel key={type} handleType={type} withIndicator={type === 'line'} />
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'variants') {
+    return (
+      <DemoSection label="handle variants" isColumn>
+        {(['primary', 'secondary', 'tertiary'] as const).map((handleVariant) => (
+          <ResizableTwoPanel key={handleVariant} handleType="pill" handleVariant={handleVariant} />
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'vertical') {
+    return (
+      <DemoSection label="vertical">
+        <ResizableTwoPanel orientation="vertical" handleType="line" withIndicator />
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-collapse') {
+    return (
+      <DemoSection label="with collapse" isColumn>
+        <Resizable style={RESIZABLE_VARIANT_FRAME_STYLE}>
+          <Resizable.Panel
+            defaultSize={30}
+            minSize={12}
+            collapsible
+            collapsedSize={0}
+            onCollapse={() => setCollapseState('侧栏已折叠')}
+            onExpand={() => setCollapseState('侧栏已展开')}
+            style={RESIZABLE_PANEL_STYLE}
+          >
+            可折叠侧栏
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={70} minSize={30} style={RESIZABLE_PANEL_STYLE}>
+            内容区
+          </Resizable.Panel>
+        </Resizable>
+        <span style={VARIANT_MUTED_STYLE}>{collapseState}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-indicator') {
+    return (
+      <DemoSection label="with indicator">
+        <ResizableTwoPanel handleType="line" withIndicator />
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="default" isColumn>
+      <ResizableTwoPanel onLayout={setLayout} />
+      <span style={VARIANT_MUTED_STYLE}>当前布局：{layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+    </DemoSection>
+  );
+};
+
+const COMMAND_VARIANT_GROUPS: CommandGroup[] = [
+  {
+    heading: '工作区',
+    items: [
+      { id: 'open-dashboard', label: '打开工作台', shortcut: '⌘1' },
+      { id: 'invite-member', label: '邀请成员', shortcut: 'I' },
+      { id: 'create-course', label: '创建课程', shortcut: 'C' },
+    ],
+  },
+  {
+    heading: '系统',
+    items: [
+      { id: 'toggle-sidebar', label: '切换侧栏', shortcut: '⌘B' },
+      { id: 'open-settings', label: '打开设置', shortcut: '⌘,' },
+    ],
+  },
+];
+
+const CommandVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [isOpen, setOpen] = useState(false);
+  const [lastAction, setLastAction] = useState('尚未执行命令');
+
+  const size = variant === 'sizes' ? 'lg' : variant === 'minimal' ? 'sm' : 'md';
+  const backdropVariant = variant === 'backdrop-variants' ? 'transparent' : variant === 'clean' ? 'blur' : 'opaque';
+  const defaultInputValue = variant === 'multiple-search-terms' ? 'open work' : undefined;
+  const filter =
+    variant === 'multiple-search-terms'
+      ? (textValue: string, inputValue: string) =>
+          inputValue
+            .split(/\s+/)
+            .filter(Boolean)
+            .every((term) => textValue.toLowerCase().includes(term.toLowerCase()))
+      : undefined;
+
+  const handleAction = (key: ReactKey) => {
+    setLastAction(`已执行：${String(key)}`);
+    setOpen(false);
+  };
+
+  const groups =
+    variant === 'minimal'
+      ? [{ heading: '快速操作', items: COMMAND_VARIANT_GROUPS[0].items.slice(0, 2) }]
+      : COMMAND_VARIANT_GROUPS;
+
+  return (
+    <DemoSection label={variant} isColumn>
+      <div style={VARIANT_ROW_STYLE}>
+        <Button variant={variant === 'launcher' ? 'primary' : 'outline'} onClick={() => setOpen(true)}>
+          {variant === 'launcher' ? '启动命令面板' : '打开命令面板'} <Kbd isLight>⌘K</Kbd>
+        </Button>
+        <span style={VARIANT_MUTED_STYLE}>{lastAction}</span>
+      </div>
+      <Command>
+        <Command.Backdrop variant={backdropVariant} isOpen={isOpen} onOpenChange={setOpen}>
+          <Command.Container size={size}>
+            <Command.Dialog
+              aria-label="命令面板"
+              defaultInputValue={defaultInputValue}
+              filter={filter}
+            >
+              {variant !== 'minimal' && (
+                <Command.Header>
+                  {variant === 'split-view' ? 'Command Center · 右侧预览当前操作' : 'Command Center'}
+                </Command.Header>
+              )}
+              <Command.InputGroup>
+                <Command.InputGroup.Prefix>⌕</Command.InputGroup.Prefix>
+                <Command.InputGroup.Input
+                  placeholder={variant === 'multiple-search-terms' ? '输入多个关键词…' : '搜索命令…'}
+                />
+                <Command.InputGroup.Suffix>
+                  <Command.InputGroup.ClearButton />
+                </Command.InputGroup.Suffix>
+              </Command.InputGroup>
+              {variant === 'dev-toolbar' && (
+                <div style={{ ...VARIANT_ROW_STYLE, padding: '8px 12px' }}>
+                  <Kbd isLight>⌘P</Kbd>
+                  <Kbd isLight>⌘⇧P</Kbd>
+                  <Kbd isLight>Esc</Kbd>
+                </div>
+              )}
+              <Command.List aria-label="命令列表" onAction={handleAction} renderEmptyState={CommandEmptyState}>
+                {groups.map((group) => (
+                  <Command.Group key={group.heading} heading={variant === 'clean' ? undefined : group.heading}>
+                    {group.items.map((item) => (
+                      <Command.Item key={item.id} id={item.id} textValue={`${item.label} ${group.heading}`}>
+                        <span>{item.label}</span>
+                        {item.shortcut !== undefined && <Kbd isLight>{item.shortcut}</Kbd>}
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                ))}
+              </Command.List>
+              {variant === 'split-view' && (
+                <Command.Footer>
+                  <span>预览：选中命令后会在当前工作区执行</span>
+                </Command.Footer>
+              )}
+              {variant !== 'minimal' && variant !== 'split-view' && (
+                <Command.Footer>方向键移动 · Enter 执行 · Esc 关闭</Command.Footer>
+              )}
+            </Command.Dialog>
+          </Command.Container>
+        </Command.Backdrop>
+      </Command>
+    </DemoSection>
+  );
+};
+
+const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [lastItem, setLastItem] = useState('尚未操作');
+  const [isOpen, setOpen] = useState(false);
+  const longPressTimerRef = useRef<number | null>(null);
+
+  const handleAction = (key: ReactKey) => setLastItem(`已选择：${String(key)}`);
+  const clearLongPress = () => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+  };
+  const longPressProps =
+    variant === 'long-press'
+      ? {
+          onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => {
+            clearLongPress();
+            const target = event.currentTarget;
+            const { clientX, clientY } = event;
+            longPressTimerRef.current = window.setTimeout(() => {
+              target.dispatchEvent(
+                new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX, clientY }),
+              );
+            }, 550);
+          },
+          onPointerUp: clearLongPress,
+          onPointerLeave: clearLongPress,
+          onPointerCancel: clearLongPress,
+        }
+      : {};
+
+  const renderMenu = () => {
+    if (variant === 'with-sections') {
+      return (
+        <ContextMenu.Menu aria-label="文件操作" onAction={handleAction}>
+          <ContextMenu.Section>
+            <ContextMenu.Item id="copy" textValue="复制">复制</ContextMenu.Item>
+            <ContextMenu.Item id="paste" textValue="粘贴">粘贴</ContextMenu.Item>
+          </ContextMenu.Section>
+          <ContextMenu.Separator />
+          <ContextMenu.Section>
+            <ContextMenu.Item id="rename" textValue="重命名">重命名</ContextMenu.Item>
+            <ContextMenu.Item id="delete" textValue="删除" variant="danger">删除</ContextMenu.Item>
+          </ContextMenu.Section>
+        </ContextMenu.Menu>
+      );
+    }
+
+    if (variant === 'with-selection') {
+      return (
+        <ContextMenu.Menu
+          aria-label="视图选择"
+          selectionMode="single"
+          defaultSelectedKeys={['preview']}
+          onAction={handleAction}
+        >
+          <ContextMenu.Item id="preview" textValue="预览">
+            <ContextMenu.ItemIndicator />
+            预览
+          </ContextMenu.Item>
+          <ContextMenu.Item id="split" textValue="分屏">
+            <ContextMenu.ItemIndicator />
+            分屏
+          </ContextMenu.Item>
+          <ContextMenu.Item id="source" textValue="源码">
+            <ContextMenu.ItemIndicator />
+            源码
+          </ContextMenu.Item>
+        </ContextMenu.Menu>
+      );
+    }
+
+    if (variant === 'with-submenus') {
+      return (
+        <ContextMenu.Menu aria-label="带子菜单" onAction={handleAction}>
+          <ContextMenu.Item id="open" textValue="打开">打开</ContextMenu.Item>
+          <SubmenuTrigger delay={0}>
+            <ContextMenu.Item id="open-with" textValue="打开方式">
+              打开方式
+              <ContextMenu.SubmenuIndicator />
+            </ContextMenu.Item>
+            <AriaPopover className="context-menu__popover" placement="right top" offset={6}>
+              <ContextMenu.Menu aria-label="打开方式" onAction={handleAction}>
+                <ContextMenu.Item id="browser" textValue="浏览器">浏览器</ContextMenu.Item>
+                <ContextMenu.Item id="editor" textValue="编辑器">编辑器</ContextMenu.Item>
+              </ContextMenu.Menu>
+            </AriaPopover>
+          </SubmenuTrigger>
+          <ContextMenu.Separator />
+          <ContextMenu.Item id="delete" textValue="删除" variant="danger">删除</ContextMenu.Item>
+        </ContextMenu.Menu>
+      );
+    }
+
+    return (
+      <ContextMenu.Menu aria-label="操作" onAction={handleAction}>
+        <ContextMenu.Item id="back" textValue="后退">后退</ContextMenu.Item>
+        <ContextMenu.Item id="forward" textValue="前进" isDisabled>
+          前进
+        </ContextMenu.Item>
+        <ContextMenu.Item id="reload" textValue="重新加载">重新加载</ContextMenu.Item>
+        <ContextMenu.Item id="save" textValue="另存为">另存为…</ContextMenu.Item>
+      </ContextMenu.Menu>
+    );
+  };
+
+  return (
+    <DemoSection label={variant} isColumn>
+      {variant === 'controlled' && (
+        <Button size="sm" variant="secondary" onClick={() => setOpen((open) => !open)}>
+          {isOpen ? '关闭受控菜单' : '打开受控菜单'}
+        </Button>
+      )}
+      <ContextMenu
+        open={variant === 'controlled' ? isOpen : undefined}
+        onOpenChange={variant === 'controlled' ? setOpen : undefined}
+        isDisabled={variant === 'disabled'}
+      >
+        <ContextMenu.Trigger {...longPressProps}>
+          <div style={CONTEXT_MENU_TARGET_STYLE}>
+            {variant === 'disabled' ? '禁用：右键无响应' : variant === 'long-press' ? '长按或右键打开' : '在此处右键'}
+          </div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Popover>{renderMenu()}</ContextMenu.Popover>
+      </ContextMenu>
+      <span style={VARIANT_MUTED_STYLE}>{lastItem}</span>
+    </DemoSection>
+  );
+};
+
+const NAVBAR_VARIANT_FRAME_STYLE: CSSProperties = {
+  width: '100%',
+  minHeight: 210,
+  border: '1px solid var(--separator)',
+  borderRadius: 8,
+  overflow: 'hidden',
+  position: 'relative',
+};
+
+const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const [isMenuOpen, setMenuOpen] = useState(variant === 'with-menu');
+  const [activeHref, setActiveHref] = useState('/app/dashboard');
+  const isCompact = variant === 'compact';
+
+  const handleNavigate = (href: string) => setActiveHref(href);
+  const handleDropdownAction = (key: ReactKey) => setActiveHref(`/app/${String(key)}`);
+
+  const navbar = (
+    <Navbar
+      position={variant === 'default' ? 'sticky' : 'static'}
+      size={isCompact ? 'sm' : variant === 'docs-site' ? 'lg' : 'md'}
+      height={isCompact ? '3rem' : undefined}
+      maxWidth={variant === 'docs-site' ? 'xl' : 'full'}
+      hideOnScroll={variant === 'hide-on-scroll'}
+      parentRef={scrollContainerRef}
+      isMenuOpen={isMenuOpen}
+      onMenuOpenChange={setMenuOpen}
+      shouldBlockScroll={false}
+      navigate={handleNavigate}
+    >
+      <Navbar.Header>
+        <Navbar.Brand>
+          <strong>{variant === 'docs-site' ? 'Vela Docs' : variant === 'dashboard' ? 'Vela Admin' : 'Vela'}</strong>
+        </Navbar.Brand>
+        <Navbar.Content>
+          {NAVBAR_LINKS.map((link) => (
+            <Navbar.Item key={link.href} href={link.href} isCurrent={activeHref === link.href}>
+              {link.label}
+            </Navbar.Item>
+          ))}
+        </Navbar.Content>
+        {variant === 'with-dropdowns' && (
+          <Navbar.Content>
+            <Dropdown>
+              <Dropdown.Trigger>更多 ▾</Dropdown.Trigger>
+              <Dropdown.Popover placement="bottom end">
+                <Dropdown.Menu aria-label="更多导航" onAction={handleDropdownAction}>
+                  <MenuItem id="reports" textValue="报表">
+                    <MenuItem.Label>报表</MenuItem.Label>
+                  </MenuItem>
+                  <MenuItem id="billing" textValue="账单">
+                    <MenuItem.Label>账单</MenuItem.Label>
+                  </MenuItem>
+                </Dropdown.Menu>
+              </Dropdown.Popover>
+            </Dropdown>
+          </Navbar.Content>
+        )}
+        <Navbar.Spacer />
+        <Navbar.Content>
+          <Navbar.Separator />
+          <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
+            设置
+          </Navbar.Item>
+          <Navbar.MenuToggle />
+        </Navbar.Content>
+      </Navbar.Header>
+      <Navbar.Menu>
+        {NAVBAR_LINKS.map((link) => (
+          <Navbar.MenuItem key={link.href} href={link.href} isCurrent={activeHref === link.href}>
+            {link.label}
+          </Navbar.MenuItem>
+        ))}
+      </Navbar.Menu>
+    </Navbar>
+  );
+
+  if (variant === 'hide-on-scroll') {
+    return (
+      <DemoSection label="hide on scroll" isColumn>
+        <div ref={scrollContainerRef} style={{ ...NAVBAR_VARIANT_FRAME_STYLE, height: 250, overflowY: 'auto' }}>
+          {navbar}
+          <div style={NAVBAR_SCROLL_FILLER_STYLE}>向下滚动隐藏导航，向上滚动恢复。</div>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant} isColumn>
+      <div style={NAVBAR_VARIANT_FRAME_STYLE}>
+        {navbar}
+        <div style={{ padding: 16, color: 'var(--muted)' }}>
+          当前：{activeHref.replace('/app/', '')} · 菜单{isMenuOpen ? '展开' : '收起'}
+        </div>
+      </div>
+    </DemoSection>
+  );
+};
+
+const SEGMENT_VARIANT_ITEMS = [
+  { id: 'overview', label: '概览' },
+  { id: 'analytics', label: '分析' },
+  { id: 'reports', label: '报表' },
+];
+
+const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [selectedKey, setSelectedKey] = useState<Key>('analytics');
+  const size = variant === 'sizes' ? 'lg' : variant === 'theme-switcher' ? 'sm' : 'md';
+  const segmentVariant = variant === 'ghost' || variant === 'without-separators' ? 'ghost' : 'default';
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection label="sizes">
+        {(['sm', 'md', 'lg'] as const).map((segmentSize) => (
+          <Segment key={segmentSize} aria-label={`尺寸 ${segmentSize}`} defaultSelectedKey="analytics" size={segmentSize}>
+            {SEGMENT_VARIANT_ITEMS.map((item) => (
+              <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
+            ))}
+          </Segment>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'two-items') {
+    return (
+      <DemoSection label="two items">
+        <Segment aria-label="账单周期" defaultSelectedKey="monthly">
+          <Segment.Item id="monthly">月付</Segment.Item>
+          <Segment.Item id="yearly">年付</Segment.Item>
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'disabled') {
+    return (
+      <DemoSection label="disabled">
+        <Segment aria-label="禁用分段" defaultSelectedKey="overview" isDisabled>
+          {SEGMENT_VARIANT_ITEMS.map((item) => (
+            <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
+          ))}
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'disabled-item') {
+    return (
+      <DemoSection label="disabled item">
+        <Segment aria-label="含禁用项" defaultSelectedKey="overview">
+          <Segment.Item id="overview">概览</Segment.Item>
+          <Segment.Item id="analytics">分析</Segment.Item>
+          <Segment.Item id="reports" isDisabled>报表</Segment.Item>
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'icon-expand') {
+    return (
+      <DemoSection label="icon expand">
+        <Segment aria-label="展开方式" selectedKey={selectedKey} onSelectionChange={setSelectedKey}>
+          <Segment.Item id="overview">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 概览</span>}</Segment.Item>
+          <Segment.Item id="analytics">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 分析</span>}</Segment.Item>
+          <Segment.Item id="reports">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 报表</span>}</Segment.Item>
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'theme-switcher') {
+    return (
+      <DemoSection label="theme switcher">
+        <Segment aria-label="主题" selectedKey={selectedKey} size="sm" variant="ghost" onSelectionChange={setSelectedKey}>
+          <Segment.Item id="light">☀ Light</Segment.Item>
+          <Segment.Item id="analytics">System</Segment.Item>
+          <Segment.Item id="dark">Dark</Segment.Item>
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-icons') {
+    return (
+      <DemoSection label="with icons">
+        <Segment aria-label="视图" defaultSelectedKey="grid">
+          <Segment.Item id="grid">▦ 网格</Segment.Item>
+          <Segment.Item id="list">☰ 列表</Segment.Item>
+          <Segment.Item id="chart">⌁ 图表</Segment.Item>
+        </Segment>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant}>
+      <Segment
+        aria-label="统计范围"
+        selectedKey={variant === 'controlled' ? selectedKey : undefined}
+        defaultSelectedKey={variant === 'controlled' ? undefined : 'analytics'}
+        size={size}
+        variant={segmentVariant}
+        onSelectionChange={variant === 'controlled' ? setSelectedKey : undefined}
+      >
+        {SEGMENT_VARIANT_ITEMS.map((item) => (
+          <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
+        ))}
+      </Segment>
+      {variant === 'controlled' && <span style={VARIANT_MUTED_STYLE}>当前：{String(selectedKey)}</span>}
+    </DemoSection>
+  );
+};
+
+const SIDEBAR_VARIANT_ITEMS = [
+  { id: 'dashboard', label: '仪表盘', icon: '⌂', chip: '12' },
+  { id: 'students', label: '学员', icon: '◉', chip: '4' },
+  { id: 'courses', label: '课程', icon: '◇' },
+  { id: 'settings', label: '设置', icon: '⚙' },
+];
+
+const SIDEBAR_VARIANT_FRAME_STYLE: CSSProperties = {
+  display: 'flex',
+  width: 720,
+  height: 380,
+  border: '1px solid var(--separator)',
+  borderRadius: 8,
+  overflow: 'hidden',
+};
+
+const SidebarVariantMenuRows = ({
+  current,
+  onSelect,
+  withIcons = true,
+  withChips = false,
+  withActions = false,
+}: {
+  current: string;
+  onSelect: (id: string) => () => void;
+  withIcons?: boolean;
+  withChips?: boolean;
+  withActions?: boolean;
+}) => (
+  <>
+    {SIDEBAR_VARIANT_ITEMS.map((item) => (
+      <Sidebar.MenuItem
+        key={item.id}
+        id={item.id}
+        textValue={item.label}
+        isCurrent={current === item.id}
+        onAction={onSelect(item.id)}
+      >
+        <Sidebar.MenuItemContent>
+          {withIcons && <Sidebar.MenuIcon>{item.icon}</Sidebar.MenuIcon>}
+          <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
+          {withChips && item.chip !== undefined && <Sidebar.MenuChip>{item.chip}</Sidebar.MenuChip>}
+          {withActions && (
+            <Sidebar.MenuActions>
+              <Sidebar.MenuAction aria-label={`${item.label} 更多操作`}>⋯</Sidebar.MenuAction>
+            </Sidebar.MenuActions>
+          )}
+        </Sidebar.MenuItemContent>
+      </Sidebar.MenuItem>
+    ))}
+  </>
+);
+
+const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [open, setOpen] = useState(variant !== 'icon-only');
+  const [current, setCurrent] = useState('dashboard');
+  const side = variant === 'right-side' ? 'right' : 'left';
+  const sidebarVariant = variant === 'floating-variant' ? 'floating' : variant === 'inset-variant' ? 'inset' : 'sidebar';
+  const collapsible = variant === 'collapsible' || variant === 'collapsible-groups' ? 'offcanvas' : 'icon';
+  const showGroups =
+    variant === 'with-groups' ||
+    variant === 'collapsible-groups' ||
+    variant === 'complex' ||
+    variant === 'agent-hub' ||
+    variant === 'agent-workspace' ||
+    variant === 'meeting-notes';
+  const withAvatar =
+    variant === 'with-avatar' ||
+    variant === 'compact-with-user-menu' ||
+    variant === 'agent-hub' ||
+    variant === 'agent-workspace';
+  const withActions = variant === 'complex' || variant === 'meeting-notes';
+
+  const handleOpenChange = (next: boolean) => setOpen(next);
+  const handleSelect = (id: string) => () => setCurrent(id);
+
+  return (
+    <DemoSection label={variant} isColumn>
+      <div style={SIDEBAR_VARIANT_FRAME_STYLE}>
+        <Sidebar.Provider
+          open={open}
+          onOpenChange={handleOpenChange}
+          side={side}
+          variant={sidebarVariant}
+          collapsible={collapsible}
+          reduceMotion={variant === 'reduced-motion'}
+          toggleShortcut={false}
+        >
+          <Sidebar>
+            <Sidebar.Header>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px' }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: withAvatar ? '50%' : 8,
+                    background: 'var(--accent)',
+                    color: 'var(--accent-foreground)',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontWeight: 700,
+                  }}
+                >
+                  {withAvatar ? '吴' : 'V'}
+                </div>
+                <span className="sidebar__menu-label-text" style={{ fontWeight: 600 }}>
+                  {variant === 'agent-hub' ? 'Agent Hub' : variant === 'meeting-notes' ? 'Meeting Notes' : 'Vela'}
+                </span>
+              </div>
+            </Sidebar.Header>
+            <Sidebar.Content>
+              {showGroups ? (
+                <>
+                  <Sidebar.Group>
+                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? '本周会议' : '工作区'}</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="工作区" showGuideLines={variant === 'complex' ? 'hover' : true}>
+                      <SidebarVariantMenuRows
+                        current={current}
+                        onSelect={handleSelect}
+                        withChips={variant === 'agent-hub' || variant === 'meeting-notes'}
+                        withActions={withActions}
+                      />
+                    </Sidebar.Menu>
+                  </Sidebar.Group>
+                  <Sidebar.Group>
+                    <Sidebar.GroupLabel>收藏</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="收藏">
+                      <Sidebar.MenuItem id="playbooks" textValue="Playbooks" onAction={handleSelect('playbooks')}>
+                        <Sidebar.MenuItemContent>
+                          <Sidebar.MenuIcon>✦</Sidebar.MenuIcon>
+                          <Sidebar.MenuLabel>Playbooks</Sidebar.MenuLabel>
+                        </Sidebar.MenuItemContent>
+                      </Sidebar.MenuItem>
+                    </Sidebar.Menu>
+                  </Sidebar.Group>
+                </>
+              ) : (
+                <Sidebar.Group>
+                  <Sidebar.Menu aria-label="导航" showGuideLines={variant !== 'reduced-motion'}>
+                    <SidebarVariantMenuRows
+                      current={current}
+                      onSelect={handleSelect}
+                      withIcons={variant !== 'default'}
+                      withChips={variant === 'compact-with-user-menu'}
+                    />
+                  </Sidebar.Menu>
+                </Sidebar.Group>
+              )}
+            </Sidebar.Content>
+            {(variant === 'compact-with-user-menu' || withAvatar) && (
+              <Sidebar.Footer>
+                <Sidebar.Menu aria-label="用户">
+                  <Sidebar.MenuItem id="profile" textValue="个人设置" onAction={handleSelect('profile')}>
+                    <Sidebar.MenuItemContent>
+                      <Sidebar.MenuIcon>●</Sidebar.MenuIcon>
+                      <Sidebar.MenuLabel>吴老师</Sidebar.MenuLabel>
+                      <Sidebar.MenuChip>Pro</Sidebar.MenuChip>
+                    </Sidebar.MenuItemContent>
+                  </Sidebar.MenuItem>
+                </Sidebar.Menu>
+              </Sidebar.Footer>
+            )}
+            <Sidebar.Rail />
+          </Sidebar>
+          <Sidebar.Main>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
+              <Sidebar.Trigger />
+              <span style={VARIANT_MUTED_STYLE}>
+                当前：{current} · {open ? '展开' : '收起'} · {side === 'right' ? '右侧' : sidebarVariant}
+              </span>
+            </div>
+            <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>
+              {variant === 'agent-workspace'
+                ? 'Agent 运行队列、工具调用和工作区文件。'
+                : variant === 'meeting-notes'
+                  ? '会议纪要、待办和发言摘要。'
+                  : '主内容区跟随侧栏状态调整。'}
+            </div>
+          </Sidebar.Main>
+        </Sidebar.Provider>
+      </div>
+    </DemoSection>
+  );
+};
+
+const APP_LAYOUT_VARIANT_STYLE: CSSProperties = {
+  width: 780,
+  height: 390,
+  minHeight: 390,
+  border: '1px solid var(--separator)',
+  borderRadius: 8,
+  overflow: 'hidden',
+};
+
+const APP_LAYOUT_VARIANT_ROWS = Array.from({ length: 8 }, (_, index) => `内容块 ${index + 1}`);
+
+const AppLayoutSidebarContent = ({
+  active,
+  onSelect,
+}: {
+  active: string;
+  onSelect: (id: string) => void;
+}) => (
+  <nav style={{ display: 'flex', flexDirection: 'column', gap: 6, padding: 12, width: 210 }}>
+    {APP_LAYOUT_NAV.map((item) => (
+      <Button
+        key={item.id}
+        size="sm"
+        variant={active === item.id ? 'secondary' : 'ghost'}
+        isFullWidth
+        onClick={() => onSelect(item.id)}
+      >
+        {item.label}
+      </Button>
+    ))}
+  </nav>
+);
+
+const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [sidebarOpen, setSidebarOpen] = useState(!variant.includes('offcanvas'));
+  const [asideOpen, setAsideOpen] = useState(true);
+  const [active, setActive] = useState('dashboard');
+
+  const hasAside =
+    variant === 'with-aside' ||
+    variant === 'resizable-aside' ||
+    variant === 'complex' ||
+    variant === 'with-toolbar' ||
+    variant === 'inset-dashboard';
+  const sidebarVariant =
+    variant === 'floating-sidebar' ? 'floating' : variant === 'inset-dashboard' || variant === 'with-inset-sidebar' ? 'inset' : 'sidebar';
+  const sidebarCollapsible =
+    variant === 'offcanvas' || variant === 'resizable-sidebar' ? 'offcanvas' : variant === 'resizable-sidebar' ? 'none' : 'icon';
+  const isResizableSidebar = variant === 'resizable-sidebar';
+  const isResizableAside = variant === 'resizable-aside' || variant === 'complex';
+  const scrollMode = variant === 'content-scroll' ? 'content' : 'page';
+  const showToolbar = variant === 'with-toolbar' || variant === 'with-breadcrumbs' || variant === 'docs-site' || variant === 'complex';
+
+  const sidebar = (
+    <AppLayoutSidebarContent active={active} onSelect={setActive} />
+  );
+  const aside = hasAside ? (
+    <div style={{ padding: 16, ...VARIANT_COLUMN_STYLE }}>
+      <strong>上下文</strong>
+      <span style={VARIANT_MUTED_STYLE}>当前模块：{active}</span>
+      <TrendChip trend="up" value="8.2%" suffix="活跃" size="sm" />
+    </div>
+  ) : null;
+  const navbar = (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 16px' }}>
+      <AppLayout.MenuToggle tooltip="打开导航" />
+      <Button size="sm" variant="ghost" onClick={() => setSidebarOpen((open) => !open)}>
+        {sidebarOpen ? '收起侧栏' : '展开侧栏'}
+      </Button>
+      <strong>{variant === 'docs-site' ? 'Vela Docs' : 'Vela Console'}</strong>
+      <span style={{ flex: 1 }} />
+      {hasAside && <AppLayout.AsideTrigger closedTooltip="打开详情" openTooltip="关闭详情" />}
+    </div>
+  );
+  const toolbar = showToolbar ? (
+    <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px' }}>
+      {variant === 'with-breadcrumbs' || variant === 'docs-site' ? (
+        <Breadcrumbs>
+          <Breadcrumbs.Item label="Docs" href="/docs" />
+          <Breadcrumbs.Item label="Navigation" href="/docs/navigation" />
+          <Breadcrumbs.Item label="AppLayout" isCurrent />
+        </Breadcrumbs>
+      ) : (
+        <Segment aria-label="视图" size="sm" defaultSelectedKey="overview">
+          <Segment.Item id="overview">概览</Segment.Item>
+          <Segment.Item id="timeline">时间线</Segment.Item>
+        </Segment>
+      )}
+    </div>
+  ) : null;
+
+  return (
+    <DemoSection label={variant} isColumn>
+      <AppLayout
+        sidebar={sidebar}
+        navbar={navbar}
+        aside={aside}
+        toolbar={toolbar}
+        footer={variant === 'complex' ? <div style={{ padding: 12, ...VARIANT_MUTED_STYLE }}>已同步 · 3 个任务待处理</div> : undefined}
+        sidebarOpen={sidebarOpen}
+        onSidebarOpenChange={setSidebarOpen}
+        asideOpen={asideOpen}
+        onAsideOpenChange={setAsideOpen}
+        sidebarVariant={sidebarVariant}
+        sidebarCollapsible={isResizableSidebar ? 'none' : sidebarCollapsible}
+        sidebarResizable={isResizableSidebar}
+        asideResizable={isResizableAside}
+        sidebarDefaultSize={24}
+        asideDefaultSize={24}
+        scrollMode={scrollMode}
+        asideMobile={variant === 'offcanvas' ? 'sheet' : 'hidden'}
+        toggleShortcut={false}
+        asideToggleShortcut={false}
+        style={APP_LAYOUT_VARIANT_STYLE}
+      >
+        {APP_LAYOUT_VARIANT_ROWS.map((row) => (
+          <div key={row} style={{ ...VARIANT_PANEL_STYLE, margin: '12px 16px' }}>
+            <strong>{row}</strong>
+            <p style={{ ...VARIANT_MUTED_STYLE, margin: '6px 0 0' }}>
+              {variant === 'content-scroll' ? '主内容区域独立滚动。' : `当前 ${active} 模块的工作内容。`}
+            </p>
+          </div>
+        ))}
+        <AppLayout.MobileAside>
+          <div style={{ padding: 16 }}>移动端详情面板</div>
+        </AppLayout.MobileAside>
+      </AppLayout>
+    </DemoSection>
+  );
+};
+
+const STEPPER_VARIANT_STEPS = [
+  { title: '账户', description: '填写基本信息', icon: '1' },
+  { title: '方案', description: '选择订阅计划', icon: '2' },
+  { title: '支付', description: '确认付款方式', icon: '3' },
+  { title: '完成', description: '开始使用 Vela', icon: '4' },
+];
+
+const StepperStatusIcon = ({ mode }: { mode: 'complete' | 'dynamic' }) => {
+  const { index, status } = useStepperStep();
+  if (mode === 'complete') {
+    return <Stepper.Icon>{status === 'complete' ? '✓' : index + 1}</Stepper.Icon>;
+  }
+  return <Stepper.Icon>{status === 'complete' ? '✓' : status === 'active' ? '●' : '○'}</Stepper.Icon>;
+};
+
+const StepperStatusLabel = () => {
+  const { status } = useStepperStep();
+  return <span style={VARIANT_MUTED_STYLE}>{status}</span>;
+};
+
+const StepperVariantSteps = ({
+  variant,
+  withDescriptions,
+}: {
+  variant: string;
+  withDescriptions?: boolean;
+}) => (
+  <>
+    {STEPPER_VARIANT_STEPS.map((step) => (
+      <Stepper.Step key={step.title}>
+        <Stepper.Indicator>
+          {variant === 'bullet-steps' ? (
+            <span aria-hidden="true">•</span>
+          ) : variant === 'custom-completed-icon' ? (
+            <StepperStatusIcon mode="complete" />
+          ) : variant === 'dynamic-icon' ? (
+            <StepperStatusIcon mode="dynamic" />
+          ) : variant === 'with-icons' || variant === 'vertical-with-icons' ? (
+            <Stepper.Icon>{step.icon}</Stepper.Icon>
+          ) : undefined}
+        </Stepper.Indicator>
+        <Stepper.Content>
+          <Stepper.Title>{step.title}</Stepper.Title>
+          {(withDescriptions || variant === 'render-function') && (
+            <Stepper.Description>
+              {step.description}
+              {variant === 'render-function' && <> · <StepperStatusLabel /></>}
+            </Stepper.Description>
+          )}
+        </Stepper.Content>
+      </Stepper.Step>
+    ))}
+  </>
+);
+
+const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
+  const [currentStep, setCurrentStep] = useState(variant.includes('timeline') || variant.includes('tracking') ? 2 : 1);
+  const isVertical =
+    variant.includes('vertical') ||
+    variant.includes('timeline') ||
+    variant === 'package-tracking' ||
+    variant === 'free-trial-timeline' ||
+    variant === 'onboarding-timeline';
+  const size = variant.includes('sizes') ? 'lg' : variant === 'bullet-steps' ? 'sm' : 'md';
+  const withDescriptions =
+    variant === 'with-descriptions' ||
+    variant.includes('timeline') ||
+    variant === 'package-tracking' ||
+    isVertical;
+  const isInteractive = variant === 'controlled' || variant === 'controlled-vertical';
+  const customColorStyle =
+    variant === 'custom-color' || variant === 'custom-color-vertical'
+      ? ({
+          '--stepper-active-color': 'var(--success)',
+          '--stepper-complete-color': 'var(--success)',
+          '--stepper-complete-fg': 'var(--success-foreground)',
+        } as CSSProperties)
+      : undefined;
+
+  if (variant === 'sizes') {
+    return (
+      <DemoSection label="sizes" isColumn>
+        {(['sm', 'md', 'lg'] as const).map((stepperSize) => (
+          <Stepper key={stepperSize} size={stepperSize} currentStep={1}>
+            <StepperVariantSteps variant="default" />
+          </Stepper>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'vertical-sizes') {
+    return (
+      <DemoSection label="vertical sizes">
+        {(['sm', 'md', 'lg'] as const).map((stepperSize) => (
+          <Stepper key={stepperSize} orientation="vertical" size={stepperSize} currentStep={1}>
+            <StepperVariantSteps variant="default" withDescriptions />
+          </Stepper>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={variant} isColumn>
+      <Stepper
+        orientation={isVertical ? 'vertical' : 'horizontal'}
+        size={size}
+        currentStep={variant === 'default' ? undefined : currentStep}
+        defaultStep={variant === 'default' ? 1 : undefined}
+        onStepChange={isInteractive ? setCurrentStep : undefined}
+        style={{ maxWidth: isVertical ? 360 : 660, ...customColorStyle }}
+      >
+        <StepperVariantSteps
+          variant={
+            variant === 'custom-completed-icon'
+              ? 'custom-completed-icon'
+              : variant === 'dynamic-icon'
+                ? 'dynamic-icon'
+                : variant === 'bullet-steps'
+                  ? 'bullet-steps'
+                  : variant === 'with-icons' || variant === 'vertical-with-icons'
+                    ? variant
+                    : variant === 'render-function'
+                      ? 'render-function'
+                      : 'default'
+          }
+          withDescriptions={withDescriptions}
+        />
+      </Stepper>
+      {isInteractive && (
+        <span style={VARIANT_MUTED_STYLE}>点击步骤切换 · 当前第 {currentStep + 1} 步</span>
+      )}
+    </DemoSection>
+  );
+};
+
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
   'progress-circle': <ProgressCircleDemo />,
@@ -1034,4 +2712,155 @@ export const feedbackNavDemos: Record<string, ReactNode> = {
   resizable: <ResizableDemo />,
   'app-layout': <AppLayoutDemo />,
   sidebar: <SidebarDemo />,
+};
+
+export const feedbackNavVariantDemos: Record<string, ReactNode> = {
+  'emoji-reaction-button-default': <EmojiReactionVariantDemo variant="default" />,
+  'emoji-reaction-button-disabled': <EmojiReactionVariantDemo variant="disabled" />,
+  'emoji-reaction-button-read-only': <EmojiReactionVariantDemo variant="read-only" />,
+  'emoji-reaction-button-sizes': <EmojiReactionVariantDemo variant="sizes" />,
+
+  'number-value-compact': <NumberValueVariantDemo variant="compact" />,
+  'number-value-currency': <NumberValueVariantDemo variant="currency" />,
+  'number-value-default': <NumberValueVariantDemo variant="default" />,
+  'number-value-format-options': <NumberValueVariantDemo variant="format-options" />,
+  'number-value-percent': <NumberValueVariantDemo variant="percent" />,
+  'number-value-sign-display': <NumberValueVariantDemo variant="sign-display" />,
+  'number-value-tabular-nums': <NumberValueVariantDemo variant="tabular-nums" />,
+  'number-value-with-prefix-suffix': <NumberValueVariantDemo variant="with-prefix-suffix" />,
+
+  'pressable-feedback-comparison': <PressableFeedbackVariantDemo variant="comparison" />,
+  'pressable-feedback-default': <PressableFeedbackVariantDemo variant="default" />,
+  'pressable-feedback-disabled': <PressableFeedbackVariantDemo variant="disabled" />,
+  'pressable-feedback-hold-confirm-callback': <PressableFeedbackVariantDemo variant="hold-confirm-callback" />,
+  'pressable-feedback-hold-confirm-durations': <PressableFeedbackVariantDemo variant="hold-confirm-durations" />,
+  'pressable-feedback-hold-confirm-sweep': <PressableFeedbackVariantDemo variant="hold-confirm-sweep" />,
+  'pressable-feedback-pressable-cards': <PressableFeedbackVariantDemo variant="pressable-cards" />,
+  'pressable-feedback-progress-feedback-callback': <PressableFeedbackVariantDemo variant="progress-feedback-callback" />,
+  'pressable-feedback-progress-feedback-durations': <PressableFeedbackVariantDemo variant="progress-feedback-durations" />,
+  'pressable-feedback-progress-feedback-no-reset': <PressableFeedbackVariantDemo variant="progress-feedback-no-reset" />,
+  'pressable-feedback-progress-feedback-sweep': <PressableFeedbackVariantDemo variant="progress-feedback-sweep" />,
+  'pressable-feedback-standalone-highlight': <PressableFeedbackVariantDemo variant="standalone-highlight" />,
+  'pressable-feedback-standalone-ripple': <PressableFeedbackVariantDemo variant="standalone-ripple" />,
+  'pressable-feedback-with-highlight': <PressableFeedbackVariantDemo variant="with-highlight" />,
+  'pressable-feedback-with-hold-confirm': <PressableFeedbackVariantDemo variant="with-hold-confirm" />,
+  'pressable-feedback-with-progress-feedback': <PressableFeedbackVariantDemo variant="with-progress-feedback" />,
+  'pressable-feedback-with-ripple': <PressableFeedbackVariantDemo variant="with-ripple" />,
+
+  'rating-controlled': <RatingVariantDemo variant="controlled" />,
+  'rating-custom-color': <RatingVariantDemo variant="custom-color" />,
+  'rating-custom-icon-heart': <RatingVariantDemo variant="custom-icon-heart" />,
+  'rating-custom-icon-per-item': <RatingVariantDemo variant="custom-icon-per-item" />,
+  'rating-default': <RatingVariantDemo variant="default" />,
+  'rating-disabled': <RatingVariantDemo variant="disabled" />,
+  'rating-product-review': <RatingVariantDemo variant="product-review" />,
+  'rating-read-only': <RatingVariantDemo variant="read-only" />,
+  'rating-read-only-fractional': <RatingVariantDemo variant="read-only-fractional" />,
+  'rating-render-function': <RatingVariantDemo variant="render-function" />,
+  'rating-sizes': <RatingVariantDemo variant="sizes" />,
+  'rating-with-label': <RatingVariantDemo variant="with-label" />,
+
+  'trend-chip-custom-indicator': <TrendChipVariantDemo variant="custom-indicator" />,
+  'trend-chip-default': <TrendChipVariantDemo variant="default" />,
+  'trend-chip-prefix-and-suffix': <TrendChipVariantDemo variant="prefix-and-suffix" />,
+  'trend-chip-sizes': <TrendChipVariantDemo variant="sizes" />,
+  'trend-chip-tabular-nums': <TrendChipVariantDemo variant="tabular-nums" />,
+  'trend-chip-variants': <TrendChipVariantDemo variant="variants" />,
+
+  'resizable-default': <ResizableVariantDemo variant="default" />,
+  'resizable-nested': <ResizableVariantDemo variant="nested" />,
+  'resizable-types': <ResizableVariantDemo variant="types" />,
+  'resizable-variants': <ResizableVariantDemo variant="variants" />,
+  'resizable-vertical': <ResizableVariantDemo variant="vertical" />,
+  'resizable-with-collapse': <ResizableVariantDemo variant="with-collapse" />,
+  'resizable-with-indicator': <ResizableVariantDemo variant="with-indicator" />,
+
+  'app-layout-collapsible': <AppLayoutVariantDemo variant="collapsible" />,
+  'app-layout-complex': <AppLayoutVariantDemo variant="complex" />,
+  'app-layout-content-scroll': <AppLayoutVariantDemo variant="content-scroll" />,
+  'app-layout-default': <AppLayoutVariantDemo variant="default" />,
+  'app-layout-docs-site': <AppLayoutVariantDemo variant="docs-site" />,
+  'app-layout-floating-sidebar': <AppLayoutVariantDemo variant="floating-sidebar" />,
+  'app-layout-inset-dashboard': <AppLayoutVariantDemo variant="inset-dashboard" />,
+  'app-layout-offcanvas': <AppLayoutVariantDemo variant="offcanvas" />,
+  'app-layout-resizable-aside': <AppLayoutVariantDemo variant="resizable-aside" />,
+  'app-layout-resizable-sidebar': <AppLayoutVariantDemo variant="resizable-sidebar" />,
+  'app-layout-with-aside': <AppLayoutVariantDemo variant="with-aside" />,
+  'app-layout-with-breadcrumbs': <AppLayoutVariantDemo variant="with-breadcrumbs" />,
+  'app-layout-with-inset-sidebar': <AppLayoutVariantDemo variant="with-inset-sidebar" />,
+  'app-layout-with-toolbar': <AppLayoutVariantDemo variant="with-toolbar" />,
+
+  'command-backdrop-variants': <CommandVariantDemo variant="backdrop-variants" />,
+  'command-clean': <CommandVariantDemo variant="clean" />,
+  'command-default': <CommandVariantDemo variant="default" />,
+  'command-dev-toolbar': <CommandVariantDemo variant="dev-toolbar" />,
+  'command-launcher': <CommandVariantDemo variant="launcher" />,
+  'command-minimal': <CommandVariantDemo variant="minimal" />,
+  'command-multiple-search-terms': <CommandVariantDemo variant="multiple-search-terms" />,
+  'command-sizes': <CommandVariantDemo variant="sizes" />,
+  'command-split-view': <CommandVariantDemo variant="split-view" />,
+
+  'context-menu-controlled': <ContextMenuVariantDemo variant="controlled" />,
+  'context-menu-default': <ContextMenuVariantDemo variant="default" />,
+  'context-menu-disabled': <ContextMenuVariantDemo variant="disabled" />,
+  'context-menu-long-press': <ContextMenuVariantDemo variant="long-press" />,
+  'context-menu-with-sections': <ContextMenuVariantDemo variant="with-sections" />,
+  'context-menu-with-selection': <ContextMenuVariantDemo variant="with-selection" />,
+  'context-menu-with-submenus': <ContextMenuVariantDemo variant="with-submenus" />,
+
+  'navbar-compact': <NavbarVariantDemo variant="compact" />,
+  'navbar-dashboard': <NavbarVariantDemo variant="dashboard" />,
+  'navbar-default': <NavbarVariantDemo variant="default" />,
+  'navbar-docs-site': <NavbarVariantDemo variant="docs-site" />,
+  'navbar-hide-on-scroll': <NavbarVariantDemo variant="hide-on-scroll" />,
+  'navbar-with-dropdowns': <NavbarVariantDemo variant="with-dropdowns" />,
+  'navbar-with-menu': <NavbarVariantDemo variant="with-menu" />,
+
+  'segment-controlled': <SegmentVariantDemo variant="controlled" />,
+  'segment-default': <SegmentVariantDemo variant="default" />,
+  'segment-disabled': <SegmentVariantDemo variant="disabled" />,
+  'segment-disabled-item': <SegmentVariantDemo variant="disabled-item" />,
+  'segment-ghost': <SegmentVariantDemo variant="ghost" />,
+  'segment-icon-expand': <SegmentVariantDemo variant="icon-expand" />,
+  'segment-sizes': <SegmentVariantDemo variant="sizes" />,
+  'segment-theme-switcher': <SegmentVariantDemo variant="theme-switcher" />,
+  'segment-two-items': <SegmentVariantDemo variant="two-items" />,
+  'segment-with-icons': <SegmentVariantDemo variant="with-icons" />,
+  'segment-without-separators': <SegmentVariantDemo variant="without-separators" />,
+
+  'sidebar-agent-hub': <SidebarVariantDemo variant="agent-hub" />,
+  'sidebar-agent-workspace': <SidebarVariantDemo variant="agent-workspace" />,
+  'sidebar-collapsible': <SidebarVariantDemo variant="collapsible" />,
+  'sidebar-collapsible-groups': <SidebarVariantDemo variant="collapsible-groups" />,
+  'sidebar-compact-with-user-menu': <SidebarVariantDemo variant="compact-with-user-menu" />,
+  'sidebar-complex': <SidebarVariantDemo variant="complex" />,
+  'sidebar-default': <SidebarVariantDemo variant="default" />,
+  'sidebar-floating-variant': <SidebarVariantDemo variant="floating-variant" />,
+  'sidebar-icon-only': <SidebarVariantDemo variant="icon-only" />,
+  'sidebar-inset-variant': <SidebarVariantDemo variant="inset-variant" />,
+  'sidebar-meeting-notes': <SidebarVariantDemo variant="meeting-notes" />,
+  'sidebar-reduced-motion': <SidebarVariantDemo variant="reduced-motion" />,
+  'sidebar-right-side': <SidebarVariantDemo variant="right-side" />,
+  'sidebar-with-avatar': <SidebarVariantDemo variant="with-avatar" />,
+  'sidebar-with-groups': <SidebarVariantDemo variant="with-groups" />,
+
+  'stepper-bullet-steps': <StepperVariantDemo variant="bullet-steps" />,
+  'stepper-controlled': <StepperVariantDemo variant="controlled" />,
+  'stepper-controlled-vertical': <StepperVariantDemo variant="controlled-vertical" />,
+  'stepper-custom-color': <StepperVariantDemo variant="custom-color" />,
+  'stepper-custom-color-vertical': <StepperVariantDemo variant="custom-color-vertical" />,
+  'stepper-custom-completed-icon': <StepperVariantDemo variant="custom-completed-icon" />,
+  'stepper-default': <StepperVariantDemo variant="default" />,
+  'stepper-display-only': <StepperVariantDemo variant="display-only" />,
+  'stepper-dynamic-icon': <StepperVariantDemo variant="dynamic-icon" />,
+  'stepper-free-trial-timeline': <StepperVariantDemo variant="free-trial-timeline" />,
+  'stepper-onboarding-timeline': <StepperVariantDemo variant="onboarding-timeline" />,
+  'stepper-package-tracking': <StepperVariantDemo variant="package-tracking" />,
+  'stepper-render-function': <StepperVariantDemo variant="render-function" />,
+  'stepper-sizes': <StepperVariantDemo variant="sizes" />,
+  'stepper-vertical': <StepperVariantDemo variant="vertical" />,
+  'stepper-vertical-sizes': <StepperVariantDemo variant="vertical-sizes" />,
+  'stepper-vertical-with-icons': <StepperVariantDemo variant="vertical-with-icons" />,
+  'stepper-with-descriptions': <StepperVariantDemo variant="with-descriptions" />,
+  'stepper-with-icons': <StepperVariantDemo variant="with-icons" />,
 };

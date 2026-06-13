@@ -95,20 +95,7 @@ const coverageProblems = rows.filter(
 );
 const exportProblems = [...componentDirs].filter((id) => !packageExportNames.has(toExportName(id)));
 const unknownVariantDemoKeys = [...variantDemoKeys].filter((slug) => !allVariantSlugs.has(slug));
-const requiredVariantComponents = [
-  'area-chart',
-  'bar-chart',
-  'chart-tooltip',
-  'composed-chart',
-  'line-chart',
-  'pie-chart',
-  'radar-chart',
-  'radial-chart',
-  'drop-zone',
-];
-const requiredVariantSlugs = [
-  ...new Set(requiredVariantComponents.flatMap((id) => demoIndex[id] ?? [])),
-];
+const requiredVariantSlugs = [...allVariantSlugs];
 const missingRequiredVariantSlugs = requiredVariantSlugs.filter((slug) => !variantDemoKeys.has(slug));
 
 console.log(`Pro components: ${rows.length}`);

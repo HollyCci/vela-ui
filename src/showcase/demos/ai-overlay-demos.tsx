@@ -952,7 +952,7 @@ const ChatConversationDemo = () => {
 
 const MARKDOWN_SAMPLE = `# Vela UI Markdown
 
-支持 **加粗**、行内 \`code\` 与[链接](https://heroui.pro)。
+支持 **加粗**、行内 \`code\` 与[链接](https://github.com/HollyCci/vela-ui)。
 
 ## 特性
 
@@ -973,6 +973,1040 @@ const MarkdownDemo = () => (
     </div>
   </DemoSection>
 );
+
+type ChainOfThoughtVariant = 'agent-trace' | 'agent-trace-streaming' | 'default' | 'streaming';
+
+const ChainOfThoughtVariantDemo = ({ variant }: { variant: ChainOfThoughtVariant }) => {
+  const isTrace = variant === 'agent-trace' || variant === 'agent-trace-streaming';
+  const isStreaming = variant === 'streaming' || variant === 'agent-trace-streaming';
+
+  return (
+    <DemoSection label={`chain-of-thought-${variant}`} isColumn>
+      <ChainOfThought defaultExpanded isStreaming={isStreaming}>
+        <ChainOfThought.Trigger>{isStreaming ? '正在分析请求…' : '已思考 8 秒'}</ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step label="拆解目标">识别用户希望比较不同班级的学习进度。</ChainOfThought.Step>
+            <ChainOfThought.Step label="检索数据">读取最近 7 天的完成率、错题数与跟进记录。</ChainOfThought.Step>
+            <ChainOfThought.Step label={isStreaming ? '生成中' : '输出结论'}>
+              {isStreaming ? '正在汇总异常班级与建议动作…' : 'A 班完成率下降，需要优先补充听力训练。'}
+            </ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>
+      {isTrace && (
+        <ChatTool label={isStreaming ? <TextShimmer>调用 learner_progress.search</TextShimmer> : 'learner_progress.search'} status={isStreaming ? 'running' : 'idle'} defaultExpanded>
+          <ChatTool.Args>
+            <CodeBlock>
+              <CodeBlock.Code code={'{ "range": "7d", "groupBy": "class" }'} language="json" />
+            </CodeBlock>
+          </ChatTool.Args>
+          <ChatTool.Result>{isStreaming ? '正在读取学习记录…' : '返回 3 个低完成率班级。'}</ChatTool.Result>
+        </ChatTool>
+      )}
+    </DemoSection>
+  );
+};
+
+type ChatAttachmentVariant = 'composer' | 'default' | 'grouped';
+
+const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant }) => {
+  const [attachments, setAttachments] = useState([
+    { name: '课后反馈.pdf', kind: 'file' as const, fallbackIcon: 'PDF' },
+    { name: '课堂截图.png', kind: 'image' as const, fallbackIcon: 'IMG' },
+    { name: '朗读片段.mp4', kind: 'video' as const, fallbackIcon: 'VID' },
+  ]);
+  const [draftAttachments, setDraftAttachments] = useState(['家长沟通记录.docx']);
+
+  const removeAttachment = useCallback((name: string) => {
+    setAttachments((prev) => prev.filter((attachment) => attachment.name !== name));
+  }, []);
+  const addDraftAttachment = useCallback(() => {
+    setDraftAttachments((prev) => [...prev, `补充材料-${prev.length + 1}.pdf`]);
+  }, []);
+  const removeDraftAttachment = useCallback((name: string) => {
+    setDraftAttachments((prev) => prev.filter((item) => item !== name));
+  }, []);
+
+  if (variant === 'composer') {
+    return (
+      <DemoSection label="chat-attachment-composer" isColumn>
+        <PromptInput defaultValue="请结合附件整理一次家长沟通摘要。">
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.Attachments>
+                {draftAttachments.map((name) => (
+                  <DemoAttachment key={name} name={name} onRemove={removeDraftAttachment} />
+                ))}
+              </PromptInput.Attachments>
+              <PromptInput.TextArea aria-label="带附件的提示输入" />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarStart>
+                <PromptInput.Action aria-label="添加附件" tooltip="添加附件" onPress={addDraftAttachment}>
+                  ＋
+                </PromptInput.Action>
+              </PromptInput.ToolbarStart>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+        </PromptInput>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={`chat-attachment-${variant}`}>
+      {attachments.slice(0, variant === 'default' ? 2 : attachments.length).map((attachment) => (
+        <ChatAttachment
+          key={attachment.name}
+          name={attachment.name}
+          kind={attachment.kind}
+          fallbackIcon={attachment.fallbackIcon}
+          onRemove={() => removeAttachment(attachment.name)}
+        />
+      ))}
+    </DemoSection>
+  );
+};
+
+const CONVERSATION_VARIANT_TURNS: ConversationTurn[] = [
+  { id: 1, role: 'user', text: '帮我看一下本周哪类问题增长最快。' },
+  { id: 2, role: 'assistant', text: '阅读理解类问题增长 18%，主要集中在三年级新班。' },
+  { id: 3, role: 'user', text: '把原因和下一步动作也列出来。' },
+  { id: 4, role: 'assistant', text: '原因是练习量上升但讲评不足；建议补一节错题精讲并跟进家长反馈。' },
+];
+
+type ChatConversationVariant = 'default' | 'full-chat' | 'scroll-button';
+
+const ChatConversationFrame = ({ children, height = 300 }: { children: ReactNode; height?: number }) => (
+  <div
+    style={{
+      border: '1px solid var(--separator)',
+      borderRadius: 12,
+      display: 'flex',
+      flexDirection: 'column',
+      height,
+      overflow: 'hidden',
+      width: 560,
+    }}
+  >
+    {children}
+  </div>
+);
+
+const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVariant }) => {
+  const [turns, setTurns] = useState<ConversationTurn[]>(CONVERSATION_VARIANT_TURNS);
+  const [value, setValue] = useState('');
+
+  const sendTurn = useCallback(
+    (message = '追加一个跟进问题。') => {
+      setTurns((prev) => [
+        ...prev,
+        { id: prev.length + 1, role: 'user', text: message },
+        { id: prev.length + 2, role: 'assistant', text: '已补充跟进建议，并保持消息流滚动到最新内容。' },
+      ]);
+      setValue('');
+    },
+    [],
+  );
+
+  if (variant === 'full-chat') {
+    return (
+      <DemoSection label="chat-conversation-full-chat" isColumn>
+        <ChatConversationFrame height={420}>
+          <ChatConversation style={{ flex: 1 }}>
+            <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+              <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+                {turns.map((turn) => (
+                  <ChatConversation.Message key={turn.id}>
+                    <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
+                  </ChatConversation.Message>
+                ))}
+              </ChatConversation.Messages>
+              <ChatConversation.ScrollButton />
+              <ChatConversation.ScrollAnchor />
+            </ChatConversation.Content>
+          </ChatConversation>
+          <PromptInput value={value} onValueChange={setValue} onSubmit={sendTurn} variant="inline">
+            <PromptInput.Shell>
+              <PromptInput.Content>
+                <PromptInput.TextArea placeholder="继续追问…" />
+              </PromptInput.Content>
+              <PromptInput.Toolbar>
+                <PromptInput.ToolbarEnd>
+                  <PromptInput.Send />
+                </PromptInput.ToolbarEnd>
+              </PromptInput.Toolbar>
+            </PromptInput.Shell>
+          </PromptInput>
+        </ChatConversationFrame>
+      </DemoSection>
+    );
+  }
+
+  const messages =
+    variant === 'scroll-button'
+      ? Array.from({ length: 12 }, (_, index) => ({
+          id: index,
+          role: (index % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
+          text: index % 2 === 0 ? `第 ${index / 2 + 1} 个追问` : '滚动离开底部时会显示回到底部按钮。',
+        }))
+      : turns;
+
+  return (
+    <DemoSection label={`chat-conversation-${variant}`} isColumn>
+      {variant === 'default' && (
+        <Button variant="secondary" size="sm" onClick={() => sendTurn()}>
+          追加消息
+        </Button>
+      )}
+      <ChatConversationFrame height={variant === 'scroll-button' ? 260 : 320}>
+        <ChatConversation initialScrollToBottom={variant !== 'scroll-button'} style={{ flex: 1 }}>
+          <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+            <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {messages.map((turn) => (
+                <ChatConversation.Message key={turn.id}>
+                  <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
+                </ChatConversation.Message>
+              ))}
+            </ChatConversation.Messages>
+            <ChatConversation.ScrollButton />
+            <ChatConversation.ScrollAnchor />
+          </ChatConversation.Content>
+        </ChatConversation>
+      </ChatConversationFrame>
+    </DemoSection>
+  );
+};
+
+type ChatListViewVariant = 'compact' | 'default';
+
+const ChatListViewVariantDemo = ({ variant }: { variant: ChatListViewVariant }) => {
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['2']));
+  const current = selectedKeys === 'all' ? 'all' : Array.from(selectedKeys)[0];
+
+  return (
+    <DemoSection label={`chat-list-view-${variant}`} isColumn>
+      <div style={{ width: 440 }}>
+        <ChatListView
+          aria-label="会话列表变体"
+          density={variant === 'compact' ? 'compact' : 'comfortable'}
+          selectionMode="single"
+          disallowEmptySelection
+          selectedKeys={selectedKeys}
+          items={CHAT_LIST}
+          onSelectionChange={setSelectedKeys}
+        >
+          {(chat) => (
+            <ChatListView.Item id={chat.id} textValue={chat.title}>
+              <ChatListView.ItemContent>
+                <ChatListView.Icon />
+                <ChatListView.Text>
+                  <ChatListView.Title>{chat.title}</ChatListView.Title>
+                  <ChatListView.Preview>{chat.preview}</ChatListView.Preview>
+                </ChatListView.Text>
+                <ChatListView.Meta>{chat.meta}</ChatListView.Meta>
+              </ChatListView.ItemContent>
+            </ChatListView.Item>
+          )}
+        </ChatListView>
+      </div>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>当前选中：{String(current)}</span>
+    </DemoSection>
+  );
+};
+
+const ChatMessageVariantDemo = ({ variant }: { variant: 'default' | 'loading' | 'with-markdown' }) => (
+  <DemoSection label={`chat-message-${variant}`} isColumn>
+    {variant === 'default' && (
+      <>
+        <ChatMessage variant="user">请用一句话解释今天的学习风险。</ChatMessage>
+        <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
+          风险集中在阅读理解，建议先补讲题型再追加练习。
+        </ChatMessage>
+      </>
+    )}
+    {variant === 'loading' && (
+      <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
+        <ChatLoader.Skeleton>
+          <ChatLoader.SkeletonAvatar />
+          <ChatLoader.SkeletonBlock>
+            <ChatLoader.SkeletonLine />
+            <ChatLoader.SkeletonLine />
+            <ChatLoader.SkeletonLine size="sm" />
+          </ChatLoader.SkeletonBlock>
+        </ChatLoader.Skeleton>
+      </ChatMessage>
+    )}
+    {variant === 'with-markdown' && (
+      <ChatMessage
+        variant="assistant"
+        avatar={<Avatar fallback="AI" />}
+        actions={
+          <ChatMessageActions>
+            <ChatMessageActions.Copy content={MARKDOWN_SAMPLE} />
+          </ChatMessageActions>
+        }
+      >
+        <Markdown>{'### 建议\n\n- 先完成 **阅读理解** 错题讲评\n- 追加 `15 min` 课后练习\n\n> 明天复盘完成率。'}</Markdown>
+      </ChatMessage>
+    )}
+  </DemoSection>
+);
+
+type ChatMessageActionsVariant = 'custom-icons' | 'default' | 'minimal';
+
+const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageActionsVariant }) => {
+  const [rating, setRating] = useState<'up' | 'down' | null>(null);
+  const [regenerateCount, setRegenerateCount] = useState(0);
+
+  return (
+    <DemoSection label={`chat-message-actions-${variant}`} isColumn>
+      <ChatMessageActions>
+        <ChatMessageActions.Copy
+          content={CHAT_ANSWER}
+          icon={variant === 'custom-icons' ? <span aria-hidden="true">C</span> : undefined}
+          copiedIcon={variant === 'custom-icons' ? <span aria-hidden="true">✓</span> : undefined}
+        />
+        {variant !== 'minimal' && (
+          <>
+            <ChatMessageActions.ThumbsUp
+              isSelected={rating === 'up'}
+              onChange={(isSelected) => setRating(isSelected ? 'up' : null)}
+            >
+              {variant === 'custom-icons' ? '＋' : undefined}
+            </ChatMessageActions.ThumbsUp>
+            <ChatMessageActions.ThumbsDown
+              isSelected={rating === 'down'}
+              onChange={(isSelected) => setRating(isSelected ? 'down' : null)}
+            >
+              {variant === 'custom-icons' ? '－' : undefined}
+            </ChatMessageActions.ThumbsDown>
+            <ChatMessageActions.Regenerate onPress={() => setRegenerateCount((count) => count + 1)}>
+              {variant === 'custom-icons' ? '↻' : undefined}
+            </ChatMessageActions.Regenerate>
+          </>
+        )}
+        <ChatMessageActions.Menu>{variant === 'custom-icons' ? '…' : undefined}</ChatMessageActions.Menu>
+      </ChatMessageActions>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+        评价：{rating ?? 'none'}；重新生成：{regenerateCount}
+      </span>
+    </DemoSection>
+  );
+};
+
+type ChatSourceVariant = 'composable' | 'default' | 'document' | 'grouped' | 'stacked-favicons';
+
+const SOURCE_ITEMS = [
+  { href: 'https://react.dev', title: 'React Docs', fallback: 'R' },
+  { href: 'https://developer.mozilla.org', title: 'MDN', fallback: 'M' },
+  { href: 'https://www.w3.org', title: 'W3C', fallback: 'W' },
+];
+
+const ChatSourceVariantDemo = ({ variant }: { variant: ChatSourceVariant }) => {
+  const [opened, setOpened] = useState('尚未打开');
+  const handleOpen = useCallback((_href: string) => {
+    setOpened('已打开引用');
+  }, []);
+
+  return (
+    <DemoSection label={`chat-source-${variant}`} isColumn>
+      {variant === 'default' && (
+        <ChatSource href={SOURCE_ITEMS[0].href} title={SOURCE_ITEMS[0].title} fallback="R" onOpen={handleOpen} />
+      )}
+      {variant === 'document' && (
+        <ChatSource.Preview
+          href="https://example.com/quarterly-report.pdf"
+          title="季度学习报告.pdf"
+          description="包含班级完成率、薄弱题型与后续跟进建议。"
+          onOpen={handleOpen}
+        />
+      )}
+      {variant === 'grouped' && (
+        <div className="flex flex-wrap gap-2">
+          {SOURCE_ITEMS.map((source) => (
+            <ChatSource key={source.href} {...source} onOpen={handleOpen} />
+          ))}
+        </div>
+      )}
+      {variant === 'stacked-favicons' && (
+        <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
+          本段回答参考了{' '}
+          {SOURCE_ITEMS.map((source) => (
+            <ChatSource key={source.href} {...source} onOpen={handleOpen} />
+          ))}
+          。
+        </ChatMessage>
+      )}
+      {variant === 'composable' && (
+        <ChatMessage
+          variant="assistant"
+          avatar={<Avatar fallback="AI" />}
+          actions={
+            <ChatMessageActions>
+              <ChatMessageActions.Copy content="回答已附带来源预览。" />
+            </ChatMessageActions>
+          }
+        >
+          <Markdown>{'这条回答把正文、操作条与来源预览组合在同一个消息中。'}</Markdown>
+          <ChatSource.Preview
+            href="https://react.dev/learn"
+            title="React Learn"
+            description="组合式组件适合把来源嵌入 AI 回复正文。"
+            onOpen={handleOpen}
+          />
+        </ChatMessage>
+      )}
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{opened}</span>
+    </DemoSection>
+  );
+};
+
+type ChatToolVariant = 'approval' | 'composable' | 'default' | 'error-state' | 'grouped' | 'streaming';
+
+const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
+  const [approval, setApproval] = useState<'pending' | 'approved' | 'rejected'>('pending');
+  const [expanded, setExpanded] = useState(true);
+
+  if (variant === 'approval') {
+    const resolved = approval !== 'pending';
+
+    return (
+      <DemoSection label="chat-tool-approval" isColumn>
+        <ChatTool label="需要权限：发送家长通知" status={resolved ? (approval === 'approved' ? 'running' : 'error') : 'requires-action'} defaultExpanded>
+          <ChatTool.Approval
+            actions={
+              <>
+                <Button size="sm" variant="ghost" disabled={resolved} onClick={() => setApproval('rejected')}>
+                  拒绝
+                </Button>
+                <Button size="sm" disabled={resolved} onClick={() => setApproval('approved')}>
+                  允许
+                </Button>
+              </>
+            }
+          >
+            {approval === 'approved'
+              ? '已允许发送，正在模拟通知家长。'
+              : approval === 'rejected'
+                ? '已拒绝，本次不会发送通知。'
+                : '发送前需要确认消息内容与接收人。'}
+          </ChatTool.Approval>
+        </ChatTool>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'composable') {
+    return (
+      <DemoSection label="chat-tool-composable" isColumn>
+        <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
+          <Markdown>{'我会先读取学习记录，再给出可执行建议。'}</Markdown>
+          <ChatTool label="learning_record.read" status="idle" defaultExpanded>
+            <ChatTool.Args>
+              <CodeBlock>
+                <CodeBlock.Code code={'{ "studentId": "stu_1024", "days": 14 }'} language="json" />
+              </CodeBlock>
+            </ChatTool.Args>
+            <ChatTool.Result>已找到 12 条练习与 3 条老师备注。</ChatTool.Result>
+          </ChatTool>
+        </ChatMessage>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'grouped') {
+    return (
+      <DemoSection label="chat-tool-grouped" isColumn>
+        <ChatTool label="读取学习记录" status="idle" defaultExpanded>
+          <ChatTool.Result>读取完成。</ChatTool.Result>
+        </ChatTool>
+        <ChatTool label={<TextShimmer>生成行动建议</TextShimmer>} status="running" isExpandable={false} />
+        <ChatTool label="发送提醒" status="requires-action" defaultExpanded>
+          <ChatTool.Approval
+            actions={
+              <Button size="sm" disabled={approval === 'approved'} onClick={() => setApproval('approved')}>
+                允许
+              </Button>
+            }
+          >
+            {approval === 'approved' ? '已允许发送提醒。' : '需要确认发送对象。'}
+          </ChatTool.Approval>
+        </ChatTool>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'streaming') {
+    return (
+      <DemoSection label="chat-tool-streaming" isColumn>
+        <ChatTool label={<TextShimmer>search_lessons 正在执行…</TextShimmer>} status="streaming" defaultExpanded>
+          <ChatTool.Args>
+            <CodeBlock>
+              <CodeBlock.Code code={'{ "keyword": "阅读理解", "limit": 5 }'} language="json" />
+            </CodeBlock>
+          </ChatTool.Args>
+          <ChatTool.Result>
+            <TextShimmer>已返回 2 条结果，继续检索相似课程…</TextShimmer>
+          </ChatTool.Result>
+        </ChatTool>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={`chat-tool-${variant}`} isColumn>
+      <ChatTool
+        label={variant === 'error-state' ? '写入学习计划失败' : '生成学习计划'}
+        status={variant === 'error-state' ? 'error' : 'idle'}
+        isExpanded={expanded}
+        onExpandedChange={setExpanded}
+      >
+        {variant === 'error-state' ? (
+          <ChatTool.Error>缺少课程计划写入权限，请切换账号或联系管理员。</ChatTool.Error>
+        ) : (
+          <>
+            <ChatTool.Args>
+              <CodeBlock>
+                <CodeBlock.Code code={'{ "goal": "阅读理解", "weeks": 2 }'} language="json" />
+              </CodeBlock>
+            </ChatTool.Args>
+            <ChatTool.Result>已生成 2 周学习计划。</ChatTool.Result>
+          </>
+        )}
+      </ChatTool>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>展开状态：{expanded ? 'open' : 'closed'}</span>
+    </DemoSection>
+  );
+};
+
+const MarkdownVariantDemo = ({ variant }: { variant: 'default' | 'streaming' | 'with-streamdown' }) => {
+  const [isExpanded, setIsExpanded] = useState(false);
+  const streamingText = isExpanded
+    ? `${MARKDOWN_SAMPLE}\n\n- 流式补充：已追加一个新列表项。`
+    : '# Streaming Markdown\n\n正在生成 **分析结论**…\n\n```tsx\n<Markdown>{partial}</Markdown>\n```';
+
+  return (
+    <DemoSection label={`markdown-${variant}`} isColumn>
+      {variant === 'streaming' && (
+        <Button variant="secondary" size="sm" onClick={() => setIsExpanded((next) => !next)}>
+          {isExpanded ? '收起流式增量' : '追加流式内容'}
+        </Button>
+      )}
+      <div style={{ width: 620 }}>
+        <Markdown>
+          {variant === 'default'
+            ? MARKDOWN_SAMPLE
+            : variant === 'streaming'
+              ? streamingText
+              : '## Streamdown 风格回复\n\n1. 支持列表和 **重点**\n2. 代码块仍走 Vela `CodeBlock`\n\n```ts\nconst status = "ready";\n```\n\n> 在本仓中用现有 Markdown 渲染同类富文本回复。'}
+        </Markdown>
+      </div>
+    </DemoSection>
+  );
+};
+
+const PromptInputVariantDemo = ({
+  variant,
+}: {
+  variant: 'default' | 'inline' | 'queue' | 'run-state' | 'secondary' | 'with-suggestions';
+}) => {
+  const [value, setValue] = useState('');
+  const [status, setStatus] = useState<PromptInputStatus>(variant === 'run-state' ? 'streaming' : 'ready');
+  const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
+
+  const submitPrompt = useCallback((submitted: string) => {
+    setValue(`已发送：${submitted}`);
+    setStatus('submitted');
+  }, []);
+
+  if (variant === 'with-suggestions') {
+    return (
+      <DemoSection label="prompt-input-with-suggestions" isColumn>
+        <PromptSuggestion title="可直接填入输入框">
+          <PromptSuggestion.Items variant="pill">
+            {['总结今天的辅导记录', '生成本周学习建议'].map((suggestion) => (
+              <PromptSuggestion.Item key={suggestion} endIcon="→" onClick={() => setValue(suggestion)}>
+                {suggestion}
+              </PromptSuggestion.Item>
+            ))}
+          </PromptSuggestion.Items>
+        </PromptSuggestion>
+        <PromptInput value={value} onValueChange={setValue} onSubmit={submitPrompt}>
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.TextArea placeholder="点击上方建议或直接输入…" />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+        </PromptInput>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'queue') {
+    return (
+      <DemoSection label="prompt-input-queue" isColumn>
+        <PromptInput defaultValue="依次处理这些任务">
+          <PromptInput.Queue actionsVisibility="always">
+            <PromptInput.Queue.List values={queuedPrompts} onReorder={setQueuedPrompts}>
+              {queuedPrompts.map((prompt) => (
+                <DemoQueueRow
+                  key={prompt.id}
+                  prompt={prompt}
+                  onRemove={(id) => setQueuedPrompts((prev) => prev.filter((item) => item.id !== id))}
+                />
+              ))}
+            </PromptInput.Queue.List>
+          </PromptInput.Queue>
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.TextArea />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+        </PromptInput>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'run-state') {
+    return (
+      <DemoSection label="prompt-input-run-state" isColumn>
+        <div className="flex flex-wrap gap-2">
+          {(['ready', 'submitted', 'streaming', 'error'] as PromptInputStatus[]).map((nextStatus) => (
+            <Button key={nextStatus} size="sm" variant={status === nextStatus ? 'primary' : 'secondary'} onClick={() => setStatus(nextStatus)}>
+              {nextStatus}
+            </Button>
+          ))}
+        </div>
+        <PromptInput
+          value={value || '生成一段课程反馈'}
+          onValueChange={setValue}
+          onSubmit={submitPrompt}
+          onStop={() => setStatus('ready')}
+          status={status}
+          lockInputOnRun={false}
+        >
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.TextArea />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+        </PromptInput>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={`prompt-input-${variant}`} isColumn>
+      <PromptInput
+        value={value}
+        onValueChange={setValue}
+        onSubmit={submitPrompt}
+        variant={variant === 'inline' ? 'inline' : variant === 'secondary' ? 'secondary' : 'primary'}
+        size={variant === 'secondary' ? 'sm' : 'md'}
+      >
+        <PromptInput.Shell>
+          <PromptInput.Content>
+            <PromptInput.TextArea placeholder={variant === 'inline' ? 'Inline 输入…' : '向 AI 发送提示…'} />
+          </PromptInput.Content>
+          <PromptInput.Toolbar>
+            <PromptInput.ToolbarStart>
+              <PromptInput.Action aria-label="添加附件" tooltip="添加附件">
+                ＋
+              </PromptInput.Action>
+            </PromptInput.ToolbarStart>
+            <PromptInput.ToolbarEnd>
+              <PromptInput.Send />
+            </PromptInput.ToolbarEnd>
+          </PromptInput.Toolbar>
+        </PromptInput.Shell>
+        {variant === 'secondary' && <PromptInput.Footer>Secondary 外观适合低优先级输入区。</PromptInput.Footer>}
+      </PromptInput>
+      {value.startsWith('已发送') && <span style={{ fontSize: 12, color: 'var(--muted)' }}>{value}</span>}
+    </DemoSection>
+  );
+};
+
+const PromptSuggestionVariantDemo = ({ variant }: { variant: 'cards' | 'default' }) => {
+  const [selected, setSelected] = useState('尚未选择');
+
+  return (
+    <DemoSection label={`prompt-suggestion-${variant}`} isColumn>
+      <PromptSuggestion title="推荐提示" description={`当前：${selected}`}>
+        <PromptSuggestion.Group label={variant === 'cards' ? '分析任务' : '快捷输入'}>
+          <PromptSuggestion.Items variant={variant === 'cards' ? 'card' : 'pill'}>
+            {variant === 'cards' ? (
+              <>
+                <PromptSuggestion.CardItem description="对比最近两周学习完成率。" meta="数据分析" onClick={() => setSelected('完成率对比')}>
+                  完成率对比
+                </PromptSuggestion.CardItem>
+                <PromptSuggestion.CardItem description="生成课堂反馈和家长沟通重点。" meta="文案" onClick={() => setSelected('沟通重点')}>
+                  沟通重点
+                </PromptSuggestion.CardItem>
+              </>
+            ) : (
+              <>
+                <PromptSuggestion.Item endIcon="→" onClick={() => setSelected('总结今日问题')}>
+                  总结今日问题
+                </PromptSuggestion.Item>
+                <PromptSuggestion.Item endIcon="→" onClick={() => setSelected('制定跟进计划')}>
+                  制定跟进计划
+                </PromptSuggestion.Item>
+              </>
+            )}
+          </PromptSuggestion.Items>
+        </PromptSuggestion.Group>
+      </PromptSuggestion>
+    </DemoSection>
+  );
+};
+
+const EmojiPickerVariantDemo = ({ variant }: { variant: 'custom-categories' | 'default' | 'inline' | 'sizes' }) => {
+  const [picked, setPicked] = useState('尚未选择');
+  const categories = [
+    { id: 'study', icon: '📚', label: '学习', emojis: ['📚', '✏️', '🧠', '✅'] },
+    { id: 'status', icon: '🔥', label: '状态', emojis: ['🔥', '⭐', '💡', '🎯'] },
+  ];
+
+  return (
+    <DemoSection label={`emoji-picker-${variant}`} isColumn>
+      {variant === 'sizes' ? (
+        <div className="flex items-center gap-4">
+          <EmojiPicker size="sm" onEmojiSelect={setPicked} />
+          <EmojiPicker size="md" onEmojiSelect={setPicked} />
+          <EmojiPicker size="lg" onEmojiSelect={setPicked} />
+        </div>
+      ) : (
+        <EmojiPicker
+          isInline={variant === 'inline'}
+          categories={variant === 'custom-categories' ? categories : undefined}
+          recentEmojis={variant === 'default' ? EMOJI_RECENT : undefined}
+          onEmojiSelect={setPicked}
+        />
+      )}
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>最近选择：{picked}</span>
+    </DemoSection>
+  );
+};
+
+type SheetVariant =
+  | 'backdrop-variants'
+  | 'controlled'
+  | 'default'
+  | 'detached'
+  | 'emoji-picker-sheet'
+  | 'handle-only'
+  | 'nested'
+  | 'non-dismissable'
+  | 'placements'
+  | 'professions-picker'
+  | 'scrollable-content'
+  | 'slack-message-actions'
+  | 'snap-points'
+  | 'snap-points-custom-fade'
+  | 'snap-points-sequential'
+  | 'with-form';
+
+const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [emoji, setEmoji] = useState('😀');
+  const [snapStep, setSnapStep] = useState(1);
+  const [professionKeys, setProfessionKeys] = useState<Selection>(new Set(['teacher']));
+
+  const professionOptions = [
+    { id: 'teacher', title: '授课老师', preview: '负责课堂讲解与答疑', meta: '8 人' },
+    { id: 'coach', title: '学习顾问', preview: '跟进练习、家长沟通', meta: '5 人' },
+    { id: 'ops', title: '教务运营', preview: '排课与异常处理', meta: '3 人' },
+  ];
+
+  if (variant === 'backdrop-variants') {
+    return (
+      <DemoSection label="sheet-backdrop-variants">
+        {(['opaque', 'blur', 'transparent'] as const).map((backdrop) => (
+          <Sheet key={backdrop} placement="bottom">
+            <Sheet.Trigger variant="secondary">{backdrop}</Sheet.Trigger>
+            <Sheet.Backdrop variant={backdrop}>
+              <Sheet.Content>
+                <Sheet.Dialog>
+                  <Sheet.Handle />
+                  <Sheet.Header>
+                    <Sheet.Heading>{backdrop} backdrop</Sheet.Heading>
+                  </Sheet.Header>
+                  <Sheet.Body>不同遮罩视觉，但仍保留焦点圈定与关闭行为。</Sheet.Body>
+                  <Sheet.Footer>
+                    <Sheet.Close>完成</Sheet.Close>
+                  </Sheet.Footer>
+                  <Sheet.CloseTrigger aria-label="关闭" />
+                </Sheet.Dialog>
+              </Sheet.Content>
+            </Sheet.Backdrop>
+          </Sheet>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'placements') {
+    return (
+      <DemoSection label="sheet-placements">
+        {(['top', 'right', 'bottom', 'left'] as const).map((placement) => (
+          <Sheet key={placement} placement={placement}>
+            <Sheet.Trigger variant="secondary">{placement}</Sheet.Trigger>
+            <Sheet.Backdrop>
+              <Sheet.Content>
+                <Sheet.Dialog>
+                  <Sheet.Header>
+                    <Sheet.Heading>{placement} placement</Sheet.Heading>
+                  </Sheet.Header>
+                  <Sheet.Body>同一套内容从 {placement} 方向进入。</Sheet.Body>
+                  <Sheet.Footer>
+                    <Sheet.Close>完成</Sheet.Close>
+                  </Sheet.Footer>
+                  <Sheet.CloseTrigger aria-label="关闭" />
+                </Sheet.Dialog>
+              </Sheet.Content>
+            </Sheet.Backdrop>
+          </Sheet>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'nested') {
+    return (
+      <DemoSection label="sheet-nested">
+        <Sheet placement="bottom">
+          <Sheet.Trigger variant="secondary">打开父 Sheet</Sheet.Trigger>
+          <Sheet.Backdrop variant="blur">
+            <Sheet.Content>
+              <Sheet.Dialog>
+                <Sheet.Handle />
+                <Sheet.Header>
+                  <Sheet.Heading>父面板</Sheet.Heading>
+                </Sheet.Header>
+                <Sheet.Body>
+                  <p>父级保留上下文，子级从右侧进入处理细节。</p>
+                  <Sheet.NestedRoot placement="right" isDetached>
+                    <Sheet.Trigger size="sm">打开子 Sheet</Sheet.Trigger>
+                    <Sheet.Backdrop>
+                      <Sheet.Content>
+                        <Sheet.Dialog>
+                          <Sheet.Header>
+                            <Sheet.Heading>子面板</Sheet.Heading>
+                          </Sheet.Header>
+                          <Sheet.Body>这里编辑单个筛选项，不关闭父面板。</Sheet.Body>
+                          <Sheet.Footer>
+                            <Sheet.Close size="sm">保存</Sheet.Close>
+                          </Sheet.Footer>
+                          <Sheet.CloseTrigger aria-label="关闭子面板" />
+                        </Sheet.Dialog>
+                      </Sheet.Content>
+                    </Sheet.Backdrop>
+                  </Sheet.NestedRoot>
+                </Sheet.Body>
+                <Sheet.CloseTrigger aria-label="关闭父面板" />
+              </Sheet.Dialog>
+            </Sheet.Content>
+          </Sheet.Backdrop>
+        </Sheet>
+      </DemoSection>
+    );
+  }
+
+  if (
+    variant === 'snap-points' ||
+    variant === 'snap-points-custom-fade' ||
+    variant === 'snap-points-sequential'
+  ) {
+    const snapHeights = [220, 340, 480];
+    const snapLabels = ['紧凑', '半屏', '展开'];
+
+    return (
+      <DemoSection label={`sheet-${variant}`} isColumn>
+        <Sheet placement="bottom" isOpen={isOpen} onOpenChange={setIsOpen}>
+          <Sheet.Trigger variant="secondary">打开 Snap Sheet</Sheet.Trigger>
+          <Sheet.Backdrop variant={variant === 'snap-points-custom-fade' ? 'blur' : 'opaque'}>
+            <Sheet.Content>
+              <Sheet.Dialog style={{ maxHeight: snapHeights[snapStep] }}>
+                <Sheet.Handle />
+                <Sheet.Header>
+                  <Sheet.Heading>{snapLabels[snapStep]}高度</Sheet.Heading>
+                </Sheet.Header>
+                <Sheet.Body>
+                  <div className="flex flex-wrap gap-2">
+                    {snapLabels.map((label, index) => (
+                      <Button
+                        key={label}
+                        size="sm"
+                        variant={snapStep === index ? 'primary' : 'secondary'}
+                        onClick={() => setSnapStep(index)}
+                      >
+                        {label}
+                      </Button>
+                    ))}
+                    {variant === 'snap-points-sequential' && (
+                      <Button size="sm" variant="outline" onClick={() => setSnapStep((step) => (step + 1) % snapLabels.length)}>
+                        下一档
+                      </Button>
+                    )}
+                  </div>
+                  {variant === 'snap-points-custom-fade' ? (
+                    <TextShimmer>背景使用 blur fade，面板高度由当前 snap 状态切换。</TextShimmer>
+                  ) : (
+                    <p>本地 Sheet 通过受控状态和面板 maxHeight 模拟多档 snap point。</p>
+                  )}
+                </Sheet.Body>
+                <Sheet.Footer>
+                  <Sheet.Close>完成</Sheet.Close>
+                </Sheet.Footer>
+                <Sheet.CloseTrigger aria-label="关闭" />
+              </Sheet.Dialog>
+            </Sheet.Content>
+          </Sheet.Backdrop>
+        </Sheet>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={`sheet-${variant}`}>
+      <Sheet
+        placement={variant === 'detached' ? 'right' : 'bottom'}
+        isDetached={variant === 'detached'}
+        isOpen={variant === 'controlled' ? isOpen : undefined}
+        onOpenChange={variant === 'controlled' ? setIsOpen : undefined}
+      >
+        <Sheet.Trigger variant={variant === 'controlled' && isOpen ? 'primary' : 'secondary'}>
+          {variant === 'controlled' ? (isOpen ? '已打开' : '打开受控 Sheet') : '打开 Sheet'}
+        </Sheet.Trigger>
+        <Sheet.Backdrop
+          variant={variant === 'detached' ? 'blur' : 'opaque'}
+          isDismissable={variant === 'non-dismissable' ? false : undefined}
+          isKeyboardDismissDisabled={variant === 'non-dismissable' ? true : undefined}
+        >
+          <Sheet.Content>
+            <Sheet.Dialog>
+              {(variant === 'handle-only' || variant === 'default' || variant === 'emoji-picker-sheet') && <Sheet.Handle />}
+              <Sheet.Header>
+                <Sheet.Heading>
+                  {variant === 'emoji-picker-sheet'
+                    ? `选择表情 ${emoji}`
+                    : variant === 'detached'
+                      ? '右侧分离面板'
+                      : variant === 'professions-picker'
+                        ? '选择角色'
+                        : variant === 'slack-message-actions'
+                          ? '消息操作'
+                          : variant === 'with-form'
+                            ? '创建跟进任务'
+                            : '筛选条件'}
+                </Sheet.Heading>
+              </Sheet.Header>
+              <Sheet.Body>
+                {variant === 'emoji-picker-sheet' ? (
+                  <EmojiPicker isInline value={emoji} onEmojiSelect={setEmoji} />
+                ) : variant === 'handle-only' ? (
+                  '仅保留拖拽手柄和关闭按钮，适合移动端轻量操作。'
+                ) : variant === 'professions-picker' ? (
+                  <ChatListView
+                    aria-label="角色列表"
+                    selectionMode="single"
+                    disallowEmptySelection
+                    selectedKeys={professionKeys}
+                    items={professionOptions}
+                    onSelectionChange={setProfessionKeys}
+                  >
+                    {(profession) => (
+                      <ChatListView.Item id={profession.id} textValue={profession.title}>
+                        <ChatListView.ItemContent>
+                          <ChatListView.Icon />
+                          <ChatListView.Text>
+                            <ChatListView.Title>{profession.title}</ChatListView.Title>
+                            <ChatListView.Preview>{profession.preview}</ChatListView.Preview>
+                          </ChatListView.Text>
+                          <ChatListView.Meta>{profession.meta}</ChatListView.Meta>
+                        </ChatListView.ItemContent>
+                      </ChatListView.Item>
+                    )}
+                  </ChatListView>
+                ) : variant === 'scrollable-content' ? (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                    {Array.from({ length: 10 }, (_, index) => (
+                      <p key={index}>第 {index + 1} 条跟进记录：记录课堂表现、作业完成度和下一步动作。</p>
+                    ))}
+                  </div>
+                ) : variant === 'slack-message-actions' ? (
+                  <ChatMessage
+                    variant="assistant"
+                    avatar={<Avatar fallback="AI" />}
+                    actions={
+                      <ChatMessageActions>
+                        <ChatMessageActions.Copy content="已整理为 Slack 风格操作面板。" />
+                        <ChatMessageActions.Regenerate />
+                        <ChatMessageActions.Menu />
+                      </ChatMessageActions>
+                    }
+                  >
+                    这条消息可以复制、重新生成，或在更多菜单中转发给协作群。
+                  </ChatMessage>
+                ) : variant === 'with-form' ? (
+                  <PromptInput defaultValue="为三年级 A 班创建阅读理解跟进任务">
+                    <PromptInput.Shell>
+                      <PromptInput.Content>
+                        <PromptInput.TextArea aria-label="任务描述" />
+                      </PromptInput.Content>
+                      <PromptInput.Toolbar>
+                        <PromptInput.ToolbarStart>
+                          <PromptInput.Action aria-label="设置截止日期" tooltip="设置截止日期">
+                            日
+                          </PromptInput.Action>
+                        </PromptInput.ToolbarStart>
+                        <PromptInput.ToolbarEnd>
+                          <PromptInput.Send aria-label="创建任务" />
+                        </PromptInput.ToolbarEnd>
+                      </PromptInput.Toolbar>
+                    </PromptInput.Shell>
+                    <PromptInput.Footer>表单内容保留在 Sheet 内，提交后可继续补充附件。</PromptInput.Footer>
+                  </PromptInput>
+                ) : (
+                  variant === 'non-dismissable'
+                    ? '遮罩和 Esc 不会关闭，需要使用底部按钮完成操作。'
+                    : '选择课程类型、学习状态和负责老师后应用筛选。'
+                )}
+              </Sheet.Body>
+              {variant !== 'handle-only' && (
+                <Sheet.Footer>
+                  <Sheet.Close variant="ghost">取消</Sheet.Close>
+                  <Sheet.Close>应用</Sheet.Close>
+                </Sheet.Footer>
+              )}
+              <Sheet.CloseTrigger aria-label="关闭" />
+            </Sheet.Dialog>
+          </Sheet.Content>
+        </Sheet.Backdrop>
+      </Sheet>
+    </DemoSection>
+  );
+};
 
 export const aiOverlayDemos: Record<string, ReactNode> = {
   'chat-message': <ChatMessageDemo />,
@@ -997,4 +2031,70 @@ export const aiOverlayDemos: Record<string, ReactNode> = {
   'emoji-picker': <EmojiPickerDemo />,
   'alert-dialog': <AlertDialogDemo />,
   'menu-item': <MenuItemDemo />,
+};
+
+export const aiOverlayVariantDemos: Record<string, ReactNode> = {
+  'chain-of-thought-agent-trace': <ChainOfThoughtVariantDemo variant="agent-trace" />,
+  'chain-of-thought-agent-trace-streaming': <ChainOfThoughtVariantDemo variant="agent-trace-streaming" />,
+  'chain-of-thought-default': <ChainOfThoughtVariantDemo variant="default" />,
+  'chain-of-thought-streaming': <ChainOfThoughtVariantDemo variant="streaming" />,
+  'chat-attachment-composer': <ChatAttachmentVariantDemo variant="composer" />,
+  'chat-attachment-default': <ChatAttachmentVariantDemo variant="default" />,
+  'chat-attachment-grouped': <ChatAttachmentVariantDemo variant="grouped" />,
+  'chat-conversation-default': <ChatConversationVariantDemo variant="default" />,
+  'chat-conversation-full-chat': <ChatConversationVariantDemo variant="full-chat" />,
+  'chat-conversation-scroll-button': <ChatConversationVariantDemo variant="scroll-button" />,
+  'chat-list-view-compact': <ChatListViewVariantDemo variant="compact" />,
+  'chat-list-view-default': <ChatListViewVariantDemo variant="default" />,
+  'chat-loader-default': <ChatLoaderDemo />,
+  'chat-message-actions-custom-icons': <ChatMessageActionsVariantDemo variant="custom-icons" />,
+  'chat-message-actions-default': <ChatMessageActionsVariantDemo variant="default" />,
+  'chat-message-actions-minimal': <ChatMessageActionsVariantDemo variant="minimal" />,
+  'chat-message-default': <ChatMessageVariantDemo variant="default" />,
+  'chat-message-loading': <ChatMessageVariantDemo variant="loading" />,
+  'chat-message-with-markdown': <ChatMessageVariantDemo variant="with-markdown" />,
+  'chat-source-composable': <ChatSourceVariantDemo variant="composable" />,
+  'chat-source-default': <ChatSourceVariantDemo variant="default" />,
+  'chat-source-document': <ChatSourceVariantDemo variant="document" />,
+  'chat-source-grouped': <ChatSourceVariantDemo variant="grouped" />,
+  'chat-source-stacked-favicons': <ChatSourceVariantDemo variant="stacked-favicons" />,
+  'chat-tool-approval': <ChatToolVariantDemo variant="approval" />,
+  'chat-tool-composable': <ChatToolVariantDemo variant="composable" />,
+  'chat-tool-default': <ChatToolVariantDemo variant="default" />,
+  'chat-tool-error-state': <ChatToolVariantDemo variant="error-state" />,
+  'chat-tool-grouped': <ChatToolVariantDemo variant="grouped" />,
+  'chat-tool-streaming': <ChatToolVariantDemo variant="streaming" />,
+  'code-block-default': <CodeBlockDemo />,
+  'emoji-picker-custom-categories': <EmojiPickerVariantDemo variant="custom-categories" />,
+  'emoji-picker-default': <EmojiPickerVariantDemo variant="default" />,
+  'emoji-picker-inline': <EmojiPickerVariantDemo variant="inline" />,
+  'emoji-picker-sizes': <EmojiPickerVariantDemo variant="sizes" />,
+  'markdown-default': <MarkdownVariantDemo variant="default" />,
+  'markdown-streaming': <MarkdownVariantDemo variant="streaming" />,
+  'markdown-with-streamdown': <MarkdownVariantDemo variant="with-streamdown" />,
+  'prompt-input-default': <PromptInputVariantDemo variant="default" />,
+  'prompt-input-inline': <PromptInputVariantDemo variant="inline" />,
+  'prompt-input-queue': <PromptInputVariantDemo variant="queue" />,
+  'prompt-input-run-state': <PromptInputVariantDemo variant="run-state" />,
+  'prompt-input-secondary': <PromptInputVariantDemo variant="secondary" />,
+  'prompt-input-with-suggestions': <PromptInputVariantDemo variant="with-suggestions" />,
+  'prompt-suggestion-cards': <PromptSuggestionVariantDemo variant="cards" />,
+  'prompt-suggestion-default': <PromptSuggestionVariantDemo variant="default" />,
+  'sheet-backdrop-variants': <SheetVariantDemo variant="backdrop-variants" />,
+  'sheet-controlled': <SheetVariantDemo variant="controlled" />,
+  'sheet-default': <SheetVariantDemo variant="default" />,
+  'sheet-detached': <SheetVariantDemo variant="detached" />,
+  'sheet-emoji-picker-sheet': <SheetVariantDemo variant="emoji-picker-sheet" />,
+  'sheet-handle-only': <SheetVariantDemo variant="handle-only" />,
+  'sheet-nested': <SheetVariantDemo variant="nested" />,
+  'sheet-non-dismissable': <SheetVariantDemo variant="non-dismissable" />,
+  'sheet-placements': <SheetVariantDemo variant="placements" />,
+  'sheet-professions-picker': <SheetVariantDemo variant="professions-picker" />,
+  'sheet-scrollable-content': <SheetVariantDemo variant="scrollable-content" />,
+  'sheet-slack-message-actions': <SheetVariantDemo variant="slack-message-actions" />,
+  'sheet-snap-points': <SheetVariantDemo variant="snap-points" />,
+  'sheet-snap-points-custom-fade': <SheetVariantDemo variant="snap-points-custom-fade" />,
+  'sheet-snap-points-sequential': <SheetVariantDemo variant="snap-points-sequential" />,
+  'sheet-with-form': <SheetVariantDemo variant="with-form" />,
+  'text-shimmer-default': <TextShimmerDemo />,
 };

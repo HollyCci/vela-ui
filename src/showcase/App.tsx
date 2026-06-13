@@ -7,7 +7,6 @@ import {
   ChevronRightSmIcon,
   LogoIcon,
   SearchIcon,
-  StorybookIcon,
   ThemeToggleIcon,
   TocIcon,
 } from './icons';
@@ -17,7 +16,6 @@ type DocsMeta = Record<
   {
     title: string;
     description?: string;
-    storybook?: string;
     sections: { heading: string; anchor: string; demo: string }[];
   }
 >;
@@ -25,6 +23,7 @@ type DocsMeta = Record<
 const docsMeta = docsMetaJson as DocsMeta;
 
 const ALL_COMPONENTS_ID = 'all-components';
+const REPOSITORY_URL = 'https://github.com/HollyCci/vela-ui';
 
 /** 原站 AI 分类下标记 New 的组件 */
 const NEW_COMPONENTS = new Set([
@@ -154,9 +153,9 @@ const DocsHeader = () => (
     <div className="flex h-14 items-center gap-2 border-b px-4 md:gap-3 md:px-6" data-header-body="">
       <div className="items-center flex flex-1">
         <div className="flex items-center gap-4">
-          <a className="inline-flex items-center gap-2.5 font-semibold" href="https://heroui.pro/docs" target="_blank" rel="noreferrer">
+          <a className="inline-flex items-center gap-2.5 font-semibold" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
             <LogoIcon />
-            <span className="sr-only">HeroUI Pro</span>
+            <span className="sr-only">Vela UI</span>
           </a>
           <span
             className="chip chip--default chip--secondary bg-default text-muted hidden h-6 min-w-fit gap-0.5 px-2 py-1 min-[1070px]:flex"
@@ -188,33 +187,24 @@ const DocsHeader = () => (
       </div>
     </div>
     <div className="flex flex-row items-end gap-6 h-10 overflow-x-auto border-b px-6" data-header-tabs="">
-      <a
+      <span
         className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
-        href="https://heroui.pro/docs/react/getting-started"
-        target="_blank"
-        rel="noreferrer"
       >
         Getting Started
-      </a>
+      </span>
       <span className="text-fd-primary border-fd-primary inline-flex items-center gap-2 text-nowrap border-b-2 pb-1.5 text-sm font-medium transition-colors">
         Components
       </span>
-      <a
+      <span
         className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
-        href="https://heroui.pro/templates"
-        target="_blank"
-        rel="noreferrer"
       >
         Templates
-      </a>
-      <a
+      </span>
+      <span
         className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
-        href="https://heroui.pro/docs/react/releases"
-        target="_blank"
-        rel="noreferrer"
       >
         Releases
-      </a>
+      </span>
     </div>
   </header>
 );
@@ -274,7 +264,7 @@ const ComponentPreview = ({ component, slug, demo }: ComponentPreviewProps) => {
         <a
           className="link text-muted decoration-muted hover:text-accent text-sm no-underline hover:opacity-100"
           aria-label="Get the code"
-          href="https://heroui.pro/#pricing"
+          href={REPOSITORY_URL}
           target="_blank"
           rel="noreferrer"
         >
@@ -483,19 +473,6 @@ const App = () => {
             <section className="flex flex-col gap-2">
               <h1 className="text-[1.75em] font-semibold flex items-center gap-2">{title}</h1>
               {meta?.description !== undefined && <p className="text-muted">{meta.description}</p>}
-              {meta?.storybook !== undefined && (
-                <div className="flex items-center gap-2 pt-1">
-                  <a
-                    className="button button--tertiary relative gap-2 dark:bg-default/70 button--sm"
-                    href={meta.storybook}
-                    rel="noopener noreferrer"
-                    target="_blank"
-                  >
-                    <StorybookIcon />
-                    Storybook
-                  </a>
-                </div>
-              )}
               {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
             </section>
             {liveDemo}
