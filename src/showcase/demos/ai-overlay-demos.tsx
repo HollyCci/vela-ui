@@ -1089,19 +1089,96 @@ const ChatConversationDemo = () => {
 
 const MARKDOWN_SAMPLE = `# Vela UI Markdown
 
-支持 **加粗**、行内 \`code\` 与[链接](https://github.com/HollyCci/vela-ui)。
+支持 **加粗**、*斜体*、~~删除线~~、行内 \`code\` 与 [链接](https://github.com/HollyCci/vela-ui)。
 
 ## 特性
 
 - 标题、列表与链接
 - 行内代码片段
 - 带复制按钮的代码块
+- [x] 任务列表
+- [ ] 流式增量渲染
 
 \`\`\`tsx
 <Markdown>{response}</Markdown>
 \`\`\`
 
+| 元素 | 状态 |
+| --- | --- |
+| 表格 | 已支持 |
+| 代码复制 | 保留 |
+
 > AI 回复可以带富文本格式，且不耦合任何 SDK。`;
+
+const MARKDOWN_DEFAULT_TOKENS = [MARKDOWN_SAMPLE] as const;
+
+const MARKDOWN_STREAMING_TOKENS = [
+  '# Streaming Markdown\n\n',
+  '正在生成 **分析结论**，先附上 [参考链接](https://react.dev/reference/react)。\n\n',
+  '```tsx\n',
+  'const partial = "token append";\n',
+  '<Markdown>{partial}</Markdown>\n',
+  '// 代码围栏会在后续 token 才闭合。\n',
+  '```\n\n',
+  '| 检查项 | 结果 |\n| --- | --- |\n| 未闭合代码块 | 已兜底 |\n| 代码复制 | 保持可用 |\n\n',
+  '- [x] 表格已渲染\n- [ ] 等待最后一个 token\n',
+] as const;
+
+const MARKDOWN_STREAMDOWN_TOKENS = [
+  '## Streamdown 风格回复\n\n',
+  '1. 支持列表、**重点** 和 [外链](https://github.com/vercel/ai)。\n',
+  '2. 代码块仍走 Vela `CodeBlock`，因此保留复制能力。\n\n',
+  '```ts\n',
+  'const status = "ready";\n',
+  'const copyHint = "点击代码块右上角复制";\n',
+  '```\n\n',
+  '| token | 渲染 |\n| --- | --- |\n| table | ok |\n| task list | ok |\n\n',
+  '- [x] 链接已解析\n- [x] 代码复制保留\n- [ ] 继续接收模型输出\n',
+] as const;
+
+const MARKDOWN_TOKEN_INTERVAL = 420;
+
+const useMarkdownTokenStream = (tokens: readonly string[]) => {
+  const [runId, setRunId] = useState(0);
+  const [text, setText] = useState(tokens[0] ?? '');
+  const [isStreaming, setIsStreaming] = useState(tokens.length > 1);
+
+  useEffect(() => {
+    let tokenIndex = 1;
+    let timerId: number | null = null;
+
+    setText(tokens[0] ?? '');
+    setIsStreaming(tokens.length > 1);
+
+    if (tokens.length > 1) {
+      timerId = window.setInterval(() => {
+        setText((current) => current + tokens[tokenIndex]);
+        tokenIndex += 1;
+
+        if (tokenIndex >= tokens.length) {
+          setIsStreaming(false);
+
+          if (timerId !== null) {
+            window.clearInterval(timerId);
+            timerId = null;
+          }
+        }
+      }, MARKDOWN_TOKEN_INTERVAL);
+    }
+
+    return () => {
+      if (timerId !== null) {
+        window.clearInterval(timerId);
+      }
+    };
+  }, [tokens, runId]);
+
+  const replay = useCallback(() => {
+    setRunId((current) => current + 1);
+  }, []);
+
+  return { isStreaming, replay, text };
+};
 
 const MarkdownDemo = () => (
   <DemoSection label="Markdown 渲染（代码块可复制）" isColumn>
@@ -1636,26 +1713,26 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
 };
 
 const MarkdownVariantDemo = ({ variant }: { variant: 'default' | 'streaming' | 'with-streamdown' }) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-  const streamingText = isExpanded
-    ? `${MARKDOWN_SAMPLE}\n\n- 流式补充：已追加一个新列表项。`
-    : '# Streaming Markdown\n\n正在生成 **分析结论**…\n\n```tsx\n<Markdown>{partial}</Markdown>\n```';
+  const tokens =
+    variant === 'with-streamdown'
+      ? MARKDOWN_STREAMDOWN_TOKENS
+      : variant === 'streaming'
+        ? MARKDOWN_STREAMING_TOKENS
+        : MARKDOWN_DEFAULT_TOKENS;
+  const { isStreaming, replay, text } = useMarkdownTokenStream(tokens);
 
   return (
     <DemoSection label={`markdown-${variant}`} isColumn>
-      {variant === 'streaming' && (
-        <Button variant="secondary" size="sm" onClick={() => setIsExpanded((next) => !next)}>
-          {isExpanded ? '收起流式增量' : '追加流式内容'}
-        </Button>
+      {variant !== 'default' && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <Button variant="secondary" size="sm" onClick={replay}>
+            重新播放
+          </Button>
+          {isStreaming && <TextShimmer>正在追加 token…</TextShimmer>}
+        </div>
       )}
       <div style={{ width: 620 }}>
-        <Markdown>
-          {variant === 'default'
-            ? MARKDOWN_SAMPLE
-            : variant === 'streaming'
-              ? streamingText
-              : '## Streamdown 风格回复\n\n1. 支持列表和 **重点**\n2. 代码块仍走 Vela `CodeBlock`\n\n```ts\nconst status = "ready";\n```\n\n> 在本仓中用现有 Markdown 渲染同类富文本回复。'}
-        </Markdown>
+        <Markdown>{variant === 'default' ? MARKDOWN_SAMPLE : text}</Markdown>
       </div>
     </DemoSection>
   );
