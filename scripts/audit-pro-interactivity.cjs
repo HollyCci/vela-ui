@@ -494,6 +494,31 @@ const collectNakedActionButtons = (source, file, lineLookup, problems) => {
   }
 };
 
+const collectShowcaseVariantResolutionProblems = (source, file, lineLookup, problems) => {
+  if (path.resolve(file) !== path.resolve(showcaseAppPath)) return;
+
+  const repeatedDemoMatch = /<ComponentPreview[\s\S]*?demo=\{reactDemo\}/.exec(source);
+  if (repeatedDemoMatch !== null) {
+    problems.push({
+      file: path.relative(root, file),
+      line: lineLookup.lineNumberAt(repeatedDemoMatch.index),
+      rule: 'variant sections must resolve slug demos',
+      message: 'section previews must use resolveDemo(activeId, slug) instead of repeating the component demo',
+      text: lineLookup.textAt(repeatedDemoMatch.index).trim(),
+    });
+  }
+
+  if (!/\bresolveDemo\b/.test(source)) {
+    problems.push({
+      file: path.relative(root, file),
+      line: 1,
+      rule: 'missing slug demo resolver',
+      message: 'App.tsx must import and use the slug-level demo resolver',
+      text: 'resolveDemo',
+    });
+  }
+};
+
 const problems = [];
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
@@ -517,6 +542,7 @@ for (const file of files) {
   collectStaticDemoLabels(source, file, lineLookup, problems);
   collectHashHrefs(source, file, lineLookup, problems);
   collectNakedActionButtons(source, file, lineLookup, problems);
+  collectShowcaseVariantResolutionProblems(source, file, lineLookup, problems);
 }
 
 for (const staticDir of ['reference', 'demo', 'docs-content']) {

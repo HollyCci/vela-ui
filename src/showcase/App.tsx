@@ -1,7 +1,7 @@
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import './showcase.css';
 import docsMetaJson from './docs-meta.json';
-import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, sectionTitle, titleOf } from './registry';
+import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, resolveDemo, sectionTitle, titleOf } from './registry';
 import {
   AnchorLinkIcon,
   ChevronRightSmIcon,
@@ -499,12 +499,17 @@ const App = () => {
               {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
             </section>
             {liveDemo}
-            {reactDemo !== undefined && sections.map((s) => (
-              <div key={s.anchor} className="contents">
-                <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
-                <ComponentPreview component={activeId} slug={s.demo} demo={reactDemo} />
-              </div>
-            ))}
+            {sections.map((s) => {
+              const sectionDemo = resolveDemo(activeId, s.demo);
+              if (sectionDemo === undefined) return null;
+
+              return (
+                <div key={s.anchor} className="contents">
+                  <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
+                  <ComponentPreview component={activeId} slug={s.demo} demo={sectionDemo} />
+                </div>
+              );
+            })}
           </>
         )}
       </article>

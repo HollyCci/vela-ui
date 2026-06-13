@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { baseDemos } from './demos/base-demos';
-import { formsDemos } from './demos/forms-demos';
+import { formsDemos, formsVariantDemos } from './demos/forms-demos';
 import { dataDisplayDemos } from './demos/data-display-demos';
 import { feedbackNavDemos } from './demos/feedback-nav-demos';
 import { aiOverlayDemos } from './demos/ai-overlay-demos';
@@ -122,6 +122,15 @@ export const demoRegistry: Record<string, ReactNode> = {
   ...aiOverlayDemos,
   ...chartsDemos,
 };
+
+/** demo slug → 独立变体演示；未覆盖时页面会回退到组件级 demo */
+export const variantDemoRegistry: Record<string, ReactNode> = {
+  ...formsVariantDemos,
+};
+
+export function resolveDemo(component: string, slug: string): ReactNode | undefined {
+  return variantDemoRegistry[slug] ?? demoRegistry[component];
+}
 
 const TITLE_OVERRIDES: Record<string, string> = {
   kpi: 'KPI',

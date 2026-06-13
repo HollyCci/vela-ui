@@ -51,11 +51,24 @@ const packageExportNames = new Set(
   [...packageIndexSource.matchAll(/default\s+as\s+([A-Za-z0-9_]+)/g)].map((match) => match[1]),
 );
 
+const allVariantSlugs = new Set(Object.values(demoIndex).flat());
 const liveDemoKeys = new Set();
+const variantDemoKeys = new Set();
 for (const file of fs.readdirSync(demosDir)) {
   if (!file.endsWith('-demos.tsx')) continue;
   const source = fs.readFileSync(path.join(demosDir, file), 'utf8');
+  const variantExportMatches = [
+    ...source.matchAll(/export\s+const\s+[A-Za-z0-9]+VariantDemos[\s\S]*?=\s*\{([\s\S]*?)\};/g),
+  ];
+  const variantExportRanges = variantExportMatches.map((match) => ({
+    start: match.index,
+    end: match.index + match[0].length,
+  }));
+  const isInVariantExport = (index) =>
+    variantExportRanges.some((range) => index >= range.start && index <= range.end);
+
   for (const match of source.matchAll(/['"]([a-z0-9-]+)['"]\s*:\s*</g)) {
+    if (isInVariantExport(match.index)) variantDemoKeys.add(match[1]);
     liveDemoKeys.add(match[1]);
   }
   for (const match of source.matchAll(/\n\s*([a-z][a-z0-9-]*)\s*:\s*</g)) {
@@ -81,10 +94,16 @@ const coverageProblems = rows.filter(
   (row) => !row.hasComponent || !row.hasLiveDemo || !row.hasPackageExport || row.variants === 0,
 );
 const exportProblems = [...componentDirs].filter((id) => !packageExportNames.has(toExportName(id)));
+const unknownVariantDemoKeys = [...variantDemoKeys].filter((slug) => !allVariantSlugs.has(slug));
+const requiredVariantSlugs = [
+  ...(demoIndex['drop-zone'] ?? []),
+];
+const missingRequiredVariantSlugs = requiredVariantSlugs.filter((slug) => !variantDemoKeys.has(slug));
 
 console.log(`Pro components: ${rows.length}`);
 console.log(`Component directories: ${componentDirs.size}`);
 console.log(`Live demo keys: ${liveDemoKeys.size}`);
+console.log(`Variant demo keys: ${variantDemoKeys.size}`);
 console.log(`Package exports: ${packageExportNames.size}`);
 console.log('');
 console.log('| Category | Component | Variants | Component | Live demo | Package export |');
@@ -97,7 +116,12 @@ for (const row of rows) {
   );
 }
 
-if (coverageProblems.length > 0 || exportProblems.length > 0) {
+if (
+  coverageProblems.length > 0 ||
+  exportProblems.length > 0 ||
+  unknownVariantDemoKeys.length > 0 ||
+  missingRequiredVariantSlugs.length > 0
+) {
   console.error('');
   console.error('Coverage gaps:');
   for (const row of coverageProblems) {
@@ -110,6 +134,12 @@ if (coverageProblems.length > 0 || exportProblems.length > 0) {
   }
   for (const id of exportProblems) {
     console.error(`- ${id}: missing package export ${toExportName(id)}`);
+  }
+  for (const slug of unknownVariantDemoKeys) {
+    console.error(`- ${slug}: variant demo key is not listed in demo-index.json`);
+  }
+  for (const slug of missingRequiredVariantSlugs) {
+    console.error(`- ${slug}: missing required slug-level live demo`);
   }
   process.exitCode = 1;
 }
