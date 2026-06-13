@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
+import Checkbox from '../../components/checkbox';
 import ChainOfThought from '../../components/chain-of-thought';
 import ChatAttachment from '../../components/chat-attachment';
 import ChatConversation from '../../components/chat-conversation';
@@ -1870,6 +1871,12 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
   ) {
     const snapHeights = [220, 340, 480];
     const snapLabels = ['紧凑', '半屏', '展开'];
+    const snapTasks = [
+      '确认发送对象',
+      '检查消息摘要',
+      '设置截止时间',
+      '通知学习顾问',
+    ];
 
     return (
       <DemoSection label={`sheet-${variant}`} isColumn>
@@ -1877,7 +1884,11 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
           <Sheet.Trigger variant="secondary">打开 Snap Sheet</Sheet.Trigger>
           <Sheet.Backdrop variant={variant === 'snap-points-custom-fade' ? 'blur' : 'opaque'}>
             <Sheet.Content>
-              <Sheet.Dialog style={{ maxHeight: snapHeights[snapStep] }}>
+              <Sheet.Dialog
+                snapPoints={snapHeights}
+                activeSnapPoint={snapStep}
+                onSnapPointChange={setSnapStep}
+              >
                 <Sheet.Handle />
                 <Sheet.Header>
                   <Sheet.Heading>{snapLabels[snapStep]}高度</Sheet.Heading>
@@ -1901,9 +1912,18 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
                     )}
                   </div>
                   {variant === 'snap-points-custom-fade' ? (
-                    <TextShimmer>背景使用 blur fade，面板高度由当前 snap 状态切换。</TextShimmer>
+                    <TextShimmer>当前面板停靠在 {snapHeights[snapStep]}px。</TextShimmer>
                   ) : (
-                    <p>本地 Sheet 通过受控状态和面板 maxHeight 模拟多档 snap point。</p>
+                    <p>当前面板停靠在 {snapHeights[snapStep]}px，任务内容随档位展开。</p>
+                  )}
+                  {snapStep > 0 && (
+                    <div style={{ display: 'grid', gap: 8, marginTop: 12 }}>
+                      {snapTasks.map((task, index) => (
+                        <Checkbox key={task} isSelected={index < snapStep + 1} isDisabled>
+                          {task}
+                        </Checkbox>
+                      ))}
+                    </div>
                   )}
                 </Sheet.Body>
                 <Sheet.Footer>

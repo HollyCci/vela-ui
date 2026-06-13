@@ -133,8 +133,27 @@
 }
 
 [data-sheet-snap-points=true] .sheet__dialog--bottom,
-[data-sheet-snap-points=true] .sheet__dialog--top {
+[data-sheet-snap-points=true] .sheet__dialog--top,
+.sheet__dialog[data-sheet-snap-points=true].sheet__dialog--bottom,
+.sheet__dialog[data-sheet-snap-points=true].sheet__dialog--top {
   max-height: none;
+}
+
+[data-sheet-snap-points=true] .sheet__dialog--left,
+[data-sheet-snap-points=true] .sheet__dialog--right,
+.sheet__dialog[data-sheet-snap-points=true].sheet__dialog--left,
+.sheet__dialog[data-sheet-snap-points=true].sheet__dialog--right {
+  max-width: none;
+}
+
+.sheet__dialog[data-sheet-snap-points=true] {
+  transition: height .24s var(--ease-out-fluid), width .24s var(--ease-out-fluid);
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .sheet__dialog[data-sheet-snap-points=true] {
+    transition: none;
+  }
 }
 
 .sheet__dialog--left {

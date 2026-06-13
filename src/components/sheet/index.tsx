@@ -2,6 +2,7 @@ import {
   createContext,
   useContext,
   useRef,
+  useState,
   type CSSProperties,
   type HTMLAttributes,
   type PointerEvent as ReactPointerEvent,
@@ -32,6 +33,7 @@ import clsx from 'clsx';
 
 export type SheetPlacement = 'top' | 'bottom' | 'left' | 'right';
 export type SheetBackdrop = 'opaque' | 'blur' | 'transparent';
+export type SheetSnapPoint = number | string;
 
 /**
  * Root（即 OSS Drawer = RAC DialogTrigger）：管理 isOpen/defaultOpen/onOpenChange 与 trigger 关联、焦点圈定。
@@ -62,6 +64,14 @@ export type SheetContentProps = Omit<DrawerContentProps, 'className' | 'style' |
 export type SheetDialogProps = Omit<DrawerDialogProps, 'className' | 'style'> & {
   className?: string;
   style?: CSSProperties;
+  /** 多档面板尺寸；bottom/top 作用于 height，left/right 作用于 width */
+  snapPoints?: SheetSnapPoint[];
+  /** 受控当前 snap point 下标 */
+  activeSnapPoint?: number;
+  /** 非受控初始 snap point 下标 */
+  defaultActiveSnapPoint?: number;
+  /** snap point 变化回调；按钮切换与拖拽切换均会触发 */
+  onSnapPointChange?: (index: number) => void;
 };
 
 export type SheetHeaderProps = HTMLAttributes<HTMLDivElement>;
@@ -105,6 +115,9 @@ const SheetDragContext = createContext<DragControls | null>(null);
 
 /** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐真站手感 */
 const DISMISS_FRACTION = 0.3;
+const SNAP_FRACTION = 0.18;
+const MIN_SNAP_DISTANCE = 48;
+const MAX_SNAP_DISTANCE = 120;
 const VELOCITY_THRESHOLD = 500;
 
 /** 弹回/收起的弹簧动画，cubic 近似真站 `cubic-bezier(0.32, 0.72, 0, 1)` 的速度曲线 */
@@ -122,6 +135,15 @@ const isVerticalPlacement = (placement: SheetPlacement) =>
 /** 关闭方向符号：bottom/right 向正方向滑出，top/left 向负方向滑出 */
 const dismissSign = (placement: SheetPlacement) =>
   placement === 'bottom' || placement === 'right' ? 1 : -1;
+
+const clampIndex = (index: number, length: number) =>
+  Math.min(Math.max(index, 0), Math.max(length - 1, 0));
+
+const hasSnapPoints = (snapPoints: SheetSnapPoint[] | undefined) =>
+  snapPoints !== undefined && snapPoints.length > 0;
+
+const toCssSize = (value: SheetSnapPoint | undefined) =>
+  typeof value === 'number' ? `${value}px` : value;
 
 /**
  * Trigger：直接渲染 OSS Button 作为 RAC DialogTrigger（Sheet Root）的触发器。
@@ -176,11 +198,36 @@ Content.displayName = 'Sheet.Content';
  * 拦截 motion.div 上的 pointerdown 冒泡，避免触发 Drawer.Dialog 自带的指针拖拽（双引擎冲突）。
  * 拖拽中输出 data-dragging=""，与真站运行时 data 属性一致。
  */
-const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
+const Dialog = ({
+  className,
+  children,
+  snapPoints,
+  activeSnapPoint,
+  defaultActiveSnapPoint = 0,
+  onSnapPointChange,
+  style,
+  ...rest
+}: SheetDialogProps) => {
   const { placement } = useContext(SheetContext);
   const overlayState = useContext(OverlayTriggerStateContext);
   const vertical = isVerticalPlacement(placement);
   const sign = dismissSign(placement);
+  const resolvedSnapPoints = snapPoints ?? [];
+  const snapsEnabled = hasSnapPoints(resolvedSnapPoints);
+  const [uncontrolledSnapPoint, setUncontrolledSnapPoint] = useState(() =>
+    snapsEnabled ? clampIndex(defaultActiveSnapPoint, resolvedSnapPoints.length) : 0,
+  );
+  const currentSnapPoint = snapsEnabled
+    ? clampIndex(activeSnapPoint ?? uncontrolledSnapPoint, resolvedSnapPoints.length)
+    : 0;
+  const currentSnapValue = snapsEnabled ? resolvedSnapPoints[currentSnapPoint] : undefined;
+  const currentSnapSize = toCssSize(currentSnapValue);
+  const snapStyle: CSSProperties | undefined =
+    currentSnapSize === undefined
+      ? undefined
+      : vertical
+        ? { height: currentSnapSize }
+        : { width: currentSnapSize };
 
   // 仅由 Handle 触发拖拽（dragListener=false）：抓手是唯一抓手，body 滚动不被劫持
   const dragControls = useDragControls();
@@ -197,6 +244,13 @@ const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
 
   const handleDragStart = () => setDragging(true);
 
+  const setSnapPoint = (index: number) => {
+    if (!snapsEnabled) return;
+    const nextIndex = clampIndex(index, resolvedSnapPoints.length);
+    if (activeSnapPoint === undefined) setUncontrolledSnapPoint(nextIndex);
+    if (nextIndex !== currentSnapPoint) onSnapPointChange?.(nextIndex);
+  };
+
   const handleDragEnd = (_event: unknown, info: PanInfo) => {
     setDragging(false);
     const el = surfaceRef.current;
@@ -206,6 +260,29 @@ const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
     const directedTravel = travel * sign;
     const directedSpeed = speed * sign;
     const dimension = el ? (vertical ? el.offsetHeight : el.offsetWidth) : 0;
+    const snapDistance = Math.min(
+      Math.max(dimension * SNAP_FRACTION, MIN_SNAP_DISTANCE),
+      MAX_SNAP_DISTANCE,
+    );
+
+    if (snapsEnabled) {
+      if (
+        (directedTravel > snapDistance || directedSpeed > VELOCITY_THRESHOLD) &&
+        currentSnapPoint > 0
+      ) {
+        setSnapPoint(currentSnapPoint - 1);
+        return;
+      }
+
+      if (
+        (-directedTravel > snapDistance || -directedSpeed > VELOCITY_THRESHOLD) &&
+        currentSnapPoint < resolvedSnapPoints.length - 1
+      ) {
+        setSnapPoint(currentSnapPoint + 1);
+        return;
+      }
+    }
+
     const shouldDismiss =
       directedTravel > dimension * DISMISS_FRACTION || directedSpeed > VELOCITY_THRESHOLD;
 
@@ -225,6 +302,8 @@ const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
       <motion.div
         ref={surfaceRef}
         data-slot="sheet-drag-surface"
+        data-sheet-snap-points={snapsEnabled ? 'true' : undefined}
+        data-sheet-snap-index={snapsEnabled ? currentSnapPoint : undefined}
         drag={vertical ? 'y' : 'x'}
         dragControls={dragControls}
         dragListener={false}
@@ -255,7 +334,11 @@ const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
       >
         <Drawer.Dialog
           data-slot="sheet-dialog"
+          data-sheet-snap-points={snapsEnabled ? 'true' : undefined}
+          data-sheet-snap-index={snapsEnabled ? currentSnapPoint : undefined}
+          data-sheet-snap-point={snapsEnabled ? String(currentSnapValue) : undefined}
           className={clsx('sheet__dialog', `sheet__dialog--${placement}`, className)}
+          style={{ ...style, ...snapStyle }}
           {...rest}
         >
           {children}
