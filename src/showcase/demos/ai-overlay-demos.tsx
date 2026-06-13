@@ -119,23 +119,47 @@ const ChatToolDemo = () => {
   );
 };
 
-const ChainOfThoughtDemo = () => (
-  <DemoSection label="思维链" isColumn>
-    <ChainOfThought>
-      <ChainOfThought.Trigger>已思考 6 秒</ChainOfThought.Trigger>
-      <ChainOfThought.Steps>
-        <ChainOfThought.Step label="理解问题">用户想对比两个季度的销售数据。</ChainOfThought.Step>
-        <ChainOfThought.Step label="检索数据">从报表服务取得 Q1、Q2 汇总数据。</ChainOfThought.Step>
-        <ChainOfThought.Step label="得出结论">Q2 环比增长 12%，主要来自新渠道。</ChainOfThought.Step>
-      </ChainOfThought.Steps>
-    </ChainOfThought>
-    <ChainOfThought isStreaming>
-      <ChainOfThought.Trigger>
-        <TextShimmer>正在思考…</TextShimmer>
-      </ChainOfThought.Trigger>
-    </ChainOfThought>
-  </DemoSection>
-);
+const ChainOfThoughtDemo = () => {
+  const [isExpanded, setIsExpanded] = useState(false);
+
+  const handleExpandedChange = (expanded: boolean) => {
+    setIsExpanded(expanded);
+  };
+
+  return (
+    <DemoSection label="思维链" isColumn>
+      <ChainOfThought defaultExpanded>
+        <ChainOfThought.Trigger>已思考 6 秒</ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step label="理解问题">用户想对比两个季度的销售数据。</ChainOfThought.Step>
+            <ChainOfThought.Step label="检索数据">从报表服务取得 Q1、Q2 汇总数据。</ChainOfThought.Step>
+            <ChainOfThought.Step label="得出结论">Q2 环比增长 12%，主要来自新渠道。</ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>
+      <ChainOfThought isExpanded={isExpanded} onExpandedChange={handleExpandedChange}>
+        <ChainOfThought.Trigger>
+          {isExpanded ? '收起推理过程（受控）' : '展开推理过程（受控）'}
+        </ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step>无标签步骤：只渲染正文内容。</ChainOfThought.Step>
+            <ChainOfThought.Step label="受控状态">展开/收起由外部 state 控制。</ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>
+      <ChainOfThought isStreaming defaultExpanded>
+        <ChainOfThought.Trigger>正在思考…</ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step label="分析">正在把请求拆解为展示型组件…</ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>
+    </DemoSection>
+  );
+};
 
 const PromptInputDemo = () => (
   <DemoSection label="提示输入框" isColumn>
