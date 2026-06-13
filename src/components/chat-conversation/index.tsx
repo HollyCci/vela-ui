@@ -129,7 +129,7 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
     // 内容变化时：贴底则跟随，否则只重新评估贴底状态（保留用户阅读位置）
     useLayoutEffect(() => {
       const node = viewportRef.current;
-      if (node === null) {
+      if (node === null || !(node instanceof HTMLElement)) {
         return;
       }
       const observer = new MutationObserver(() => {

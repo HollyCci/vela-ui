@@ -387,7 +387,7 @@ const Handle = ({
   // data-resize-handle-state="drag" / data-resize-handle-active / data-pressed，并驱动 onDragging
   useEffect(() => {
     const node = elementRef.current;
-    if (node === null) return;
+    if (node === null || !(node instanceof HTMLElement)) return;
     const sync = () => {
       const state = node.getAttribute('data-separator');
       const isDragging = state === 'active';
