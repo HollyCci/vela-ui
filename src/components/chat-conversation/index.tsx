@@ -13,9 +13,15 @@ import {
   type ReactNode,
 } from 'react';
 import { Button, Tooltip, type ButtonProps } from '@heroui/react';
+import { AnimatePresence, motion, type Transition } from 'motion/react';
 import clsx from 'clsx';
 
 type ScrollBehaviorMode = 'auto' | 'smooth';
+
+/** 新消息进场：从下方 8px、透明淡入到原位（原站对话流新消息进场手感） */
+const MESSAGE_INITIAL = { opacity: 0, y: 8 } as const;
+const MESSAGE_ANIMATE = { opacity: 1, y: 0 } as const;
+const MESSAGE_TRANSITION: Transition = { duration: 0.25, ease: [0.16, 1, 0.3, 1] };
 
 type ChatConversationContextValue = {
   /** 滚动视口元素（root） */
@@ -185,6 +191,83 @@ const Content = forwardRef<HTMLDivElement, ChatConversationContentProps>(
 );
 Content.displayName = 'ChatConversation.Content';
 
+export type ChatConversationMessagesProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+/**
+ * 消息列表容器：内部包一层 AnimatePresence，使其直接子 <ChatConversation.Message> 在挂载时
+ * 触发进场过渡（initial=false：首屏已存在的消息不播放，仅后续追加的新消息进场）。
+ * 不渲染 DOM 包裹层以外的结构，data-slot 与原站 content 保持解耦。
+ */
+const Messages = forwardRef<HTMLDivElement, ChatConversationMessagesProps>(
+  ({ className, children, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="chat-conversation-messages"
+      className={clsx('chat-conversation__messages', className)}
+      {...rest}
+    >
+      <AnimatePresence initial={false}>{children}</AnimatePresence>
+    </div>
+  ),
+);
+Messages.displayName = 'ChatConversation.Messages';
+
+/**
+ * Message 底座是 Motion 元素（motion.div），故剔除会与 Motion 同名 prop 冲突的原生拖拽/动画事件
+ * （onDrag*、onAnimation*）——这些由 Motion 接管，对外不暴露。
+ */
+type ChatConversationMessageConflictingProps =
+  | 'className'
+  | 'style'
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onDrop'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration';
+
+export type ChatConversationMessageProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  ChatConversationMessageConflictingProps
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+/**
+ * 单条消息进场包装：真 framer-motion（motion/react）。新消息挂载时
+ * initial(opacity:0,y:8) → animate(opacity:1,y:0)，淡入并上移到位。
+ * 用作 <ChatConversation.Messages> 的直接子，每条消息须带稳定 key 让 AnimatePresence 识别增量。
+ * 仅做 transform/opacity 动画，不增删子节点，故不触发滚动跟随的 MutationObserver childList 误判。
+ */
+const Message = forwardRef<HTMLDivElement, ChatConversationMessageProps>(
+  ({ className, children, ...rest }, ref) => (
+    <motion.div
+      ref={ref}
+      data-slot="chat-conversation-message"
+      className={clsx('chat-conversation__message', className)}
+      initial={MESSAGE_INITIAL}
+      animate={MESSAGE_ANIMATE}
+      transition={MESSAGE_TRANSITION}
+      {...rest}
+    >
+      {children}
+    </motion.div>
+  ),
+);
+Message.displayName = 'ChatConversation.Message';
+
 export type ChatConversationScrollAnchorProps = Omit<
   HTMLAttributes<HTMLDivElement>,
   'className' | 'style'
@@ -322,6 +405,8 @@ ScrollButton.displayName = 'ChatConversation.ScrollButton';
 
 const ChatConversation = Object.assign(ChatConversationRoot, {
   Content,
+  Messages,
+  Message,
   ScrollAnchor,
   ScrollButton,
 });

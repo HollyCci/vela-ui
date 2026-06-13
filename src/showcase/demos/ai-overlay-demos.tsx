@@ -813,7 +813,10 @@ const ConversationBubble = ({ role, text }: { role: 'user' | 'assistant'; text: 
 );
 ConversationBubble.displayName = 'ConversationBubble';
 
-const CONVERSATION_TURNS = Array.from({ length: 8 }, (_, i) => ({
+type ConversationTurn = { id: number; role: 'user' | 'assistant'; text: string };
+
+const INITIAL_CONVERSATION_TURNS: ConversationTurn[] = Array.from({ length: 8 }, (_, i) => ({
+  id: i,
   role: (i % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
   text:
     i % 2 === 0
@@ -821,21 +824,48 @@ const CONVERSATION_TURNS = Array.from({ length: 8 }, (_, i) => ({
       : '当用户停留在底部时，新消息会把视口保持钉在最新一条；向上滚动阅读时则不打扰。',
 }));
 
-const ChatConversationDemo = () => (
-  <DemoSection label="对话视图（滚动消息流 / 离底显示回到底部按钮）" isColumn>
-    <div style={{ display: 'flex', flexDirection: 'column', height: 360, width: 560, overflow: 'hidden', border: '1px solid var(--separator)', borderRadius: 12 }}>
-      <ChatConversation style={{ flex: 1 }}>
-        <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
-          {CONVERSATION_TURNS.map((turn, i) => (
-            <ConversationBubble key={i} role={turn.role} text={turn.text} />
-          ))}
-          <ChatConversation.ScrollButton />
-          <ChatConversation.ScrollAnchor />
-        </ChatConversation.Content>
-      </ChatConversation>
-    </div>
-  </DemoSection>
-);
+const NEW_TURN_TEXTS = [
+  '再追问一句：新消息进场的淡入上移动画是怎么做的？',
+  '新消息用 framer-motion 包裹：initial(opacity:0,y:8) → animate(opacity:1,y:0)。',
+];
+
+const ChatConversationDemo = () => {
+  const [turns, setTurns] = useState<ConversationTurn[]>(INITIAL_CONVERSATION_TURNS);
+
+  const handleSendTurn = useCallback(() => {
+    setTurns((prev) => {
+      const role: 'user' | 'assistant' = prev.length % 2 === 0 ? 'user' : 'assistant';
+      const text = NEW_TURN_TEXTS[role === 'user' ? 0 : 1];
+      return [...prev, { id: prev.length, role, text }];
+    });
+  }, []);
+
+  return (
+    <DemoSection
+      label="对话视图（滚动消息流 / 离底显示回到底部按钮 / 新消息淡入上移进场）"
+      isColumn
+    >
+      <Button variant="secondary" size="sm" onClick={handleSendTurn}>
+        发送新消息（观察进场动画）
+      </Button>
+      <div style={{ display: 'flex', flexDirection: 'column', height: 360, width: 560, overflow: 'hidden', border: '1px solid var(--separator)', borderRadius: 12 }}>
+        <ChatConversation style={{ flex: 1 }}>
+          <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+            <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+              {turns.map((turn) => (
+                <ChatConversation.Message key={turn.id}>
+                  <ConversationBubble role={turn.role} text={turn.text} />
+                </ChatConversation.Message>
+              ))}
+            </ChatConversation.Messages>
+            <ChatConversation.ScrollButton />
+            <ChatConversation.ScrollAnchor />
+          </ChatConversation.Content>
+        </ChatConversation>
+      </div>
+    </DemoSection>
+  );
+};
 
 const MARKDOWN_SAMPLE = `# Vela UI Markdown
 
