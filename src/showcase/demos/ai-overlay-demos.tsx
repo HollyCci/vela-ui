@@ -1,4 +1,4 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Key, Selection } from 'react-aria-components';
 import { Description, Dropdown as HeroDropdown, Label, Menu as HeroMenu } from '@heroui/react';
 import AlertDialog from '../../components/alert-dialog';
@@ -16,7 +16,7 @@ import Dropdown from '../../components/dropdown';
 import MenuItem from '../../components/menu-item';
 import Modal from '../../components/modal';
 import Popover from '../../components/popover';
-import PromptInput from '../../components/prompt-input';
+import PromptInput, { type PromptInputStatus } from '../../components/prompt-input';
 import PromptSuggestion from '../../components/prompt-suggestion';
 import Sheet from '../../components/sheet';
 import TextShimmer from '../../components/text-shimmer';
@@ -95,7 +95,9 @@ const ChatToolDemo = () => {
         onToggle={handleToggle}
       >
         <ChatTool.Args>
-          <CodeBlock code={'{ "table": "users", "limit": 10 }'} hasCopyButton={false} />
+          <CodeBlock>
+            <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
+          </CodeBlock>
         </ChatTool.Args>
         <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
       </ChatTool>
@@ -163,32 +165,187 @@ const ChainOfThoughtDemo = () => {
   );
 };
 
-const PromptInputDemo = () => (
-  <DemoSection label="提示输入框" isColumn>
-    <PromptInput>
-      <PromptInput.Content>
-        <PromptInput.Textarea placeholder="输入你的问题…" aria-label="提示输入" />
-      </PromptInput.Content>
-      <PromptInput.Toolbar>
-        <PromptInput.ToolbarStart>
-          <Button variant="ghost" size="sm" isIconOnly aria-label="添加附件">
-            ＋
-          </Button>
-        </PromptInput.ToolbarStart>
-        <PromptInput.ToolbarEnd>
-          <PromptInput.Send size="sm" isIconOnly aria-label="发送">
-            ↑
-          </PromptInput.Send>
-        </PromptInput.ToolbarEnd>
-      </PromptInput.Toolbar>
-    </PromptInput>
-    <PromptInput variant="secondary" size="sm" isDisabled>
-      <PromptInput.Content>
-        <PromptInput.Textarea placeholder="已禁用" disabled aria-label="禁用的提示输入" />
-      </PromptInput.Content>
-    </PromptInput>
-  </DemoSection>
-);
+type DemoQueuedPrompt = { id: number; text: string };
+
+const INITIAL_QUEUED_PROMPTS: DemoQueuedPrompt[] = [
+  { id: 1, text: '先审查首页改版的设计稿，再排实现计划。' },
+  { id: 2, text: '给设置页补充暗色模式支持。' },
+];
+
+type DemoQueueRowProps = {
+  prompt: DemoQueuedPrompt;
+  onRemove: (id: number) => void;
+};
+
+const DemoQueueRow = ({ prompt, onRemove }: DemoQueueRowProps) => {
+  const handleRemove = useCallback(() => {
+    onRemove(prompt.id);
+  }, [onRemove, prompt.id]);
+
+  return (
+    <PromptInput.Queue.Item value={prompt}>
+      <PromptInput.Queue.Item.Handle />
+      <PromptInput.Queue.Item.Body>
+        <PromptInput.Queue.Item.Icon />
+        <PromptInput.Queue.Item.Content>{prompt.text}</PromptInput.Queue.Item.Content>
+      </PromptInput.Queue.Item.Body>
+      <PromptInput.Queue.Item.Actions>
+        <PromptInput.Queue.Item.Remove onPress={handleRemove} />
+        <PromptInput.Queue.Item.More />
+      </PromptInput.Queue.Item.Actions>
+    </PromptInput.Queue.Item>
+  );
+};
+
+type DemoAttachmentProps = {
+  name: string;
+  onRemove: (name: string) => void;
+};
+
+const DemoAttachment = ({ name, onRemove }: DemoAttachmentProps) => {
+  const handleRemove = useCallback(() => {
+    onRemove(name);
+  }, [onRemove, name]);
+
+  return <ChatAttachment name={name} onRemove={handleRemove} />;
+};
+
+const PromptInputDemo = () => {
+  const [value, setValue] = useState('');
+  const [status, setStatus] = useState<PromptInputStatus>('ready');
+  const [lastSent, setLastSent] = useState('尚未发送');
+  const [attachments, setAttachments] = useState<string[]>([]);
+  const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
+  const timersRef = useRef<number[]>([]);
+  const attachmentSeqRef = useRef(0);
+
+  const clearTimers = useCallback(() => {
+    timersRef.current.forEach((id) => window.clearTimeout(id));
+    timersRef.current = [];
+  }, []);
+
+  useEffect(() => clearTimers, [clearTimers]);
+
+  const handleValueChange = useCallback((next: string) => {
+    setValue(next);
+  }, []);
+
+  // 模拟一次运行：submitted（约 0.8s）→ streaming（点停止或约 4s 后回 ready）
+  const handleSubmit = useCallback(() => {
+    clearTimers();
+    setLastSent(value);
+    setValue('');
+    setAttachments([]);
+    setStatus('submitted');
+    timersRef.current.push(
+      window.setTimeout(() => {
+        setStatus('streaming');
+      }, 800),
+    );
+    timersRef.current.push(
+      window.setTimeout(() => {
+        setStatus('ready');
+      }, 4800),
+    );
+  }, [clearTimers, value]);
+
+  const handleStop = useCallback(() => {
+    clearTimers();
+    setStatus('ready');
+  }, [clearTimers]);
+
+  const handleAttach = useCallback(() => {
+    attachmentSeqRef.current += 1;
+    setAttachments((prev) => [...prev, `参考资料-${attachmentSeqRef.current}.pdf`]);
+  }, []);
+
+  const handleRemoveAttachment = useCallback((name: string) => {
+    setAttachments((prev) => prev.filter((item) => item !== name));
+  }, []);
+
+  const handleReorderQueue = useCallback((next: DemoQueuedPrompt[]) => {
+    setQueuedPrompts(next);
+  }, []);
+
+  const handleRemoveQueued = useCallback((id: number) => {
+    setQueuedPrompts((prev) => prev.filter((prompt) => prompt.id !== id));
+  }, []);
+
+  return (
+    <DemoSection label="Enter 发送（Shift+Enter 换行）/ 运行态停止 / 附件 / 队列拖拽排序" isColumn>
+      <PromptInput
+        value={value}
+        onValueChange={handleValueChange}
+        onSubmit={handleSubmit}
+        onStop={handleStop}
+        status={status}
+      >
+        {queuedPrompts.length > 0 && (
+          <PromptInput.Queue>
+            <PromptInput.Queue.List values={queuedPrompts} onReorder={handleReorderQueue}>
+              {queuedPrompts.map((prompt) => (
+                <DemoQueueRow key={prompt.id} prompt={prompt} onRemove={handleRemoveQueued} />
+              ))}
+            </PromptInput.Queue.List>
+          </PromptInput.Queue>
+        )}
+        <PromptInput.Shell>
+          <PromptInput.Content>
+            {attachments.length > 0 && (
+              <PromptInput.Attachments>
+                {attachments.map((name) => (
+                  <DemoAttachment key={name} name={name} onRemove={handleRemoveAttachment} />
+                ))}
+              </PromptInput.Attachments>
+            )}
+            <PromptInput.TextArea placeholder="想了解点什么？" />
+          </PromptInput.Content>
+          <PromptInput.Toolbar>
+            <PromptInput.ToolbarStart>
+              <PromptInput.Action aria-label="添加附件" tooltip="添加附件" onPress={handleAttach}>
+                ＋
+              </PromptInput.Action>
+            </PromptInput.ToolbarStart>
+            <PromptInput.ToolbarEnd>
+              <PromptInput.Send />
+            </PromptInput.ToolbarEnd>
+          </PromptInput.Toolbar>
+        </PromptInput.Shell>
+        <PromptInput.Footer>AI 可能出错，请核查重要信息。</PromptInput.Footer>
+      </PromptInput>
+      <p>
+        最近发送：{lastSent}（当前状态：{status}）
+      </p>
+      <PromptInput variant="inline">
+        <PromptInput.Shell>
+          <PromptInput.Content>
+            <PromptInput.TextArea placeholder="inline 变体：折行自动展开" />
+          </PromptInput.Content>
+          <PromptInput.Toolbar>
+            <PromptInput.ToolbarStart>
+              <PromptInput.Action aria-label="添加附件">＋</PromptInput.Action>
+            </PromptInput.ToolbarStart>
+            <PromptInput.ToolbarEnd>
+              <PromptInput.Send />
+            </PromptInput.ToolbarEnd>
+          </PromptInput.Toolbar>
+        </PromptInput.Shell>
+      </PromptInput>
+      <PromptInput variant="secondary" size="sm" isDisabled>
+        <PromptInput.Shell>
+          <PromptInput.Content>
+            <PromptInput.TextArea placeholder="已禁用" aria-label="禁用的提示输入" />
+          </PromptInput.Content>
+          <PromptInput.Toolbar>
+            <PromptInput.ToolbarEnd>
+              <PromptInput.Send />
+            </PromptInput.ToolbarEnd>
+          </PromptInput.Toolbar>
+        </PromptInput.Shell>
+      </PromptInput>
+    </DemoSection>
+  );
+};
 
 const PromptSuggestionDemo = () => (
   <DemoSection isColumn>
@@ -225,9 +382,17 @@ const CODE_SAMPLE = `function greet(name: string) {
 }`;
 
 const CodeBlockDemo = () => (
-  <DemoSection isColumn>
-    <CodeBlock language="typescript" code={CODE_SAMPLE} />
-    <CodeBlock code={'pnpm install'} hasCopyButton={false} />
+  <DemoSection label="语言标签 + 复制按钮（点击切换成功态对勾）" isColumn>
+    <CodeBlock>
+      <CodeBlock.Header>
+        <span className="text-muted text-xs uppercase">typescript</span>
+        <CodeBlock.CopyButton code={CODE_SAMPLE} />
+      </CodeBlock.Header>
+      <CodeBlock.Code code={CODE_SAMPLE} language="typescript" />
+    </CodeBlock>
+    <CodeBlock>
+      <CodeBlock.Code code="pnpm install" language="shellscript" />
+    </CodeBlock>
   </DemoSection>
 );
 
