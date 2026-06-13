@@ -15,6 +15,7 @@ import PressableFeedback from '../../components/pressable-feedback';
 import ProgressBar from '../../components/progress-bar';
 import ProgressCircle from '../../components/progress-circle';
 import Rating from '../../components/rating';
+import Resizable from '../../components/resizable';
 import Segment from '../../components/segment';
 import Stepper from '../../components/stepper';
 import Tabs from '../../components/tabs';
@@ -696,6 +697,58 @@ const ContextMenuDemo = () => {
   );
 };
 
+const RESIZABLE_PANEL_STYLE: CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  padding: 16,
+  fontSize: 14,
+  color: 'var(--muted)',
+};
+
+const ResizableDemo = () => {
+  const [sizes, setSizes] = useState<number[]>([50, 50]);
+  const [vSizes, setVSizes] = useState<number[]>([40, 60]);
+
+  const handleLayout = (next: number[]) => setSizes(next);
+  const handleVLayout = (next: number[]) => setVSizes(next);
+
+  return (
+    <>
+      <DemoSection label="水平（拖拽中缝或方向键调整两侧面板）" isColumn>
+        <Resizable
+          orientation="horizontal"
+          onLayout={handleLayout}
+          style={{ width: 520, height: 200, border: '1px solid var(--separator)', borderRadius: 12 }}
+        >
+          <Resizable.Panel defaultSize={50} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+            侧栏 {Math.round(sizes[0])}%
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={50} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+            内容 {Math.round(sizes[1])}%
+          </Resizable.Panel>
+        </Resizable>
+      </DemoSection>
+      <DemoSection label="垂直" isColumn>
+        <Resizable
+          orientation="vertical"
+          onLayout={handleVLayout}
+          style={{ width: 360, height: 280, border: '1px solid var(--separator)', borderRadius: 12 }}
+        >
+          <Resizable.Panel defaultSize={40} minSize={15} style={RESIZABLE_PANEL_STYLE}>
+            上 {Math.round(vSizes[0])}%
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={60} minSize={15} style={RESIZABLE_PANEL_STYLE}>
+            下 {Math.round(vSizes[1])}%
+          </Resizable.Panel>
+        </Resizable>
+      </DemoSection>
+    </>
+  );
+};
+
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
   'progress-circle': <ProgressCircleDemo />,
@@ -716,4 +769,5 @@ export const feedbackNavDemos: Record<string, ReactNode> = {
   navbar: <NavbarDemo />,
   command: <CommandDemo />,
   'context-menu': <ContextMenuDemo />,
+  resizable: <ResizableDemo />,
 };
