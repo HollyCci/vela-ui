@@ -1,13 +1,11 @@
-import { Fragment, useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { useState, type MouseEvent, type ReactNode } from 'react';
 import './showcase.css';
-import DemoFrame from './demo-frame';
 import docsMetaJson from './docs-meta.json';
-import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, titleOf } from './registry';
+import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, sectionTitle, titleOf } from './registry';
 import {
   AnchorLinkIcon,
   ChevronRightSmIcon,
   LogoIcon,
-  OpenNewTabIcon,
   SearchIcon,
   StorybookIcon,
   ThemeToggleIcon,
@@ -257,15 +255,18 @@ const HEIGHT_OVERRIDES: Record<string, number> = {
 type ComponentPreviewProps = {
   component: string;
   slug: string;
+  demo: ReactNode;
 };
 
-const ComponentPreview = ({ component, slug }: ComponentPreviewProps) => {
+const ComponentPreview = ({ component, slug, demo }: ComponentPreviewProps) => {
   const [device, setDevice] = useState<Device>('desktop');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const height = HEIGHT_OVERRIDES[component] ?? 360;
 
   const handleDevice = (e: MouseEvent<HTMLButtonElement>) => {
     setDevice(e.currentTarget.dataset.device as Device);
   };
+  const handleTheme = () => setTheme((value) => (value === 'light' ? 'dark' : 'light'));
 
   return (
     <div className="component-preview-container group relative my-4 w-full" data-name={slug}>
@@ -286,20 +287,11 @@ const ComponentPreview = ({ component, slug }: ComponentPreviewProps) => {
               type="button"
               aria-label="Toggle theme"
               className="text-muted hover:text-foreground hover:bg-default flex size-7 cursor-pointer items-center justify-center rounded-lg transition-colors"
+              onClick={handleTheme}
+              data-theme-selected={theme}
             >
               <ThemeToggleIcon />
             </button>
-          </div>
-          <div className="tooltip__trigger" data-slot="tooltip-trigger" role="button" tabIndex={0}>
-            <a
-              aria-label="Open in new tab"
-              className="text-muted hover:text-foreground hover:bg-default flex size-7 items-center justify-center rounded-lg transition-colors"
-              href={`/reference/demos/${slug}.html`}
-              rel="noopener noreferrer"
-              target="_blank"
-            >
-              <OpenNewTabIcon />
-            </a>
           </div>
           <div className="bg-separator mx-1 hidden h-5 w-px md:block" />
           <div
@@ -334,8 +326,13 @@ const ComponentPreview = ({ component, slug }: ComponentPreviewProps) => {
             className="border-separator shrink-0 overflow-hidden rounded-xl border"
             style={{ width: DEVICE_WIDTH[device], maxWidth: '100%' }}
           >
-            <div className="h-full w-full" style={{ minHeight: height }}>
-              <DemoFrame slug={slug} height={height} />
+            <div
+              className="sc-live-preview h-full w-full"
+              data-theme={theme}
+              data-slug={slug}
+              style={{ minHeight: height }}
+            >
+              {demo}
             </div>
           </div>
           <div className="z-1 absolute bottom-0 top-0 hidden w-6 cursor-ew-resize items-center justify-center md:flex" style={{ right: 0 }}>
@@ -347,48 +344,6 @@ const ComponentPreview = ({ component, slug }: ComponentPreviewProps) => {
   );
 };
 ComponentPreview.displayName = 'ComponentPreview';
-
-type DocBlock = { type: 'html'; html: string } | { type: 'demo'; slug: string };
-
-type DocContent = { blocks: DocBlock[]; tocHtml: string };
-
-const docContentCache = new Map<string, DocContent>();
-
-/** 加载从原站采集提取的文档正文（prose + demo 占位） */
-const useDocContent = (id: string): DocContent | null => {
-  const [content, setContent] = useState<DocContent | null>(docContentCache.get(id) ?? null);
-
-  useEffect(() => {
-    let cancelled = false;
-    if (id === ALL_COMPONENTS_ID) {
-      setContent({ blocks: [], tocHtml: '' });
-      return undefined;
-    }
-    const cached = docContentCache.get(id);
-    if (cached) {
-      setContent(cached);
-      return undefined;
-    }
-    setContent(null);
-    const load = async () => {
-      try {
-        const res = await fetch(`/docs-content/${id}.json`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = (await res.json()) as DocContent;
-        docContentCache.set(id, data);
-        if (!cancelled) setContent(data);
-      } catch {
-        if (!cancelled) setContent({ blocks: [], tocHtml: '' });
-      }
-    };
-    void load();
-    return () => {
-      cancelled = true;
-    };
-  }, [id]);
-
-  return content;
-};
 
 type SectionHeadingProps = { anchor: string; children: ReactNode };
 
@@ -416,7 +371,7 @@ const AllComponentsOverview = ({ activeId, onSelect }: AllComponentsOverviewProp
       <h1 className="text-[1.75em] font-semibold flex items-center gap-2">All Components</h1>
       <p className="text-muted">
         Explore the full list of Pro components available in Vela UI. Each component page pairs
-        a live React implementation with reference variants.
+        its Vela React implementation with the same variant map from the Pro docs.
       </p>
     </section>
     {Object.entries(PRO_CATEGORIES).map(([category, ids]) => (
@@ -459,7 +414,6 @@ AllComponentsOverview.displayName = 'AllComponentsOverview';
 
 const App = () => {
   const [activeId, setActiveId] = useState(ALL_COMPONENTS_ID);
-  const docContent = useDocContent(activeId);
 
   const handleItemClick = (e: MouseEvent<HTMLButtonElement>) => {
     const id = e.currentTarget.dataset.id;
@@ -471,14 +425,17 @@ const App = () => {
 
   const isAllComponents = activeId === ALL_COMPONENTS_ID;
   const meta = docsMeta[activeId];
-  const sections = meta?.sections ?? [];
+  const sections =
+    meta?.sections ??
+    (demoIndex[activeId] ?? []).map((slug) => ({
+      heading: sectionTitle(activeId, slug),
+      anchor: slug === activeId ? 'usage' : slug.slice(activeId.length + 1),
+      demo: slug,
+    }));
   const reactDemo = demoRegistry[activeId];
   const title = meta?.title ?? titleOf(activeId);
-  // 有采集正文的组件直接渲染原站 prose；否则回退到 docs-meta 驱动的渲染
-  const hasDocContent = !isAllComponents && docContent !== null && docContent.blocks.length > 0;
 
   // 实时可交互演示：真实 React 组件，置于标题正下方作为页面主演示
-  // （下方的 Usage/变体是原站静态快照，仅作视觉参考，不可交互）
   const liveDemo =
     reactDemo !== undefined ? (
       <section className="sc-live-demo flex flex-col gap-3" id="live-demo">
@@ -521,30 +478,6 @@ const App = () => {
       >
         {isAllComponents ? (
           <AllComponentsOverview activeId={activeId} onSelect={handleItemClick} />
-        ) : hasDocContent ? (
-          docContent.blocks.map((block, i) => {
-            const node =
-              block.type === 'html' ? (
-                <div
-                  // 渲染本仓库采集、已清洗（去脚本）的原站静态正文，无用户输入
-                  key={`${activeId}-${i}`}
-                  className="contents"
-                  dangerouslySetInnerHTML={{ __html: block.html }}
-                />
-              ) : (
-                <ComponentPreview key={`${activeId}-${i}`} component={activeId} slug={block.slug} />
-              );
-            // 标题块（第一块）之后立即插入实时可交互演示，让它成为页面主演示
-            if (i === 0 && reactDemo !== undefined) {
-              return (
-                <Fragment key={`live-${activeId}`}>
-                  {node}
-                  {liveDemo}
-                </Fragment>
-              );
-            }
-            return node;
-          })
         ) : (
           <>
             <section className="flex flex-col gap-2">
@@ -566,10 +499,10 @@ const App = () => {
               {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
             </section>
             {liveDemo}
-            {sections.map((s) => (
+            {reactDemo !== undefined && sections.map((s) => (
               <div key={s.anchor} className="contents">
                 <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
-                <ComponentPreview component={activeId} slug={s.demo} />
+                <ComponentPreview component={activeId} slug={s.demo} demo={reactDemo} />
               </div>
             ))}
           </>
@@ -598,14 +531,17 @@ const App = () => {
                 </a>
               ))}
             </div>
-          ) : hasDocContent && docContent.tocHtml !== '' ? (
-            <div
-              // 原站 TOC 锚点列表（已清洗静态片段）
-              className="flex flex-col"
-              dangerouslySetInnerHTML={{ __html: docContent.tocHtml }}
-            />
           ) : (
             <div className="flex flex-col">
+              {reactDemo !== undefined && (
+                <a
+                  href="#live-demo"
+                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
+                  style={{ paddingInlineStart: '12px' }}
+                >
+                  实时交互演示
+                </a>
+              )}
               {sections.map((s) => (
                 <a
                   key={s.anchor}
@@ -616,15 +552,6 @@ const App = () => {
                   {s.heading}
                 </a>
               ))}
-              {reactDemo !== undefined && (
-                <a
-                  href="#live-demo"
-                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
-                  style={{ paddingInlineStart: '12px' }}
-                >
-                  实时交互演示
-                </a>
-              )}
             </div>
           )}
         </div>

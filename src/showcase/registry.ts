@@ -7,10 +7,10 @@ import { aiOverlayDemos } from './demos/ai-overlay-demos';
 import { chartsDemos } from './demos/charts-demos';
 import demoIndexJson from './demo-index.json';
 
-/** 组件 → 该组件全部基准 demo slug（采集自 heroui.pro 文档站） */
+/** 组件 → 该组件在 Pro 文档中的全部变体 slug，用于驱动 Vela live demo 分组 */
 export const demoIndex: Record<string, string[]> = demoIndexJson;
 
-/** 文档站同款分类（Pro 组件，61 个，全部有像素级基准快照） */
+/** 文档站同款分类（Pro 组件） */
 export const PRO_CATEGORIES: Record<string, string[]> = {
   Charts: [
     'area-chart',
@@ -113,7 +113,7 @@ export const BASE_CATEGORY: string[] = [
   'alert-dialog',
 ];
 
-/** 我们的 React 实现演示（与基准快照并列展示，用于比对） */
+/** 我们的 React 实现演示；showcase 只渲染这些本地 Vela 组件 */
 export const demoRegistry: Record<string, ReactNode> = {
   ...baseDemos,
   ...formsDemos,

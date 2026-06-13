@@ -299,8 +299,8 @@ const SECTION_TRANSITION = { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as const;
 
 /**
  * RAC Tree 默认把所有可见行拍平成 treegrid 的兄弟节点（无嵌套容器，展开瞬时）。
- * 原站则把每个展开分支的子级行包进一个 motion section（data-tree-motion-section）做高度过渡——
- * 见 public/reference/demos/file-tree-*.html。此渲染器消费拍平后的 collection，按 node.level
+ * 原站则把每个展开分支的子级行包进一个 motion section（data-tree-motion-section）做高度过渡。
+ * 此渲染器消费拍平后的 collection，按 node.level
  * 重建嵌套：每遇到更深一层就开一个 <motion.div data-tree-motion-section>，配合 AnimatePresence
  * 让分支按 RAC 的展开态进出场。行本身仍由 node.render(node) 渲染，故 role/aria/data-* 全部不变。
  */

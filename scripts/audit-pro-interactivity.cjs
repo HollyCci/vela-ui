@@ -10,6 +10,8 @@ const path = require('path');
 
 const root = path.join(__dirname, '..');
 const demosDir = path.join(root, 'src/showcase/demos');
+const showcaseAppPath = path.join(root, 'src/showcase/App.tsx');
+const publicDir = path.join(root, 'public');
 
 const lineRules = [
   {
@@ -46,6 +48,11 @@ const lineRules = [
     name: 'no chart placeholder text',
     pattern: /图表占位区域/,
     message: 'demo should render a meaningful live visualization or component state',
+  },
+  {
+    name: 'no static reference iframe chain',
+    pattern: /(DemoFrame|srcDoc|\/reference\/demos|\/docs-content|dangerouslySetInnerHTML)/,
+    message: 'showcase must render Vela React demos instead of static reference HTML',
   },
 ];
 
@@ -115,6 +122,9 @@ const files = fs
   .readdirSync(demosDir)
   .filter((file) => file.endsWith('-demos.tsx'))
   .map((file) => path.join(demosDir, file));
+if (fs.existsSync(showcaseAppPath)) {
+  files.push(showcaseAppPath);
+}
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
@@ -507,6 +517,19 @@ for (const file of files) {
   collectStaticDemoLabels(source, file, lineLookup, problems);
   collectHashHrefs(source, file, lineLookup, problems);
   collectNakedActionButtons(source, file, lineLookup, problems);
+}
+
+for (const staticDir of ['reference', 'demo', 'docs-content']) {
+  const fullPath = path.join(publicDir, staticDir);
+  if (fs.existsSync(fullPath)) {
+    problems.push({
+      file: path.relative(root, fullPath),
+      line: 1,
+      rule: 'no generated static demo assets',
+      message: `remove public/${staticDir}; showcase demos must be rendered by local Vela components`,
+      text: `public/${staticDir}`,
+    });
+  }
 }
 
 if (problems.length === 0) {

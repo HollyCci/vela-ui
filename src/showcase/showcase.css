@@ -1,4 +1,4 @@
-/* 文档站克隆模式：页面 DOM 与样式均来自原站，这里只保留展示站自身的辅助样式 */
+/* 展示站辅助样式：页面结构贴近 Pro docs，组件演示只渲染本仓 Vela React 实现 */
 .contents {
   display: contents;
 }
@@ -12,31 +12,6 @@
   color: var(--muted);
 }
 
-/* demo 预览 iframe（原站 DOM + 原站 CSS 隔离渲染） */
-.sc-frame {
-  display: block;
-  width: 100%;
-  border: 0;
-  background: var(--background);
-}
-
-.sc-frame-loading {
-  width: 100%;
-  background: var(--background);
-}
-
-.sc-frame-error {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 120px;
-  padding: 16px;
-  font-family: var(--font-sans);
-  font-size: 13px;
-  color: var(--danger, #ef2f3c);
-}
-
-/* React 复刻实现演示容器（仅 base 组件用） */
 .sc-react-demo {
   display: flex;
   flex-wrap: wrap;
@@ -46,6 +21,17 @@
   border: 1px solid var(--separator);
   border-radius: 12px;
   background: var(--background);
+}
+
+.sc-live-preview {
+  padding: 24px;
+  background: var(--background);
+  color: var(--foreground);
+  overflow: auto;
+}
+
+.sc-live-preview[data-theme='dark'] {
+  color-scheme: dark;
 }
 
 .sc-demo {
