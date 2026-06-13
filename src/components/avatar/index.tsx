@@ -24,7 +24,7 @@ const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
     return (
       <span
         ref={ref}
-        className={clsx('avatar', size !== 'md' && `avatar--${size}`, isSoft && 'avatar--soft', className)}
+        className={clsx('avatar', `avatar--${size}`, isSoft && 'avatar--soft', className)}
         {...rest}
       >
         {showImage ? (

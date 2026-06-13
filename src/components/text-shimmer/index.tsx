@@ -5,7 +5,7 @@ export type TextShimmerProps = HTMLAttributes<HTMLSpanElement>;
 
 const TextShimmer = forwardRef<HTMLSpanElement, TextShimmerProps>(
   ({ className, ...rest }, ref) => (
-    <span ref={ref} className={clsx('text-shimmer', className)} {...rest} />
+    <span ref={ref} data-slot="text-shimmer" className={clsx('text-shimmer', className)} {...rest} />
   ),
 );
 
