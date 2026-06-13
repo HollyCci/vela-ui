@@ -1,8 +1,10 @@
 import {
   createContext,
   useContext,
+  useRef,
   type CSSProperties,
   type HTMLAttributes,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
 import {
@@ -17,6 +19,15 @@ import {
   type DrawerHeadingProps,
   type DrawerRootProps,
 } from '@heroui/react';
+import { OverlayTriggerStateContext } from 'react-aria-components';
+import {
+  motion,
+  useDragControls,
+  useMotionValue,
+  type DragControls,
+  type PanInfo,
+  type Transition,
+} from 'motion/react';
 import clsx from 'clsx';
 
 export type SheetPlacement = 'top' | 'bottom' | 'left' | 'right';
@@ -24,7 +35,7 @@ export type SheetBackdrop = 'opaque' | 'blur' | 'transparent';
 
 /**
  * Root（即 OSS Drawer = RAC DialogTrigger）：管理 isOpen/defaultOpen/onOpenChange 与 trigger 关联、焦点圈定。
- * placement/isDetached 通过 context 下发给 Content/Dialog，使其叠加 `sheet__*--{placement}` 修饰类与
+ * placement/isDetached 通过 context 下发给 Content/Dialog，使其叠加 `sheet__*` 修饰类与
  * `data-sheet-detached`（v2 双层：底座输出 `drawer__*` 负责模态行为/滑入滑出动画，本层叠加 `sheet__*` 视觉）。
  */
 export type SheetProps = Omit<DrawerRootProps, 'className' | 'style'> & {
@@ -67,6 +78,8 @@ export type SheetFooterProps = HTMLAttributes<HTMLDivElement>;
 export type SheetHandleProps = Omit<DrawerHandleProps, 'className' | 'style'> & {
   className?: string;
   style?: CSSProperties;
+  /** 抓手按下回调：本层用它把手势交给 framer-motion 的拖拽关闭（底座 Handle 已透传到底层 div） */
+  onPointerDown?: (event: ReactPointerEvent<HTMLDivElement>) => void;
 };
 
 export type SheetCloseTriggerProps = Omit<DrawerCloseTriggerProps, 'className' | 'style'> & {
@@ -86,6 +99,29 @@ type SheetContextValue = {
 };
 
 const SheetContext = createContext<SheetContextValue>({ placement: 'bottom', isDetached: false });
+
+/** Dialog 把 framer-motion 的 dragControls 经 context 下发给 Handle：抓手 pointerdown 即 start 拖拽 */
+const SheetDragContext = createContext<DragControls | null>(null);
+
+/** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐真站手感 */
+const DISMISS_FRACTION = 0.3;
+const VELOCITY_THRESHOLD = 500;
+
+/** 弹回/收起的弹簧动画，cubic 近似真站 `cubic-bezier(0.32, 0.72, 0, 1)` 的速度曲线 */
+const SNAP_TRANSITION: Transition = {
+  type: 'spring',
+  stiffness: 520,
+  damping: 44,
+  mass: 0.9,
+};
+
+/** 各 placement 下的关闭轴向：底/顶为 y，左/右为 x */
+const isVerticalPlacement = (placement: SheetPlacement) =>
+  placement === 'bottom' || placement === 'top';
+
+/** 关闭方向符号：bottom/right 向正方向滑出，top/left 向负方向滑出 */
+const dismissSign = (placement: SheetPlacement) =>
+  placement === 'bottom' || placement === 'right' ? 1 : -1;
 
 /**
  * Trigger：直接渲染 OSS Button 作为 RAC DialogTrigger（Sheet Root）的触发器。
@@ -133,15 +169,99 @@ const Content = ({ className, ...rest }: SheetContentProps) => {
 };
 Content.displayName = 'Sheet.Content';
 
-const Dialog = ({ className, ...rest }: SheetDialogProps) => {
+/**
+ * Dialog：底座 Drawer.Dialog（RAC Dialog，保留 data-slot/焦点圈定/SurfaceContext）外，叠加一层
+ * framer-motion 的拖拽关闭引擎。motion.div drag 沿 placement 轴拖动，超过位移/速度阈值则调用 RAC
+ * overlayState.close()（即 onOpenChange(false)）随 Content 退场动画一起滑出；不够则 dragSnapToOrigin 弹回。
+ * 拦截 motion.div 上的 pointerdown 冒泡，避免触发 Drawer.Dialog 自带的指针拖拽（双引擎冲突）。
+ * 拖拽中输出 data-dragging=""，与真站运行时 data 属性一致。
+ */
+const Dialog = ({ className, children, ...rest }: SheetDialogProps) => {
   const { placement } = useContext(SheetContext);
+  const overlayState = useContext(OverlayTriggerStateContext);
+  const vertical = isVerticalPlacement(placement);
+  const sign = dismissSign(placement);
+
+  // 仅由 Handle 触发拖拽（dragListener=false）：抓手是唯一抓手，body 滚动不被劫持
+  const dragControls = useDragControls();
+  // 沿关闭轴的位移 motion value，弹回时由 dragSnapToOrigin 复位
+  const offset = useMotionValue(0);
+  const surfaceRef = useRef<HTMLDivElement | null>(null);
+
+  const setDragging = (next: boolean) => {
+    const el = surfaceRef.current;
+    if (!el) return;
+    if (next) el.setAttribute('data-dragging', '');
+    else el.removeAttribute('data-dragging');
+  };
+
+  const handleDragStart = () => setDragging(true);
+
+  const handleDragEnd = (_event: unknown, info: PanInfo) => {
+    setDragging(false);
+    const el = surfaceRef.current;
+    const travel = vertical ? info.offset.y : info.offset.x;
+    const speed = vertical ? info.velocity.y : info.velocity.x;
+    // 仅朝关闭方向的位移/速度才计入；反向（橡皮筋回弹方向）不触发关闭
+    const directedTravel = travel * sign;
+    const directedSpeed = speed * sign;
+    const dimension = el ? (vertical ? el.offsetHeight : el.offsetWidth) : 0;
+    const shouldDismiss =
+      directedTravel > dimension * DISMISS_FRACTION || directedSpeed > VELOCITY_THRESHOLD;
+
+    if (shouldDismiss && overlayState) {
+      overlayState.close();
+    }
+    // 不关闭时：dragSnapToOrigin 自动把 offset 弹回 0
+  };
 
   return (
-    <Drawer.Dialog
-      data-slot="sheet-dialog"
-      className={clsx('sheet__dialog', `sheet__dialog--${placement}`, className)}
-      {...rest}
-    />
+    <SheetDragContext.Provider value={dragControls}>
+      {/*
+       * motion.div 作为 .drawer__content 的 flex 子项「包住」整块面板（Drawer.Dialog），
+       * drag 的 transform 平移整块面板的视觉盒（背景/圆角/阴影都在内层 .drawer__dialog 上）。
+       * 与 RAC 进出场用的 CSS `translate`（drawer.css）属于不同属性、互不覆盖。
+       */}
+      <motion.div
+        ref={surfaceRef}
+        data-slot="sheet-drag-surface"
+        drag={vertical ? 'y' : 'x'}
+        dragControls={dragControls}
+        dragListener={false}
+        dragSnapToOrigin
+        dragElastic={{
+          // 关闭方向自由拖动（1）；反方向加橡皮筋阻尼（0.12），与真站 clamp 后的边界手感一致
+          top: vertical ? (sign > 0 ? 0.12 : 1) : 0,
+          bottom: vertical ? (sign > 0 ? 1 : 0.12) : 0,
+          left: vertical ? 0 : sign > 0 ? 0.12 : 1,
+          right: vertical ? 0 : sign > 0 ? 1 : 0.12,
+        }}
+        dragConstraints={{ top: 0, bottom: 0, left: 0, right: 0 }}
+        dragTransition={{ bounceStiffness: 520, bounceDamping: 44 }}
+        dragMomentum={false}
+        style={{
+          // 让 wrapper 在 .drawer__content 的 flex 布局里等价于原 Dialog 的占位与尺寸
+          display: 'flex',
+          flexDirection: 'column',
+          flex: 'auto',
+          minHeight: 0,
+          width: '100%',
+          ...(vertical ? { y: offset } : { x: offset }),
+        }}
+        transition={SNAP_TRANSITION}
+        onDragStart={handleDragStart}
+        onDragEnd={handleDragEnd}
+        className="sheet__drag-surface"
+      >
+        <Drawer.Dialog
+          data-slot="sheet-dialog"
+          className={clsx('sheet__dialog', `sheet__dialog--${placement}`, className)}
+          {...rest}
+        >
+          {children}
+        </Drawer.Dialog>
+      </motion.div>
+    </SheetDragContext.Provider>
   );
 };
 Dialog.displayName = 'Sheet.Dialog';
@@ -170,10 +290,30 @@ const Footer = ({ className, ...rest }: SheetFooterProps) => (
 );
 Footer.displayName = 'Sheet.Footer';
 
-/** 拖拽手柄：底座 Handle 自带内嵌 bar（drawer.css 已渲染为可见药丸）；本层叠加 sheet__handle 视觉 */
-const Handle = ({ className, ...rest }: SheetHandleProps) => (
-  <Drawer.Handle data-slot="sheet-handle" className={clsx('sheet__handle', className)} {...rest} />
-);
+/**
+ * 拖拽手柄：底座 Handle 自带内嵌 bar（drawer.css 已渲染为可见药丸）；本层叠加 sheet__handle 视觉。
+ * 抓手上的 pointerdown 桥接到 Dialog 的 framer-motion drag，使「抓手按下即可向下拖拽关闭」。
+ */
+const Handle = ({ className, onPointerDown, ...rest }: SheetHandleProps) => {
+  const dragControls = useContext(SheetDragContext);
+
+  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    onPointerDown?.(event);
+    // 抓手按下即把手势交给 Dialog 的 framer-motion 拖拽（dragListener=false 时唯一入口）
+    dragControls?.start(event);
+    // 阻止冒泡到 Drawer.Dialog 自带的指针拖拽 onPointerDown，避免 CSS transform 与 motion 双引擎冲突
+    event.stopPropagation();
+  };
+
+  return (
+    <Drawer.Handle
+      data-slot="sheet-handle"
+      className={clsx('sheet__handle', className)}
+      onPointerDown={handlePointerDown}
+      {...rest}
+    />
+  );
+};
 Handle.displayName = 'Sheet.Handle';
 
 const CloseTrigger = ({ className, ...rest }: SheetCloseTriggerProps) => (
@@ -187,7 +327,8 @@ CloseTrigger.displayName = 'Sheet.CloseTrigger';
 
 /**
  * 基于 @heroui/react Drawer（RAC DialogTrigger/ModalOverlay/Modal/Dialog）的底部滑出面板（原站 API）：
- * 按钮打开 → Esc/遮罩/关闭按钮关闭 → 焦点圈定，拖拽手柄拖拽关闭均由底座提供；
+ * 按钮打开 → Esc/遮罩/关闭按钮关闭 → 焦点圈定由底座提供；拖拽关闭（drag-to-dismiss）由本层
+ * framer-motion 在 Sheet.Dialog 上接入：手柄向关闭方向拖动，超过位移/速度阈值即关闭，否则弹回。
  * placement（底/顶/左/右）与 isDetached 经 context 下发到 Content/Dialog 叠加 `sheet__*` 修饰类。
  */
 const SheetRoot = ({ placement = 'bottom', isDetached = false, children, ...rest }: SheetProps) => (
