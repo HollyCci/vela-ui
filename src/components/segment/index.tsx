@@ -1,93 +1,195 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  createContext,
+  forwardRef,
+  useContext,
+  useLayoutEffect,
+  useRef,
+  type CSSProperties,
+  type HTMLAttributes,
+  type RefObject,
+} from 'react';
+import {
+  ToggleButton,
+  ToggleButtonGroup,
+  type ToggleButtonGroupProps,
+  type ToggleButtonProps,
+  type Key,
+} from 'react-aria-components';
 import clsx from 'clsx';
 
 export type SegmentSize = 'sm' | 'md' | 'lg';
 export type SegmentVariant = 'default' | 'ghost';
 
-export type SegmentOption = {
-  value: string;
-  label: ReactNode;
-  isDisabled?: boolean;
-};
-
-export type SegmentProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange'> & {
-  options: SegmentOption[];
-  value: string;
-  onChange?: (value: string) => void;
-  size?: SegmentSize;
+export type SegmentProps = Omit<
+  ToggleButtonGroupProps,
+  'selectionMode' | 'selectedKeys' | 'defaultSelectedKeys' | 'onSelectionChange' | 'className' | 'style'
+> & {
+  /** 视觉变体（原站 API） */
   variant?: SegmentVariant;
+  size?: SegmentSize;
+  /** 受控选中项（单选 API，包装 RAC 的 selectedKeys 集合） */
+  selectedKey?: Key | null;
+  defaultSelectedKey?: Key;
+  onSelectionChange?: (key: Key) => void;
+  className?: string;
+  style?: CSSProperties;
 };
 
-type SegmentItemProps = {
-  option: SegmentOption;
-  isSelected: boolean;
+export type SegmentItemProps = Omit<ToggleButtonProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type SegmentSeparatorProps = HTMLAttributes<HTMLSpanElement>;
+
+type SegmentContextValue = {
   size: SegmentSize;
-  isGhost: boolean;
-  onSelect?: (value: string) => void;
+  variant: SegmentVariant;
+  /** FLIP 滑动动画：记录上一个选中 indicator 的位置 */
+  lastRect: RefObject<DOMRect | null>;
 };
 
-const SegmentItem = ({ option, isSelected, size, isGhost, onSelect }: SegmentItemProps) => {
-  const handleClick = () => {
-    if (!option.isDisabled) onSelect?.(option.value);
-  };
+const SegmentContext = createContext<SegmentContextValue>({
+  size: 'md',
+  variant: 'default',
+  lastRect: { current: null },
+});
+
+/**
+ * 选中指示器：原站 CSS 已定义 `transition: translate,width,height`，
+ * 这里在挂载时以上一个选中项的位置作为起点（FLIP），下一帧归零形成滑动动画。
+ */
+const Indicator = () => {
+  const { variant, lastRect } = useContext(SegmentContext);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const el = ref.current;
+    if (el === null) return undefined;
+    const rect = el.getBoundingClientRect();
+    const prev = lastRect.current;
+    lastRect.current = rect;
+    const resetToRest = () => {
+      el.style.translate = '0px 0px';
+      el.style.width = '100%';
+      el.style.height = '100%';
+    };
+    let raf = 0;
+    if (prev !== null && (prev.left !== rect.left || prev.top !== rect.top || prev.width !== rect.width)) {
+      el.style.translate = `${prev.left - rect.left}px ${prev.top - rect.top}px`;
+      el.style.width = `${prev.width}px`;
+      el.style.height = `${prev.height}px`;
+      raf = requestAnimationFrame(resetToRest);
+    } else if (el.style.translate !== '' && el.style.translate !== '0px 0px') {
+      // StrictMode 二次执行：起始偏移已设而归零帧被首轮 cleanup 取消，补一帧完成动画
+      raf = requestAnimationFrame(resetToRest);
+    }
+    return () => cancelAnimationFrame(raf);
+  }, [lastRect]);
 
   return (
-    <button
-      type="button"
-      role="radio"
-      aria-checked={isSelected}
-      className={clsx('segment__item', `segment__item--${size}`, isGhost && 'segment__item--ghost')}
-      data-selected={isSelected || undefined}
-      data-disabled={option.isDisabled || undefined}
-      disabled={option.isDisabled}
-      onClick={handleClick}
-    >
-      <span className="segment__separator" aria-hidden="true" />
-      {isSelected && (
-        <span
-          className={clsx('segment__indicator', isGhost && 'segment__indicator--ghost')}
-          aria-hidden="true"
-        />
-      )}
-      {option.label}
-    </button>
+    <div
+      ref={ref}
+      data-slot="segment-indicator"
+      className={clsx('segment__indicator', variant === 'ghost' && 'segment__indicator--ghost')}
+    />
   );
 };
+Indicator.displayName = 'Segment.Indicator';
 
-SegmentItem.displayName = 'Segment.Item';
+const Separator = forwardRef<HTMLSpanElement, SegmentSeparatorProps>(
+  ({ className, ...rest }, ref) => (
+    <span
+      ref={ref}
+      aria-hidden="true"
+      data-slot="segment-separator"
+      className={clsx('segment__separator', className)}
+      {...rest}
+    />
+  ),
+);
+Separator.displayName = 'Segment.Separator';
 
-const Segment = forwardRef<HTMLDivElement, SegmentProps>(
-  ({ options, value, onChange, size = 'md', variant = 'default', className, ...rest }, ref) => {
-    const isGhost = variant === 'ghost';
-    const items = options.map((option) => (
-      <SegmentItem
-        key={option.value}
-        option={option}
-        isSelected={option.value === value}
-        size={size}
-        isGhost={isGhost}
-        onSelect={onChange}
-      />
-    ));
+/** 包装 RAC ToggleButton；选中时自动渲染指示器，并内置分隔线（相邻选中项时由 CSS 隐藏） */
+const Item = ({ className, children, ...rest }: SegmentItemProps) => {
+  const { size, variant } = useContext(SegmentContext);
+
+  return (
+    <ToggleButton
+      data-slot="segment-item"
+      className={clsx(
+        'segment__item',
+        `segment__item--${size}`,
+        variant === 'ghost' && 'segment__item--ghost',
+        className,
+      )}
+      {...rest}
+    >
+      {(renderProps) => (
+        <>
+          {renderProps.isSelected && <Indicator />}
+          <Separator />
+          {typeof children === 'function' ? children(renderProps) : children}
+        </>
+      )}
+    </ToggleButton>
+  );
+};
+Item.displayName = 'Segment.Item';
+
+/**
+ * 包装 RAC ToggleButtonGroup 的单选分段控件（原站 API）：
+ * 单选 + 不可清空，键盘导航与 radiogroup 语义由 RAC 提供。
+ */
+const SegmentRoot = forwardRef<HTMLDivElement, SegmentProps>(
+  (
+    {
+      variant = 'default',
+      size = 'md',
+      selectedKey,
+      defaultSelectedKey,
+      onSelectionChange,
+      className,
+      children,
+      ...rest
+    },
+    ref,
+  ) => {
+    const lastRect = useRef<DOMRect | null>(null);
+
+    const handleSelectionChange = (keys: Set<Key>) => {
+      const first = keys.values().next();
+      if (!first.done) onSelectionChange?.(first.value);
+    };
 
     return (
-      <div
-        ref={ref}
-        role="radiogroup"
-        className={clsx(
-          'segment',
-          size === 'sm' && 'segment--sm',
-          isGhost && 'segment--ghost',
-          className,
-        )}
-        {...rest}
-      >
-        {items}
-      </div>
+      <SegmentContext.Provider value={{ size, variant, lastRect }}>
+        <ToggleButtonGroup
+          ref={ref}
+          data-slot="segment"
+          selectionMode="single"
+          disallowEmptySelection
+          selectedKeys={
+            selectedKey === undefined ? undefined : selectedKey === null ? [] : [selectedKey]
+          }
+          defaultSelectedKeys={defaultSelectedKey === undefined ? undefined : [defaultSelectedKey]}
+          onSelectionChange={handleSelectionChange}
+          className={clsx(
+            'segment',
+            `segment--${size}`,
+            variant === 'ghost' && 'segment--ghost',
+            className,
+          )}
+          {...rest}
+        >
+          {children}
+        </ToggleButtonGroup>
+      </SegmentContext.Provider>
     );
   },
 );
+SegmentRoot.displayName = 'Segment';
 
-Segment.displayName = 'Segment';
+const Segment = Object.assign(SegmentRoot, { Item, Separator });
 
 export default Segment;

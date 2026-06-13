@@ -1,4 +1,5 @@
 import { useState, type ReactNode } from 'react';
+import type { Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
 import EmojiReactionButton from '../../components/emoji-reaction-button';
@@ -204,25 +205,47 @@ const TabsDemo = () => {
   );
 };
 
-const SEGMENT_OPTIONS = [
-  { value: 'day', label: '日' },
-  { value: 'week', label: '周' },
-  { value: 'month', label: '月' },
-  { value: 'year', label: '年', isDisabled: true },
+const SEGMENT_RANGES = [
+  { id: 'day', label: '日' },
+  { id: 'week', label: '周' },
+  { id: 'month', label: '月' },
+  { id: 'year', label: '年', isDisabled: true },
 ];
 
 const SegmentDemo = () => {
-  const [range, setRange] = useState('week');
-  const [ghostRange, setGhostRange] = useState('day');
+  const [range, setRange] = useState<Key>('week');
 
   return (
     <>
-      <DemoSection label="默认">
-        <Segment options={SEGMENT_OPTIONS} value={range} onChange={setRange} />
-        <Segment options={SEGMENT_OPTIONS} value={range} onChange={setRange} size="sm" />
+      <DemoSection label="受控 + 同步两种尺寸">
+        <Segment aria-label="统计周期" selectedKey={range} onSelectionChange={setRange}>
+          {SEGMENT_RANGES.map((r) => (
+            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
+              {r.label}
+            </Segment.Item>
+          ))}
+        </Segment>
+        <Segment
+          aria-label="统计周期（小尺寸）"
+          selectedKey={range}
+          size="sm"
+          onSelectionChange={setRange}
+        >
+          {SEGMENT_RANGES.map((r) => (
+            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
+              {r.label}
+            </Segment.Item>
+          ))}
+        </Segment>
       </DemoSection>
-      <DemoSection label="ghost 变体">
-        <Segment options={SEGMENT_OPTIONS} value={ghostRange} onChange={setGhostRange} variant="ghost" />
+      <DemoSection label="ghost 变体（非受控）">
+        <Segment aria-label="视图" defaultSelectedKey="day" variant="ghost">
+          {SEGMENT_RANGES.map((r) => (
+            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
+              {r.label}
+            </Segment.Item>
+          ))}
+        </Segment>
       </DemoSection>
     </>
   );
