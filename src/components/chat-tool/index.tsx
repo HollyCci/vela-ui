@@ -50,6 +50,12 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
     const contentId = useId();
     const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
     const expanded = isExpanded ?? internalExpanded;
+    const triggerLabel = (
+      <>
+        <span className="chat-tool__trigger-label">{label}</span>
+        {statusIcon !== undefined && <span className="chat-tool__status">{statusIcon}</span>}
+      </>
+    );
 
     const handleToggle: MouseEventHandler<HTMLButtonElement> = (event) => {
       const nextExpanded = !expanded;
@@ -61,19 +67,30 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
     return (
       <div ref={ref} className={clsx('chat-tool', STATUS_MODIFIERS[status], className)} {...rest}>
         <div data-slot="disclosure-heading">
-          <button
-            type="button"
-            className="chat-tool__trigger"
-            data-expandable={isExpandable ? 'true' : 'false'}
-            aria-expanded={isExpandable ? expanded : undefined}
-            aria-controls={isExpandable ? contentId : undefined}
-            onClick={isExpandable ? handleToggle : undefined}
-          >
-            <span className="chat-tool__trigger-label">{label}</span>
-            {statusIcon !== undefined && <span className="chat-tool__status">{statusIcon}</span>}
-          </button>
+          {isExpandable ? (
+            <button
+              type="button"
+              className="chat-tool__trigger"
+              data-expandable="true"
+              aria-expanded={expanded}
+              aria-controls={contentId}
+              onClick={handleToggle}
+            >
+              {triggerLabel}
+            </button>
+          ) : (
+            <div className="chat-tool__trigger" data-expandable="false">
+              {triggerLabel}
+            </div>
+          )}
         </div>
-        <div id={contentId} className="chat-tool__content" data-expanded={expanded ? 'true' : 'false'}>
+        <div
+          id={contentId}
+          className="chat-tool__content"
+          data-expanded={expanded ? 'true' : 'false'}
+          hidden={!expanded}
+          aria-hidden={!expanded}
+        >
           <div className="chat-tool__content-body">{children}</div>
         </div>
       </div>

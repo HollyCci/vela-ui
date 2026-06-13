@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import type { Key, Selection } from 'react-aria-components';
-import { Description, Dropdown as HeroDropdown, Label, Menu as HeroMenu } from '@heroui/react';
+import { Description, Label } from '@heroui/react';
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
@@ -26,8 +26,6 @@ import PromptSuggestion from '../../components/prompt-suggestion';
 import Sheet from '../../components/sheet';
 import TextShimmer from '../../components/text-shimmer';
 import DemoSection from '../demo-section';
-
-const noop = () => undefined;
 
 const ChatMessageDemo = () => (
   <DemoSection label="用户 / 助手气泡" isColumn>
@@ -70,13 +68,31 @@ const ChatLoaderDemo = () => (
   </>
 );
 
-const ChatAttachmentDemo = () => (
-  <DemoSection label="文件附件（悬停显示移除按钮）">
-    <ChatAttachment name="需求文档.pdf" onRemove={noop} />
-    <ChatAttachment name="截图.png" kind="image" fallbackIcon="🖼" onRemove={noop} />
-    <ChatAttachment name="数据表.xlsx" fallbackIcon="📊" />
-  </DemoSection>
-);
+const INITIAL_ATTACHMENTS = [
+  { name: '需求文档.pdf' },
+  { name: '截图.png', kind: 'image' as const, fallbackIcon: '🖼' },
+  { name: '数据表.xlsx', fallbackIcon: '📊' },
+];
+
+const ChatAttachmentDemo = () => {
+  const [attachments, setAttachments] = useState(INITIAL_ATTACHMENTS);
+  const handleRemove = (name: string) =>
+    setAttachments((prev) => prev.filter((attachment) => attachment.name !== name));
+
+  return (
+    <DemoSection label="文件附件（悬停显示移除按钮）">
+      {attachments.map((attachment) => (
+        <ChatAttachment
+          key={attachment.name}
+          name={attachment.name}
+          kind={attachment.kind}
+          fallbackIcon={attachment.fallbackIcon}
+          onRemove={() => handleRemove(attachment.name)}
+        />
+      ))}
+    </DemoSection>
+  );
+};
 
 const ChatSourceDemo = () => (
   <DemoSection label="引用来源" isColumn>
@@ -482,64 +498,46 @@ const DrawerDemo = () => {
   );
 };
 
-const PopoverDemo = () => {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const handleToggle = useCallback(() => {
-    setIsOpen((prev) => !prev);
-  }, []);
-
-  return (
-    <DemoSection label="受控气泡卡片（静态定位）" isColumn>
-      <Popover
-        isOpen={isOpen}
-        placement="bottom"
-        trigger={
-          <Button variant="outline" onClick={handleToggle}>
-            {isOpen ? '收起说明' : '查看说明'}
-          </Button>
-        }
-      >
-        <Popover.Heading>排班规则</Popover.Heading>
-        <p>每位老师每天最多安排 8 节辅导课，跨时段需间隔 15 分钟。</p>
-      </Popover>
-    </DemoSection>
-  );
-};
+const PopoverDemo = () => (
+  <DemoSection label="受控气泡卡片（按钮触发 / 外部点击关闭 / 焦点管理）" isColumn>
+    <Popover>
+      <Popover.Trigger>
+        <Button variant="outline">查看说明</Button>
+      </Popover.Trigger>
+      <Popover.Content placement="bottom">
+        <Popover.Dialog>
+          <Popover.Heading>排班规则</Popover.Heading>
+          <p>每位老师每天最多安排 8 节辅导课，跨时段需间隔 15 分钟。</p>
+        </Popover.Dialog>
+      </Popover.Content>
+    </Popover>
+  </DemoSection>
+);
 
 const DropdownDemo = () => {
   const [isOpen, setIsOpen] = useState(true);
 
-  const handleToggle = useCallback(() => {
-    setIsOpen((prev) => !prev);
-  }, []);
-
   return (
-    <DemoSection label="受控下拉菜单（静态定位）" isColumn>
-      <Dropdown
-        isOpen={isOpen}
-        placement="bottom"
-        trigger={
-          <Button variant="outline" onClick={handleToggle}>
-            操作菜单 ▾
-          </Button>
-        }
-      >
-        <HeroMenu aria-label="操作菜单">
-          <MenuItem textValue="编辑学员信息">
-            <Label>编辑学员信息</Label>
-          </MenuItem>
-          <MenuItem textValue="导出记录">
-            <Label>导出记录</Label>
-            <Description>导出为 Excel 文件</Description>
-          </MenuItem>
-          <MenuItem isDisabled textValue="归档（无权限）">
-            <Label>归档（无权限）</Label>
-          </MenuItem>
-          <MenuItem variant="danger" textValue="删除学员">
-            <Label>删除学员</Label>
-          </MenuItem>
-        </HeroMenu>
+    <DemoSection label="受控下拉菜单（按钮触发 / 键盘导航 / 选中回调）" isColumn>
+      <Dropdown isOpen={isOpen} onOpenChange={setIsOpen}>
+        <Dropdown.Trigger>操作菜单 ▾</Dropdown.Trigger>
+        <Dropdown.Popover placement="bottom">
+          <Dropdown.Menu aria-label="操作菜单">
+            <MenuItem textValue="编辑学员信息">
+              <Label>编辑学员信息</Label>
+            </MenuItem>
+            <MenuItem textValue="导出记录">
+              <Label>导出记录</Label>
+              <Description>导出为 Excel 文件</Description>
+            </MenuItem>
+            <MenuItem isDisabled textValue="归档（无权限）">
+              <Label>归档（无权限）</Label>
+            </MenuItem>
+            <MenuItem variant="danger" textValue="删除学员">
+              <Label>删除学员</Label>
+            </MenuItem>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
       </Dropdown>
     </DemoSection>
   );
@@ -705,10 +703,10 @@ const MenuItemDemo = () => {
 
   return (
     <DemoSection label="真实下拉菜单（按钮触发 / 键盘导航 / 选中回调）" isColumn>
-      <HeroDropdown>
-        <HeroDropdown.Trigger>排序方式：{sortLabel}</HeroDropdown.Trigger>
-        <HeroDropdown.Popover placement="bottom start">
-          <HeroDropdown.Menu
+      <Dropdown>
+        <Dropdown.Trigger>排序方式：{sortLabel}</Dropdown.Trigger>
+        <Dropdown.Popover placement="bottom start">
+          <Dropdown.Menu
             aria-label="排序方式"
             selectionMode="single"
             disallowEmptySelection
@@ -727,13 +725,13 @@ const MenuItemDemo = () => {
               <MenuItem.Indicator />
               <Label>按学员姓名排序</Label>
             </MenuItem>
-          </HeroDropdown.Menu>
-        </HeroDropdown.Popover>
-      </HeroDropdown>
-      <HeroDropdown>
-        <HeroDropdown.Trigger>学员操作</HeroDropdown.Trigger>
-        <HeroDropdown.Popover placement="bottom start">
-          <HeroDropdown.Menu aria-label="学员操作" onAction={handleStudentAction}>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
+      <Dropdown>
+        <Dropdown.Trigger>学员操作</Dropdown.Trigger>
+        <Dropdown.Popover placement="bottom start">
+          <Dropdown.Menu aria-label="学员操作" onAction={handleStudentAction}>
             <MenuItem id="edit" textValue="编辑学员信息">
               <Label>编辑学员信息</Label>
             </MenuItem>
@@ -747,9 +745,9 @@ const MenuItemDemo = () => {
             <MenuItem id="delete" variant="danger" textValue="删除学员">
               <Label>删除学员</Label>
             </MenuItem>
-          </HeroDropdown.Menu>
-        </HeroDropdown.Popover>
-      </HeroDropdown>
+          </Dropdown.Menu>
+        </Dropdown.Popover>
+      </Dropdown>
       <p>最近操作：{lastAction}</p>
     </DemoSection>
   );
@@ -826,17 +824,6 @@ const ChatListViewDemo = () => {
   );
 };
 
-const ConversationBubble = ({ role, text }: { role: 'user' | 'assistant'; text: string }) => (
-  <div className={`chat-message--${role}`} data-slot={`chat-message-${role}`}>
-    <div className="chat-message__bubble" data-slot="chat-message-bubble">
-      <div className="chat-message__content" data-slot="chat-message-content">
-        {text}
-      </div>
-    </div>
-  </div>
-);
-ConversationBubble.displayName = 'ConversationBubble';
-
 type ConversationTurn = { id: number; role: 'user' | 'assistant'; text: string };
 
 const INITIAL_CONVERSATION_TURNS: ConversationTurn[] = Array.from({ length: 8 }, (_, i) => ({
@@ -878,7 +865,7 @@ const ChatConversationDemo = () => {
             <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               {turns.map((turn) => (
                 <ChatConversation.Message key={turn.id}>
-                  <ConversationBubble role={turn.role} text={turn.text} />
+                  <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
                 </ChatConversation.Message>
               ))}
             </ChatConversation.Messages>

@@ -1,29 +1,53 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  Dropdown as HeroDropdown,
+  type DropdownMenuProps as HeroDropdownMenuProps,
+  type DropdownPopoverProps as HeroDropdownPopoverProps,
+  type DropdownRootProps as HeroDropdownRootProps,
+  type DropdownSectionProps as HeroDropdownSectionProps,
+  type DropdownTriggerProps as HeroDropdownTriggerProps,
+} from '@heroui/react';
 import clsx from 'clsx';
 
-export type DropdownPlacement = 'top' | 'bottom' | 'left' | 'right';
-
-export type DropdownProps = HTMLAttributes<HTMLDivElement> & {
-  isOpen: boolean;
-  trigger?: ReactNode;
-  placement?: DropdownPlacement;
+export type DropdownProps = Omit<HeroDropdownRootProps, 'className' | 'style'> & {
+  className?: string;
 };
+export type DropdownTriggerProps = HeroDropdownTriggerProps;
+export type DropdownPopoverProps = HeroDropdownPopoverProps;
+export type DropdownMenuProps<T extends object = object> = HeroDropdownMenuProps<T>;
+export type DropdownSectionProps = HeroDropdownSectionProps;
 
-const Dropdown = forwardRef<HTMLDivElement, DropdownProps>(
-  ({ isOpen, trigger, placement = 'bottom', className, children, ...rest }, ref) => (
-    <div ref={ref} className={clsx('dropdown', className)} {...rest}>
-      {trigger !== undefined && <span className="dropdown__trigger">{trigger}</span>}
-      {isOpen && (
-        <div className="dropdown__popover" data-placement={placement}>
-          <div className="dropdown__menu" role="menu" data-slot="dropdown-menu">
-            {children}
-          </div>
-        </div>
-      )}
-    </div>
-  ),
+const DropdownRoot = ({ className, ...rest }: DropdownProps) => (
+  <HeroDropdown.Root className={clsx('dropdown', className)} {...rest} />
 );
+DropdownRoot.displayName = 'Dropdown';
 
-Dropdown.displayName = 'Dropdown';
+const Trigger = ({ className, ...rest }: DropdownTriggerProps) => (
+  <HeroDropdown.Trigger className={clsx('dropdown__trigger', className)} {...rest} />
+);
+Trigger.displayName = 'Dropdown.Trigger';
+
+const Popover = ({ className, placement = 'bottom', ...rest }: DropdownPopoverProps) => (
+  <HeroDropdown.Popover
+    className={clsx('dropdown__popover', className)}
+    placement={placement}
+    {...rest}
+  />
+);
+Popover.displayName = 'Dropdown.Popover';
+
+function Menu<T extends object = object>({ className, ...rest }: DropdownMenuProps<T>) {
+  return <HeroDropdown.Menu<T> className={clsx('dropdown__menu', className)} {...rest} />;
+}
+Menu.displayName = 'Dropdown.Menu';
+
+const Section = (props: DropdownSectionProps) => <HeroDropdown.Section {...props} />;
+Section.displayName = 'Dropdown.Section';
+
+const Dropdown = Object.assign(DropdownRoot, {
+  Trigger,
+  Popover,
+  Menu,
+  Section,
+});
 
 export default Dropdown;

@@ -178,24 +178,33 @@ const NumberFieldDemo = () => (
   </DemoSection>
 );
 
-const TagDemo = () => (
-  <DemoSection isColumn>
-    <TagGroup label="学习偏好" description="点选标签可切换选中态">
-      <Tag isSelected>听力</Tag>
-      <Tag>阅读</Tag>
-      <Tag variant="surface">拼写</Tag>
-      <Tag size="sm">句型</Tag>
-      <Tag size="lg">填空</Tag>
-      <Tag isDisabled>禁用</Tag>
-    </TagGroup>
-    <TagGroup label="可移除标签">
-      <Tag onRemove={noop}>React</Tag>
-      <Tag onRemove={noop} variant="surface">
-        TypeScript
-      </Tag>
-    </TagGroup>
-  </DemoSection>
-);
+const REMOVABLE_TAGS = ['React', 'TypeScript'];
+
+const TagDemo = () => {
+  const [tags, setTags] = useState(REMOVABLE_TAGS);
+  const handleRemove = (tag: string) =>
+    setTags((prev) => prev.filter((item) => item !== tag));
+
+  return (
+    <DemoSection isColumn>
+      <TagGroup label="学习偏好" description="点选标签可切换选中态">
+        <Tag isSelected>听力</Tag>
+        <Tag>阅读</Tag>
+        <Tag variant="surface">拼写</Tag>
+        <Tag size="sm">句型</Tag>
+        <Tag size="lg">填空</Tag>
+        <Tag isDisabled>禁用</Tag>
+      </TagGroup>
+      <TagGroup label="可移除标签">
+        {tags.map((tag) => (
+          <Tag key={tag} variant={tag === 'TypeScript' ? 'surface' : 'default'} onRemove={() => handleRemove(tag)}>
+            {tag}
+          </Tag>
+        ))}
+      </TagGroup>
+    </DemoSection>
+  );
+};
 
 const CheckboxButtonGroupDemo = () => {
   const [modules, setModules] = useState<string[]>(['reading']);
@@ -479,8 +488,75 @@ const DemoFileEntry = ({ name, onRemove }: DemoFileEntryProps) => {
   );
 };
 
+type DemoStatusFile = {
+  id: string;
+  name: string;
+  format: string;
+  color: 'green' | 'orange';
+  size: string;
+  status: 'uploading' | 'failed';
+  progress?: number;
+};
+
+const INITIAL_STATUS_FILES: DemoStatusFile[] = [
+  {
+    id: 'spring-students',
+    name: '学员名单-2026春季班.xlsx',
+    format: 'XLSX',
+    color: 'green',
+    size: '1.2 MB',
+    status: 'uploading',
+    progress: 45,
+  },
+  {
+    id: 'course-backup',
+    name: '课件备份.zip',
+    format: 'ZIP',
+    color: 'orange',
+    size: '18 MB',
+    status: 'failed',
+  },
+];
+
+type DemoStatusFileEntryProps = {
+  file: DemoStatusFile;
+  onRemove: (id: string) => void;
+  onRetry: (id: string) => void;
+};
+
+const DemoStatusFileEntry = ({ file, onRemove, onRetry }: DemoStatusFileEntryProps) => {
+  const handleRemove = () => onRemove(file.id);
+  const handleRetry = () => onRetry(file.id);
+  const meta =
+    file.status === 'failed'
+      ? `${file.size} | 上传失败`
+      : `${file.size} | ${file.progress === 35 ? '重新上传中…' : '上传中…'}`;
+
+  return (
+    <DropZone.FileItem status={file.status}>
+      <DropZone.FileFormatIcon format={file.format} color={file.color} />
+      <DropZone.FileInfo>
+        <DropZone.FileName>{file.name}</DropZone.FileName>
+        <DropZone.FileMeta>{meta}</DropZone.FileMeta>
+        {file.status === 'uploading' && (
+          <DropZone.FileProgress value={file.progress ?? 45} aria-label={`${file.name} 上传进度`}>
+            <DropZone.FileProgressTrack>
+              <DropZone.FileProgressFill />
+            </DropZone.FileProgressTrack>
+          </DropZone.FileProgress>
+        )}
+        {file.status === 'failed' && (
+          <DropZone.FileRetryTrigger onPress={handleRetry}>重试</DropZone.FileRetryTrigger>
+        )}
+      </DropZone.FileInfo>
+      <DropZone.FileRemoveTrigger aria-label={`移除 ${file.name}`} onPress={handleRemove} />
+    </DropZone.FileItem>
+  );
+};
+
 const DropZoneDemo = () => {
   const [fileNames, setFileNames] = useState<string[]>([]);
+  const [statusFiles, setStatusFiles] = useState<DemoStatusFile[]>(INITIAL_STATUS_FILES);
 
   // 拖放：RAC DropZone 的 onDrop（拖入高亮 [data-drop-target] 由底座 + CSS 提供）
   const handleDrop: NonNullable<DropZoneAreaProps['onDrop']> = (event) => {
@@ -492,6 +568,14 @@ const DropZoneDemo = () => {
     setFileNames(Array.from(files).map((file) => file.name));
   const handleRemoveFile = (name: string) =>
     setFileNames((prev) => prev.filter((item) => item !== name));
+  const handleRemoveStatusFile = (id: string) =>
+    setStatusFiles((prev) => prev.filter((file) => file.id !== id));
+  const handleRetryStatusFile = (id: string) =>
+    setStatusFiles((prev) =>
+      prev.map((file) =>
+        file.id === id ? { ...file, status: 'uploading', progress: 35 } : file,
+      ),
+    );
 
   return (
     <>
@@ -516,28 +600,14 @@ const DropZoneDemo = () => {
       <DemoSection label="文件列表状态">
         <DropZone style={{ width: 420 }}>
           <DropZone.FileList>
-            <DropZone.FileItem status="uploading">
-              <DropZone.FileFormatIcon format="XLSX" color="green" />
-              <DropZone.FileInfo>
-                <DropZone.FileName>学员名单-2026春季班.xlsx</DropZone.FileName>
-                <DropZone.FileMeta>1.2 MB | 上传中…</DropZone.FileMeta>
-                <DropZone.FileProgress value={45} aria-label="上传进度">
-                  <DropZone.FileProgressTrack>
-                    <DropZone.FileProgressFill />
-                  </DropZone.FileProgressTrack>
-                </DropZone.FileProgress>
-              </DropZone.FileInfo>
-              <DropZone.FileRemoveTrigger aria-label="移除 学员名单-2026春季班.xlsx" onPress={noop} />
-            </DropZone.FileItem>
-            <DropZone.FileItem status="failed">
-              <DropZone.FileFormatIcon format="ZIP" color="orange" />
-              <DropZone.FileInfo>
-                <DropZone.FileName>课件备份.zip</DropZone.FileName>
-                <DropZone.FileMeta>18 MB | 上传失败</DropZone.FileMeta>
-                <DropZone.FileRetryTrigger onPress={noop}>重试</DropZone.FileRetryTrigger>
-              </DropZone.FileInfo>
-              <DropZone.FileRemoveTrigger aria-label="移除 课件备份.zip" onPress={noop} />
-            </DropZone.FileItem>
+            {statusFiles.map((file) => (
+              <DemoStatusFileEntry
+                key={file.id}
+                file={file}
+                onRemove={handleRemoveStatusFile}
+                onRetry={handleRetryStatusFile}
+              />
+            ))}
           </DropZone.FileList>
         </DropZone>
       </DemoSection>
@@ -818,10 +888,6 @@ const CellColorPickerDemo = () => {
     </DemoSection>
   );
 };
-
-function noop() {
-  // 演示用空回调
-}
 
 const BookIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">

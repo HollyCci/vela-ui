@@ -1,86 +1,81 @@
-import { forwardRef, useEffect, useState, type HTMLAttributes, type ReactNode } from 'react';
+import type { CSSProperties, ReactNode } from 'react';
+import {
+  Popover as HeroPopover,
+  type PopoverArrowProps as HeroPopoverArrowProps,
+  type PopoverContentProps as HeroPopoverContentProps,
+  type PopoverDialogProps as HeroPopoverDialogProps,
+  type PopoverHeadingProps as HeroPopoverHeadingProps,
+  type PopoverRootProps as HeroPopoverRootProps,
+  type PopoverTriggerProps as HeroPopoverTriggerProps,
+} from '@heroui/react';
 import clsx from 'clsx';
 
-export type PopoverPlacement = 'top' | 'bottom' | 'left' | 'right';
+export type PopoverPlacement = NonNullable<HeroPopoverContentProps['placement']>;
 
-export type PopoverProps = HTMLAttributes<HTMLDivElement> & {
-  isOpen: boolean;
+export type PopoverProps = Omit<HeroPopoverRootProps, 'className' | 'style'> & {
   trigger?: ReactNode;
   placement?: PopoverPlacement;
+  className?: string;
+  style?: CSSProperties;
 };
 
-/**
- * 复刻 RAC Popover 的进出场生命周期，驱动 popover.css 已有的 @keyframes enter/exit：
- * 打开时以 data-entering 挂载（keyframe 自动从偏移缩放态播放进场），enter 动画结束后清除该属性回到自然态；
- * 关闭时置 data-exiting 让 exit 缩放淡出反向播放，结束后卸载。缺这两个数据属性则气泡瞬现瞬隐、无进出场。
- * data-entering 须保留整段进场时长（删早了 animation 属性消失会截断动画），故进/出场均以 animationend 推进。
- * reduce-motion 下 animation 被置 none、animationend 不触发，用定时器兜底推进 phase。
- */
-type OverlayPhase = 'entering' | 'open' | 'exiting';
+export type PopoverTriggerProps = HeroPopoverTriggerProps;
+export type PopoverContentProps = HeroPopoverContentProps;
+export type PopoverDialogProps = HeroPopoverDialogProps;
+export type PopoverArrowProps = HeroPopoverArrowProps;
+export type PopoverHeadingProps = HeroPopoverHeadingProps;
 
-const usePopoverPresence = (isOpen: boolean) => {
-  const [phase, setPhase] = useState<OverlayPhase | null>(isOpen ? 'open' : null);
-
-  useEffect(() => {
-    if (isOpen) {
-      setPhase('entering');
-      const fallback = setTimeout(
-        () => setPhase((prev) => (prev === 'entering' ? 'open' : prev)),
-        350,
-      );
-      return () => clearTimeout(fallback);
-    }
-    let stillMounted = false;
-    setPhase((prev) => {
-      stillMounted = prev !== null;
-      return stillMounted ? 'exiting' : null;
-    });
-    if (!stillMounted) return undefined;
-    const fallback = setTimeout(() => setPhase((prev) => (prev === 'exiting' ? null : prev)), 350);
-    return () => clearTimeout(fallback);
-  }, [isOpen]);
-
-  const handleAnimationEnd = () =>
-    setPhase((prev) => {
-      if (prev === 'entering') return 'open';
-      if (prev === 'exiting') return null;
-      return prev;
-    });
-
-  return { phase, isMounted: phase !== null, handleAnimationEnd };
-};
-
-const PopoverRoot = forwardRef<HTMLDivElement, PopoverProps>(
-  ({ isOpen, trigger, placement = 'bottom', className, children, ...rest }, ref) => {
-    const { phase, isMounted, handleAnimationEnd } = usePopoverPresence(isOpen);
-    return (
-      <div ref={ref} className={className} {...rest}>
-        {trigger !== undefined && <span className="popover__trigger">{trigger}</span>}
-        {isMounted && (
-          <div
-            className="popover"
-            role="dialog"
-            data-placement={placement}
-            data-entering={phase === 'entering' || undefined}
-            data-exiting={phase === 'exiting' || undefined}
-            onAnimationEnd={handleAnimationEnd}
-          >
-            <div className="popover__dialog">{children}</div>
-          </div>
-        )}
-      </div>
-    );
-  },
+const Trigger = ({ className, ...rest }: PopoverTriggerProps) => (
+  <HeroPopover.Trigger className={clsx('popover__trigger', className)} {...rest} />
 );
-PopoverRoot.displayName = 'Popover';
+Trigger.displayName = 'Popover.Trigger';
 
-const Heading = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...rest }, ref) => (
-    <h3 ref={ref} className={clsx('popover__heading', className)} {...rest} />
-  ),
+const Content = ({ className, placement = 'bottom', ...rest }: PopoverContentProps) => (
+  <HeroPopover.Content
+    className={clsx('popover', className)}
+    placement={placement}
+    {...rest}
+  />
+);
+Content.displayName = 'Popover.Content';
+
+const Dialog = ({ className, ...rest }: PopoverDialogProps) => (
+  <HeroPopover.Dialog className={clsx('popover__dialog', className)} {...rest} />
+);
+Dialog.displayName = 'Popover.Dialog';
+
+const Arrow = ({ className, ...rest }: PopoverArrowProps) => (
+  <HeroPopover.Arrow className={className} {...rest} />
+);
+Arrow.displayName = 'Popover.Arrow';
+
+const Heading = ({ className, ...rest }: PopoverHeadingProps) => (
+  <HeroPopover.Heading className={clsx('popover__heading', className)} {...rest} />
 );
 Heading.displayName = 'Popover.Heading';
 
-const Popover = Object.assign(PopoverRoot, { Heading });
+const PopoverRoot = ({ trigger, placement = 'bottom', className, style, children, ...rest }: PopoverProps) => {
+  if (trigger !== undefined) {
+    return (
+      <HeroPopover.Root {...rest}>
+        <Trigger>{trigger}</Trigger>
+        <Content placement={placement} style={style}>
+          <Dialog className={className}>{children}</Dialog>
+        </Content>
+      </HeroPopover.Root>
+    );
+  }
+
+  return <HeroPopover.Root {...rest}>{children}</HeroPopover.Root>;
+};
+PopoverRoot.displayName = 'Popover';
+
+const Popover = Object.assign(PopoverRoot, {
+  Trigger,
+  Content,
+  Dialog,
+  Arrow,
+  Heading,
+});
 
 export default Popover;
