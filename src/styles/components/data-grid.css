@@ -70,7 +70,14 @@
 .data-grid__editable-cell-trigger {
   width: 100%;
   min-height: 1.25em;
+  padding: calc(var(--spacing) * 0);
+  border: 0;
   outline: none;
+  text-align: inherit;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  cursor: text;
   display: block;
 }
 
@@ -166,7 +173,9 @@
   --tw-leading: 1;
   color: var(--muted);
   background-color: #0000;
+  border: 0;
   border-style: none;
+  font: inherit;
   outline-style: none;
   justify-content: center;
   align-items: center;
@@ -290,7 +299,33 @@
 .data-grid__tree-toggle {
   width: var(--data-grid-tree-toggle-size);
   height: var(--data-grid-tree-toggle-size);
+  padding: calc(var(--spacing) * 0);
+  border: 0;
+  border-radius: calc(var(--radius) * .75);
+  color: var(--muted);
+  background: transparent;
+  cursor: var(--cursor-interactive);
   flex-shrink: 0;
+  justify-content: center;
+  align-items: center;
+  display: inline-flex;
+}
+
+@media (hover:hover) {
+  .data-grid__tree-toggle:hover {
+    background-color: var(--default);
+    color: var(--foreground);
+  }
+}
+
+.data-grid__tree-toggle:focus-visible {
+  --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  --tw-ring-color: var(--focus);
+  --tw-ring-offset-width: var(--ring-offset-width);
+  --tw-ring-offset-shadow: var(--tw-ring-inset,) 0 0 0 var(--tw-ring-offset-width) var(--tw-ring-offset-color);
+  --tw-ring-offset-color: var(--background);
+  outline: none;
 }
 
 .data-grid__tree-toggle-icon {
@@ -329,4 +364,53 @@
   height: var(--data-grid-tree-toggle-size);
   flex-shrink: 0;
   display: inline-block;
+}
+
+.data-grid__tree-content {
+  min-width: calc(var(--spacing) * 0);
+}
+
+.data-grid__expanded-row {
+  background-color: color-mix(in oklab, var(--surface) 94%, var(--accent) 6%);
+}
+
+.data-grid__expanded-cell {
+  padding: calc(var(--spacing) * 3) calc(var(--spacing) * 4);
+  color: var(--foreground);
+}
+
+.data-grid__resizable-column {
+  position: relative;
+}
+
+.data-grid__column-resizer {
+  position: absolute;
+  top: calc(var(--spacing) * 1);
+  right: calc(var(--spacing) * -1);
+  bottom: calc(var(--spacing) * 1);
+  width: calc(var(--spacing) * 2);
+  padding: calc(var(--spacing) * 0);
+  border: 0;
+  border-radius: calc(var(--radius) * 9999);
+  background: transparent;
+  cursor: col-resize;
+  touch-action: none;
+  z-index: 2;
+}
+
+.data-grid__column-resizer:after {
+  content: "";
+  position: absolute;
+  top: calc(var(--spacing) * 1);
+  bottom: calc(var(--spacing) * 1);
+  left: 50%;
+  width: 2px;
+  border-radius: calc(var(--radius) * 9999);
+  background: var(--border);
+  transform: translateX(-50%);
+}
+
+.data-grid__column-resizer:hover:after,
+.data-grid__column-resizer[data-resizing=true]:after {
+  background: var(--accent);
 }

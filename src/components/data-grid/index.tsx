@@ -3,7 +3,7 @@ import {
   useRef,
   useState,
   type CSSProperties,
-  type HTMLAttributes,
+  type ButtonHTMLAttributes,
   type InputHTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
@@ -43,6 +43,23 @@ export type DataGridRowReorderEvent<TRow> = {
   dropPosition: DataGridRowReorderPosition;
   orderedKeys: Key[];
   orderedRows: TRow[];
+};
+
+export type DataGridExpandedKeys = 'all' | Iterable<Key>;
+
+export type DataGridExpandableRowRenderProps<TRow> = {
+  row: TRow;
+  rowKey: Key;
+  isExpanded: boolean;
+};
+
+export type DataGridColumnWidths = Record<string, number>;
+
+export type DataGridColumnResizeEvent<TRow> = {
+  columnId: string;
+  column: DataGridColumn<TRow>;
+  width: number;
+  previousWidth: number;
 };
 
 export type DataGridVirtualRange = {
@@ -102,6 +119,8 @@ const DEFAULT_VIRTUAL_ROW_HEIGHT = 45;
 const DEFAULT_VIRTUAL_MAX_HEIGHT = 360;
 const DEFAULT_VIRTUAL_OVERSCAN = 4;
 const DEFAULT_PINNED_COLUMN_WIDTH = 160;
+const DEFAULT_COLUMN_RESIZE_MIN_WIDTH = 56;
+const DEFAULT_COLUMN_RESIZE_MAX_WIDTH = 640;
 const VIRTUAL_TOP_SPACER_KEY = '__data-grid_virtual_top_spacer__';
 const VIRTUAL_BOTTOM_SPACER_KEY = '__data-grid_virtual_bottom_spacer__';
 const DRAG_HANDLE_COLUMN_ID = '__data-grid_drag_handle_column__';
@@ -136,6 +155,12 @@ export type DataGridColumn<TRow> = {
   pin?: DataGridPinnedSide;
   /** 初始/受控列宽（px / % / fr） */
   width?: ColumnWidth;
+  /** 允许被 DataGrid 的列宽手柄拖拽调整；未配置时跟随 enableColumnResizing */
+  resizable?: boolean;
+  /** 列宽拖拽最小宽度（px） */
+  minWidth?: number;
+  /** 列宽拖拽最大宽度（px） */
+  maxWidth?: number;
   /** th 追加 className */
   headerClassName?: string;
   /** td 追加 className */
@@ -176,6 +201,29 @@ export type DataGridProps<TRow extends object> = Omit<
   showRowDragHandles?: boolean;
   /** 行拖拽重排回调，调用方据 orderedKeys/orderedRows 写回 data */
   onRowReorder?: (orderedKeys: Key[], event: DataGridRowReorderEvent<TRow>) => void;
+  /** 展开的行 key（传 "all" 展开所有可展开行） */
+  expandedKeys?: DataGridExpandedKeys;
+  /** 默认展开的行 key */
+  defaultExpandedKeys?: Iterable<Key>;
+  /** 展开状态变化回调 */
+  onExpandedChange?: (keys: Set<Key>) => void;
+  /** 判断一行是否可展开；默认 renderExpandedContent 存在时所有行可展开 */
+  isRowExpandable?: (item: TRow) => boolean;
+  /** 渲染展开行内容；组件负责展开按钮、aria-expanded 与跨列行 */
+  renderExpandedContent?: (
+    item: TRow,
+    props: DataGridExpandableRowRenderProps<TRow>,
+  ) => ReactNode;
+  /** 展开按钮所在列；默认第一列 */
+  expandColumnId?: string;
+  /** 启用列宽拖拽调整 */
+  enableColumnResizing?: boolean;
+  /** 受控列宽（px） */
+  columnWidths?: DataGridColumnWidths;
+  /** 默认列宽（px） */
+  defaultColumnWidths?: DataGridColumnWidths;
+  /** 列宽拖拽变化回调 */
+  onColumnResize?: (event: DataGridColumnResizeEvent<TRow>) => void;
   /** 启用行窗口化渲染：组件内部按滚动位置渲染可见区，而不是调用方手动 slice */
   virtualized?: boolean;
   /** 虚拟化估算行高 */
@@ -321,19 +369,49 @@ const DragHandleIcon = () => (
 );
 DragHandleIcon.displayName = 'DataGrid.DragHandleIcon';
 
-type DataGridDragHandleProps = HTMLAttributes<HTMLSpanElement>;
+type DataGridDragHandleProps = ButtonHTMLAttributes<HTMLButtonElement>;
 
 const DataGridDragHandle = ({ className, ...rest }: DataGridDragHandleProps) => (
-  <span
-    aria-hidden="true"
+  <button
+    type="button"
+    aria-label="拖拽排序"
     className={clsx('data-grid__drag-handle', className)}
     data-slot="data-grid-drag-handle"
     {...rest}
   >
     <DragHandleIcon />
-  </span>
+  </button>
 );
 DataGridDragHandle.displayName = 'DataGrid.DragHandle';
+
+const TreeToggleIcon = ({ expanded }: { expanded: boolean }) => (
+  <svg
+    aria-hidden="true"
+    className="data-grid__tree-toggle-icon"
+    data-expanded={expanded || undefined}
+    fill="none"
+    height="16"
+    viewBox="0 0 16 16"
+    width="16"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M6 3.75 10.25 8 6 12.25"
+      stroke="currentColor"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      strokeWidth="1.6"
+    />
+  </svg>
+);
+TreeToggleIcon.displayName = 'DataGrid.TreeToggleIcon';
+
+const toKeySet = (keys: DataGridExpandedKeys | Iterable<Key> | undefined, allKeys: Key[]) => {
+  if (keys === 'all') return new Set(allKeys);
+  return new Set(keys ?? []);
+};
+
+const getExpandedRowKey = (rowKey: Key) => `__data-grid_expanded_${String(rowKey)}`;
 
 const reorderRows = <TRow,>(
   rows: TRow[],
@@ -378,6 +456,16 @@ function DataGrid<TRow extends object>({
   enableRowReordering = false,
   showRowDragHandles = true,
   onRowReorder,
+  expandedKeys,
+  defaultExpandedKeys,
+  onExpandedChange,
+  isRowExpandable,
+  renderExpandedContent,
+  expandColumnId,
+  enableColumnResizing = false,
+  columnWidths,
+  defaultColumnWidths,
+  onColumnResize,
   virtualized = false,
   virtualRowHeight = DEFAULT_VIRTUAL_ROW_HEIGHT,
   virtualOverscan = DEFAULT_VIRTUAL_OVERSCAN,
@@ -405,12 +493,19 @@ function DataGrid<TRow extends object>({
     key: Key;
     position: DataGridRowReorderPosition;
   } | null>(null);
+  const [internalExpandedKeys, setInternalExpandedKeys] = useState<Set<Key>>(
+    () => new Set(defaultExpandedKeys ?? []),
+  );
+  const [internalColumnWidths, setInternalColumnWidths] = useState<DataGridColumnWidths>(
+    () => ({ ...(defaultColumnWidths ?? {}) }),
+  );
   const draggedKeyRef = useRef<Key | null>(null);
   const dropTargetRef = useRef<{
     key: Key;
     position: DataGridRowReorderPosition;
   } | null>(null);
   const rowDragCleanupRef = useRef<(() => void) | null>(null);
+  const previousColumnWidthsRef = useRef<DataGridColumnWidths>({});
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const onVirtualRangeChangeRef = useRef(onVirtualRangeChange);
   const editingCellRef = useRef<{ rowKey: Key; columnId: string } | null>(null);
@@ -431,10 +526,17 @@ function DataGrid<TRow extends object>({
 
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
+  const isControlledExpanded = expandedKeys !== undefined;
+  const isControlledColumnWidths = columnWidths !== undefined;
   const activeSort = sortDescriptor ?? internalSortDescriptor;
   const withSelection = showSelectionCheckboxes && selectionMode !== 'none';
   const withRowReordering = enableRowReordering && onRowReorder !== undefined;
   const withDragHandles = withRowReordering && showRowDragHandles;
+  const withExpandableRows = renderExpandedContent !== undefined;
+  const activeExpandColumnId = expandColumnId ?? columns[0]?.id;
+  const activeColumnWidths = columnWidths ?? internalColumnWidths;
+  const getColumnWidth = (column: DataGridColumn<TRow>): ColumnWidth | undefined =>
+    activeColumnWidths[column.id] ?? column.width;
   const isVirtualized = virtualized && data.length > 0;
   const leftPinnedColumns = columns.filter((column) => column.pin === 'left');
   const rightPinnedColumns = columns.filter((column) => column.pin === 'right');
@@ -465,7 +567,7 @@ function DataGrid<TRow extends object>({
       offset: sumCssLengths(leftOffsetParts),
       boundary: column.id === leftPinnedColumns[leftPinnedColumns.length - 1]?.id ? 'end' : undefined,
     });
-    leftOffsetParts.push(toCssLength(column.width));
+    leftOffsetParts.push(toCssLength(getColumnWidth(column)));
   }
   const rightOffsetParts: string[] = [];
   const firstRightPinnedId = rightPinnedColumns[0]?.id;
@@ -476,7 +578,7 @@ function DataGrid<TRow extends object>({
       offset: sumCssLengths(rightOffsetParts),
       boundary: column.id === firstRightPinnedId ? 'start' : undefined,
     });
-    rightOffsetParts.push(toCssLength(column.width));
+    rightOffsetParts.push(toCssLength(getColumnWidth(column)));
   }
   const safeVirtualRowHeight = Math.max(1, virtualRowHeight);
   const safeVirtualOverscan = Math.max(0, Math.floor(virtualOverscan));
@@ -603,6 +705,14 @@ function DataGrid<TRow extends object>({
           return activeSort.direction === 'descending' ? -result : result;
         });
   const sortedKeys = sortedData.map(getRowId);
+  const activeExpandedKeys = isControlledExpanded
+    ? toKeySet(expandedKeys, sortedKeys)
+    : internalExpandedKeys;
+  const expandedRowKeys = withExpandableRows
+    ? sortedKeys
+        .filter((key) => activeExpandedKeys.has(key))
+        .map((key) => getExpandedRowKey(key))
+    : [];
   const virtualVisibleCount = isVirtualized
     ? Math.max(1, Math.ceil(virtualViewportHeight / safeVirtualRowHeight))
     : sortedData.length;
@@ -633,8 +743,11 @@ function DataGrid<TRow extends object>({
         ...(disabledKeys === undefined ? [] : Array.from(disabledKeys)),
         VIRTUAL_TOP_SPACER_KEY,
         VIRTUAL_BOTTOM_SPACER_KEY,
+        ...expandedRowKeys,
       ]
-    : disabledKeys;
+    : expandedRowKeys.length > 0
+      ? [...(disabledKeys === undefined ? [] : Array.from(disabledKeys)), ...expandedRowKeys]
+      : disabledKeys;
   const virtualScrollContainerStyle: CSSProperties | undefined = isVirtualized
     ? {
         maxHeight: virtualMaxHeight,
@@ -668,9 +781,67 @@ function DataGrid<TRow extends object>({
     );
   };
 
+  const isExpandableRow = (item: TRow) =>
+    withExpandableRows && (isRowExpandable === undefined || isRowExpandable(item));
+
+  const setExpandedKeys = (next: Set<Key>) => {
+    if (!isControlledExpanded) setInternalExpandedKeys(next);
+    onExpandedChange?.(next);
+  };
+
+  const toggleRowExpanded = (item: TRow, rowKey: Key) => {
+    if (!isExpandableRow(item)) return;
+    const next = new Set(activeExpandedKeys);
+    if (next.has(rowKey)) next.delete(rowKey);
+    else next.add(rowKey);
+    setExpandedKeys(next);
+  };
+
   const removeRowDragListeners = () => {
     rowDragCleanupRef.current?.();
     rowDragCleanupRef.current = null;
+  };
+
+  const clampColumnWidth = (column: DataGridColumn<TRow>, width: number) => {
+    const minWidth = column.minWidth ?? DEFAULT_COLUMN_RESIZE_MIN_WIDTH;
+    const maxWidth = column.maxWidth ?? DEFAULT_COLUMN_RESIZE_MAX_WIDTH;
+    return Math.min(Math.max(Math.round(width), minWidth), maxWidth);
+  };
+
+  const handleColumnResize = (widths: Map<Key, ColumnWidth>) => {
+    const nextWidths: DataGridColumnWidths = {};
+
+    widths.forEach((width, key) => {
+      const columnId = String(key);
+      const column = columns.find((candidate) => candidate.id === columnId);
+      if (column === undefined || typeof width !== 'number') return;
+      nextWidths[columnId] = clampColumnWidth(column, width);
+    });
+
+    const entries = Object.entries(nextWidths);
+    if (entries.length === 0) return;
+
+    if (!isControlledColumnWidths) {
+      setInternalColumnWidths((current) => ({ ...current, ...nextWidths }));
+    }
+
+    for (const [columnId, width] of entries) {
+      const column = columns.find((candidate) => candidate.id === columnId);
+      if (column === undefined) continue;
+      const configuredWidth = activeColumnWidths[columnId] ?? column.width;
+      const previousWidth =
+        previousColumnWidthsRef.current[columnId] ??
+        (typeof configuredWidth === 'number' ? configuredWidth : width);
+
+      if (previousWidth !== width) {
+        onColumnResize?.({ column, columnId, previousWidth, width });
+      }
+    }
+
+    previousColumnWidthsRef.current = {
+      ...previousColumnWidthsRef.current,
+      ...nextWidths,
+    };
   };
 
   const getDropPosition = (
@@ -869,10 +1040,16 @@ function DataGrid<TRow extends object>({
     virtualRange.total,
   ]);
 
-  const renderDataGridRow = (item: TRow) => {
+  const renderDataGridRows = (item: TRow): ReactNode[] => {
     const rowKey = getRowId(item);
     const isDragging = draggedKey === rowKey;
     const isDropTarget = dropTarget?.key === rowKey;
+    const isExpandable = isExpandableRow(item);
+    const isExpanded = isExpandable && activeExpandedKeys.has(rowKey);
+    const expandedContent =
+      isExpanded && renderExpandedContent !== undefined
+        ? renderExpandedContent(item, { row: item, rowKey, isExpanded })
+        : null;
     const dragHandlePinnedMeta = leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID);
     const selectionPinnedMeta = leadingPinnedMeta.get(SELECTION_COLUMN_ID);
     const rowDragProps = withRowReordering
@@ -885,8 +1062,14 @@ function DataGrid<TRow extends object>({
         }
       : {};
 
-    return (
-      <Table.Row id={rowKey} key={rowKey} {...rowDragProps}>
+    const rows: ReactNode[] = [
+      <Table.Row
+        id={rowKey}
+        key={rowKey}
+        aria-expanded={isExpandable ? isExpanded : undefined}
+        data-row-expanded={isExpanded || undefined}
+        {...rowDragProps}
+      >
         {withDragHandles && (
           <Table.Cell
             className="data-grid__drag-handle-cell"
@@ -895,6 +1078,7 @@ function DataGrid<TRow extends object>({
             style={getPinnedStyle(dragHandlePinnedMeta)}
           >
             <DataGridDragHandle
+              onClick={(event) => event.stopPropagation()}
               onMouseDown={(event) => handleRowMouseDown(rowKey, event)}
               onPointerDown={(event) => handleRowPointerDown(rowKey, event)}
               onPointerMove={handleRowPointerMove}
@@ -1030,18 +1214,41 @@ function DataGrid<TRow extends object>({
           ) : isEditable && column.editor === undefined ? (
             inlineEditorNode
           ) : isEditable ? (
-            <span
+            <button
+              type="button"
               aria-label={`编辑 ${getColumnLabel(column)}`}
               className="data-grid__editable-cell-trigger"
-              role="button"
-              tabIndex={0}
               onClick={handleCellClick}
               onKeyDown={handleCellKeyDown}
             >
               {renderCell(item, column)}
-            </span>
+            </button>
           ) : (
             renderCell(item, column)
+          );
+          const shouldRenderExpander = withExpandableRows && column.id === activeExpandColumnId;
+          const renderedCellNode = shouldRenderExpander ? (
+            <span className="data-grid__tree-cell">
+              {isExpandable ? (
+                <button
+                  type="button"
+                  aria-expanded={isExpanded}
+                  aria-label={isExpanded ? '收起行' : '展开行'}
+                  className="data-grid__tree-toggle"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    toggleRowExpanded(item, rowKey);
+                  }}
+                >
+                  <TreeToggleIcon expanded={isExpanded} />
+                </button>
+              ) : (
+                <span aria-hidden="true" className="data-grid__tree-toggle-spacer" />
+              )}
+              <span className="data-grid__tree-content">{cellNode}</span>
+            </span>
+          ) : (
+            cellNode
           );
 
           return (
@@ -1056,12 +1263,29 @@ function DataGrid<TRow extends object>({
               style={getPinnedStyle(pinnedMeta)}
               onClick={handleCellClick}
             >
-              {cellNode}
+              {renderedCellNode}
             </Table.Cell>
           );
         })}
-      </Table.Row>
-    );
+      </Table.Row>,
+    ];
+
+    if (expandedContent !== null && expandedContent !== undefined) {
+      rows.push(
+        <Table.Row
+          id={getExpandedRowKey(rowKey)}
+          key={getExpandedRowKey(rowKey)}
+          className="data-grid__expanded-row"
+          data-expanded-content="true"
+        >
+          <Table.Cell colSpan={tableColumnCount} className="data-grid__expanded-cell">
+            {expandedContent}
+          </Table.Cell>
+        </Table.Row>,
+      );
+    }
+
+    return rows;
   };
 
   const renderVirtualSpacerRow = (id: string, height: number) =>
@@ -1081,6 +1305,102 @@ function DataGrid<TRow extends object>({
       </Table.Row>
     ) : null;
 
+  const tableContent = (
+    <Table.Content
+      aria-label={ariaLabel}
+      className={contentClassName}
+      selectionMode={selectionMode}
+      selectedKeys={selectedKeys}
+      defaultSelectedKeys={defaultSelectedKeys}
+      onSelectionChange={onSelectionChange}
+      sortDescriptor={activeSort}
+      onSortChange={handleSortChange}
+      onRowAction={onRowAction}
+      disabledKeys={mergedDisabledKeys}
+    >
+      <Table.Header>
+        {withDragHandles && (
+          <Table.Column
+            className="data-grid__drag-handle-column"
+            data-pinned={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.side}
+            data-pinned-boundary={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.boundary}
+            style={getPinnedStyle(leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID))}
+          >
+            <span className="sr-only">拖拽排序</span>
+          </Table.Column>
+        )}
+        {withSelection && (
+          <Table.Column
+            className="data-grid__selection-column"
+            data-pinned={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.side}
+            data-pinned-boundary={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.boundary}
+            style={getPinnedStyle(leadingPinnedMeta.get(SELECTION_COLUMN_ID))}
+          >
+            {selectionMode === 'multiple' ? <DataGridSelectionCheckbox /> : null}
+          </Table.Column>
+        )}
+        {columns.map((column) => {
+          const isSorted = activeSort?.column === column.id;
+          const sortDirection = isSorted ? activeSort?.direction : undefined;
+          const pinnedMeta = pinnedColumnMeta.get(column.id);
+          const isColumnResizable = enableColumnResizing && column.resizable !== false;
+          const headerNode =
+            typeof column.header === 'function'
+              ? column.header({ sortDirection })
+              : column.header;
+          return (
+            <Table.Column
+              key={column.id}
+              id={column.id}
+              isRowHeader={column.isRowHeader}
+              allowsSorting={column.allowsSorting}
+              data-align={column.align !== 'start' ? column.align : undefined}
+              data-pinned={pinnedMeta?.side}
+              data-pinned-boundary={pinnedMeta?.boundary}
+              data-resizable={isColumnResizable || undefined}
+              width={getColumnWidth(column) ?? (pinnedMeta ? DEFAULT_PINNED_COLUMN_WIDTH : undefined)}
+              minWidth={column.minWidth ?? DEFAULT_COLUMN_RESIZE_MIN_WIDTH}
+              maxWidth={column.maxWidth ?? DEFAULT_COLUMN_RESIZE_MAX_WIDTH}
+              className={clsx(column.headerClassName, isColumnResizable && 'data-grid__resizable-column')}
+              style={getPinnedStyle(pinnedMeta)}
+            >
+              <span data-slot="data-grid-sort-header">
+                {headerNode}
+                {column.allowsSorting && sortDirection !== undefined && (
+                  <SortIcon direction={sortDirection} />
+                )}
+              </span>
+              {isColumnResizable && (
+                <Table.ColumnResizer
+                  aria-label={`调整 ${getColumnLabel(column)} 列宽`}
+                  className="data-grid__column-resizer"
+                />
+              )}
+            </Table.Column>
+          );
+        })}
+      </Table.Header>
+      {isVirtualized ? (
+        <Table.Body className="data-grid__virtual-body" renderEmptyState={renderEmptyState}>
+          {renderVirtualSpacerRow(VIRTUAL_TOP_SPACER_KEY, virtualTopSpacer)}
+          {virtualRows.flatMap((item) => renderDataGridRows(item))}
+          {renderVirtualSpacerRow(VIRTUAL_BOTTOM_SPACER_KEY, virtualBottomSpacer)}
+        </Table.Body>
+      ) : (
+        <Table.Body renderEmptyState={renderEmptyState}>
+          {virtualRows.flatMap((item) => renderDataGridRows(item))}
+        </Table.Body>
+      )}
+    </Table.Content>
+  );
+
+  const scrollContainerProps = {
+    ref: scrollContainerRef,
+    className: clsx('data-grid__scroll-container', scrollContainerClassName),
+    'data-virtualized': isVirtualized || undefined,
+    style: virtualScrollContainerStyle,
+  };
+
   return (
     <Table.Root
       data-slot="data-grid"
@@ -1094,89 +1414,13 @@ function DataGrid<TRow extends object>({
       style={rootStyle}
       {...rest}
     >
-      <Table.ScrollContainer
-        ref={scrollContainerRef}
-        className={clsx('data-grid__scroll-container', scrollContainerClassName)}
-        data-virtualized={isVirtualized || undefined}
-        style={virtualScrollContainerStyle}
-      >
-        <Table.Content
-          aria-label={ariaLabel}
-          className={contentClassName}
-          selectionMode={selectionMode}
-          selectedKeys={selectedKeys}
-          defaultSelectedKeys={defaultSelectedKeys}
-          onSelectionChange={onSelectionChange}
-          sortDescriptor={activeSort}
-          onSortChange={handleSortChange}
-          onRowAction={onRowAction}
-          disabledKeys={mergedDisabledKeys}
-        >
-          <Table.Header>
-            {withDragHandles && (
-              <Table.Column
-                className="data-grid__drag-handle-column"
-                data-pinned={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.side}
-                data-pinned-boundary={leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID)?.boundary}
-                style={getPinnedStyle(leadingPinnedMeta.get(DRAG_HANDLE_COLUMN_ID))}
-              >
-                <span className="sr-only">拖拽排序</span>
-              </Table.Column>
-            )}
-            {withSelection && (
-              <Table.Column
-                className="data-grid__selection-column"
-                data-pinned={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.side}
-                data-pinned-boundary={leadingPinnedMeta.get(SELECTION_COLUMN_ID)?.boundary}
-                style={getPinnedStyle(leadingPinnedMeta.get(SELECTION_COLUMN_ID))}
-              >
-                {selectionMode === 'multiple' ? <DataGridSelectionCheckbox /> : null}
-              </Table.Column>
-            )}
-            {columns.map((column) => {
-              const isSorted = activeSort?.column === column.id;
-              const sortDirection = isSorted ? activeSort?.direction : undefined;
-              const pinnedMeta = pinnedColumnMeta.get(column.id);
-              const headerNode =
-                typeof column.header === 'function'
-                  ? column.header({ sortDirection })
-                  : column.header;
-              return (
-                <Table.Column
-                  key={column.id}
-                  id={column.id}
-                  isRowHeader={column.isRowHeader}
-                  allowsSorting={column.allowsSorting}
-                  data-align={column.align !== 'start' ? column.align : undefined}
-                  data-pinned={pinnedMeta?.side}
-                  data-pinned-boundary={pinnedMeta?.boundary}
-                  width={column.width ?? (pinnedMeta ? DEFAULT_PINNED_COLUMN_WIDTH : undefined)}
-                  className={column.headerClassName}
-                  style={getPinnedStyle(pinnedMeta)}
-                >
-                  <span data-slot="data-grid-sort-header">
-                    {headerNode}
-                    {column.allowsSorting && sortDirection !== undefined && (
-                      <SortIcon direction={sortDirection} />
-                    )}
-                  </span>
-                </Table.Column>
-              );
-            })}
-          </Table.Header>
-          {isVirtualized ? (
-            <Table.Body className="data-grid__virtual-body" renderEmptyState={renderEmptyState}>
-              {renderVirtualSpacerRow(VIRTUAL_TOP_SPACER_KEY, virtualTopSpacer)}
-              {virtualRows.map((item) => renderDataGridRow(item))}
-              {renderVirtualSpacerRow(VIRTUAL_BOTTOM_SPACER_KEY, virtualBottomSpacer)}
-            </Table.Body>
-          ) : (
-            <Table.Body items={virtualRows} renderEmptyState={renderEmptyState}>
-              {(item: TRow) => renderDataGridRow(item)}
-            </Table.Body>
-          )}
-        </Table.Content>
-      </Table.ScrollContainer>
+      {enableColumnResizing ? (
+        <Table.ResizableContainer {...scrollContainerProps} onResize={handleColumnResize}>
+          {tableContent}
+        </Table.ResizableContainer>
+      ) : (
+        <Table.ScrollContainer {...scrollContainerProps}>{tableContent}</Table.ScrollContainer>
+      )}
     </Table.Root>
   );
 }

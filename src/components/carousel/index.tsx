@@ -25,6 +25,11 @@ import clsx from 'clsx';
 
 export type CarouselLayoutType = 'in-place' | 'modal' | 'miniatures';
 
+export type CarouselAutoplayOptions = {
+  /** 自动切换间隔，默认 3000ms */
+  delay?: number;
+};
+
 /** 原站 setApi / useCarousel 暴露的就是真实 Embla API 实例 */
 export type CarouselApi = EmblaCarouselType;
 
@@ -35,6 +40,8 @@ export type CarouselProps = HTMLAttributes<HTMLDivElement> & {
   opts?: EmblaOptionsType;
   /** Embla 插件（如 embla-carousel-autoplay），原站 API */
   plugins?: EmblaPluginType[];
+  /** 组件级自动轮播 helper；没有 embla-carousel-autoplay 依赖时可直接使用 */
+  autoplay?: boolean | CarouselAutoplayOptions;
   /** 拿到底座 Embla API 实例（原站 setApi） */
   setApi?: (api: EmblaCarouselType) => void;
 };
@@ -45,6 +52,14 @@ export type CarouselItemProps = HTMLAttributes<HTMLDivElement>;
 export type CarouselNavButtonProps = Omit<UIButtonProps, 'className' | 'style'> & {
   /** 替换默认 chevron 的自定义图标（原站 API） */
   icon?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CarouselDotProps = Omit<RACButtonProps, 'className' | 'style' | 'children'> & {
+  index: number;
+  isSelected?: boolean;
+  children?: ReactNode;
   className?: string;
   style?: CSSProperties;
 };
@@ -236,25 +251,25 @@ const Next = ({ icon, className, onPress, ...rest }: CarouselNavButtonProps) => 
 };
 Next.displayName = 'Carousel.Next';
 
-type DotProps = {
-  index: number;
-  isSelected: boolean;
-};
-
-const Dot = ({ index, isSelected }: DotProps) => {
-  const { scrollTo } = useCarouselContext();
-  const handlePress = useCallback(() => {
+const Dot = ({ index, isSelected, className, onPress, children, ...rest }: CarouselDotProps) => {
+  const { selectedIndex, scrollTo } = useCarouselContext();
+  const resolvedSelected = isSelected ?? selectedIndex === index;
+  const handlePress = useCallback<NonNullable<CarouselDotProps['onPress']>>((event) => {
     scrollTo(index);
-  }, [scrollTo, index]);
+    onPress?.(event);
+  }, [scrollTo, index, onPress]);
 
   return (
     <RACButton
       data-slot="carousel-dot"
-      data-selected={isSelected || undefined}
+      data-selected={resolvedSelected || undefined}
       aria-label={`Go to slide ${index + 1}`}
-      className="carousel__dot"
+      className={clsx('carousel__dot', className)}
       onPress={handlePress}
-    />
+      {...rest}
+    >
+      {children}
+    </RACButton>
   );
 };
 Dot.displayName = 'Carousel.Dot';
@@ -354,13 +369,15 @@ Thumbnail.displayName = 'Carousel.Thumbnail';
  * 与原站 DOM 一致：Content 与前后按钮渲染进 viewport-wrapper，Dots/Thumbnails 在其后。
  */
 const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
-  ({ type = 'in-place', opts, plugins, setApi, className, children, ...rest }, ref) => {
+  ({ type = 'in-place', opts, plugins, autoplay = false, setApi, className, children, ...rest }, ref) => {
     const [viewportRef, emblaApi] = useEmblaCarousel(opts, plugins);
 
     const [selectedIndex, setSelectedIndex] = useState(0);
     const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
     const [canScrollPrev, setCanScrollPrev] = useState(false);
     const [canScrollNext, setCanScrollNext] = useState(false);
+    const isAutoplayEnabled = autoplay === true || typeof autoplay === 'object';
+    const autoplayDelay = typeof autoplay === 'object' ? (autoplay.delay ?? 3000) : 3000;
 
     const onSelect = useCallback((api: EmblaCarouselType) => {
       setSelectedIndex(api.selectedScrollSnap());
@@ -386,6 +403,15 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
     useEffect(() => {
       if (emblaApi !== undefined) setApi?.(emblaApi);
     }, [emblaApi, setApi]);
+
+    useEffect(() => {
+      if (emblaApi === undefined || !isAutoplayEnabled) return undefined;
+      const timer = window.setInterval(() => {
+        if (emblaApi.canScrollNext()) emblaApi.scrollNext();
+        else emblaApi.scrollTo(0);
+      }, Math.max(250, autoplayDelay));
+      return () => window.clearInterval(timer);
+    }, [autoplayDelay, emblaApi, isAutoplayEnabled]);
 
     const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
     const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
@@ -454,6 +480,7 @@ const Carousel = Object.assign(CarouselRoot, {
   Item,
   Previous,
   Next,
+  Dot,
   Dots,
   Thumbnails,
   Thumbnail,

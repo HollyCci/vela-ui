@@ -6,9 +6,13 @@
 
 .floating-toc__trigger {
   padding: calc(var(--spacing) * 1);
+  border: 0;
   --tw-outline-style: none;
   -webkit-tap-highlight-color: transparent;
   cursor: var(--cursor-interactive);
+  color: inherit;
+  background: transparent;
+  font: inherit;
   --floating-toc-bar-width: 16px;
   --floating-toc-bar-active-width: 24px;
   --floating-toc-bar-height: 2px;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useState, type ReactNode } from 'react';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Avatar from '../../components/avatar';
@@ -888,14 +888,48 @@ const DataGridDemo = () => {
   );
 };
 
-const CAROUSEL_SLIDES = ['暑期班招生海报', '教师节活动物料', '新版 App 上线公告'];
+type CarouselSlideData = {
+  id: string;
+  title: string;
+  meta: string;
+  accent: string;
+  secondary: string;
+  stats: string[];
+};
+
+const CAROUSEL_SLIDES: CarouselSlideData[] = [
+  {
+    id: 'summer',
+    title: '暑期班招生海报',
+    meta: '投放中 · 328 条线索',
+    accent: 'var(--accent)',
+    secondary: 'var(--success)',
+    stats: ['转化 +18%', '预算 62%'],
+  },
+  {
+    id: 'teacher-day',
+    title: '教师节活动物料',
+    meta: '待发布 · 9 张素材',
+    accent: 'var(--warning)',
+    secondary: 'var(--accent)',
+    stats: ['预约 126', '完稿 7/9'],
+  },
+  {
+    id: 'app-launch',
+    title: '新版 App 上线公告',
+    meta: '灰度中 · 4 个渠道',
+    accent: 'var(--success)',
+    secondary: 'var(--danger)',
+    stats: ['打开率 42%', '反馈 31'],
+  },
+];
 
 const CarouselDemo = () => (
   <DemoSection isColumn>
     <Carousel aria-label="运营物料轮播" style={{ width: 420 }}>
       <Carousel.Content>
         {CAROUSEL_SLIDES.map((slide) => (
-          <Carousel.Item key={slide}>
+          <Carousel.Item key={slide.id}>
             <div
               style={{
                 height: 160,
@@ -908,7 +942,8 @@ const CarouselDemo = () => (
                 fontSize: 14,
               }}
             >
-              {slide}
+              <span>{slide.title}</span>
+              <span style={{ color: 'var(--muted)', fontSize: 12 }}>{slide.meta}</span>
             </div>
           </Carousel.Item>
         ))}
@@ -1472,15 +1507,6 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
   const [apiMessage, setApiMessage] = useState('API 尚未调用');
   const [isPlaying, setIsPlaying] = useState(variant === 'autoplay');
 
-  useEffect(() => {
-    if (variant !== 'autoplay' || !isPlaying || api === null) return undefined;
-    const timer = window.setInterval(() => {
-      if (api.canScrollNext()) api.scrollNext();
-      else api.scrollTo(0);
-    }, 1800);
-    return () => window.clearInterval(timer);
-  }, [api, isPlaying, variant]);
-
   const isMultiple = variant === 'multiple-slides';
   const carouselType = variant === 'modal-type' ? 'modal' : 'in-place';
   const opts = variant === 'loop' || variant === 'autoplay' ? { loop: true } : undefined;
@@ -1494,6 +1520,7 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
     <DemoSection isColumn label={variant}>
       <Carousel
         aria-label="课程运营轮播"
+        autoplay={variant === 'autoplay' && isPlaying ? { delay: 1800 } : false}
         opts={opts}
         setApi={setApi}
         style={{ width: variant === 'modal-type' ? 360 : 460 }}
@@ -1502,10 +1529,10 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
         <Carousel.Content>
           {CAROUSEL_SLIDES.map((slide, index) => (
             <Carousel.Item
-              key={slide}
+              key={slide.id}
               style={isMultiple ? { flex: '0 0 58%', paddingRight: 12 } : undefined}
             >
-              <CarouselSlide meta={`第 ${index + 1} 张 · 可拖动切换`} title={slide} />
+              <CarouselSlide meta={`${slide.meta} · 第 ${index + 1} 张`} title={slide.title} />
             </Carousel.Item>
           ))}
         </Carousel.Content>
@@ -1515,10 +1542,12 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
           renderDot={
             variant === 'api-access'
               ? ({ index, isSelected }) => (
-                  <button
+                  <Carousel.Dot
                     key={index}
                     aria-label={`跳到第 ${index + 1} 张`}
                     data-selected={isSelected || undefined}
+                    index={index}
+                    isSelected={isSelected}
                     style={{
                       width: isSelected ? 18 : 8,
                       height: 8,
@@ -1526,8 +1555,6 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
                       borderRadius: 999,
                       background: isSelected ? 'var(--accent)' : 'var(--default)',
                     }}
-                    type="button"
-                    onClick={() => api?.scrollTo(index)}
                   />
                 )
               : undefined
@@ -1793,32 +1820,13 @@ const EXPANDABLE_ROWS: ExpandableCourse[] = SIMPLE_COURSES.map((course) => ({
 }));
 
 const DataGridExpandableRowsVariantDemo = () => {
-  const [expanded, setExpanded] = useState<DemoKey>('c1');
+  const [expandedKeys, setExpandedKeys] = useState<Set<DemoKey>>(new Set(['c1']));
   const columns: DataGridColumn<ExpandableCourse>[] = [
     {
       id: 'name',
       header: '课程',
       isRowHeader: true,
-      cell: (row) => {
-        const isExpanded = expanded === row.id;
-        return (
-          <div className="data-grid__tree-cell">
-            <Button
-              aria-label={isExpanded ? '收起' : '展开'}
-              isIconOnly
-              size="sm"
-              variant="ghost"
-              onClick={() => setExpanded(isExpanded ? '' : row.id)}
-            >
-              {isExpanded ? '⌄' : '›'}
-            </Button>
-            <div>
-              <strong>{row.name}</strong>
-              {isExpanded && <div style={demoMutedStyle}>{row.detail}</div>}
-            </div>
-          </div>
-        );
-      },
+      accessorKey: 'name',
     },
     { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
     { id: 'progress', header: '进度', accessorKey: 'progress', align: 'end' },
@@ -1827,13 +1835,42 @@ const DataGridExpandableRowsVariantDemo = () => {
   return (
     <DemoSection isColumn label="expandable rows">
       <div style={{ width: 680 }}>
-        <DataGrid aria-label="展开课程表" columns={columns} data={EXPANDABLE_ROWS} getRowId={courseRowId} />
+        <DataGrid
+          aria-label="展开课程表"
+          columns={columns}
+          data={EXPANDABLE_ROWS}
+          expandedKeys={expandedKeys}
+          getRowId={courseRowId}
+          onExpandedChange={(keys) => setExpandedKeys(new Set(keys as Set<DemoKey>))}
+          renderExpandedContent={(row) => (
+            <div style={{ display: 'grid', gap: 6 }}>
+              <strong>{row.name} 跟进说明</strong>
+              <span style={demoMutedStyle}>{row.detail}</span>
+              <ProgressBar
+                aria-label={`${row.name} 展开行进度`}
+                color={row.progress > 80 ? 'success' : 'accent'}
+                isShowValue={false}
+                size="sm"
+                value={row.progress}
+              />
+            </div>
+          )}
+        />
       </div>
     </DemoSection>
   );
 };
 
 const DataGridPinnedColumnsVariantDemo = () => {
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
+    id: 180,
+    student: 112,
+    course: 240,
+    amount: 120,
+    status: 120,
+    teacher: 120,
+    campus: 120,
+  });
   const columns: DataGridColumn<OrderRow>[] = [
     {
       ...ORDER_COLUMNS[0],
@@ -1856,13 +1893,18 @@ const DataGridPinnedColumnsVariantDemo = () => {
         <DataGrid
           aria-label="固定列订单"
           columns={columns}
+          columnWidths={columnWidths}
           contentClassName="min-w-[1040px]"
           data={ORDER_ROWS}
+          enableColumnResizing
           getRowId={orderRowId}
           scrollContainerClassName="overflow-x-auto"
+          onColumnResize={({ columnId, width }) =>
+            setColumnWidths((current) => ({ ...current, [columnId]: width }))
+          }
         />
       </div>
-      <span style={demoMutedStyle}>列定义使用 pin API，表头与单元格同步固定在横向滚动两侧。</span>
+      <span style={demoMutedStyle}>列定义使用 pin API，并通过 DataGrid 的 resize API 调整宽度。</span>
     </DemoSection>
   );
 };
@@ -2301,6 +2343,10 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
     level: index % 4 === 0 ? 1 : 2,
   }));
   const items = variant === 'virtualized' ? manyItems : TOC_ITEMS;
+  const tocItems = items.map((entry) => ({
+    ...entry,
+    level: variant === 'hierarchical' || variant === 'virtualized' ? entry.level : 1,
+  }));
   const placement = variant === 'left-placement' || variant === 'left-aligned-bars' ? 'left' : 'right';
   const triggerMode = variant === 'press-mode' || variant === 'press-mode-in-page' ? 'press' : 'hover';
   const controlledProps =
@@ -2309,18 +2355,17 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
   const toc = (
     <FloatingToc
       closeDelay={variant === 'custom-delays' ? 900 : 300}
+      activeKey={active}
+      items={tocItems}
       openDelay={variant === 'custom-delays' ? 0 : 200}
       placement={placement}
       triggerMode={triggerMode}
+      onActiveChange={setActive}
       {...controlledProps}
     >
       <FloatingToc.Trigger>
-        {items.slice(0, 8).map((entry) => (
-          <FloatingToc.Bar
-            key={entry.key}
-            active={entry.key === active}
-            level={variant === 'hierarchical' || variant === 'virtualized' ? entry.level : 1}
-          />
+        {tocItems.slice(0, 8).map((entry) => (
+          <FloatingToc.Bar key={entry.key} itemKey={entry.key} />
         ))}
       </FloatingToc.Trigger>
       <FloatingToc.Content>
@@ -2331,15 +2376,8 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
               : undefined
           }
         >
-          {items.map((entry) => (
-            <FloatingToc.Item
-              key={entry.key}
-              active={entry.key === active}
-              level={variant === 'hierarchical' || variant === 'virtualized' ? entry.level : 1}
-              onPress={() => setActive(entry.key)}
-            >
-              {entry.label}
-            </FloatingToc.Item>
+          {tocItems.map((entry) => (
+            <FloatingToc.Item key={entry.key} itemKey={entry.key} />
           ))}
         </div>
       </FloatingToc.Content>

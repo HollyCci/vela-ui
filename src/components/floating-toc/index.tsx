@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type ButtonHTMLAttributes,
   type CSSProperties,
   type FocusEvent as ReactFocusEvent,
   type HTMLAttributes,
@@ -16,11 +17,24 @@ import {
   type ReactNode,
   type RefObject,
 } from 'react';
-import { Button, Popover, type ButtonProps, type PopoverProps } from 'react-aria-components';
+import {
+  Button as RACButton,
+  Popover,
+  type ButtonProps as RACButtonProps,
+  type PopoverProps,
+} from 'react-aria-components';
 import clsx from 'clsx';
 
 export type FloatingTocPlacement = 'left' | 'right';
 export type FloatingTocTriggerMode = 'hover' | 'press';
+
+export type FloatingTocItemData = {
+  key: string;
+  label?: ReactNode;
+  level?: number;
+  /** 目标章节元素 id；未传时使用 key */
+  targetId?: string;
+};
 
 export type FloatingTocProps = {
   /** TOC 停靠在页面哪一侧（决定条形对齐与面板弹出方向），默认 right */
@@ -35,14 +49,26 @@ export type FloatingTocProps = {
   openDelay?: number;
   /** 指针/焦点离开后延迟关闭毫秒数（原站默认 300） */
   closeDelay?: number;
+  /** 用于 active scroll tracking 与 itemKey 自动跳转的目录数据 */
+  items?: FloatingTocItemData[];
+  /** 受控当前章节 key */
+  activeKey?: string;
+  /** 默认当前章节 key */
+  defaultActiveKey?: string;
+  /** 当前章节变化回调（点击 item 或滚动命中） */
+  onActiveChange?: (key: string, item?: FloatingTocItemData) => void;
+  /** 滚动容器元素 id；不传则跟踪 window viewport */
+  targetId?: string;
   children?: ReactNode;
 };
 
-export type FloatingTocTriggerProps = HTMLAttributes<HTMLSpanElement>;
+export type FloatingTocTriggerProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
 
 export type FloatingTocBarProps = HTMLAttributes<HTMLSpanElement> & {
   /** 高亮为当前激活章节 */
   active?: boolean;
+  /** 绑定 FloatingToc.items 的 key，未显式传 active 时可自动高亮 */
+  itemKey?: string;
   /** 层级（1 为顶级，层级越深条越短） */
   level?: number;
 };
@@ -55,9 +81,11 @@ export type FloatingTocContentProps = Omit<
   style?: CSSProperties;
 };
 
-export type FloatingTocItemProps = Omit<ButtonProps, 'className' | 'style'> & {
+export type FloatingTocItemProps = Omit<RACButtonProps, 'className' | 'style'> & {
   /** 高亮为当前激活章节 */
   active?: boolean;
+  /** 绑定 FloatingToc.items 的 key，未显式传 active/onPress 时可自动追踪与滚动 */
+  itemKey?: string;
   /** 层级（1 为顶级，层级越深缩进越大） */
   level?: number;
   className?: string;
@@ -68,13 +96,17 @@ type FloatingTocContextValue = {
   isOpen: boolean;
   placement: FloatingTocPlacement;
   triggerMode: FloatingTocTriggerMode;
-  triggerRef: RefObject<HTMLSpanElement | null>;
+  triggerRef: RefObject<HTMLButtonElement | null>;
+  activeKey: string | undefined;
+  itemsByKey: Map<string, FloatingTocItemData>;
   scheduleOpen: () => void;
   scheduleClose: () => void;
   cancelClose: () => void;
   openNow: () => void;
   closeNow: () => void;
   toggle: () => void;
+  setActiveKey: (key: string) => void;
+  scrollToItem: (key: string) => void;
 };
 
 const FloatingTocContext = createContext<FloatingTocContextValue | null>(null);
@@ -94,7 +126,7 @@ const withLevelVar = (
   return { ...style, ['--floating-toc-level' as string]: level };
 };
 
-const Trigger = forwardRef<HTMLSpanElement, FloatingTocTriggerProps>(
+const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
   (
     {
       className,
@@ -124,7 +156,7 @@ const Trigger = forwardRef<HTMLSpanElement, FloatingTocTriggerProps>(
     const [isFocusVisible, setIsFocusVisible] = useState(false);
 
     const handleRef = useCallback(
-      (node: HTMLSpanElement | null) => {
+      (node: HTMLButtonElement | null) => {
         triggerRef.current = node;
         if (typeof forwardedRef === 'function') forwardedRef(node);
         else if (forwardedRef !== null) forwardedRef.current = node;
@@ -132,48 +164,41 @@ const Trigger = forwardRef<HTMLSpanElement, FloatingTocTriggerProps>(
       [forwardedRef, triggerRef],
     );
 
-    const handlePointerEnter = (event: ReactPointerEvent<HTMLSpanElement>) => {
+    const handlePointerEnter = (event: ReactPointerEvent<HTMLButtonElement>) => {
       onPointerEnter?.(event);
       if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleOpen();
     };
-    const handlePointerLeave = (event: ReactPointerEvent<HTMLSpanElement>) => {
+    const handlePointerLeave = (event: ReactPointerEvent<HTMLButtonElement>) => {
       onPointerLeave?.(event);
       if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleClose();
     };
-    const handleClick = (event: ReactMouseEvent<HTMLSpanElement>) => {
+    const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
       onClick?.(event);
       if (triggerMode === 'press') toggle();
     };
     // 仅键盘聚焦立即打开（hover 模式）；鼠标点击产生的 focus 不触发
-    const handleFocus = (event: ReactFocusEvent<HTMLSpanElement>) => {
+    const handleFocus = (event: ReactFocusEvent<HTMLButtonElement>) => {
       onFocus?.(event);
       const visible = event.target.matches(':focus-visible');
       setIsFocusVisible(visible);
       if (triggerMode === 'hover' && visible) openNow();
     };
-    const handleBlur = (event: ReactFocusEvent<HTMLSpanElement>) => {
+    const handleBlur = (event: ReactFocusEvent<HTMLButtonElement>) => {
       onBlur?.(event);
       setIsFocusVisible(false);
       if (triggerMode === 'hover') scheduleClose();
     };
-    const handleKeyDown = (event: ReactKeyboardEvent<HTMLSpanElement>) => {
+    const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
       onKeyDown?.(event);
       if (event.key === 'Escape') {
         closeNow();
-        return;
-      }
-      if (triggerMode === 'press' && (event.key === 'Enter' || event.key === ' ')) {
-        // 阻止空格滚动页面
-        event.preventDefault();
-        toggle();
       }
     };
 
     return (
-      <span
+      <button
         ref={handleRef}
-        role="button"
-        tabIndex={0}
+        type="button"
         aria-label={ariaLabel}
         data-slot="floating-toc-trigger"
         data-placement={placement}
@@ -188,7 +213,7 @@ const Trigger = forwardRef<HTMLSpanElement, FloatingTocTriggerProps>(
         {...rest}
       >
         {children}
-      </span>
+      </button>
     );
   },
 );
@@ -196,16 +221,23 @@ Trigger.displayName = 'FloatingToc.Trigger';
 
 /** 条形指示线：视觉由 ::after 绘制，宽度随 level 递减 */
 const Bar = forwardRef<HTMLSpanElement, FloatingTocBarProps>(
-  ({ active, level, className, style, ...rest }, ref) => (
-    <span
-      ref={ref}
-      data-slot="floating-toc-bar"
-      data-active={active || undefined}
-      className={clsx('floating-toc__bar', className)}
-      style={withLevelVar(level, style)}
-      {...rest}
-    />
-  ),
+  ({ active, itemKey, level, className, style, ...rest }, ref) => {
+    const { activeKey, itemsByKey } = useFloatingTocContext('FloatingToc.Bar');
+    const item = itemKey === undefined ? undefined : itemsByKey.get(itemKey);
+    const resolvedLevel = level ?? item?.level;
+    const resolvedActive = active ?? (itemKey !== undefined && itemKey === activeKey);
+
+    return (
+      <span
+        ref={ref}
+        data-slot="floating-toc-bar"
+        data-active={resolvedActive || undefined}
+        className={clsx('floating-toc__bar', className)}
+        style={withLevelVar(resolvedLevel, style)}
+        {...rest}
+      />
+    );
+  },
 );
 Bar.displayName = 'FloatingToc.Bar';
 
@@ -311,16 +343,29 @@ Content.displayName = 'FloatingToc.Content';
 
 /** 包装 RAC Button：data-hovered/pressed/focus-visible 由 RAC 自动输出，与 CSS 状态选择器匹配 */
 const Item = forwardRef<HTMLButtonElement, FloatingTocItemProps>(
-  ({ active, level, className, style, ...rest }, ref) => (
-    <Button
-      ref={ref}
-      data-slot="floating-toc-item"
-      data-active={active || undefined}
-      className={clsx('floating-toc__item', className)}
-      style={withLevelVar(level, style)}
-      {...rest}
-    />
-  ),
+  ({ active, itemKey, level, className, style, onPress, children, ...rest }, ref) => {
+    const { activeKey, itemsByKey, scrollToItem } = useFloatingTocContext('FloatingToc.Item');
+    const item = itemKey === undefined ? undefined : itemsByKey.get(itemKey);
+    const resolvedLevel = level ?? item?.level;
+    const resolvedActive = active ?? (itemKey !== undefined && itemKey === activeKey);
+
+    return (
+      <RACButton
+        ref={ref}
+        data-slot="floating-toc-item"
+        data-active={resolvedActive || undefined}
+        className={clsx('floating-toc__item', className)}
+        style={withLevelVar(resolvedLevel, style)}
+        onPress={(event) => {
+          onPress?.(event);
+          if (itemKey !== undefined) scrollToItem(itemKey);
+        }}
+        {...rest}
+      >
+        {children ?? item?.label}
+      </RACButton>
+    );
+  },
 );
 Item.displayName = 'FloatingToc.Item';
 
@@ -333,16 +378,29 @@ const FloatingTocRoot = ({
   onOpenChange,
   openDelay = 200,
   closeDelay = 300,
+  items = [],
+  activeKey,
+  defaultActiveKey,
+  onActiveChange,
+  targetId,
   children,
 }: FloatingTocProps) => {
   const [internalOpen, setInternalOpen] = useState(defaultOpen);
+  const [internalActiveKey, setInternalActiveKey] = useState<string | undefined>(
+    defaultActiveKey ?? items[0]?.key,
+  );
   const isControlled = open !== undefined;
+  const isControlledActive = activeKey !== undefined;
   const isOpen = isControlled ? open : internalOpen;
+  const resolvedActiveKey = activeKey ?? internalActiveKey;
   const isOpenRef = useRef(isOpen);
+  const activeKeyRef = useRef(resolvedActiveKey);
   isOpenRef.current = isOpen;
-  const triggerRef = useRef<HTMLSpanElement | null>(null);
+  activeKeyRef.current = resolvedActiveKey;
+  const triggerRef = useRef<HTMLButtonElement | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const itemsByKey = useMemo(() => new Map(items.map((item) => [item.key, item])), [items]);
 
   const cancelOpen = useCallback(() => {
     if (openTimer.current !== null) {
@@ -373,6 +431,41 @@ const FloatingTocRoot = ({
   const closeNow = useCallback(() => setOpen(false), [setOpen]);
   const toggle = useCallback(() => setOpen(!isOpenRef.current), [setOpen]);
 
+  const setActive = useCallback(
+    (next: string) => {
+      if (activeKeyRef.current === next) return;
+      const item = itemsByKey.get(next);
+      activeKeyRef.current = next;
+      if (!isControlledActive) setInternalActiveKey(next);
+      onActiveChange?.(next, item);
+    },
+    [isControlledActive, itemsByKey, onActiveChange],
+  );
+
+  const scrollToItem = useCallback(
+    (key: string) => {
+      const item = itemsByKey.get(key);
+      const target = document.getElementById(item?.targetId ?? key);
+      const root = targetId === undefined ? null : document.getElementById(targetId);
+      setActive(key);
+
+      if (target === null) return;
+
+      if (root !== null) {
+        const rootRect = root.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        root.scrollTo({
+          top: root.scrollTop + targetRect.top - rootRect.top,
+          behavior: 'smooth',
+        });
+        return;
+      }
+
+      target.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    },
+    [itemsByKey, setActive, targetId],
+  );
+
   const scheduleOpen = useCallback(() => {
     cancelClose();
     if (isOpenRef.current || openTimer.current !== null) return;
@@ -400,29 +493,80 @@ const FloatingTocRoot = ({
     [cancelClose, cancelOpen],
   );
 
+  useEffect(() => {
+    if (items.length === 0 || typeof document === 'undefined') return undefined;
+    const root = targetId === undefined ? null : document.getElementById(targetId);
+    if (targetId !== undefined && root === null) return undefined;
+
+    let frame = 0;
+    const updateActiveFromScroll = () => {
+      if (frame !== 0) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        const rootRect = root?.getBoundingClientRect();
+        const threshold = (rootRect?.top ?? 0) + 8;
+        let activeItem: FloatingTocItemData | undefined;
+        let nextItem: FloatingTocItemData | undefined;
+
+        for (const item of items) {
+          const target = document.getElementById(item.targetId ?? item.key);
+          if (target === null) continue;
+          const rect = target.getBoundingClientRect();
+          if (rect.top <= threshold) {
+            activeItem = item;
+          } else if (nextItem === undefined) {
+            nextItem = item;
+          }
+        }
+
+        const next = activeItem ?? nextItem;
+        if (next !== undefined) setActive(next.key);
+      });
+    };
+
+    updateActiveFromScroll();
+    const scrollTarget: HTMLElement | Window = root ?? window;
+    scrollTarget.addEventListener('scroll', updateActiveFromScroll, { passive: true });
+    window.addEventListener('resize', updateActiveFromScroll);
+
+    return () => {
+      if (frame !== 0) window.cancelAnimationFrame(frame);
+      scrollTarget.removeEventListener('scroll', updateActiveFromScroll);
+      window.removeEventListener('resize', updateActiveFromScroll);
+    };
+  }, [items, setActive, targetId]);
+
   const contextValue = useMemo<FloatingTocContextValue>(
     () => ({
       isOpen,
       placement,
       triggerMode,
       triggerRef,
+      activeKey: resolvedActiveKey,
+      itemsByKey,
       scheduleOpen,
       scheduleClose,
       cancelClose,
       openNow,
       closeNow,
       toggle,
+      setActiveKey: setActive,
+      scrollToItem,
     }),
     [
       isOpen,
       placement,
       triggerMode,
+      resolvedActiveKey,
+      itemsByKey,
       scheduleOpen,
       scheduleClose,
       cancelClose,
       openNow,
       closeNow,
       toggle,
+      setActive,
+      scrollToItem,
     ],
   );
 
