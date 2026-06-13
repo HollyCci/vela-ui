@@ -135,33 +135,39 @@ const KpiGroupDemo = () => (
   </DemoSection>
 );
 
-const ItemCardDemo = () => (
-  <DemoSection isColumn>
-    <ItemCard style={{ width: 360 }}>
-      <ItemCard.Icon>
-        <BookIcon />
-      </ItemCard.Icon>
-      <ItemCard.Content>
-        <ItemCard.Title>雅思核心词汇 · 第 3 期</ItemCard.Title>
-        <ItemCard.Description>已报名 86 人 · 开课时间 6 月 20 日</ItemCard.Description>
-      </ItemCard.Content>
-      <ItemCard.Action>
-        <Button size="sm" variant="outline">
-          查看
-        </Button>
-      </ItemCard.Action>
-    </ItemCard>
-    <ItemCard variant="outline" style={{ width: 360 }}>
-      <ItemCard.Icon>
-        <FileIcon />
-      </ItemCard.Icon>
-      <ItemCard.Content>
-        <ItemCard.Title>四级真题精讲营</ItemCard.Title>
-        <ItemCard.Description>已报名 132 人 · 进行中</ItemCard.Description>
-      </ItemCard.Content>
-    </ItemCard>
-  </DemoSection>
-);
+const ItemCardDemo = () => {
+  const [message, setMessage] = useState('尚未打开课程');
+  const handleView = () => setMessage('已打开：雅思核心词汇 · 第 3 期');
+
+  return (
+    <DemoSection isColumn>
+      <ItemCard style={{ width: 360 }}>
+        <ItemCard.Icon>
+          <BookIcon />
+        </ItemCard.Icon>
+        <ItemCard.Content>
+          <ItemCard.Title>雅思核心词汇 · 第 3 期</ItemCard.Title>
+          <ItemCard.Description>已报名 86 人 · 开课时间 6 月 20 日</ItemCard.Description>
+        </ItemCard.Content>
+        <ItemCard.Action>
+          <Button size="sm" variant="outline" onClick={handleView}>
+            查看
+          </Button>
+        </ItemCard.Action>
+      </ItemCard>
+      <ItemCard variant="outline" style={{ width: 360 }}>
+        <ItemCard.Icon>
+          <FileIcon />
+        </ItemCard.Icon>
+        <ItemCard.Content>
+          <ItemCard.Title>四级真题精讲营</ItemCard.Title>
+          <ItemCard.Description>已报名 132 人 · 进行中</ItemCard.Description>
+        </ItemCard.Content>
+      </ItemCard>
+      <span style={{ fontSize: 13, color: 'var(--foreground)' }}>{message}</span>
+    </DemoSection>
+  );
+};
 
 const ItemCardGroupDemo = () => (
   <DemoSection isColumn>
@@ -384,24 +390,32 @@ const ListViewDemo = () => {
   );
 };
 
-const EmptyStateDemo = () => (
-  <DemoSection>
-    <EmptyState size="md" style={{ width: 320 }}>
-      <EmptyState.Header>
-        <EmptyState.Media variant="icon">
-          <FileIcon />
-        </EmptyState.Media>
-        <EmptyState.Title>暂无待审核内容</EmptyState.Title>
-        <EmptyState.Description>新提交的课程内容会出现在这里</EmptyState.Description>
-      </EmptyState.Header>
-      <EmptyState.Content>
-        <Button size="sm" variant="secondary">
-          刷新列表
-        </Button>
-      </EmptyState.Content>
-    </EmptyState>
-  </DemoSection>
-);
+const EmptyStateDemo = () => {
+  const [refreshCount, setRefreshCount] = useState(0);
+  const handleRefresh = () => setRefreshCount((count) => count + 1);
+
+  return (
+    <DemoSection isColumn>
+      <EmptyState size="md" style={{ width: 320 }}>
+        <EmptyState.Header>
+          <EmptyState.Media variant="icon">
+            <FileIcon />
+          </EmptyState.Media>
+          <EmptyState.Title>暂无待审核内容</EmptyState.Title>
+          <EmptyState.Description>新提交的课程内容会出现在这里</EmptyState.Description>
+        </EmptyState.Header>
+        <EmptyState.Content>
+          <Button size="sm" variant="secondary" onClick={handleRefresh}>
+            刷新列表
+          </Button>
+        </EmptyState.Content>
+      </EmptyState>
+      <span style={{ fontSize: 13, color: 'var(--foreground)' }}>
+        已刷新 {refreshCount} 次
+      </span>
+    </DemoSection>
+  );
+};
 
 const WIDGET_SEGMENTS = [
   { key: 'patterns', label: '句型训练', color: 'var(--chart-1)' },

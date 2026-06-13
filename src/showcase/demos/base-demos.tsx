@@ -151,20 +151,26 @@ const KbdDemo = () => (
   </DemoSection>
 );
 
-const CardDemo = () => (
-  <DemoSection>
-    <Card style={{ width: 320 }}>
-      <Card.Header>
-        <Card.Title>项目周报</Card.Title>
-        <Card.Description>本周交付进展与风险同步</Card.Description>
-      </Card.Header>
-      <Card.Content>完成组件库样式迁移，覆盖 153 个组件。</Card.Content>
-      <Card.Footer>
-        <Button size="sm">查看详情</Button>
-      </Card.Footer>
-    </Card>
-  </DemoSection>
-);
+const CardDemo = () => {
+  const [message, setMessage] = useState('尚未查看详情');
+  const handleView = () => setMessage('已打开项目周报详情');
+
+  return (
+    <DemoSection isColumn>
+      <Card style={{ width: 320 }}>
+        <Card.Header>
+          <Card.Title>项目周报</Card.Title>
+          <Card.Description>本周交付进展与风险同步</Card.Description>
+        </Card.Header>
+        <Card.Content>完成组件库样式迁移，覆盖 153 个组件。</Card.Content>
+        <Card.Footer>
+          <Button size="sm" onClick={handleView}>查看详情</Button>
+        </Card.Footer>
+      </Card>
+      <span>{message}</span>
+    </DemoSection>
+  );
+};
 
 const SeparatorDemo = () => (
   <DemoSection isColumn>
@@ -179,22 +185,30 @@ const SeparatorDemo = () => (
   </DemoSection>
 );
 
-const ToolbarDemo = () => (
-  <DemoSection>
-    <Toolbar isAttached>
-      <Button size="sm" variant="ghost">
-        复制
-      </Button>
-      <Button size="sm" variant="ghost">
-        粘贴
-      </Button>
-      <Separator orientation="vertical" />
-      <Button size="sm" variant="ghost">
-        删除
-      </Button>
-    </Toolbar>
-  </DemoSection>
-);
+const ToolbarDemo = () => {
+  const [message, setMessage] = useState('尚未执行工具栏操作');
+  const handleCopy = () => setMessage('已复制当前选区');
+  const handlePaste = () => setMessage('已粘贴到当前位置');
+  const handleDelete = () => setMessage('已删除当前选区');
+
+  return (
+    <DemoSection isColumn>
+      <Toolbar isAttached>
+        <Button size="sm" variant="ghost" onClick={handleCopy}>
+          复制
+        </Button>
+        <Button size="sm" variant="ghost" onClick={handlePaste}>
+          粘贴
+        </Button>
+        <Separator orientation="vertical" />
+        <Button size="sm" variant="ghost" onClick={handleDelete}>
+          删除
+        </Button>
+      </Toolbar>
+      <span>{message}</span>
+    </DemoSection>
+  );
+};
 
 const XmarkIcon = () => (
   <svg
@@ -216,11 +230,18 @@ XmarkIcon.displayName = 'XmarkIcon';
 /** 原站 anatomy 同构：OSS Chip/Button/Separator/Tooltip 填充 ActionBar 各分区 */
 const ActionBarDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [message, setMessage] = useState('尚未执行批量操作');
   const handleToggle = () => setIsOpen((v) => !v);
-  const handleClose = () => setIsOpen(false);
+  const handleClose = () => {
+    setIsOpen(false);
+    setMessage('已清除选择');
+  };
+  const handleEdit = () => setMessage('已进入批量编辑');
+  const handleExport = () => setMessage('已导出 2 个项目');
+  const handleDelete = () => setMessage('已删除 2 个项目');
 
   return (
-    <DemoSection>
+    <DemoSection isColumn>
       <Button variant="secondary" onClick={handleToggle}>
         {isOpen ? '隐藏' : '显示'} Action Bar
       </Button>
@@ -233,13 +254,13 @@ const ActionBarDemo = () => {
         </ActionBar.Prefix>
         <Separator />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" onClick={handleEdit}>
             编辑
           </Button>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" onClick={handleExport}>
             导出
           </Button>
-          <Button className="text-danger" size="sm" variant="ghost">
+          <Button className="text-danger" size="sm" variant="ghost" onClick={handleDelete}>
             删除
           </Button>
         </ActionBar.Content>
@@ -261,6 +282,7 @@ const ActionBarDemo = () => {
           </Tooltip>
         </ActionBar.Suffix>
       </ActionBar>
+      <span>{message}</span>
     </DemoSection>
   );
 };
