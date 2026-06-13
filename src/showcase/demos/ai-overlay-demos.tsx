@@ -92,49 +92,36 @@ const ChatSourceDemo = () => (
   </DemoSection>
 );
 
-const ChatToolDemo = () => {
-  const [isExpanded, setIsExpanded] = useState(true);
-
-  const handleToggle = useCallback(() => {
-    setIsExpanded((prev) => !prev);
-  }, []);
-
-  return (
-    <DemoSection label="工具调用" isColumn>
-      <ChatTool
-        label="查询数据库：用户表"
-        statusIcon="▾"
-        isExpanded={isExpanded}
-        onToggle={handleToggle}
+const ChatToolDemo = () => (
+  <DemoSection label="工具调用" isColumn>
+    <ChatTool label="查询数据库：用户表" statusIcon="▾" defaultExpanded>
+      <ChatTool.Args>
+        <CodeBlock>
+          <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
+        </CodeBlock>
+      </ChatTool.Args>
+      <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
+    </ChatTool>
+    <ChatTool label={<TextShimmer>正在执行检索…</TextShimmer>} status="running" isExpandable={false} />
+    <ChatTool label="写入文件失败" status="error" defaultExpanded>
+      <ChatTool.Error>没有目标目录的写入权限。</ChatTool.Error>
+    </ChatTool>
+    <ChatTool label="删除分支需要确认" status="requires-action" defaultExpanded>
+      <ChatTool.Approval
+        actions={
+          <>
+            <Button variant="ghost" size="sm">
+              拒绝
+            </Button>
+            <Button size="sm">允许</Button>
+          </>
+        }
       >
-        <ChatTool.Args>
-          <CodeBlock>
-            <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
-          </CodeBlock>
-        </ChatTool.Args>
-        <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
-      </ChatTool>
-      <ChatTool label={<TextShimmer>正在执行检索…</TextShimmer>} status="running" isExpandable={false} />
-      <ChatTool label="写入文件失败" status="error" isExpanded>
-        <ChatTool.Error>没有目标目录的写入权限。</ChatTool.Error>
-      </ChatTool>
-      <ChatTool label="删除分支需要确认" status="requires-action" isExpanded>
-        <ChatTool.Approval
-          actions={
-            <>
-              <Button variant="ghost" size="sm">
-                拒绝
-              </Button>
-              <Button size="sm">允许</Button>
-            </>
-          }
-        >
-          该操作不可撤销，是否允许删除远程分支？
-        </ChatTool.Approval>
-      </ChatTool>
-    </DemoSection>
-  );
-};
+        该操作不可撤销，是否允许删除远程分支？
+      </ChatTool.Approval>
+    </ChatTool>
+  </DemoSection>
+);
 
 const ChainOfThoughtDemo = () => {
   const [isExpanded, setIsExpanded] = useState(false);

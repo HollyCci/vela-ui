@@ -1,4 +1,11 @@
-import { forwardRef, type HTMLAttributes, type MouseEventHandler, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useId,
+  useState,
+  type HTMLAttributes,
+  type MouseEventHandler,
+  type ReactNode,
+} from 'react';
 import clsx from 'clsx';
 
 export type ChatToolStatus = 'idle' | 'running' | 'streaming' | 'error' | 'requires-action';
@@ -8,7 +15,9 @@ export type ChatToolProps = HTMLAttributes<HTMLDivElement> & {
   status?: ChatToolStatus;
   statusIcon?: ReactNode;
   isExpanded?: boolean;
+  defaultExpanded?: boolean;
   isExpandable?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
   onToggle?: MouseEventHandler<HTMLButtonElement>;
 };
 
@@ -27,33 +36,49 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
       label,
       status = 'idle',
       statusIcon,
-      isExpanded = false,
+      isExpanded,
+      defaultExpanded = false,
       isExpandable = true,
+      onExpandedChange,
       onToggle,
       className,
       children,
       ...rest
     },
     ref,
-  ) => (
-    <div ref={ref} className={clsx('chat-tool', STATUS_MODIFIERS[status], className)} {...rest}>
-      <div data-slot="disclosure-heading">
-        <button
-          type="button"
-          className="chat-tool__trigger"
-          data-expandable={isExpandable ? 'true' : 'false'}
-          aria-expanded={isExpanded}
-          onClick={isExpandable ? onToggle : undefined}
-        >
-          <span className="chat-tool__trigger-label">{label}</span>
-          {statusIcon !== undefined && <span className="chat-tool__status">{statusIcon}</span>}
-        </button>
+  ) => {
+    const contentId = useId();
+    const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+    const expanded = isExpanded ?? internalExpanded;
+
+    const handleToggle: MouseEventHandler<HTMLButtonElement> = (event) => {
+      const nextExpanded = !expanded;
+      if (isExpanded === undefined) setInternalExpanded(nextExpanded);
+      onExpandedChange?.(nextExpanded);
+      onToggle?.(event);
+    };
+
+    return (
+      <div ref={ref} className={clsx('chat-tool', STATUS_MODIFIERS[status], className)} {...rest}>
+        <div data-slot="disclosure-heading">
+          <button
+            type="button"
+            className="chat-tool__trigger"
+            data-expandable={isExpandable ? 'true' : 'false'}
+            aria-expanded={isExpandable ? expanded : undefined}
+            aria-controls={isExpandable ? contentId : undefined}
+            onClick={isExpandable ? handleToggle : undefined}
+          >
+            <span className="chat-tool__trigger-label">{label}</span>
+            {statusIcon !== undefined && <span className="chat-tool__status">{statusIcon}</span>}
+          </button>
+        </div>
+        <div id={contentId} className="chat-tool__content" data-expanded={expanded ? 'true' : 'false'}>
+          <div className="chat-tool__content-body">{children}</div>
+        </div>
       </div>
-      <div className="chat-tool__content" data-expanded={isExpanded ? 'true' : 'false'}>
-        <div className="chat-tool__content-body">{children}</div>
-      </div>
-    </div>
-  ),
+    );
+  },
 );
 ChatToolRoot.displayName = 'ChatTool';
 
