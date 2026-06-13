@@ -4,7 +4,6 @@ import {
   useCallback,
   useContext,
   useEffect,
-  useId,
   useMemo,
   useState,
   type CSSProperties,
@@ -670,7 +669,15 @@ export type SidebarMobileProps = {
  */
 const Mobile = ({ backdrop = 'blur', children }: SidebarMobileProps) => {
   const { isMobile, isMobileOpen, setMobileOpen, side } = useSidebarContext();
-  const titleId = useId();
+
+  useEffect(() => {
+    if (!isMobile || !isMobileOpen) return undefined;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setMobileOpen(false);
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMobile, isMobileOpen, setMobileOpen]);
 
   if (!isMobile) return null;
 
@@ -694,7 +701,7 @@ const Mobile = ({ backdrop = 'blur', children }: SidebarMobileProps) => {
       <div
         role="dialog"
         aria-modal="true"
-        aria-labelledby={titleId}
+        aria-label="Navigation menu"
         data-slot="sidebar-mobile-dialog"
         className="sidebar__mobile-dialog"
       >

@@ -14,6 +14,7 @@ import {
 } from 'react';
 import { Button, Tooltip, type ButtonProps } from '@heroui/react';
 import clsx from 'clsx';
+import Resizable from '../resizable';
 
 export type AppLayoutSidebarSide = 'left' | 'right';
 export type AppLayoutSidebarVariant = 'sidebar' | 'floating' | 'inset';
@@ -247,12 +248,14 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
     const toggleSidebar = useCallback(() => setSidebarOpen(!isSidebarOpen), [isSidebarOpen, setSidebarOpen]);
     const toggleAside = useCallback(() => setAsideOpen(!isAsideOpen), [isAsideOpen, setAsideOpen]);
 
+    const hasSidebar = sidebar !== undefined && sidebar !== null;
+    const hasAside = aside !== undefined && aside !== null;
+
     // icon-rail 不兼容自由缩放，回退到静态布局（原站约束）
     const resolvedSidebarResizable =
-      sidebarResizable && (sidebarCollapsible === 'offcanvas' || sidebarCollapsible === 'none');
-    const isResizable = resolvedSidebarResizable || asideResizable;
-
-    const hasAside = aside !== undefined && aside !== null;
+      hasSidebar && sidebarResizable && (sidebarCollapsible === 'offcanvas' || sidebarCollapsible === 'none');
+    const resolvedAsideResizable = hasAside && asideResizable;
+    const isResizable = resolvedSidebarResizable || resolvedAsideResizable;
 
     // 键盘快捷键：切换侧栏 / aside
     useEffect(() => {
@@ -375,44 +378,57 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       </aside>
     ) : null;
 
-    // resizable 模式：渲染 app-layout__resizable + *-panel 容器（静态尺寸，data 属性对齐快照）
+    const shouldRenderAsidePanel = hasAside && (!isResizable || isAsideOpen);
+    const sidebarPanelSize = hasSidebar ? sidebarDefaultSize : 0;
+    const asidePanelSize = shouldRenderAsidePanel ? asideDefaultSize : 0;
+    const mainPanelDefaultSize = Math.max(1, 100 - sidebarPanelSize - asidePanelSize);
+
+    // resizable 模式：走项目 Resizable 封装，保留 app-layout__resizable + *-panel 快照结构
     const inner = isResizable ? (
-      <div
-        data-slot="resizable"
-        data-group="true"
-        className="resizable resizable--horizontal app-layout__resizable"
+      <Resizable
+        orientation="horizontal"
+        autoSaveId={resizableAutoSaveId}
+        className="app-layout__resizable"
         style={{ height: '100%', width: '100%', overflow: 'hidden', display: 'flex', flexFlow: 'row' }}
       >
-        <div
-          data-slot="resizable-panel"
-          data-panel="true"
-          data-testid="app-layout-sidebar"
-          id="app-layout-sidebar"
-          style={{ flex: `${sidebarDefaultSize} 1 0px`, overflow: 'visible' }}
-        >
-          <div className="resizable__panel app-layout__sidebar-panel">{sidebar}</div>
-        </div>
-        <div
-          data-slot="resizable-panel"
-          data-panel="true"
-          data-testid="app-layout-main"
-          id="app-layout-main"
-          style={{ flex: '1 1 0px', overflow: 'visible' }}
-        >
-          <div className="resizable__panel app-layout__main-panel">{body}</div>
-        </div>
-        {hasAside ? (
-          <div
-            data-slot="resizable-panel"
-            data-panel="true"
-            data-testid="app-layout-aside"
-            id="app-layout-aside"
-            style={{ flex: `${asideDefaultSize} 1 0px`, overflow: 'visible' }}
+        {hasSidebar ? (
+          <Resizable.Panel
+            id="app-layout-sidebar"
+            data-testid="app-layout-sidebar"
+            defaultSize={sidebarDefaultSize}
+            minSize={resolvedSidebarResizable ? sidebarMinSize : undefined}
+            maxSize={resolvedSidebarResizable ? sidebarMaxSize : undefined}
+            disabled={!resolvedSidebarResizable}
+            className="app-layout__sidebar-panel"
           >
-            <div className="resizable__panel app-layout__aside-panel">{aside}</div>
-          </div>
+            {sidebar}
+          </Resizable.Panel>
         ) : null}
-      </div>
+        {hasSidebar && resolvedSidebarResizable ? <Resizable.Handle type="line" withIndicator /> : null}
+        <Resizable.Panel
+          id="app-layout-main"
+          data-testid="app-layout-main"
+          defaultSize={mainPanelDefaultSize}
+          minSize={1}
+          className="app-layout__main-panel"
+        >
+          {body}
+        </Resizable.Panel>
+        {shouldRenderAsidePanel && resolvedAsideResizable ? <Resizable.Handle type="line" withIndicator /> : null}
+        {shouldRenderAsidePanel ? (
+          <Resizable.Panel
+            id="app-layout-aside"
+            data-testid="app-layout-aside"
+            defaultSize={asideDefaultSize}
+            minSize={resolvedAsideResizable ? asideMinSize : undefined}
+            maxSize={resolvedAsideResizable ? asideMaxSize : undefined}
+            disabled={!resolvedAsideResizable}
+            className="app-layout__aside-panel"
+          >
+            {aside}
+          </Resizable.Panel>
+        ) : null}
+      </Resizable>
     ) : (
       <>
         {sidebar}
