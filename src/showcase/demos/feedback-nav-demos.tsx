@@ -24,6 +24,7 @@ import ProgressCircle from '../../components/progress-circle';
 import Rating from '../../components/rating';
 import Resizable from '../../components/resizable';
 import AppLayout from '../../components/app-layout';
+import Sidebar from '../../components/sidebar';
 import Segment from '../../components/segment';
 import Stepper from '../../components/stepper';
 import Tabs from '../../components/tabs';
@@ -819,6 +820,93 @@ const AppLayoutDemo = () => {
   );
 };
 
+const SIDEBAR_ITEMS: { id: string; label: string }[] = [
+  { id: 'dashboard', label: '仪表盘' },
+  { id: 'students', label: '学员' },
+  { id: 'courses', label: '课程' },
+  { id: 'settings', label: '设置' },
+];
+
+const SidebarDemo = () => {
+  const [open, setOpen] = useState(true);
+  const [current, setCurrent] = useState('dashboard');
+
+  const handleOpenChange = (next: boolean) => setOpen(next);
+  const handleSelect = (id: string) => () => setCurrent(id);
+
+  return (
+    <DemoSection isColumn>
+      <div
+        style={{
+          display: 'flex',
+          width: 640,
+          height: 360,
+          border: '1px solid var(--separator)',
+          borderRadius: 12,
+          overflow: 'hidden',
+        }}
+      >
+        <Sidebar.Provider open={open} onOpenChange={handleOpenChange} collapsible="icon">
+          <Sidebar>
+            <Sidebar.Header>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px' }}>
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 6,
+                    background: 'var(--accent)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 13,
+                  }}
+                >
+                  V
+                </div>
+                <span className="sidebar__menu-label-text" style={{ fontWeight: 600, fontSize: 14 }}>
+                  Vela
+                </span>
+              </div>
+            </Sidebar.Header>
+            <Sidebar.Content>
+              <Sidebar.Group>
+                <Sidebar.GroupLabel>导航</Sidebar.GroupLabel>
+                <Sidebar.Menu aria-label="导航">
+                  {SIDEBAR_ITEMS.map((item) => (
+                    <Sidebar.MenuItem
+                      key={item.id}
+                      id={item.id}
+                      textValue={item.label}
+                      isCurrent={current === item.id}
+                      onAction={handleSelect(item.id)}
+                    >
+                      <Sidebar.MenuItemContent>
+                        <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
+                      </Sidebar.MenuItemContent>
+                    </Sidebar.MenuItem>
+                  ))}
+                </Sidebar.Menu>
+              </Sidebar.Group>
+            </Sidebar.Content>
+            <Sidebar.Rail />
+          </Sidebar>
+          <Sidebar.Main>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
+              <Sidebar.Trigger />
+              <span style={{ color: 'var(--muted)', fontSize: 14 }}>
+                当前：{current} · 侧栏{open ? '展开' : '收起'}
+              </span>
+            </div>
+          </Sidebar.Main>
+        </Sidebar.Provider>
+      </div>
+    </DemoSection>
+  );
+};
+
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
   'progress-circle': <ProgressCircleDemo />,
@@ -841,4 +929,5 @@ export const feedbackNavDemos: Record<string, ReactNode> = {
   'context-menu': <ContextMenuDemo />,
   resizable: <ResizableDemo />,
   'app-layout': <AppLayoutDemo />,
+  sidebar: <SidebarDemo />,
 };
