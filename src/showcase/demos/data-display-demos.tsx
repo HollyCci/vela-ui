@@ -1,5 +1,4 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { useTreeData, type Key, type Selection, type SortDescriptor } from 'react-aria-components';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Avatar from '../../components/avatar';
@@ -11,7 +10,7 @@ import Checkbox from '../../components/checkbox';
 import Chip from '../../components/chip';
 import DataGrid, { type DataGridColumn } from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
-import FileTree, { useFileTree, useFileTreeDrag } from '../../components/file-tree';
+import FileTree, { useFileTree, useFileTreeData, useFileTreeDrag } from '../../components/file-tree';
 import FloatingToc from '../../components/floating-toc';
 import HoverCard from '../../components/hover-card';
 import ItemCard from '../../components/item-card';
@@ -26,6 +25,13 @@ import Switch from '../../components/switch';
 import Tooltip from '../../components/tooltip';
 import Widget from '../../components/widget';
 import DemoSection from '../demo-section';
+
+type DemoKey = string | number;
+type DemoSelection = 'all' | Set<DemoKey>;
+type DemoSortDescriptor = {
+  column: DemoKey;
+  direction: 'ascending' | 'descending';
+};
 
 const BookIcon = () => (
   <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true">
@@ -246,7 +252,7 @@ const summarizeNames = (names: string[]) => {
 /** 原站「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
 const ListViewDemo = () => {
   const [files, setFiles] = useState(LIST_VIEW_FILES);
-  const [selected, setSelected] = useState<Selection>(new Set());
+  const [selected, setSelected] = useState<DemoSelection>(new Set());
   const [actionMessage, setActionMessage] = useState('选择文件后可批量下载、移动或删除');
   const [studentMessage, setStudentMessage] = useState('默认选中李子轩，陈雨桐不可选');
   const count = selected === 'all' ? files.length : selected.size;
@@ -608,18 +614,18 @@ const WidgetDemo = () => {
 };
 
 const FileTreeDemo = () => {
-  const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(
-    () => new Set<Key>(['course', 'ielts']),
+  const [expandedKeys, setExpandedKeys] = useState<Set<DemoKey>>(
+    () => new Set<DemoKey>(['course', 'ielts']),
   );
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(
-    () => new Set<Key>(['ielts-words']),
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(
+    () => new Set<DemoKey>(['ielts-words']),
   );
 
-  const handleExpandedChange = (keys: Set<Key>) => {
+  const handleExpandedChange = (keys: Set<DemoKey>) => {
     setExpandedKeys(new Set(keys));
   };
 
-  const handleSelectionChange = (keys: Selection) => {
+  const handleSelectionChange = (keys: DemoSelection) => {
     setSelectedKeys(keys);
   };
 
@@ -812,7 +818,7 @@ const ORDER_COLUMNS: DataGridColumn<OrderRow>[] = [
 
 const orderRowId = (row: OrderRow) => row.id;
 
-const sortOrderRows = (rows: OrderRow[], descriptor: SortDescriptor): OrderRow[] => {
+const sortOrderRows = (rows: OrderRow[], descriptor: DemoSortDescriptor): OrderRow[] => {
   const column = descriptor.column;
   if (column === undefined) {
     return rows;
@@ -829,11 +835,11 @@ const sortOrderRows = (rows: OrderRow[], descriptor: SortDescriptor): OrderRow[]
 };
 
 const DataGridDemo = () => {
-  const [sortDescriptor, setSortDescriptor] = useState<SortDescriptor>({
+  const [sortDescriptor, setSortDescriptor] = useState<DemoSortDescriptor>({
     column: 'amount',
     direction: 'descending',
   });
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['20260612001']));
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001']));
   const [rowMessage, setRowMessage] = useState('双击行或按 Enter 可打开订单');
 
   // 受控排序：调用方据 descriptor 自行重排数据（服务端排序的本地等价）
@@ -1373,7 +1379,7 @@ const ActionBarDefaultVariantDemo = () => {
 };
 
 const ActionBarWithDataGridVariantDemo = () => {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['20260612001']));
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001']));
   const [action, setAction] = useState('选择订单后执行批量操作');
   const count = selectedKeys === 'all' ? ORDER_ROWS.length : selectedKeys.size;
 
@@ -1577,7 +1583,7 @@ const DataGridAsyncLoadingVariantDemo = () => {
 };
 
 const DataGridBulkActionsVariantDemo = () => {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['u1', 'u2']));
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['u1', 'u2']));
   const [action, setAction] = useState('选择学员后可执行批量操作');
   const count = selectedKeys === 'all' ? STUDENT_ROWS.length : selectedKeys.size;
   const handleAssignClass = () => setAction(`已将 ${count} 名学员加入冲刺班`);
@@ -1755,7 +1761,7 @@ const EXPANDABLE_ROWS: ExpandableCourse[] = SIMPLE_COURSES.map((course) => ({
 }));
 
 const DataGridExpandableRowsVariantDemo = () => {
-  const [expanded, setExpanded] = useState<Key>('c1');
+  const [expanded, setExpanded] = useState<DemoKey>('c1');
   const columns: DataGridColumn<ExpandableCourse>[] = [
     {
       id: 'name',
@@ -2048,7 +2054,7 @@ type DemoFileNode = {
 };
 
 type DemoTreeNode = {
-  key: Key;
+  key: DemoKey;
   value: DemoFileNode;
   children: DemoTreeNode[] | null;
 };
@@ -2102,8 +2108,8 @@ type FileTreeVariant =
 
 const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   const [query, setQuery] = useState('course');
-  const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(new Set(['courses']));
-  const tree = useTreeData<DemoFileNode>({
+  const [expandedKeys, setExpandedKeys] = useState<Set<DemoKey>>(new Set(['courses']));
+  const tree = useFileTreeData<DemoFileNode>({
     initialItems: FILE_TREE_ITEMS,
     getKey: (item) => item.id,
     getChildren: (item) => item.children ?? [],
@@ -2962,7 +2968,7 @@ const KpiGroupVariantDemo = ({ variant }: { variant: 'horizontal' | 'vertical' |
 type ListViewVariantKey = 'default' | 'disabled-items' | 'secondary' | 'selection-modes' | 'with-actions';
 
 const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
-  const [selected, setSelected] = useState<Selection>(new Set(['1']));
+  const [selected, setSelected] = useState<DemoSelection>(new Set(['1']));
   const [message, setMessage] = useState('尚未操作');
 
   if (variant === 'selection-modes') {

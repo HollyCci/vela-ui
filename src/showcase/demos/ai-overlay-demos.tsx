@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
-import type { Key, Selection } from 'react-aria-components';
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
@@ -25,6 +24,9 @@ import PromptSuggestion from '../../components/prompt-suggestion';
 import Sheet from '../../components/sheet';
 import TextShimmer from '../../components/text-shimmer';
 import DemoSection from '../demo-section';
+
+type DemoKey = string | number;
+type DemoSelection = 'all' | Set<DemoKey>;
 
 const CHAT_MESSAGE_DEMO_ANSWER =
   '好的，这份报告的核心要点有三个：营收同比增长 18%、新客户留存率提升至 76%、华东区表现最为突出。';
@@ -570,7 +572,7 @@ const DropdownDemo = () => {
   const [isOpen, setIsOpen] = useState(true);
   const [lastAction, setLastAction] = useState('尚未选择');
 
-  const handleAction = useCallback((key: Key) => {
+  const handleAction = useCallback((key: DemoKey) => {
     setLastAction(DROPDOWN_ACTION_LABELS[String(key)] ?? String(key));
   }, []);
 
@@ -746,13 +748,13 @@ const STUDENT_ACTION_LABELS: Record<string, string> = {
 };
 
 const MenuItemDemo = () => {
-  const [sortKeys, setSortKeys] = useState<Selection>(new Set(['created']));
+  const [sortKeys, setSortKeys] = useState<DemoSelection>(new Set(['created']));
   const [lastAction, setLastAction] = useState('尚未操作');
 
-  const handleSortChange = useCallback((keys: Selection) => {
+  const handleSortChange = useCallback((keys: DemoSelection) => {
     setSortKeys(keys);
   }, []);
-  const handleStudentAction = useCallback((key: Key) => {
+  const handleStudentAction = useCallback((key: DemoKey) => {
     setLastAction(STUDENT_ACTION_LABELS[String(key)] ?? String(key));
   }, []);
 
@@ -859,9 +861,9 @@ const CHAT_LIST = [
 ];
 
 const ChatListViewDemo = () => {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['1']));
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['1']));
 
-  const handleSelectionChange = (keys: Selection) => setSelectedKeys(keys);
+  const handleSelectionChange = (keys: DemoSelection) => setSelectedKeys(keys);
   const current = selectedKeys === 'all' ? 'all' : [...selectedKeys][0];
 
   return (
@@ -1192,7 +1194,7 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
 type ChatListViewVariant = 'compact' | 'default';
 
 const ChatListViewVariantDemo = ({ variant }: { variant: ChatListViewVariant }) => {
-  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['2']));
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['2']));
   const current = selectedKeys === 'all' ? 'all' : Array.from(selectedKeys)[0];
 
   return (
@@ -1751,7 +1753,7 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [emoji, setEmoji] = useState('😀');
   const [snapStep, setSnapStep] = useState(1);
-  const [professionKeys, setProfessionKeys] = useState<Selection>(new Set(['teacher']));
+  const [professionKeys, setProfessionKeys] = useState<DemoSelection>(new Set(['teacher']));
   const [actionMessage, setActionMessage] = useState('尚未执行动作');
   const [hasDeadline, setHasDeadline] = useState(false);
   const handleRegenerate = () => setActionMessage('已重新生成 Sheet 内消息');

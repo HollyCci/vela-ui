@@ -16,8 +16,9 @@ import {
   Tooltip,
   Toolbar,
 } from '../../components';
-import type { Key } from 'react-aria-components';
 import DemoSection from '../demo-section';
+
+type DemoKey = string | number;
 
 const SELECT_OPTIONS = [
   { id: 'react', label: 'React' },
@@ -27,8 +28,8 @@ const SELECT_OPTIONS = [
 ];
 
 const SelectDemo = () => {
-  const [framework, setFramework] = useState<Key | null>('react');
-  const handleChange = (value: Key | null) => setFramework(value);
+  const [framework, setFramework] = useState<DemoKey | null>('react');
+  const handleChange = (value: DemoKey | null) => setFramework(value);
   const current = SELECT_OPTIONS.find((o) => o.id === framework)?.label ?? '未选择';
 
   return (

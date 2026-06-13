@@ -22,12 +22,14 @@ import {
   TreeSection,
   TreeStateContext,
   useDragAndDrop,
+  useTreeData,
   type CollectionRenderer,
   type DragAndDropOptions,
   type DropPosition,
   type GridListSectionProps,
   type Key,
   type TreeData,
+  type TreeDataOptions,
   type TreeItemContentRenderProps,
   type TreeItemProps as RACTreeItemProps,
   type TreeItemRenderProps,
@@ -38,6 +40,9 @@ import clsx from 'clsx';
 
 export type FileTreeSize = 'sm' | 'md' | 'lg';
 export type FileTreeShowGuideLines = boolean | 'hover';
+export type FileTreeKey = Key;
+export type FileTreeData<T extends object> = TreeData<T>;
+export type FileTreeDataOptions<T extends object> = TreeDataOptions<T>;
 
 export type FileTreeProps<T extends object = object> = Omit<
   TreeProps<T>,
@@ -528,9 +533,15 @@ export function useFileTree<T extends FileTreeNode>({
   return { expandableKeys, filterTree, leaves };
 }
 
+export function useFileTreeData<T extends object>(
+  options: FileTreeDataOptions<T>,
+): FileTreeData<T> {
+  return useTreeData(options);
+}
+
 export type UseFileTreeDragOptions<T extends object> = {
-  /** RAC useTreeData 返回的可变树数据管理器 */
-  tree: TreeData<T>;
+  /** useFileTreeData 返回的可变树数据管理器 */
+  tree: FileTreeData<T>;
   /** 自定义拖拽数据，默认每个 key 序列化为 text/plain */
   getItems?: DragAndDropOptions['getItems'];
   /** 移动成功后的回调（原站 API） */

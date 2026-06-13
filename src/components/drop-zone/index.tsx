@@ -15,6 +15,7 @@ import {
   Button as RacButton,
   DropZone as RacDropZone,
   Text as RacText,
+  isFileDropItem,
   type ButtonProps as RacButtonProps,
   type DropZoneProps as RacDropZoneProps,
   type PressEvent,
@@ -27,6 +28,8 @@ import {
   type ProgressBarTrackProps,
 } from '@heroui/react';
 import clsx from 'clsx';
+
+export const isDropZoneFileItem = isFileDropItem;
 
 /** 根组件提供的 file picker context：Trigger 点击转发到隐藏 Input（原站 "Provides file picker context"） */
 type DropZoneFilePickerContextValue = {

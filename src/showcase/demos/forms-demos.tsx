@@ -1,5 +1,4 @@
 import { useState, type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode } from 'react';
-import { isFileDropItem, parseColor, type Color, type Key } from 'react-aria-components';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -15,14 +14,17 @@ import RadioButtonGroup from '../../components/radio-button-group';
 import NumberStepper from '../../components/number-stepper';
 import InlineSelect from '../../components/inline-select';
 import DropZone, {
+  isDropZoneFileItem,
   type DropZoneAreaProps,
   type DropZoneFileFormatIconColor,
 } from '../../components/drop-zone';
 import CellSwitch from '../../components/cell-switch';
 import CellSelect from '../../components/cell-select';
 import CellSlider from '../../components/cell-slider';
-import CellColorPicker from '../../components/cell-color-picker';
+import CellColorPicker, { parseCellColor, type CellColor } from '../../components/cell-color-picker';
 import DemoSection from '../demo-section';
+
+type DemoKey = string | number;
 
 const InputDemo = () => (
   <>
@@ -394,8 +396,8 @@ const SORT_OPTIONS = [
 ];
 
 const InlineSelectDemo = () => {
-  const [sortKey, setSortKey] = useState<Key | null>('created');
-  const handleSortChange = (value: Key | null) => setSortKey(value);
+  const [sortKey, setSortKey] = useState<DemoKey | null>('created');
+  const handleSortChange = (value: DemoKey | null) => setSortKey(value);
   const sortLabel = SORT_OPTIONS.find((option) => option.id === sortKey)?.label ?? '未选择';
 
   return (
@@ -657,7 +659,7 @@ const useDropZoneUploadFiles = () => {
 
   const handleDrop: NonNullable<DropZoneAreaProps['onDrop']> = (event) => {
     const batchId = Date.now().toString(36);
-    const uploadItems = event.items.filter(isFileDropItem);
+    const uploadItems = event.items.filter(isDropZoneFileItem);
 
     void Promise.all(
       uploadItems.map(async (item, index) => {
@@ -969,8 +971,8 @@ const SLOT_OPTIONS = [
 ];
 
 const CellSelectDemo = () => {
-  const [slot, setSlot] = useState<Key | null>('evening');
-  const handleSlotChange = (value: Key | null) => setSlot(value);
+  const [slot, setSlot] = useState<DemoKey | null>('evening');
+  const handleSlotChange = (value: DemoKey | null) => setSlot(value);
   const slotLabel = SLOT_OPTIONS.find((option) => option.id === slot)?.label ?? '未设置';
 
   return (
@@ -1126,8 +1128,8 @@ const colorPanelStyle = {
 } satisfies CSSProperties;
 
 const CellColorPickerDemo = () => {
-  const [accent, setAccent] = useState(() => parseColor('#3B82F6'));
-  const handleAccentChange = (color: Color) => setAccent(color);
+  const [accent, setAccent] = useState(() => parseCellColor('#3B82F6'));
+  const handleAccentChange = (color: CellColor) => setAccent(color);
 
   return (
     <DemoSection isColumn>
@@ -1309,12 +1311,12 @@ type CellSelectVariantSlug =
   | 'variants';
 
 const CellSelectVariantDemo = ({ variant }: { variant: CellSelectVariantSlug }) => {
-  const [slot, setSlot] = useState<Key | null>('afternoon');
-  const handleSlotChange = (value: Key | null) => setSlot(value);
+  const [slot, setSlot] = useState<DemoKey | null>('afternoon');
+  const handleSlotChange = (value: DemoKey | null) => setSlot(value);
   const slotLabel = SLOT_OPTIONS.find((option) => option.id === slot)?.label ?? '未设置';
   const width = variant === 'settings-group' ? 380 : 340;
 
-  const renderSlotSelect = (label: string, value?: Key | null) => (
+  const renderSlotSelect = (label: string, value?: DemoKey | null) => (
     <CellSelect
       aria-label={label}
       value={value}
@@ -1612,8 +1614,8 @@ const CellColorPickerField = ({
   withArea,
 }: {
   label: string;
-  value?: Color;
-  onChange?: (color: Color) => void;
+  value?: CellColor;
+  onChange?: (color: CellColor) => void;
   defaultValue?: string;
   variant?: 'default' | 'secondary';
   isDisabled?: boolean;
@@ -1634,8 +1636,8 @@ const CellColorPickerField = ({
 );
 
 const CellColorPickerVariantDemo = ({ variant }: { variant: CellColorPickerVariantSlug }) => {
-  const [accent, setAccent] = useState(() => parseColor('#3B82F6'));
-  const handleAccentChange = (color: Color) => setAccent(color);
+  const [accent, setAccent] = useState(() => parseCellColor('#3B82F6'));
+  const handleAccentChange = (color: CellColor) => setAccent(color);
 
   if (variant === 'settings-group') {
     return (
@@ -1979,8 +1981,8 @@ type InlineSelectVariantSlug =
   | 'team-switcher';
 
 const InlineSelectVariantDemo = ({ variant }: { variant: InlineSelectVariantSlug }) => {
-  const [team, setTeam] = useState<Key | null>('growth');
-  const handleTeamChange = (value: Key | null) => setTeam(value);
+  const [team, setTeam] = useState<DemoKey | null>('growth');
+  const handleTeamChange = (value: DemoKey | null) => setTeam(value);
   const teams = [
     { id: 'growth', label: '增长组' },
     { id: 'content', label: '内容组' },

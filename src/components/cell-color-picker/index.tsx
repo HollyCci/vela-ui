@@ -25,10 +25,18 @@ import {
   type ColorSwatchPickerProps,
   type ColorSwatchPickerSwatchProps,
 } from '@heroui/react';
-import { Button, ColorPickerStateContext, type ButtonProps } from 'react-aria-components';
+import {
+  Button,
+  ColorPickerStateContext,
+  parseColor,
+  type ButtonProps,
+  type Color,
+} from 'react-aria-components';
 import clsx from 'clsx';
 
 export type CellColorPickerVariant = 'default' | 'secondary';
+export type CellColor = Color;
+export const parseCellColor = parseColor;
 
 /**
  * 原站 API：根无独立 DOM 元素（OSS 在内部渲染 .color-picker div，data-slot 固定为

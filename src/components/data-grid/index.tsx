@@ -11,6 +11,10 @@ import clsx from 'clsx';
 
 type ColumnWidth = TableColumnProps['width'];
 
+export type DataGridKey = Key;
+export type DataGridSelection = Selection;
+export type DataGridSortDescriptor = SortDescriptor;
+export type DataGridSortDirection = SortDirection;
 export type DataGridVariant = 'primary' | 'secondary';
 export type DataGridAlign = 'start' | 'center' | 'end';
 
