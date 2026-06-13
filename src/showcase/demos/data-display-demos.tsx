@@ -1,11 +1,5 @@
 import { useState, type ReactNode } from 'react';
 import type { Key, Selection, SortDescriptor } from 'react-aria-components';
-import {
-  Button as UIButton,
-  Chip as UIChip,
-  Separator as UISeparator,
-  Tooltip as UITooltip,
-} from '@heroui/react';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Badge from '../../components/badge';
@@ -24,6 +18,8 @@ import Kanban, { useKanban, useKanbanColumn } from '../../components/kanban';
 import Kpi from '../../components/kpi';
 import KpiGroup from '../../components/kpi-group';
 import ListView from '../../components/list-view';
+import Separator from '../../components/separator';
+import Tooltip from '../../components/tooltip';
 import Widget from '../../components/widget';
 import DemoSection from '../demo-section';
 
@@ -227,18 +223,50 @@ const LIST_VIEW_FILES = [
   { id: '5', name: 'Customer interviews.mp4', size: '512 MB' },
 ];
 
+const summarizeNames = (names: string[]) => {
+  if (names.length === 0) {
+    return '未选择文件';
+  }
+  if (names.length <= 2) {
+    return names.join('、');
+  }
+  return `${names.slice(0, 2).join('、')} 等 ${names.length} 个文件`;
+};
+
 /** 原站「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
 const ListViewDemo = () => {
+  const [files, setFiles] = useState(LIST_VIEW_FILES);
   const [selected, setSelected] = useState<Selection>(new Set());
-  const count = selected === 'all' ? LIST_VIEW_FILES.length : selected.size;
-  const handleClear = () => setSelected(new Set());
+  const [actionMessage, setActionMessage] = useState('选择文件后可批量下载、移动或删除');
+  const [studentMessage, setStudentMessage] = useState('默认选中李子轩，陈雨桐不可选');
+  const count = selected === 'all' ? files.length : selected.size;
+  const selectedNames =
+    selected === 'all'
+      ? files.map((file) => file.name)
+      : files.filter((file) => selected.has(file.id)).map((file) => file.name);
+
+  const handleAction = (action: string) => {
+    setActionMessage(`已${action}：${summarizeNames(selectedNames)}`);
+  };
+
+  const handleDelete = () => {
+    const ids = selected === 'all' ? new Set(files.map((file) => file.id)) : selected;
+    setFiles((current) => current.filter((file) => !ids.has(file.id)));
+    setSelected(new Set());
+    setActionMessage(`已删除：${summarizeNames(selectedNames)}`);
+  };
+
+  const handleClear = () => {
+    setSelected(new Set());
+    setActionMessage('已清除选择');
+  };
 
   return (
     <>
       <DemoSection isColumn label="multiple selection + action bar">
         <ListView
           aria-label="Files"
-          items={LIST_VIEW_FILES}
+          items={files}
           selectedKeys={selected}
           selectionMode="multiple"
           style={{ width: 420 }}
@@ -256,39 +284,39 @@ const ListViewDemo = () => {
             </ListView.Item>
           )}
         </ListView>
+        <div style={{ fontSize: 13, color: 'var(--foreground)' }}>{actionMessage}</div>
         <ActionBar isOpen={count > 0}>
           <ActionBar.Prefix>
-            <UIChip color="accent" size="sm">
+            <Chip color="accent" size="sm">
               {count}
-            </UIChip>
+            </Chip>
             <ActionBar.Label>已选择</ActionBar.Label>
           </ActionBar.Prefix>
-          <UISeparator />
+          <Separator orientation="vertical" />
           <ActionBar.Content>
-            <UIButton size="sm" variant="ghost">
+            <Button size="sm" variant="ghost" onClick={() => handleAction('下载')}>
               下载
-            </UIButton>
-            <UIButton size="sm" variant="ghost">
+            </Button>
+            <Button size="sm" variant="ghost" onClick={() => handleAction('移动')}>
               移动
-            </UIButton>
-            <UIButton className="text-danger" size="sm" variant="ghost">
+            </Button>
+            <Button size="sm" variant="danger-soft" onClick={handleDelete}>
               删除
-            </UIButton>
+            </Button>
           </ActionBar.Content>
-          <UISeparator />
+          <Separator orientation="vertical" />
           <ActionBar.Suffix>
-            <UITooltip>
-              <UIButton
+            <Tooltip content="清除选择" placement="top">
+              <Button
                 aria-label="清除选择"
                 isIconOnly
                 size="sm"
                 variant="ghost"
-                onPress={handleClear}
+                onClick={handleClear}
               >
                 <XmarkIcon />
-              </UIButton>
-              <UITooltip.Content>清除选择</UITooltip.Content>
-            </UITooltip>
+              </Button>
+            </Tooltip>
           </ActionBar.Suffix>
         </ActionBar>
       </DemoSection>
@@ -309,9 +337,16 @@ const ListViewDemo = () => {
               </div>
             </ListView.ItemContent>
             <ListView.ItemAction>
-              <UIButton size="sm" variant="ghost">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setStudentMessage('已安排王晓萌的辅导跟进');
+                }}
+              >
                 辅导
-              </UIButton>
+              </Button>
             </ListView.ItemAction>
           </ListView.Item>
           <ListView.Item id="s2" textValue="李子轩">
@@ -322,9 +357,16 @@ const ListViewDemo = () => {
               </div>
             </ListView.ItemContent>
             <ListView.ItemAction>
-              <UIButton size="sm" variant="ghost">
+              <Button
+                size="sm"
+                variant="ghost"
+                onClick={(event) => {
+                  event.stopPropagation();
+                  setStudentMessage('已安排李子轩的辅导跟进');
+                }}
+              >
                 辅导
-              </UIButton>
+              </Button>
             </ListView.ItemAction>
           </ListView.Item>
           <ListView.Item id="s3" textValue="陈雨桐">
@@ -336,6 +378,7 @@ const ListViewDemo = () => {
             </ListView.ItemContent>
           </ListView.Item>
         </ListView>
+        <div style={{ fontSize: 13, color: 'var(--foreground)' }}>{studentMessage}</div>
       </DemoSection>
     </>
   );
@@ -360,58 +403,191 @@ const EmptyStateDemo = () => (
   </DemoSection>
 );
 
-const WidgetDemo = () => (
-  <DemoSection isColumn>
-    <Widget style={{ width: 420 }}>
-      <Widget.Header>
-        <Widget.Title>学习时长分布</Widget.Title>
-        <Widget.Legend>
-          <Widget.LegendItem color="var(--chart-1)">句型训练</Widget.LegendItem>
-          <Widget.LegendItem color="var(--chart-2)">阅读</Widget.LegendItem>
-          <Widget.LegendItem color="var(--chart-3)">拼写</Widget.LegendItem>
-        </Widget.Legend>
-      </Widget.Header>
-      <Widget.Content>
-        <div style={{ height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 12 }}>
-          图表占位区域
-        </div>
-      </Widget.Content>
-      <Widget.Footer>
-        <span style={{ fontSize: 12, color: 'var(--muted)' }}>数据每小时更新</span>
-        <Button size="sm" variant="ghost">
-          导出
-        </Button>
-      </Widget.Footer>
-    </Widget>
-    <Widget style={{ width: 420 }}>
-      <Widget.Header>
-        <Widget.Title>关键指标</Widget.Title>
-        <Widget.Description>近 30 天</Widget.Description>
-      </Widget.Header>
-      <Widget.Content>
-        <KpiGroup orientation="horizontal">
-          <Kpi>
-            <Kpi.Header>
-              <Kpi.Title>活跃学员</Kpi.Title>
-            </Kpi.Header>
-            <Kpi.Content>
-              <Kpi.Value>5,214</Kpi.Value>
-            </Kpi.Content>
-          </Kpi>
-          <KpiGroup.Separator />
-          <Kpi>
-            <Kpi.Header>
-              <Kpi.Title>新增课程</Kpi.Title>
-            </Kpi.Header>
-            <Kpi.Content>
-              <Kpi.Value>36</Kpi.Value>
-            </Kpi.Content>
-          </Kpi>
-        </KpiGroup>
-      </Widget.Content>
-    </Widget>
-  </DemoSection>
-);
+const WIDGET_SEGMENTS = [
+  { key: 'patterns', label: '句型训练', color: 'var(--chart-1)' },
+  { key: 'reading', label: '阅读', color: 'var(--chart-2)' },
+  { key: 'spelling', label: '拼写', color: 'var(--chart-3)' },
+] as const;
+
+type WidgetMetric = (typeof WIDGET_SEGMENTS)[number]['key'];
+type WidgetRange = 'week' | 'month';
+type WidgetPoint = { label: string } & Record<WidgetMetric, number>;
+
+const WIDGET_SERIES: Record<
+  WidgetRange,
+  { label: string; updated: string; points: WidgetPoint[] }
+> = {
+  week: {
+    label: '本周',
+    updated: '数据每小时更新',
+    points: [
+      { label: '一', patterns: 28, reading: 42, spelling: 18 },
+      { label: '二', patterns: 36, reading: 38, spelling: 24 },
+      { label: '三', patterns: 30, reading: 52, spelling: 20 },
+      { label: '四', patterns: 44, reading: 48, spelling: 28 },
+      { label: '五', patterns: 40, reading: 56, spelling: 34 },
+      { label: '六', patterns: 24, reading: 32, spelling: 18 },
+      { label: '日', patterns: 18, reading: 28, spelling: 16 },
+    ],
+  },
+  month: {
+    label: '近 30 天',
+    updated: '按周汇总',
+    points: [
+      { label: 'W1', patterns: 168, reading: 214, spelling: 92 },
+      { label: 'W2', patterns: 182, reading: 236, spelling: 108 },
+      { label: 'W3', patterns: 204, reading: 258, spelling: 126 },
+      { label: 'W4', patterns: 196, reading: 242, spelling: 118 },
+    ],
+  },
+};
+
+const WidgetDemo = () => {
+  const [range, setRange] = useState<WidgetRange>('week');
+  const series = WIDGET_SERIES[range];
+  const totals = series.points.map((point) =>
+    WIDGET_SEGMENTS.reduce((sum, segment) => sum + point[segment.key], 0),
+  );
+  const maxTotal = Math.max(...totals, 1);
+  const totalMinutes = totals.reduce((sum, value) => sum + value, 0);
+  const averageMinutes = Math.round(totalMinutes / series.points.length);
+
+  return (
+    <DemoSection isColumn>
+      <Widget style={{ width: 420 }}>
+        <Widget.Header>
+          <Widget.Title>学习时长分布</Widget.Title>
+          <Widget.Legend>
+            {WIDGET_SEGMENTS.map((segment) => (
+              <Widget.LegendItem key={segment.key} color={segment.color}>
+                {segment.label}
+              </Widget.LegendItem>
+            ))}
+          </Widget.Legend>
+        </Widget.Header>
+        <Widget.Content>
+          <div
+            aria-label={`${series.label}学习时长分布`}
+            style={{
+              minHeight: 128,
+              display: 'flex',
+              alignItems: 'end',
+              gap: 14,
+              paddingTop: 8,
+            }}
+          >
+            {series.points.map((point, index) => {
+              const total = totals[index] ?? 0;
+              return (
+                <div
+                  key={point.label}
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <div
+                    title={`${point.label}：${total} 分钟`}
+                    style={{
+                      height: 96,
+                      width: '100%',
+                      maxWidth: 34,
+                      borderRadius: 8,
+                      background: 'var(--surface-secondary)',
+                      display: 'flex',
+                      alignItems: 'end',
+                      overflow: 'hidden',
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: '100%',
+                        height: `${Math.max((total / maxTotal) * 100, 6)}%`,
+                        display: 'flex',
+                        flexDirection: 'column-reverse',
+                      }}
+                    >
+                      {WIDGET_SEGMENTS.map((segment) => {
+                        const value = point[segment.key];
+                        return (
+                          <span
+                            key={segment.key}
+                            aria-hidden="true"
+                            style={{
+                              height: total > 0 ? `${(value / total) * 100}%` : 0,
+                              background: segment.color,
+                            }}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
+                  <span style={{ fontSize: 12, color: 'var(--muted)' }}>{point.label}</span>
+                </div>
+              );
+            })}
+          </div>
+        </Widget.Content>
+        <Widget.Footer style={{ flexWrap: 'wrap' }}>
+          <span style={{ flex: 1, minWidth: 180, fontSize: 12, color: 'var(--muted)' }}>
+            {series.updated} · 共 {totalMinutes} 分钟 · 均值 {averageMinutes} 分钟
+          </span>
+          <div style={{ display: 'flex', gap: 4, marginLeft: 'auto' }}>
+            <Button
+              aria-pressed={range === 'week'}
+              data-pressed={range === 'week' ? 'true' : undefined}
+              size="sm"
+              variant={range === 'week' ? 'secondary' : 'ghost'}
+              onClick={() => setRange('week')}
+            >
+              本周
+            </Button>
+            <Button
+              aria-pressed={range === 'month'}
+              data-pressed={range === 'month' ? 'true' : undefined}
+              size="sm"
+              variant={range === 'month' ? 'secondary' : 'ghost'}
+              onClick={() => setRange('month')}
+            >
+              近 30 天
+            </Button>
+          </div>
+        </Widget.Footer>
+      </Widget>
+      <Widget style={{ width: 420 }}>
+        <Widget.Header>
+          <Widget.Title>关键指标</Widget.Title>
+          <Widget.Description>{series.label}</Widget.Description>
+        </Widget.Header>
+        <Widget.Content>
+          <KpiGroup orientation="horizontal">
+            <Kpi>
+              <Kpi.Header>
+                <Kpi.Title>活跃学员</Kpi.Title>
+              </Kpi.Header>
+              <Kpi.Content>
+                <Kpi.Value>{range === 'week' ? '1,486' : '5,214'}</Kpi.Value>
+              </Kpi.Content>
+            </Kpi>
+            <KpiGroup.Separator />
+            <Kpi>
+              <Kpi.Header>
+                <Kpi.Title>新增课程</Kpi.Title>
+              </Kpi.Header>
+              <Kpi.Content>
+                <Kpi.Value>{range === 'week' ? '9' : '36'}</Kpi.Value>
+              </Kpi.Content>
+            </Kpi>
+          </KpiGroup>
+        </Widget.Content>
+      </Widget>
+    </DemoSection>
+  );
+};
 
 const FileTreeDemo = () => {
   const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(
@@ -499,13 +675,19 @@ const setKanbanColumn = (task: KanbanTask, column: string): KanbanTask => ({
 type KanbanColumnViewProps = {
   kanban: ReturnType<typeof useKanban<KanbanTask>>;
   column: { id: string; title: string; color: string };
+  actions?: ReactNode;
 };
 
-const KanbanColumnView = ({ kanban, column }: KanbanColumnViewProps) => {
+const KanbanColumnView = ({ kanban, column, actions }: KanbanColumnViewProps) => {
   const { items, dragAndDropHooks } = useKanbanColumn(kanban, column.id);
   return (
     <Kanban.Column>
-      <Kanban.ColumnHeader title={column.title} count={items.length} indicatorColor={column.color} />
+      <Kanban.ColumnHeader
+        title={column.title}
+        count={items.length}
+        indicatorColor={column.color}
+        actions={actions}
+      />
       <Kanban.ColumnBody>
         <Kanban.CardList
           aria-label={column.title}
@@ -532,21 +714,43 @@ const KanbanColumnView = ({ kanban, column }: KanbanColumnViewProps) => {
 const renderKanbanEmpty = () => <Kanban.Empty>拖拽卡片到此</Kanban.Empty>;
 
 const KanbanDemo = () => {
+  const [nextTaskIndex, setNextTaskIndex] = useState(7);
   const kanban = useKanban<KanbanTask>({
     initialItems: KANBAN_TASKS,
     getColumn: getKanbanColumn,
     setColumn: setKanbanColumn,
   });
 
+  const handleAddTask = () => {
+    kanban.addItem({
+      id: `t${nextTaskIndex}`,
+      title: `新跟进事项 #${nextTaskIndex}`,
+      status: 'todo',
+      priority: 'normal',
+    });
+    setNextTaskIndex((value) => value + 1);
+  };
+
   const distribution = KANBAN_COLUMNS.map(
     (column) => `${column.title} ${kanban.list.items.filter((task) => task.status === column.id).length}`,
   ).join(' · ');
 
   return (
-    <DemoSection isColumn label="多列 · HTML5 拖拽换列 / 列内排序（回显各列数量）">
+    <DemoSection isColumn label="多列 · 拖拽换列 / 列内排序 / 新增任务（回显各列数量）">
       <Kanban size="sm" style={{ width: 820 }}>
         {KANBAN_COLUMNS.map((column) => (
-          <KanbanColumnView key={column.id} kanban={kanban} column={column} />
+          <KanbanColumnView
+            key={column.id}
+            kanban={kanban}
+            column={column}
+            actions={
+              column.id === 'todo' ? (
+                <Button size="sm" variant="ghost" onClick={handleAddTask}>
+                  新增
+                </Button>
+              ) : undefined
+            }
+          />
         ))}
       </Kanban>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }}>当前分布：{distribution}</div>
@@ -612,6 +816,7 @@ const DataGridDemo = () => {
     direction: 'descending',
   });
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['20260612001']));
+  const [rowMessage, setRowMessage] = useState('双击行或按 Enter 可打开订单');
 
   // 受控排序：调用方据 descriptor 自行重排数据（服务端排序的本地等价）
   const rows = sortOrderRows(ORDER_ROWS, sortDescriptor);
@@ -636,10 +841,11 @@ const DataGridDemo = () => {
           onSelectionChange={setSelectedKeys}
           sortDescriptor={sortDescriptor}
           onSortChange={setSortDescriptor}
+          onRowAction={(key) => setRowMessage(`已打开订单 ${String(key)}`)}
         />
       </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
-        排序：{sortLabel} · 已选：{selectedLabel}
+        排序：{sortLabel} · 已选：{selectedLabel} · {rowMessage}
       </div>
       <div style={{ width: 720 }}>
         <DataGrid
