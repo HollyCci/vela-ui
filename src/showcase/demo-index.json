@@ -112,6 +112,9 @@
     "chat-list-view-compact",
     "chat-list-view-default"
   ],
+  "chat-loader": [
+    "chat-loader-default"
+  ],
   "chat-message-actions": [
     "chat-message-actions-custom-icons",
     "chat-message-actions-default",
