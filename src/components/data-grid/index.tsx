@@ -531,6 +531,42 @@ function DataGrid<TRow extends object>({
     setEditError(undefined);
   };
 
+  const commitCellValue = (
+    item: TRow,
+    rowKey: Key,
+    column: DataGridColumn<TRow>,
+    reason: DataGridCellEditCommitReason,
+    value: string,
+  ) => {
+    const previousValue = readValue(item, column);
+    let nextValue: unknown;
+
+    try {
+      nextValue = column.parse ? column.parse(value, item, column) : value;
+    } catch (error) {
+      setEditInputValue(value);
+      setEditingCell({ rowKey, columnId: column.id });
+      setEditError(error instanceof Error ? error.message : '请输入有效值');
+      focusEditorInput();
+      return false;
+    }
+
+    if (!Object.is(previousValue, nextValue)) {
+      onCellEdit?.({
+        row: item,
+        rowKey,
+        column,
+        columnId: column.id,
+        previousValue,
+        value: nextValue,
+        inputValue: value,
+        reason,
+      });
+    }
+
+    return true;
+  };
+
   const commitCellEdit = (
     item: TRow,
     rowKey: Key,
@@ -547,29 +583,7 @@ function DataGrid<TRow extends object>({
       return;
     }
 
-    const previousValue = readValue(item, column);
-    let nextValue: unknown;
-
-    try {
-      nextValue = column.parse ? column.parse(value, item, column) : value;
-    } catch (error) {
-      setEditError(error instanceof Error ? error.message : '请输入有效值');
-      focusEditorInput();
-      return;
-    }
-
-    if (!Object.is(previousValue, nextValue)) {
-      onCellEdit?.({
-        row: item,
-        rowKey,
-        column,
-        columnId: column.id,
-        previousValue,
-        value: nextValue,
-        inputValue: value,
-        reason,
-      });
-    }
+    if (!commitCellValue(item, rowKey, column, reason, value)) return;
 
     setEditingCell(null);
     setEditError(undefined);
@@ -980,8 +994,41 @@ function DataGrid<TRow extends object>({
           ) : (
             <input {...editorInputProps} />
           );
+          const inlineInputValue = formatCellValue(item, column, rawValue);
+          const handleInlineEditorKey = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+            event.stopPropagation();
+
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commitCellValue(item, rowKey, column, 'enter', event.currentTarget.value);
+              event.currentTarget.blur();
+              return;
+            }
+
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              event.currentTarget.value = inlineInputValue;
+              event.currentTarget.blur();
+            }
+          };
+          const inlineEditorNode = (
+            <input
+              key={`${String(rowKey)}:${column.id}:${inlineInputValue}`}
+              aria-label={`编辑 ${getColumnLabel(column)}`}
+              className="data-grid__cell-editor-input data-grid__cell-editor-input--preview"
+              defaultValue={inlineInputValue}
+              onBlur={(event) => {
+                commitCellValue(item, rowKey, column, 'blur', event.currentTarget.value);
+              }}
+              onClick={(event) => event.stopPropagation()}
+              onKeyDown={handleInlineEditorKey}
+              onKeyUp={handleInlineEditorKey}
+            />
+          );
           const cellNode = isEditing ? (
             editorNode
+          ) : isEditable && column.editor === undefined ? (
+            inlineEditorNode
           ) : isEditable ? (
             <span
               aria-label={`编辑 ${getColumnLabel(column)}`}

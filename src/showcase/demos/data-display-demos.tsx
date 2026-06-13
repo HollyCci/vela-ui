@@ -1743,17 +1743,6 @@ const DataGridEditableCellsVariantDemo = () => {
       editable: true,
       format: (value) => `${String(value)}%`,
       parse: parseProgress,
-      editor: ({ inputProps, setValue, value }) => (
-        <input
-          {...inputProps}
-          inputMode="numeric"
-          max={100}
-          min={0}
-          type="number"
-          value={value.replace(/%$/, '')}
-          onChange={(event) => setValue(event.currentTarget.value)}
-        />
-      ),
     },
   ];
 
