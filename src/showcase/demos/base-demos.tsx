@@ -17,10 +17,49 @@ import {
 import {
   Button as UIButton,
   Chip as UIChip,
+  ListBox,
+  Select,
   Separator as UISeparator,
   Tooltip as UITooltip,
 } from '@heroui/react';
+import type { Key } from 'react-aria-components';
 import DemoSection from '../demo-section';
+
+const SELECT_OPTIONS = [
+  { id: 'react', label: 'React' },
+  { id: 'vue', label: 'Vue' },
+  { id: 'svelte', label: 'Svelte' },
+  { id: 'solid', label: 'Solid' },
+];
+
+const SelectDemo = () => {
+  const [framework, setFramework] = useState<Key | null>('react');
+  const handleChange = (value: Key | null) => setFramework(value);
+  const current = SELECT_OPTIONS.find((o) => o.id === framework)?.label ?? '未选择';
+
+  return (
+    <DemoSection label="受控单选（点击打开真实弹层）">
+      <Select aria-label="框架" value={framework} onChange={handleChange} style={{ width: 220 }}>
+        <Select.Trigger>
+          <Select.Value />
+          <Select.Indicator />
+        </Select.Trigger>
+        <Select.Popover>
+          <ListBox>
+            {SELECT_OPTIONS.map((option) => (
+              <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+                {option.label}
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </Select.Popover>
+      </Select>
+      <span>当前：{current}</span>
+    </DemoSection>
+  );
+};
+SelectDemo.displayName = 'SelectDemo';
 
 const ButtonDemo = () => (
   <>
@@ -237,4 +276,5 @@ export const baseDemos: Record<string, ReactNode> = {
   separator: <SeparatorDemo />,
   toolbar: <ToolbarDemo />,
   'action-bar': <ActionBarDemo />,
+  select: <SelectDemo />,
 };
