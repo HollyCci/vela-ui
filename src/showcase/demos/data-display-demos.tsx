@@ -15,7 +15,7 @@ import Chip from '../../components/chip';
 import DataGrid, { type DataGridColumn } from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
 import FileTree, { type FileTreeNode } from '../../components/file-tree';
-import FloatingToc, { type FloatingTocItem } from '../../components/floating-toc';
+import FloatingToc from '../../components/floating-toc';
 import HoverCard from '../../components/hover-card';
 import ItemCard from '../../components/item-card';
 import ItemCardGroup from '../../components/item-card-group';
@@ -518,7 +518,9 @@ const CarouselDemo = () => {
   );
 };
 
-const TOC_ITEMS: FloatingTocItem[] = [
+type TocEntry = { key: string; label: string; level?: number };
+
+const TOC_ITEMS: TocEntry[] = [
   { key: 'overview', label: '运营概览', level: 1 },
   { key: 'students', label: '学员数据', level: 2 },
   { key: 'orders', label: '订单数据', level: 2 },
@@ -526,34 +528,74 @@ const TOC_ITEMS: FloatingTocItem[] = [
   { key: 'faq', label: '常见问题', level: 1 },
 ];
 
+type TocDemoItemProps = {
+  entry: TocEntry;
+  isActive: boolean;
+  onSelect: (key: string) => void;
+};
+
+const TocDemoItem = ({ entry, isActive, onSelect }: TocDemoItemProps) => {
+  const handlePress = () => {
+    onSelect(entry.key);
+  };
+  return (
+    <FloatingToc.Item active={isActive} level={entry.level} onPress={handlePress}>
+      {entry.label}
+    </FloatingToc.Item>
+  );
+};
+
 const FloatingTocDemo = () => {
   const [activeKey, setActiveKey] = useState('students');
   return (
-    <DemoSection label="hover 展开">
-      <div style={{ padding: '8px 120px 8px 8px' }}>
-        <FloatingToc
-          items={TOC_ITEMS}
-          activeKey={activeKey}
-          placement="left"
-          onSelect={setActiveKey}
-        />
+    <DemoSection label="hover 展开 · 点击高亮当前章节">
+      <div style={{ padding: '8px 160px 8px 8px' }}>
+        <FloatingToc placement="left" openDelay={200} closeDelay={300}>
+          <FloatingToc.Trigger>
+            {TOC_ITEMS.map((entry) => (
+              <FloatingToc.Bar
+                key={entry.key}
+                active={entry.key === activeKey}
+                level={entry.level}
+              />
+            ))}
+          </FloatingToc.Trigger>
+          <FloatingToc.Content>
+            {TOC_ITEMS.map((entry) => (
+              <TocDemoItem
+                key={entry.key}
+                entry={entry}
+                isActive={entry.key === activeKey}
+                onSelect={setActiveKey}
+              />
+            ))}
+          </FloatingToc.Content>
+        </FloatingToc>
       </div>
     </DemoSection>
   );
 };
 
 const HoverCardDemo = () => (
-  <DemoSection label="hover 触发">
-    <HoverCard
-      trigger={<Chip color="accent">学员：王晓萌</Chip>}
-      placement="bottom"
-    >
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 200 }}>
-        <strong style={{ fontSize: 14 }}>王晓萌</strong>
-        <span style={{ fontSize: 12, color: 'var(--muted)' }}>雅思 7 分计划 · 学习第 12 天</span>
-        <span style={{ fontSize: 12, color: 'var(--muted)' }}>带班老师：周老师</span>
-      </div>
-    </HoverCard>
+  <DemoSection label="hover 触发（300ms 打开 / 200ms 关闭）· 含箭头">
+    <p style={{ margin: 0, fontSize: 14, lineHeight: '32px' }}>
+      本周之星：
+      <HoverCard openDelay={300} closeDelay={200}>
+        <HoverCard.Trigger>
+          <Chip color="accent">学员：王晓萌</Chip>
+        </HoverCard.Trigger>
+        <HoverCard.Content placement="bottom">
+          <HoverCard.Arrow />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 200 }}>
+            <strong style={{ fontSize: 14 }}>王晓萌</strong>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+              雅思 7 分计划 · 学习第 12 天
+            </span>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>带班老师：周老师</span>
+          </div>
+        </HoverCard.Content>
+      </HoverCard>
+    </p>
   </DemoSection>
 );
 
