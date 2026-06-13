@@ -1,4 +1,11 @@
-import { useRef, useState, type CSSProperties, type Key as ReactKey, type ReactNode } from 'react';
+import {
+  useRef,
+  useState,
+  type CSSProperties,
+  type Key as ReactKey,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import type { Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
@@ -16,6 +23,7 @@ import ProgressBar from '../../components/progress-bar';
 import ProgressCircle from '../../components/progress-circle';
 import Rating from '../../components/rating';
 import Resizable from '../../components/resizable';
+import AppLayout from '../../components/app-layout';
 import Segment from '../../components/segment';
 import Stepper from '../../components/stepper';
 import Tabs from '../../components/tabs';
@@ -749,6 +757,68 @@ const ResizableDemo = () => {
   );
 };
 
+const APP_LAYOUT_NAV: { id: string; label: string }[] = [
+  { id: 'dashboard', label: '仪表盘' },
+  { id: 'students', label: '学员' },
+  { id: 'courses', label: '课程' },
+  { id: 'settings', label: '设置' },
+];
+
+const AppLayoutDemo = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [active, setActive] = useState('dashboard');
+
+  const handleToggle = () => setSidebarOpen((v) => !v);
+  const handleNav = (e: MouseEvent<HTMLButtonElement>) => {
+    const id = e.currentTarget.dataset.id;
+    if (id) setActive(id);
+  };
+
+  return (
+    <DemoSection isColumn>
+      <AppLayout
+        sidebarOpen={sidebarOpen}
+        onSidebarOpenChange={setSidebarOpen}
+        style={{
+          width: 760,
+          height: 380,
+          border: '1px solid var(--separator)',
+          borderRadius: 12,
+          overflow: 'hidden',
+        }}
+        sidebar={
+          <nav style={{ display: 'flex', flexDirection: 'column', gap: 4, padding: 12, width: 200 }}>
+            {APP_LAYOUT_NAV.map((item) => (
+              <Button
+                key={item.id}
+                data-id={item.id}
+                size="sm"
+                variant={item.id === active ? 'secondary' : 'ghost'}
+                isFullWidth
+                onClick={handleNav}
+              >
+                {item.label}
+              </Button>
+            ))}
+          </nav>
+        }
+        navbar={
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 52, padding: '0 16px' }}>
+            <Button size="sm" variant="ghost" onClick={handleToggle}>
+              {sidebarOpen ? '收起侧栏' : '展开侧栏'}
+            </Button>
+            <span style={{ fontWeight: 600 }}>{APP_LAYOUT_NAV.find((n) => n.id === active)?.label}</span>
+          </div>
+        }
+      >
+        <div style={{ padding: 24, color: 'var(--muted)' }}>
+          主内容区 · 当前：{active} · 侧栏{sidebarOpen ? '展开' : '收起'}
+        </div>
+      </AppLayout>
+    </DemoSection>
+  );
+};
+
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
   'progress-circle': <ProgressCircleDemo />,
@@ -770,4 +840,5 @@ export const feedbackNavDemos: Record<string, ReactNode> = {
   command: <CommandDemo />,
   'context-menu': <ContextMenuDemo />,
   resizable: <ResizableDemo />,
+  'app-layout': <AppLayoutDemo />,
 };
