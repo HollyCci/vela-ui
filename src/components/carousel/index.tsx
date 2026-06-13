@@ -7,12 +7,10 @@ import {
   useContext,
   useEffect,
   useMemo,
-  useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
-  type RefObject,
 } from 'react';
 import {
   Button as UIButton,
@@ -21,37 +19,24 @@ import {
   type ScrollShadowProps,
 } from '@heroui/react';
 import { Button as RACButton, type ButtonProps as RACButtonProps } from 'react-aria-components';
+import useEmblaCarousel, { type EmblaViewportRefType } from 'embla-carousel-react';
+import type { EmblaCarouselType, EmblaOptionsType, EmblaPluginType } from 'embla-carousel';
 import clsx from 'clsx';
 
 export type CarouselLayoutType = 'in-place' | 'modal' | 'miniatures';
 
-/** 滚动行为选项（对应原站 Embla opts 的常用子集；本仓库无 embla 依赖，用原生滚动实现） */
-export type CarouselOptions = {
-  /** 到达边界后从另一端继续 */
-  loop?: boolean;
-  /** 初始激活索引 */
-  startIndex?: number;
-};
-
-/** 暴露给 setApi / useCarousel 的编程式控制接口（对应原站 Embla API 的常用子集） */
-export type CarouselApi = {
-  scrollPrev: () => void;
-  scrollNext: () => void;
-  scrollTo: (index: number) => void;
-  canScrollPrev: () => boolean;
-  canScrollNext: () => boolean;
-  selectedScrollSnap: () => number;
-  scrollSnapList: () => number[];
-};
+/** 原站 setApi / useCarousel 暴露的就是真实 Embla API 实例 */
+export type CarouselApi = EmblaCarouselType;
 
 export type CarouselProps = HTMLAttributes<HTMLDivElement> & {
   /** 导航按钮布局类型（原站 API，默认 in-place） */
   type?: CarouselLayoutType;
-  opts?: CarouselOptions;
-  /** 仅为原站 API 兼容占位；无 embla 依赖，插件（如 autoplay）不生效 */
-  plugins?: unknown[];
-  /** 获取编程式控制 API（原站 setApi） */
-  setApi?: (api: CarouselApi) => void;
+  /** 传给底座 Embla 的选项（loop / startIndex / align / dragFree / axis 等） */
+  opts?: EmblaOptionsType;
+  /** Embla 插件（如 embla-carousel-autoplay），原站 API */
+  plugins?: EmblaPluginType[];
+  /** 拿到底座 Embla API 实例（原站 setApi） */
+  setApi?: (api: EmblaCarouselType) => void;
 };
 
 export type CarouselContentProps = HTMLAttributes<HTMLDivElement>;
@@ -71,10 +56,7 @@ export type CarouselDotsProps = HTMLAttributes<HTMLDivElement> & {
 
 export type CarouselThumbnailsProps = Omit<ScrollShadowProps, 'orientation'>;
 
-export type CarouselThumbnailProps = Omit<
-  RACButtonProps,
-  'className' | 'style' | 'children'
-> & {
+export type CarouselThumbnailProps = Omit<RACButtonProps, 'className' | 'style' | 'children'> & {
   /** 该缩略图跳转的幻灯片索引（原站 API，必填，0 起） */
   index: number;
   /** 缩略图图片地址；也可改用 children 自定义内容 */
@@ -87,7 +69,8 @@ export type CarouselThumbnailProps = Omit<
 
 type CarouselContextValue = {
   layoutType: CarouselLayoutType;
-  api: CarouselApi;
+  emblaApi: EmblaCarouselType | undefined;
+  viewportRef: EmblaViewportRefType;
   selectedIndex: number;
   scrollSnapCount: number;
   canScrollPrev: boolean;
@@ -95,9 +78,6 @@ type CarouselContextValue = {
   scrollPrev: () => void;
   scrollNext: () => void;
   scrollTo: (index: number) => void;
-  viewportRef: RefObject<HTMLDivElement | null>;
-  handleViewportScroll: () => void;
-  syncSnapState: () => void;
 };
 
 const CarouselContext = createContext<CarouselContextValue | null>(null);
@@ -110,9 +90,9 @@ const useCarouselContext = (): CarouselContextValue => {
   return context;
 };
 
-/** 原站 useCarousel hook：在任意后代组件中访问轮播上下文 */
+/** 原站 useCarousel hook：在任意后代组件中访问轮播上下文（api 为真实 Embla 实例） */
 export function useCarousel(): {
-  api: CarouselApi;
+  api: EmblaCarouselType | undefined;
   selectedIndex: number;
   scrollSnapCount: number;
   canScrollPrev: boolean;
@@ -122,7 +102,7 @@ export function useCarousel(): {
   scrollTo: (index: number) => void;
 } {
   const {
-    api,
+    emblaApi,
     selectedIndex,
     scrollSnapCount,
     canScrollPrev,
@@ -132,7 +112,7 @@ export function useCarousel(): {
     scrollTo,
   } = useCarouselContext();
   return {
-    api,
+    api: emblaApi,
     selectedIndex,
     scrollSnapCount,
     canScrollPrev,
@@ -167,23 +147,13 @@ const ChevronRightIcon = () => (
 );
 ChevronRightIcon.displayName = 'Carousel.ChevronRightIcon';
 
-/** 滚动容器 + 弹性内容区；幻灯片数量变化时同步 snap 状态 */
+/** 视口（Embla ref 目标，overflow hidden）+ 弹性内容容器（Embla 平移它，承载各 slide） */
 const Content = forwardRef<HTMLDivElement, CarouselContentProps>(
   ({ className, children, ...rest }, ref) => {
-    const { viewportRef, handleViewportScroll, syncSnapState } = useCarouselContext();
-
-    // 无依赖数组：每次渲染后同步（setState 值未变化时 React 自动跳过重渲染）
-    useEffect(() => {
-      syncSnapState();
-    });
+    const { viewportRef } = useCarouselContext();
 
     return (
-      <div
-        ref={viewportRef}
-        className="carousel__viewport"
-        data-slot="carousel-viewport"
-        onScroll={handleViewportScroll}
-      >
+      <div ref={viewportRef} className="carousel__viewport" data-slot="carousel-viewport">
         <div
           ref={ref}
           className={clsx('carousel__content', className)}
@@ -352,173 +322,73 @@ const Thumbnail = ({ index, src, alt = '', children, className, ...rest }: Carou
 Thumbnail.displayName = 'Carousel.Thumbnail';
 
 /**
- * 轮播根组件。原站底座是 Embla（本仓库不可用），此处以原生滚动等价实现：
- * 视口 overflow hidden + 程序化 scrollTo 平滑滚动，索引/边界状态由 scroll 事件回算。
- * 与原站一致：Content/Previous/Next 渲染进 viewport-wrapper，Dots/Thumbnails 在其后。
+ * 轮播根组件：底座为真实 Embla（embla-carousel-react）。
+ * 指针拖拽/惯性/吸附/loop/autoplay 插件均由 Embla 提供；本层只渲染原站 BEM 结构并把
+ * Embla 的选中/边界状态经 context 下发给按钮/圆点/缩略图。
+ * 与原站 DOM 一致：Content 与前后按钮渲染进 viewport-wrapper，Dots/Thumbnails 在其后。
  */
 const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
-  ({ type = 'in-place', opts, plugins: _plugins, setApi, className, children, ...rest }, ref) => {
-    const viewportRef = useRef<HTMLDivElement>(null);
-    const loop = opts?.loop ?? false;
+  ({ type = 'in-place', opts, plugins, setApi, className, children, ...rest }, ref) => {
+    const [viewportRef, emblaApi] = useEmblaCarousel(opts, plugins);
+
     const [selectedIndex, setSelectedIndex] = useState(0);
-    const [scrollSnapCount, setScrollSnapCount] = useState(0);
-    const [atStart, setAtStart] = useState(true);
-    const [atEnd, setAtEnd] = useState(true);
+    const [scrollSnaps, setScrollSnaps] = useState<number[]>([]);
+    const [canScrollPrev, setCanScrollPrev] = useState(false);
+    const [canScrollNext, setCanScrollNext] = useState(false);
 
-    const canScrollPrev = loop ? scrollSnapCount > 1 : !atStart;
-    const canScrollNext = loop ? scrollSnapCount > 1 : !atEnd;
-
-    // 最新状态镜像：供稳定身份的命令式 API 读取
-    const latest = useRef({ selectedIndex, scrollSnapCount, canScrollPrev, canScrollNext, loop });
-    useEffect(() => {
-      latest.current = { selectedIndex, scrollSnapCount, canScrollPrev, canScrollNext, loop };
-    });
-    // 连续点击翻页时以目标索引为步进基准（滚动停稳后回归实际索引）
-    const targetIndexRef = useRef(0);
-
-    const getItems = useCallback((): HTMLElement[] => {
-      const viewport = viewportRef.current;
-      if (viewport === null) return [];
-      return Array.from(viewport.querySelectorAll<HTMLElement>('[data-slot="carousel-item"]'));
+    const onSelect = useCallback((api: EmblaCarouselType) => {
+      setSelectedIndex(api.selectedScrollSnap());
+      setCanScrollPrev(api.canScrollPrev());
+      setCanScrollNext(api.canScrollNext());
     }, []);
 
-    /** 由滚动位置回算激活索引与前后边界 */
-    const measure = useCallback(() => {
-      const viewport = viewportRef.current;
-      if (viewport === null) return;
-      const items = getItems();
-      setScrollSnapCount(items.length);
-      const maxScroll = Math.max(viewport.scrollWidth - viewport.clientWidth, 0);
-      setAtStart(viewport.scrollLeft <= 1);
-      setAtEnd(viewport.scrollLeft >= maxScroll - 1);
-      if (items.length === 0) return;
-      const base = items[0].offsetLeft;
-      let nearestIndex = 0;
-      let nearestDistance = Number.POSITIVE_INFINITY;
-      items.forEach((item, itemIndex) => {
-        const distance = Math.abs(item.offsetLeft - base - viewport.scrollLeft);
-        if (distance < nearestDistance) {
-          nearestDistance = distance;
-          nearestIndex = itemIndex;
-        }
-      });
-      setSelectedIndex(nearestIndex);
-    }, [getItems]);
-
-    const scrollToIndex = useCallback(
-      (index: number, behavior: ScrollBehavior = 'smooth') => {
-        const viewport = viewportRef.current;
-        const items = getItems();
-        if (viewport === null || items.length === 0) return;
-        const clamped = Math.min(Math.max(index, 0), items.length - 1);
-        targetIndexRef.current = clamped;
-        const maxScroll = Math.max(viewport.scrollWidth - viewport.clientWidth, 0);
-        const left = Math.min(items[clamped].offsetLeft - items[0].offsetLeft, maxScroll);
-        viewport.scrollTo({ left, behavior });
-      },
-      [getItems],
-    );
-
-    const scrollTo = useCallback(
-      (index: number) => {
-        scrollToIndex(index);
-      },
-      [scrollToIndex],
-    );
-
-    const scrollPrev = useCallback(() => {
-      const state = latest.current;
-      const previous = targetIndexRef.current - 1;
-      if (previous < 0) {
-        if (state.loop && state.scrollSnapCount > 1) scrollToIndex(state.scrollSnapCount - 1);
-        return;
-      }
-      scrollToIndex(previous);
-    }, [scrollToIndex]);
-
-    const scrollNext = useCallback(() => {
-      const state = latest.current;
-      const next = targetIndexRef.current + 1;
-      if (next > state.scrollSnapCount - 1) {
-        if (state.loop && state.scrollSnapCount > 1) scrollToIndex(0);
-        return;
-      }
-      scrollToIndex(next);
-    }, [scrollToIndex]);
-
-    const measureRafRef = useRef(0);
-    const settleTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-    const handleViewportScroll = useCallback(() => {
-      cancelAnimationFrame(measureRafRef.current);
-      measureRafRef.current = requestAnimationFrame(measure);
-      // 平滑滚动停稳后把步进基准对齐到实际索引
-      clearTimeout(settleTimerRef.current);
-      settleTimerRef.current = setTimeout(() => {
-        targetIndexRef.current = latest.current.selectedIndex;
-      }, 150);
-    }, [measure]);
-
-    useEffect(
-      () => () => {
-        cancelAnimationFrame(measureRafRef.current);
-        clearTimeout(settleTimerRef.current);
-      },
-      [],
-    );
-
-    const startIndex = opts?.startIndex ?? 0;
     useEffect(() => {
-      if (startIndex > 0) scrollToIndex(startIndex, 'auto');
-      measure();
-      // 仅初始化执行一次
-      // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const api = useMemo<CarouselApi>(
-      () => ({
-        scrollPrev,
-        scrollNext,
-        scrollTo,
-        canScrollPrev: () => latest.current.canScrollPrev,
-        canScrollNext: () => latest.current.canScrollNext,
-        selectedScrollSnap: () => latest.current.selectedIndex,
-        scrollSnapList: () =>
-          Array.from({ length: latest.current.scrollSnapCount }, (_, snapIndex) => snapIndex),
-      }),
-      [scrollPrev, scrollNext, scrollTo],
-    );
+      if (emblaApi === undefined) return undefined;
+      const handleReInit = (api: EmblaCarouselType) => {
+        setScrollSnaps(api.scrollSnapList());
+        onSelect(api);
+      };
+      handleReInit(emblaApi);
+      emblaApi.on('select', onSelect);
+      emblaApi.on('reInit', handleReInit);
+      return () => {
+        emblaApi.off('select', onSelect);
+        emblaApi.off('reInit', handleReInit);
+      };
+    }, [emblaApi, onSelect]);
 
     useEffect(() => {
-      setApi?.(api);
-    }, [setApi, api]);
+      if (emblaApi !== undefined) setApi?.(emblaApi);
+    }, [emblaApi, setApi]);
+
+    const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
+    const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
+    const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
     const contextValue = useMemo<CarouselContextValue>(
       () => ({
         layoutType: type,
-        api,
+        emblaApi,
+        viewportRef,
         selectedIndex,
-        scrollSnapCount,
+        scrollSnapCount: scrollSnaps.length,
         canScrollPrev,
         canScrollNext,
         scrollPrev,
         scrollNext,
         scrollTo,
-        viewportRef,
-        handleViewportScroll,
-        syncSnapState: measure,
       }),
       [
         type,
-        api,
+        emblaApi,
+        viewportRef,
         selectedIndex,
-        scrollSnapCount,
+        scrollSnaps.length,
         canScrollPrev,
         canScrollNext,
         scrollPrev,
         scrollNext,
         scrollTo,
-        handleViewportScroll,
-        measure,
       ],
     );
 
