@@ -62,7 +62,7 @@ If a new scope is needed, update this list before using it.
 
 Component and product areas:
 
-`base-components` `form-components` `data-display` `feedback` `navigation` `overlays` `ai-components` `chart-components`
+`base-components` `form-components` `data-display` `feedback` `layout` `navigation` `overlays` `ai-components` `chart-components`
 
 Showcase and asset areas:
 
@@ -70,7 +70,7 @@ Showcase and asset areas:
 
 Technical areas:
 
-`styles` `theme` `tokens` `fonts` `config` `deps` `scripts` `build` `release` `git` `security` `docs`
+`component-api` `styles` `theme` `tokens` `fonts` `config` `deps` `scripts` `build` `release` `git` `security` `docs`
 
 Rules:
 
