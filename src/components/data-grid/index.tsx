@@ -4,6 +4,8 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type InputHTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -51,6 +53,37 @@ export type DataGridVirtualRange = {
   total: number;
 };
 
+export type DataGridCellEditCommitReason = 'enter' | 'blur' | 'programmatic';
+export type DataGridCellEditCancelReason = 'escape' | 'programmatic';
+
+export type DataGridCellEditorInputProps = InputHTMLAttributes<HTMLInputElement> & {
+  ref: (node: HTMLInputElement | null) => void;
+};
+
+export type DataGridCellEditorProps<TRow> = {
+  row: TRow;
+  rowKey: Key;
+  column: DataGridColumn<TRow>;
+  rawValue: unknown;
+  value: string;
+  error?: string;
+  setValue: (value: string) => void;
+  commit: (value?: string) => void;
+  cancel: () => void;
+  inputProps: DataGridCellEditorInputProps;
+};
+
+export type DataGridCellEditEvent<TRow> = {
+  row: TRow;
+  rowKey: Key;
+  column: DataGridColumn<TRow>;
+  columnId: string;
+  previousValue: unknown;
+  value: unknown;
+  inputValue: string;
+  reason: DataGridCellEditCommitReason;
+};
+
 type DataGridDragPoint = Pick<MouseEvent | PointerEvent, 'clientX' | 'clientY'>;
 type DataGridPinnedStyle = CSSProperties & {
   '--data-grid-pinned-offset'?: string;
@@ -83,6 +116,14 @@ export type DataGridColumn<TRow> = {
   accessorKey?: keyof TRow & string;
   /** 自定义单元格渲染，收到完整行与列定义 */
   cell?: (item: TRow, column: DataGridColumn<TRow>) => ReactNode;
+  /** 是否允许编辑：true 或按行动态判断 */
+  editable?: boolean | ((item: TRow, column: DataGridColumn<TRow>) => boolean);
+  /** 自定义编辑器；不传时渲染内置 input */
+  editor?: (props: DataGridCellEditorProps<TRow>) => ReactNode;
+  /** 将输入字符串转为提交值；可 throw 以阻止提交并显示错误态 */
+  parse?: (value: string, item: TRow, column: DataGridColumn<TRow>) => unknown;
+  /** 将原始值格式化为展示文本与编辑初值 */
+  format?: (value: unknown, item: TRow, column: DataGridColumn<TRow>) => string;
   /** 标记为行头列（无障碍） */
   isRowHeader?: boolean;
   /** 允许排序（点列头切换 aria-sort） */
@@ -151,6 +192,8 @@ export type DataGridProps<TRow extends object> = Omit<
   defaultSortDescriptor?: SortDescriptor;
   /** 排序变化回调，受控/非受控均触发 */
   onSortChange?: (descriptor: SortDescriptor) => void;
+  /** 可编辑单元格提交回调；调用方据 rowKey/columnId/value 写回 data */
+  onCellEdit?: (event: DataGridCellEditEvent<TRow>) => void;
   /** 行被触发（双击/Enter）回调 */
   onRowAction?: (key: Key) => void;
   /** 禁用行 key */
@@ -197,18 +240,28 @@ const readValue = <TRow,>(item: TRow, column: DataGridColumn<TRow>): unknown =>
     ? (item as Record<string, unknown>)[column.accessorKey]
     : undefined;
 
+const stringifyCellValue = (value: unknown): string => {
+  if (value === null || value === undefined) {
+    return '';
+  }
+  if (typeof value === 'string') {
+    return value;
+  }
+  return String(value);
+};
+
+const formatCellValue = <TRow,>(
+  item: TRow,
+  column: DataGridColumn<TRow>,
+  value = readValue(item, column),
+): string => (column.format ? column.format(value, item, column) : stringifyCellValue(value));
+
 const renderCell = <TRow,>(item: TRow, column: DataGridColumn<TRow>): ReactNode => {
   if (column.cell) {
     return column.cell(item, column);
   }
   const value = readValue(item, column);
-  if (value === null || value === undefined) {
-    return null;
-  }
-  if (typeof value === 'string' || typeof value === 'number') {
-    return value;
-  }
-  return String(value);
+  return column.format ? formatCellValue(item, column, value) : value === '' ? '' : stringifyCellValue(value);
 };
 
 const compareValues = (a: unknown, b: unknown): number => {
@@ -333,6 +386,7 @@ function DataGrid<TRow extends object>({
   sortDescriptor,
   defaultSortDescriptor,
   onSortChange,
+  onCellEdit,
   onRowAction,
   disabledKeys,
   renderEmptyState,
@@ -359,6 +413,15 @@ function DataGrid<TRow extends object>({
   const rowDragCleanupRef = useRef<(() => void) | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const onVirtualRangeChangeRef = useRef(onVirtualRangeChange);
+  const editingCellRef = useRef<{ rowKey: Key; columnId: string } | null>(null);
+  const editInputValueRef = useRef('');
+  const editInputRef = useRef<HTMLInputElement | null>(null);
+  const skipNextBlurCommitRef = useRef(false);
+  const [editingCell, setEditingCellState] = useState<{ rowKey: Key; columnId: string } | null>(
+    null,
+  );
+  const [editInputValue, setEditInputValueState] = useState('');
+  const [editError, setEditError] = useState<string | undefined>(undefined);
   const [virtualScrollTop, setVirtualScrollTop] = useState(0);
   const [virtualViewportHeight, setVirtualViewportHeight] = useState(
     typeof virtualMaxHeight === 'number' ? virtualMaxHeight : DEFAULT_VIRTUAL_MAX_HEIGHT,
@@ -421,6 +484,95 @@ function DataGrid<TRow extends object>({
   const handleSortChange = (descriptor: SortDescriptor) => {
     if (!isControlledSort) setInternalSortDescriptor(descriptor);
     onSortChange?.(descriptor);
+  };
+
+  const setEditingCell = (next: { rowKey: Key; columnId: string } | null) => {
+    editingCellRef.current = next;
+    setEditingCellState(next);
+  };
+
+  const setEditInputValue = (value: string) => {
+    editInputValueRef.current = value;
+    setEditInputValueState(value);
+  };
+
+  const isColumnEditable = (item: TRow, column: DataGridColumn<TRow>) =>
+    typeof column.editable === 'function' ? column.editable(item, column) : column.editable === true;
+
+  const getColumnLabel = (column: DataGridColumn<TRow>) => {
+    if (typeof column.header === 'string' || typeof column.header === 'number') {
+      return String(column.header);
+    }
+    return column.id;
+  };
+
+  const isEditingCell = (rowKey: Key, column: DataGridColumn<TRow>) =>
+    editingCell?.rowKey === rowKey && editingCell.columnId === column.id;
+
+  const focusEditorInput = () => {
+    window.setTimeout(() => {
+      editInputRef.current?.focus();
+      editInputRef.current?.select();
+    }, 0);
+  };
+
+  const startCellEdit = (item: TRow, rowKey: Key, column: DataGridColumn<TRow>) => {
+    if (!isColumnEditable(item, column)) return;
+    setEditError(undefined);
+    setEditInputValue(formatCellValue(item, column));
+    setEditingCell({ rowKey, columnId: column.id });
+    focusEditorInput();
+  };
+
+  const cancelCellEdit = (_reason: DataGridCellEditCancelReason) => {
+    if (editingCellRef.current === null) return;
+    skipNextBlurCommitRef.current = true;
+    setEditingCell(null);
+    setEditError(undefined);
+  };
+
+  const commitCellEdit = (
+    item: TRow,
+    rowKey: Key,
+    column: DataGridColumn<TRow>,
+    reason: DataGridCellEditCommitReason,
+    value = editInputValueRef.current,
+  ) => {
+    const activeCell = editingCellRef.current;
+    if (
+      activeCell === null ||
+      activeCell.rowKey !== rowKey ||
+      activeCell.columnId !== column.id
+    ) {
+      return;
+    }
+
+    const previousValue = readValue(item, column);
+    let nextValue: unknown;
+
+    try {
+      nextValue = column.parse ? column.parse(value, item, column) : value;
+    } catch (error) {
+      setEditError(error instanceof Error ? error.message : '请输入有效值');
+      focusEditorInput();
+      return;
+    }
+
+    if (!Object.is(previousValue, nextValue)) {
+      onCellEdit?.({
+        row: item,
+        rowKey,
+        column,
+        columnId: column.id,
+        previousValue,
+        value: nextValue,
+        inputValue: value,
+        reason,
+      });
+    }
+
+    setEditingCell(null);
+    setEditError(undefined);
   };
 
   const sortedData =
@@ -749,16 +901,115 @@ function DataGrid<TRow extends object>({
         )}
         {columns.map((column) => {
           const pinnedMeta = pinnedColumnMeta.get(column.id);
+          const isEditable = isColumnEditable(item, column);
+          const isEditing = isEditingCell(rowKey, column);
+          const rawValue = readValue(item, column);
+
+          const handleCellClick = (event: ReactMouseEvent<HTMLElement>) => {
+            if (!isEditable || isEditing) return;
+            event.stopPropagation();
+            startCellEdit(item, rowKey, column);
+          };
+
+          const handleCellKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
+            if (!isEditable || isEditing) return;
+            if (event.key !== 'Enter' && event.key !== 'F2') return;
+            event.preventDefault();
+            event.stopPropagation();
+            startCellEdit(item, rowKey, column);
+          };
+
+          const handleEditorKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
+            event.stopPropagation();
+
+            if (event.key === 'Enter') {
+              event.preventDefault();
+              commitCellEdit(item, rowKey, column, 'enter', event.currentTarget.value);
+              return;
+            }
+
+            if (event.key === 'Escape') {
+              event.preventDefault();
+              cancelCellEdit('escape');
+            }
+          };
+
+          const handleEditorBlur = () => {
+            if (skipNextBlurCommitRef.current) {
+              skipNextBlurCommitRef.current = false;
+              return;
+            }
+            commitCellEdit(item, rowKey, column, 'blur');
+          };
+
+          const editorInputProps: DataGridCellEditorInputProps = {
+            ref: (node) => {
+              editInputRef.current = node;
+            },
+            'aria-invalid': editError !== undefined || undefined,
+            'aria-label': `编辑 ${getColumnLabel(column)}`,
+            autoFocus: true,
+            className: 'data-grid__cell-editor-input',
+            title: editError,
+            value: editInputValue,
+            onBlur: handleEditorBlur,
+            onChange: (event) => {
+              setEditError(undefined);
+              setEditInputValue(event.currentTarget.value);
+            },
+            onClick: (event) => event.stopPropagation(),
+            onKeyDown: handleEditorKeyDown,
+          };
+
+          const editorNode = column.editor ? (
+            column.editor({
+              row: item,
+              rowKey,
+              column,
+              rawValue,
+              value: editInputValue,
+              error: editError,
+              setValue: (value) => {
+                setEditError(undefined);
+                setEditInputValue(value);
+              },
+              commit: (value) => commitCellEdit(item, rowKey, column, 'programmatic', value),
+              cancel: () => cancelCellEdit('programmatic'),
+              inputProps: editorInputProps,
+            })
+          ) : (
+            <input {...editorInputProps} />
+          );
+          const cellNode = isEditing ? (
+            editorNode
+          ) : isEditable ? (
+            <span
+              aria-label={`编辑 ${getColumnLabel(column)}`}
+              className="data-grid__editable-cell-trigger"
+              role="button"
+              tabIndex={0}
+              onClick={handleCellClick}
+              onKeyDown={handleCellKeyDown}
+            >
+              {renderCell(item, column)}
+            </span>
+          ) : (
+            renderCell(item, column)
+          );
+
           return (
             <Table.Cell
               key={column.id}
               data-align={column.align !== 'start' ? column.align : undefined}
+              data-editable={isEditable || undefined}
+              data-editing={isEditing || undefined}
               data-pinned={pinnedMeta?.side}
               data-pinned-boundary={pinnedMeta?.boundary}
-              className={column.cellClassName}
+              className={clsx(column.cellClassName, isEditable && 'data-grid__editable-cell')}
               style={getPinnedStyle(pinnedMeta)}
+              onClick={handleCellClick}
             >
-              {renderCell(item, column)}
+              {cellNode}
             </Table.Cell>
           );
         })}

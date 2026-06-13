@@ -8,7 +8,11 @@ import Carousel, { type CarouselApi } from '../../components/carousel';
 import ChartTooltip from '../../components/chart-tooltip';
 import Checkbox from '../../components/checkbox';
 import Chip from '../../components/chip';
-import DataGrid, { type DataGridColumn, type DataGridVirtualRange } from '../../components/data-grid';
+import DataGrid, {
+  type DataGridCellEditEvent,
+  type DataGridColumn,
+  type DataGridVirtualRange,
+} from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
 import FileTree, { useFileTree, useFileTreeData, useFileTreeDrag } from '../../components/file-tree';
 import FloatingToc from '../../components/floating-toc';
@@ -1682,30 +1686,73 @@ const DataGridDragAndDropVariantDemo = () => {
 
 const DataGridEditableCellsVariantDemo = () => {
   const [rows, setRows] = useState(SIMPLE_COURSES);
+  const [editMessage, setEditMessage] = useState('Enter 或失焦提交，Escape 取消。');
+
+  const parseProgress = (value: string) => {
+    const parsed = Number(value.trim().replace(/%$/, ''));
+
+    if (!Number.isFinite(parsed)) {
+      throw new Error('请输入 0-100 的数字');
+    }
+
+    return Math.min(100, Math.max(0, Math.round(parsed)));
+  };
+
+  const handleCellEdit = ({
+    row,
+    rowKey,
+    columnId,
+    value,
+    reason,
+  }: DataGridCellEditEvent<(typeof SIMPLE_COURSES)[number]>) => {
+    setRows((current) =>
+      current.map((course) => {
+        if (String(course.id) !== String(rowKey)) return course;
+
+        if (columnId === 'progress') {
+          return { ...course, progress: Number(value) };
+        }
+
+        if (columnId === 'owner') {
+          return { ...course, owner: String(value) };
+        }
+
+        if (columnId === 'name') {
+          return { ...course, name: String(value) };
+        }
+
+        return course;
+      }),
+    );
+
+    const label = columnId === 'progress' ? '掌握度' : columnId === 'owner' ? '负责人' : '课程';
+    const displayValue = columnId === 'progress' ? `${String(value)}%` : String(value);
+    setEditMessage(
+      `已${reason === 'blur' ? '失焦' : '回车'}提交：${row.name} 的${label}为 ${displayValue}`,
+    );
+  };
+
   const columns: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
-    { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true },
-    { id: 'owner', header: '负责人', accessorKey: 'owner' },
+    { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true, editable: true },
+    { id: 'owner', header: '负责人', accessorKey: 'owner', editable: true },
     {
       id: 'progress',
       header: '掌握度',
       accessorKey: 'progress',
       align: 'end',
-      cell: (row) => (
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() =>
-            setRows((current) =>
-              current.map((item) =>
-                item.id === row.id
-                  ? { ...item, progress: item.progress >= 90 ? 35 : item.progress + 10 }
-                  : item,
-              ),
-            )
-          }
-        >
-          {row.progress}%
-        </Button>
+      editable: true,
+      format: (value) => `${String(value)}%`,
+      parse: parseProgress,
+      editor: ({ inputProps, setValue, value }) => (
+        <input
+          {...inputProps}
+          inputMode="numeric"
+          max={100}
+          min={0}
+          type="number"
+          value={value.replace(/%$/, '')}
+          onChange={(event) => setValue(event.currentTarget.value)}
+        />
       ),
     },
   ];
@@ -1713,9 +1760,15 @@ const DataGridEditableCellsVariantDemo = () => {
   return (
     <DemoSection isColumn label="editable cells">
       <div style={{ width: 640 }}>
-        <DataGrid aria-label="可编辑课程" columns={columns} data={rows} getRowId={courseRowId} />
+        <DataGrid
+          aria-label="可编辑课程"
+          columns={columns}
+          data={rows}
+          getRowId={courseRowId}
+          onCellEdit={handleCellEdit}
+        />
       </div>
-      <span style={demoMutedStyle}>点击掌握度单元格更新数值。</span>
+      <span style={demoMutedStyle}>{editMessage}</span>
     </DemoSection>
   );
 };
