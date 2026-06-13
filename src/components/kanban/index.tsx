@@ -220,6 +220,7 @@ function CardListImpl<T extends object>({
   );
 
   const isEmpty = itemArray.length === 0;
+  const isDraggable = dragAndDropHooks !== undefined;
 
   const handleReorder = useCallback(
     (next: T[]) => {
@@ -243,24 +244,26 @@ function CardListImpl<T extends object>({
         return cloneElement(child, { key: renderKey(item) });
       });
 
+  const listProps = {
+    ref: listRef,
+    'data-slot': 'kanban-card-list',
+    'data-empty': isEmpty ? 'true' : undefined,
+    'data-kanban-column': dragAndDropHooks?.column,
+    'aria-label': ariaLabel,
+    role: 'list' as const,
+    className: clsx('kanban__card-list', `kanban__card-list--${size}`, className),
+    ...rest,
+  };
+
   return (
     <CardListContext.Provider value={contextValue as unknown as CardListContextValue<object>}>
-      <Reorder.Group
-        as="div"
-        ref={listRef}
-        axis="y"
-        values={itemArray}
-        onReorder={handleReorder}
-        data-slot="kanban-card-list"
-        data-empty={isEmpty ? 'true' : undefined}
-        data-kanban-column={dragAndDropHooks?.column}
-        aria-label={ariaLabel}
-        role="list"
-        className={clsx('kanban__card-list', `kanban__card-list--${size}`, className)}
-        {...rest}
-      >
-        {body}
-      </Reorder.Group>
+      {isDraggable ? (
+        <Reorder.Group as="div" axis="y" values={itemArray} onReorder={handleReorder} {...listProps}>
+          {body}
+        </Reorder.Group>
+      ) : (
+        <div {...listProps}>{body}</div>
+      )}
     </CardListContext.Provider>
   );
 }
@@ -314,8 +317,8 @@ function KanbanCardImpl<T extends object>({
     [dnd, value],
   );
 
-  // 没有列表上下文或拿不到对应值时，退化为静态卡片（保证 demo 仍能渲染）
-  if (ctx === null || value === undefined) {
+  // 没有拖拽适配器时退化为真实静态列表，避免出现拖动但不写回的伪交互。
+  if (ctx === null || value === undefined || dnd === undefined) {
     return (
       <div
         data-slot="kanban-card"
