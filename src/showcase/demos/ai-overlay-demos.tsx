@@ -13,6 +13,7 @@ import ChatTool from '../../components/chat-tool';
 import CodeBlock from '../../components/code-block';
 import Drawer from '../../components/drawer';
 import Dropdown from '../../components/dropdown';
+import EmojiPicker from '../../components/emoji-picker';
 import MenuItem from '../../components/menu-item';
 import Modal from '../../components/modal';
 import Popover from '../../components/popover';
@@ -516,31 +517,86 @@ const DropdownDemo = () => {
   );
 };
 
-const SheetDemo = () => {
-  const [isOpen, setIsOpen] = useState(false);
+const SheetDemo = () => (
+  <>
+    <DemoSection label="底部 Sheet（trigger 打开 / Esc 与遮罩关闭 / 拖拽手柄 / 焦点圈定）">
+      <Sheet placement="bottom">
+        <Sheet.Trigger variant="secondary">打开 Sheet</Sheet.Trigger>
+        <Sheet.Backdrop>
+          <Sheet.Content>
+            <Sheet.Dialog>
+              <Sheet.Handle />
+              <Sheet.Header>
+                <Sheet.Heading>筛选条件</Sheet.Heading>
+              </Sheet.Header>
+              <Sheet.Body>在这里选择课程类型、时间范围与负责老师。</Sheet.Body>
+              <Sheet.Footer>
+                <Sheet.Close variant="ghost">重置</Sheet.Close>
+                <Sheet.Close>应用</Sheet.Close>
+              </Sheet.Footer>
+              <Sheet.CloseTrigger aria-label="关闭" />
+            </Sheet.Dialog>
+          </Sheet.Content>
+        </Sheet.Backdrop>
+      </Sheet>
+    </DemoSection>
+    <DemoSection label="嵌套 Sheet（父面板中再打开右侧子面板）">
+      <Sheet placement="bottom">
+        <Sheet.Trigger variant="outline">打开父 Sheet</Sheet.Trigger>
+        <Sheet.Backdrop variant="blur">
+          <Sheet.Content>
+            <Sheet.Dialog>
+              <Sheet.Header>
+                <Sheet.Heading>父面板</Sheet.Heading>
+              </Sheet.Header>
+              <Sheet.Body>
+                <p>在父面板内部可以再唤起一个嵌套子面板。</p>
+                <Sheet.NestedRoot placement="right">
+                  <Sheet.Trigger size="sm">打开子 Sheet</Sheet.Trigger>
+                  <Sheet.Backdrop>
+                    <Sheet.Content>
+                      <Sheet.Dialog>
+                        <Sheet.Header>
+                          <Sheet.Heading>子面板</Sheet.Heading>
+                        </Sheet.Header>
+                        <Sheet.Body>这是从右侧滑出的嵌套子面板。</Sheet.Body>
+                        <Sheet.Footer>
+                          <Sheet.Close size="sm">完成</Sheet.Close>
+                        </Sheet.Footer>
+                        <Sheet.CloseTrigger aria-label="关闭子面板" />
+                      </Sheet.Dialog>
+                    </Sheet.Content>
+                  </Sheet.Backdrop>
+                </Sheet.NestedRoot>
+              </Sheet.Body>
+              <Sheet.CloseTrigger aria-label="关闭父面板" />
+            </Sheet.Dialog>
+          </Sheet.Content>
+        </Sheet.Backdrop>
+      </Sheet>
+    </DemoSection>
+  </>
+);
 
-  const handleOpen = useCallback(() => {
-    setIsOpen(true);
-  }, []);
-  const handleClose = useCallback(() => {
-    setIsOpen(false);
+const EMOJI_RECENT = ['😀', '👍', '🎉', '🔥'];
+
+const EmojiPickerDemo = () => {
+  const [picked, setPicked] = useState('尚未选择');
+
+  const handleEmojiSelect = useCallback((emoji: string) => {
+    setPicked(emoji);
   }, []);
 
   return (
-    <DemoSection label="底部 Sheet（带拖拽手柄）">
-      <Button onClick={handleOpen}>打开 Sheet</Button>
-      <Sheet isOpen={isOpen} onClose={handleClose} placement="bottom" hasHandle>
-        <Sheet.Header>
-          <Sheet.Heading>筛选条件</Sheet.Heading>
-        </Sheet.Header>
-        <Sheet.Body>在这里选择课程类型、时间范围与负责老师。</Sheet.Body>
-        <Sheet.Footer>
-          <Button variant="ghost" onClick={handleClose}>
-            重置
-          </Button>
-          <Button onClick={handleClose}>应用</Button>
-        </Sheet.Footer>
-      </Sheet>
+    <DemoSection
+      label="弹层选择器（切分类 / 搜索过滤 / 点表情回调）+ 内联与最近使用"
+      isColumn
+    >
+      <div className="flex items-center gap-4">
+        <EmojiPicker defaultValue="😀" recentEmojis={EMOJI_RECENT} onEmojiSelect={handleEmojiSelect} />
+        <span>最近选择：{picked}</span>
+      </div>
+      <EmojiPicker isInline size="lg" onEmojiSelect={handleEmojiSelect} />
     </DemoSection>
   );
 };
@@ -687,6 +743,7 @@ export const aiOverlayDemos: Record<string, ReactNode> = {
   popover: <PopoverDemo />,
   dropdown: <DropdownDemo />,
   sheet: <SheetDemo />,
+  'emoji-picker': <EmojiPickerDemo />,
   'alert-dialog': <AlertDialogDemo />,
   'menu-item': <MenuItemDemo />,
 };
