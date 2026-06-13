@@ -173,12 +173,49 @@ const RadioButtonGroupDemo = () => (
   </DemoSection>
 );
 
+const STEPPER_PARTS = (
+  <NumberStepper.Group>
+    <NumberStepper.DecrementButton />
+    <NumberStepper.Value />
+    <NumberStepper.IncrementButton />
+  </NumberStepper.Group>
+);
+
 const NumberStepperDemo = () => (
-  <DemoSection>
-    <NumberStepper size="sm" defaultValue={1} minValue={0} maxValue={9} />
-    <NumberStepper defaultValue={5} minValue={0} maxValue={20} />
-    <NumberStepper size="lg" defaultValue={10} minValue={0} maxValue={99} step={5} />
-  </DemoSection>
+  <>
+    <DemoSection label="sizes + min/max/step">
+      <NumberStepper aria-label="数量（小）" size="sm" defaultValue={1} minValue={0} maxValue={9}>
+        {STEPPER_PARTS}
+      </NumberStepper>
+      <NumberStepper aria-label="数量" defaultValue={5} minValue={0} maxValue={20}>
+        {STEPPER_PARTS}
+      </NumberStepper>
+      <NumberStepper
+        aria-label="数量（大）"
+        size="lg"
+        defaultValue={10}
+        minValue={0}
+        maxValue={99}
+        step={5}
+      >
+        {STEPPER_PARTS}
+      </NumberStepper>
+    </DemoSection>
+    <DemoSection label="formatOptions（货币）+ disabled">
+      <NumberStepper
+        aria-label="价格"
+        defaultValue={99}
+        formatOptions={{ style: 'currency', currency: 'CNY' }}
+        minValue={0}
+        step={10}
+      >
+        {STEPPER_PARTS}
+      </NumberStepper>
+      <NumberStepper aria-label="禁用" defaultValue={3} isDisabled>
+        {STEPPER_PARTS}
+      </NumberStepper>
+    </DemoSection>
+  </>
 );
 
 const InlineSelectDemo = () => {

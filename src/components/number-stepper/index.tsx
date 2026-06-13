@@ -1,117 +1,201 @@
-import { forwardRef, useState, type HTMLAttributes } from 'react';
+import { createContext, useContext, type CSSProperties, type ReactNode } from 'react';
+import {
+  Button,
+  Group,
+  Input,
+  NumberField,
+  NumberFieldStateContext,
+  type ButtonProps,
+  type GroupProps,
+  type NumberFieldProps,
+} from 'react-aria-components';
+import NumberFlow, { type Format, type NumberFlowProps } from '@number-flow/react';
 import clsx from 'clsx';
 
 export type NumberStepperSize = 'sm' | 'md' | 'lg';
 
-export type NumberStepperProps = Omit<HTMLAttributes<HTMLDivElement>, 'onChange' | 'children'> & {
-  value?: number;
-  defaultValue?: number;
-  onValueChange?: (value: number) => void;
-  minValue?: number;
-  maxValue?: number;
-  step?: number;
+export type NumberStepperProps = Omit<NumberFieldProps, 'className' | 'style'> & {
   size?: NumberStepperSize;
-  isDisabled?: boolean;
-  formatValue?: (value: number) => string;
+  /** 数字格式化选项，同时作用于 RAC NumberField 与 Number Flow 显示（原站 API：Number Flow 的 Format） */
+  formatOptions?: Format;
+  className?: string;
+  style?: CSSProperties;
 };
 
-const defaultFormatValue = (value: number) => String(value);
+export type NumberStepperGroupProps = Omit<GroupProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 
-const NumberStepper = forwardRef<HTMLDivElement, NumberStepperProps>(
-  (
-    {
-      value,
-      defaultValue = 0,
-      onValueChange,
-      minValue = Number.MIN_SAFE_INTEGER,
-      maxValue = Number.MAX_SAFE_INTEGER,
-      step = 1,
-      size = 'md',
-      isDisabled = false,
-      formatValue = defaultFormatValue,
-      className,
-      ...rest
-    },
-    ref,
-  ) => {
-    const [innerValue, setInnerValue] = useState(defaultValue);
-    const currentValue = value ?? innerValue;
+export type NumberStepperValueProps = Omit<NumberFlowProps, 'value' | 'children'> & {
+  /** 覆盖显示值（默认取根组件当前值） */
+  value?: number;
+  /** 覆盖格式化选项 */
+  format?: Format;
+  /** 自定义内容或渲染函数（原站 API） */
+  children?: ReactNode | ((props: { value: number; formatOptions?: Format }) => ReactNode);
+};
 
-    const setValue = (next: number) => {
-      const clamped = Math.min(Math.max(next, minValue), maxValue);
-      if (value === undefined) setInnerValue(clamped);
-      onValueChange?.(clamped);
-    };
+export type NumberStepperButtonProps = Omit<ButtonProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 
-    const handleDecrement = () => setValue(currentValue - step);
-    const handleIncrement = () => setValue(currentValue + step);
+type NumberStepperContextValue = {
+  size: NumberStepperSize;
+  format?: Format;
+};
 
-    return (
-      <div ref={ref} className={clsx('number-stepper', className)} {...rest}>
-        <div className={clsx('number-stepper__group', `number-stepper__group--${size}`)}>
-          <button
-            type="button"
-            className={clsx(
-              'number-stepper__decrement-button',
-              `number-stepper__decrement-button--${size}`,
-            )}
-            aria-label="减少"
-            onClick={handleDecrement}
-            disabled={isDisabled || currentValue <= minValue}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-            </svg>
-          </button>
-          <span
-            className={clsx('number-stepper__value', `number-stepper__value--${size}`)}
-            role="status"
-            aria-live="polite"
-          >
-            {formatValue(currentValue)}
-          </span>
-          <button
-            type="button"
-            className={clsx(
-              'number-stepper__increment-button',
-              `number-stepper__increment-button--${size}`,
-            )}
-            aria-label="增加"
-            onClick={handleIncrement}
-            disabled={isDisabled || currentValue >= maxValue}
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
-        </div>
-        <input
-          type="number"
-          className="number-stepper__input"
-          value={currentValue}
-          readOnly
-          tabIndex={-1}
-          aria-hidden="true"
-        />
-      </div>
-    );
-  },
+const NumberStepperContext = createContext<NumberStepperContextValue>({ size: 'md' });
+
+/** 原站默认 ± 图标（与基准快照 SVG path 一致） */
+const MinusIcon = () => (
+  <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+    <path
+      clipRule="evenodd"
+      d="M1.75 8a.75.75 0 0 1 .75-.75h11a.75.75 0 0 1 0 1.5h-11A.75.75 0 0 1 1.75 8"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
 );
+MinusIcon.displayName = 'NumberStepper.MinusIcon';
 
-NumberStepper.displayName = 'NumberStepper';
+const PlusIcon = () => (
+  <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+    <path
+      clipRule="evenodd"
+      d="M8 1.75a.75.75 0 0 1 .75.75v4.75h4.75a.75.75 0 0 1 0 1.5H8.75v4.75a.75.75 0 0 1-1.5 0V8.75H2.5a.75.75 0 0 1 0-1.5h4.75V2.5A.75.75 0 0 1 8 1.75"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+PlusIcon.displayName = 'NumberStepper.PlusIcon';
+
+/** 包装 RAC Group；末尾自动渲染无障碍隐藏输入框（与原站 DOM 一致） */
+const StepperGroup = ({ className, children, ...rest }: NumberStepperGroupProps) => {
+  const { size } = useContext(NumberStepperContext);
+
+  return (
+    <Group
+      data-slot="number-stepper-group"
+      className={clsx('number-stepper__group', `number-stepper__group--${size}`, className)}
+      {...rest}
+    >
+      {(renderProps) => (
+        <>
+          {typeof children === 'function' ? children(renderProps) : children}
+          <Input className="number-stepper__input" data-slot="number-stepper-input" tabIndex={-1} />
+        </>
+      )}
+    </Group>
+  );
+};
+StepperGroup.displayName = 'NumberStepper.Group';
+
+/** Number Flow 动画数字显示；默认读取根 NumberField 的当前值 */
+const Value = ({ value, format, children, className, ...rest }: NumberStepperValueProps) => {
+  const { size, format: rootFormat } = useContext(NumberStepperContext);
+  const state = useContext(NumberFieldStateContext);
+  const stateValue = state !== null && !Number.isNaN(state.numberValue) ? state.numberValue : 0;
+  const current = value ?? stateValue;
+  const effectiveFormat = format ?? rootFormat;
+  const valueClass = clsx('number-stepper__value', `number-stepper__value--${size}`, className);
+
+  if (children !== undefined) {
+    return (
+      <span className={valueClass} data-slot="number-stepper-value">
+        {typeof children === 'function'
+          ? children({ value: current, formatOptions: effectiveFormat })
+          : children}
+      </span>
+    );
+  }
+
+  return (
+    <NumberFlow
+      className={valueClass}
+      data-slot="number-stepper-value"
+      format={effectiveFormat}
+      value={current}
+      {...rest}
+    />
+  );
+};
+Value.displayName = 'NumberStepper.Value';
+
+/** 包装 RAC Button slot="decrement"；无 children 时渲染默认减号图标 */
+const DecrementButton = ({ className, children, ...rest }: NumberStepperButtonProps) => {
+  const { size } = useContext(NumberStepperContext);
+
+  return (
+    <Button
+      slot="decrement"
+      data-slot="number-stepper-decrement-button"
+      className={clsx(
+        'number-stepper__decrement-button',
+        `number-stepper__decrement-button--${size}`,
+        className,
+      )}
+      {...rest}
+    >
+      {children ?? <MinusIcon />}
+    </Button>
+  );
+};
+DecrementButton.displayName = 'NumberStepper.DecrementButton';
+
+/** 包装 RAC Button slot="increment"；无 children 时渲染默认加号图标 */
+const IncrementButton = ({ className, children, ...rest }: NumberStepperButtonProps) => {
+  const { size } = useContext(NumberStepperContext);
+
+  return (
+    <Button
+      slot="increment"
+      data-slot="number-stepper-increment-button"
+      className={clsx(
+        'number-stepper__increment-button',
+        `number-stepper__increment-button--${size}`,
+        className,
+      )}
+      {...rest}
+    >
+      {children ?? <PlusIcon />}
+    </Button>
+  );
+};
+IncrementButton.displayName = 'NumberStepper.IncrementButton';
+
+/**
+ * 包装 RAC NumberField 的步进数字输入（原站 API）：
+ * min/max/step/受控等行为由 RAC 提供，按住按钮连续步进、键盘上下方向键调值开箱即用。
+ */
+const NumberStepperRoot = ({
+  size = 'md',
+  formatOptions,
+  className,
+  children,
+  ...rest
+}: NumberStepperProps) => (
+  <NumberStepperContext.Provider value={{ size, format: formatOptions }}>
+    <NumberField
+      data-slot="number-stepper"
+      formatOptions={formatOptions}
+      className={clsx('number-stepper', className)}
+      {...rest}
+    >
+      {children}
+    </NumberField>
+  </NumberStepperContext.Provider>
+);
+NumberStepperRoot.displayName = 'NumberStepper';
+
+const NumberStepper = Object.assign(NumberStepperRoot, {
+  Group: StepperGroup,
+  Value,
+  DecrementButton,
+  IncrementButton,
+});
 
 export default NumberStepper;
