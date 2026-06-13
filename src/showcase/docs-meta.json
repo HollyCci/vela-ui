@@ -2,7 +2,6 @@
   "area-chart": {
     "title": "Area Chart",
     "description": "An area chart for visualizing trends with gradient fills, stacked series, and sparkline variants.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-areachart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -39,7 +38,6 @@
   "bar-chart": {
     "title": "Bar Chart",
     "description": "A bar chart for comparing categorical data with grouped, stacked, and horizontal layout support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-barchart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -86,7 +84,6 @@
   "chart-tooltip": {
     "title": "Chart Tooltip",
     "description": "A composable tooltip for chart data points with customizable indicators, labels, and value formatters.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-charttooltip--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -128,7 +125,6 @@
   "composed-chart": {
     "title": "Composed Chart",
     "description": "A composed chart that combines Bar, Line, and Area series in a single cartesian chart for multi-metric dashboards.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-composedchart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -160,7 +156,6 @@
   "line-chart": {
     "title": "Line Chart",
     "description": "A line chart for visualizing trends over time with multi-series, sparkline, and custom tooltip support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-linechart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -217,7 +212,6 @@
   "pie-chart": {
     "title": "Pie Chart",
     "description": "A pie and donut chart for proportional data with labels, legends, and nested ring support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-piechart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -259,7 +253,6 @@
   "radar-chart": {
     "title": "Radar Chart",
     "description": "A radar chart for comparing multivariate data across axes with fill, dot, and multi-series variants.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-radarchart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -291,7 +284,6 @@
   "radial-chart": {
     "title": "Radial Chart",
     "description": "A radial chart for gauge, progress ring, and circular data visualizations with customizable arcs and labels.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-charts-radialchart--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -323,7 +315,6 @@
   "agenda": {
     "title": "Agenda",
     "description": "A composable calendar component with day, week, and month views for displaying and managing events with drag interactions.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-agenda--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -335,7 +326,6 @@
   "action-bar": {
     "title": "Action Bar",
     "description": "A floating toolbar for contextual actions — bulk selection, editing controls, or any set of actions that appear in response to user interaction.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-actionbar--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -352,7 +342,6 @@
   "carousel": {
     "title": "Carousel",
     "description": "A content browsing component for navigating through a collection of images or items, with thumbnails, dots, and navigation controls.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-carousel--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -389,7 +378,6 @@
   "data-grid": {
     "title": "Data Grid",
     "description": "A full-featured data grid with sorting, selection, column resizing, pinned columns, drag-and-drop row reorder, virtualization, and async loading — built on the HeroUI Table.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-datagrid--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -456,7 +444,6 @@
   "empty-state": {
     "title": "Empty State",
     "description": "A placeholder for empty views with icon, title, description, and call-to-action to guide users.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emptystate--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -503,7 +490,6 @@
   "file-tree": {
     "title": "File Tree",
     "description": "A hierarchical file explorer with expand/collapse, drag-and-drop, icons, and multi-selection support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-filetree--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -560,7 +546,6 @@
   "floating-toc": {
     "title": "Floating TOC",
     "description": "A floating table of contents that tracks scroll position and provides quick navigation to page sections.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-floatingtoc--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -617,7 +602,6 @@
   "hover-card": {
     "title": "Hover Card",
     "description": "A popover card that appears on hover to preview additional content without navigating away.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-hovercard--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -654,7 +638,6 @@
   "kanban": {
     "title": "Kanban",
     "description": "A drag-and-drop kanban board with columns, cards, and keyboard navigation for organizing tasks and workflows.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kanban--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -681,7 +664,6 @@
   "item-card": {
     "title": "Item Card",
     "description": "A versatile list card with icon, title, description, and optional trailing actions like switches or selects.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-itemcard--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -748,7 +730,6 @@
   "item-card-group": {
     "title": "Item Card Group",
     "description": "A layout component for grouping item cards in list or grid arrangements with section headers and dividers.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-itemcardgroup--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -815,7 +796,6 @@
   "kpi": {
     "title": "KPI",
     "description": "A key performance indicator card displaying a metric value with trend chip, sparkline chart, and contextual details.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kpi-key-performance-indicator--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -857,7 +837,6 @@
   "kpi-group": {
     "title": "KPI Group",
     "description": "A layout component for arranging multiple KPI cards in horizontal or vertical stacks with consistent spacing.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-kpigroup--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -879,7 +858,6 @@
   "list-view": {
     "title": "List View",
     "description": "A single-column interactive list with keyboard navigation, selection, and accessible item actions — built on RAC GridList.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-listview--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -911,7 +889,6 @@
   "widget": {
     "title": "Widget",
     "description": "A dashboard container that wraps charts, tables, KPIs, or any content with a consistent surface treatment — secondary background shell with an elevated white content area.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-widget--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -958,7 +935,6 @@
   "chain-of-thought": {
     "title": "Chain Of ThoughtNew",
     "description": "A collapsible reasoning timeline for assistant thinking, progress, and agent traces.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chainofthought--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -985,7 +961,6 @@
   "chat-attachment": {
     "title": "Chat AttachmentNew",
     "description": "Attachment previews and composer file input helpers for AI chat surfaces.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatattachment--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1007,7 +982,6 @@
   "chat-conversation": {
     "title": "Chat ConversationNew",
     "description": "A stick-to-bottom conversation viewport for streaming chat messages.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatconversation--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1029,7 +1003,6 @@
   "chat-list-view": {
     "title": "Chat List ViewNew",
     "description": "Thread list rows for chat sidebars and conversation pickers.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatlistview--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1046,7 +1019,6 @@
   "chat-loader": {
     "title": "Chat LoaderNew",
     "description": "Loading skeletons and typing placeholders for assistant responses.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatloader--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1058,7 +1030,6 @@
   "chat-message": {
     "title": "Chat MessageNew",
     "description": "Composable user and assistant message layouts for AI chat.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatmessage--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1080,7 +1051,6 @@
   "chat-message-actions": {
     "title": "Chat Message ActionsNew",
     "description": "Inline action buttons for assistant and user messages.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatmessageactions--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1102,7 +1072,6 @@
   "chat-source": {
     "title": "Chat SourceNew",
     "description": "Citation chips and grouped source lists for AI responses.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chatsource--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1134,7 +1103,6 @@
   "chat-tool": {
     "title": "Chat ToolNew",
     "description": "Collapsible tool-call cards for inputs, outputs, errors, approvals, and grouped tool activity.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-chattool--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1171,7 +1139,6 @@
   "code-block": {
     "title": "Code BlockNew",
     "description": "Syntax-highlighted code blocks with language labels and copy actions for AI markdown.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-codeblock--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1183,7 +1150,6 @@
   "markdown": {
     "title": "MarkdownNew",
     "description": "Render AI responses with rich markdown, memoized streaming blocks, and optional Streamdown rendering.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-markdown--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1205,7 +1171,6 @@
   "prompt-input": {
     "title": "Prompt InputNew",
     "description": "A composable AI prompt composer with attachments, toolbar actions, send states, queued prompts, and drag-and-drop support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-promptinput--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1247,7 +1212,6 @@
   "prompt-suggestion": {
     "title": "Prompt SuggestionNew",
     "description": "Suggested prompts and starter actions for AI chat empty states.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-promptsuggestion--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1264,7 +1228,6 @@
   "text-shimmer": {
     "title": "Text ShimmerNew",
     "description": "Animated shimmer text for streaming, thinking, and loading labels.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-ai-textshimmer--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1276,7 +1239,6 @@
   "emoji-reaction-button": {
     "title": "Emoji Reaction Button",
     "description": "An animated emoji reaction button with count display and toggle state for social interactions.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emojireactionbutton--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1303,7 +1265,6 @@
   "number-value": {
     "title": "Number Value",
     "description": "A formatted number display with locale-aware rendering for currency, percentages, and compact notation.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-numbervalue--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1350,7 +1311,6 @@
   "pressable-feedback": {
     "title": "Pressable Feedback",
     "description": "A press interaction layer adding ripple, highlight, hold-to-confirm, and progress feedback effects to any element.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-pressablefeedback--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1442,7 +1402,6 @@
   "rating": {
     "title": "Rating",
     "description": "A star rating input with fractional read-only display, custom icons, sizes, and interactive selection.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-rating--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1509,7 +1468,6 @@
   "trend-chip": {
     "title": "Trend Chip",
     "description": "A compact chip displaying a trend direction with percentage value, icon indicator, and contextual suffix.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-trendchip--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1546,7 +1504,6 @@
   "resizable": {
     "title": "Resizable",
     "description": "Resizable panel groups with composable handle types and variants. Built on react-resizable-panels, wired up with HeroUI design tokens.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-resizable--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1588,7 +1545,6 @@
   "cell-color-picker": {
     "title": "Cell Color Picker",
     "description": "A compact color picker styled as a settings cell with preset palettes and custom color input.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellcolorpicker--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1625,7 +1581,6 @@
   "cell-select": {
     "title": "Cell Select",
     "description": "A compact select input styled as a settings cell, ideal for preference panels and configuration forms.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellselect--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1667,7 +1622,6 @@
   "cell-slider": {
     "title": "Cell Slider",
     "description": "A range slider styled as a settings cell with label, value display, and step configuration.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellslider--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1709,7 +1663,6 @@
   "cell-switch": {
     "title": "Cell Switch",
     "description": "A toggle switch styled as a settings cell with label and description, ideal for preference panels.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-cellswitch--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1751,7 +1704,6 @@
   "checkbox-button-group": {
     "title": "Checkbox Button Group",
     "description": "A multi-selection button group with card-style checkboxes, icons, and custom indicators.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-checkboxbuttongroup--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1813,7 +1765,6 @@
   "drop-zone": {
     "title": "Drop Zone",
     "description": "A drag-and-drop file upload area with file type filtering, size limits, and file list preview.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-dropzone--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1865,7 +1816,6 @@
   "inline-select": {
     "title": "Inline Select",
     "description": "A minimal inline dropdown that blends into surrounding text for contextual selections without a full form field.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-inlineselect--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1897,7 +1847,6 @@
   "native-select": {
     "title": "Native Select",
     "description": "A styled wrapper around the native HTML select element with label, description, and validation support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-nativeselect--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -1964,7 +1913,6 @@
   "number-stepper": {
     "title": "Number Stepper",
     "description": "A numeric input with increment/decrement buttons, min/max bounds, step intervals, and custom formatting.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-numberstepper--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2036,7 +1984,6 @@
   "radio-button-group": {
     "title": "Radio Button Group",
     "description": "A single-selection button group with card-style radio options, icons, and custom indicators.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-radiobuttongroup--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2103,7 +2050,6 @@
   "app-layout": {
     "title": "AppLayout",
     "description": "A scaffold layout that composes a full-height sidebar, a sticky navbar, a main content area, and an optional right-side aside panel.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-applayout--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2175,7 +2121,6 @@
   "command": {
     "title": "Command",
     "description": "A command palette with fuzzy search, keyboard navigation, and nested groups for quick actions.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-command--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2227,7 +2172,6 @@
   "context-menu": {
     "title": "Context Menu",
     "description": "A right-click context menu with nested submenus, selection state, and long-press support for touch.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-contextmenu--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2269,7 +2213,6 @@
   "navbar": {
     "title": "Navbar",
     "description": "A composable top navigation bar with hide-on-scroll, responsive mobile menu, and client-side routing support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-navbar--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2311,7 +2254,6 @@
   "segment": {
     "title": "Segment",
     "description": "A segmented control for toggling between a small set of mutually exclusive options.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-segment--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2373,7 +2315,6 @@
   "sidebar": {
     "title": "Sidebar",
     "description": "A responsive sidebar navigation component with collapsible groups, rail mode, and mobile sheet support.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-sidebar--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2455,7 +2396,6 @@
   "stepper": {
     "title": "Stepper",
     "description": "A step-by-step progress indicator with numbered, icon, and bullet variants in horizontal or vertical layouts.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-stepper--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2557,7 +2497,6 @@
   "emoji-picker": {
     "title": "Emoji Picker",
     "description": "A searchable emoji picker with virtualized list, category navigation, skin tone selection, and recent emoji tracking.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-emojipicker--docs",
     "sections": [
       {
         "heading": "Usage",
@@ -2584,7 +2523,6 @@
   "sheet": {
     "title": "Sheet",
     "description": "A bottom sheet overlay with snap points, swipe-to-dismiss, and placement options for mobile-friendly dialogs.",
-    "storybook": "https://storybook.heroui.pro/?path=/docs/components-sheet--docs",
     "sections": [
       {
         "heading": "Usage",
