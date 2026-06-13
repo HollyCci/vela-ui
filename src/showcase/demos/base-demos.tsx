@@ -9,19 +9,13 @@ import {
   Card,
   Chip,
   Kbd,
+  Select,
   Separator,
   Skeleton,
   Spinner,
+  Tooltip,
   Toolbar,
 } from '../../components';
-import {
-  Button as UIButton,
-  Chip as UIChip,
-  ListBox,
-  Select,
-  Separator as UISeparator,
-  Tooltip as UITooltip,
-} from '@heroui/react';
 import type { Key } from 'react-aria-components';
 import DemoSection from '../demo-section';
 
@@ -45,14 +39,14 @@ const SelectDemo = () => {
           <Select.Indicator />
         </Select.Trigger>
         <Select.Popover>
-          <ListBox>
+          <Select.List>
             {SELECT_OPTIONS.map((option) => (
-              <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+              <Select.Item key={option.id} id={option.id} textValue={option.label}>
                 {option.label}
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
+                <Select.ItemIndicator />
+              </Select.Item>
             ))}
-          </ListBox>
+          </Select.List>
         </Select.Popover>
       </Select>
       <span>当前：{current}</span>
@@ -227,36 +221,44 @@ const ActionBarDemo = () => {
 
   return (
     <DemoSection>
-      <UIButton variant="secondary" onPress={handleToggle}>
+      <Button variant="secondary" onClick={handleToggle}>
         {isOpen ? '隐藏' : '显示'} Action Bar
-      </UIButton>
+      </Button>
       <ActionBar isOpen={isOpen}>
         <ActionBar.Prefix>
-          <UIChip color="accent" size="sm">
+          <Chip color="accent" size="sm">
             2
-          </UIChip>
+          </Chip>
           <ActionBar.Label>已选择</ActionBar.Label>
         </ActionBar.Prefix>
-        <UISeparator />
+        <Separator />
         <ActionBar.Content>
-          <UIButton size="sm" variant="ghost">
+          <Button size="sm" variant="ghost">
             编辑
-          </UIButton>
-          <UIButton size="sm" variant="ghost">
+          </Button>
+          <Button size="sm" variant="ghost">
             导出
-          </UIButton>
-          <UIButton className="text-danger" size="sm" variant="ghost">
+          </Button>
+          <Button className="text-danger" size="sm" variant="ghost">
             删除
-          </UIButton>
+          </Button>
         </ActionBar.Content>
-        <UISeparator />
+        <Separator />
         <ActionBar.Suffix>
-          <UITooltip>
-            <UIButton aria-label="清除选择" isIconOnly size="sm" variant="ghost" onPress={handleClose}>
-              <XmarkIcon />
-            </UIButton>
-            <UITooltip.Content>清除选择</UITooltip.Content>
-          </UITooltip>
+          <Tooltip>
+            <Tooltip.Trigger>
+              <Button
+                aria-label="清除选择"
+                isIconOnly
+                size="sm"
+                variant="ghost"
+                onClick={handleClose}
+              >
+                <XmarkIcon />
+              </Button>
+            </Tooltip.Trigger>
+            <Tooltip.Content>清除选择</Tooltip.Content>
+          </Tooltip>
         </ActionBar.Suffix>
       </ActionBar>
     </DemoSection>
