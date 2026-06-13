@@ -9,12 +9,11 @@ import {
   useState,
   type ChangeEvent,
   type CSSProperties,
-  type DragEvent,
   type HTMLAttributes,
   type KeyboardEvent,
   type LiHTMLAttributes,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
-  type RefObject,
 } from 'react';
 import {
   Button,
@@ -26,6 +25,7 @@ import {
   type ScrollShadowProps,
   type TextAreaProps as HeroTextAreaProps,
 } from '@heroui/react';
+import { AnimatePresence, motion, Reorder, useDragControls, type DragControls } from 'motion/react';
 import clsx from 'clsx';
 
 export type PromptInputSize = 'sm' | 'md' | 'lg';
@@ -81,17 +81,38 @@ export type PromptInputQueueProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export type PromptInputQueueListProps<T> = Omit<ScrollShadowProps, 'className' | 'style'> & {
-  /** 受控队列值；与 onReorder 同传时启用拖拽排序（原站 API） */
+  /** 受控队列值；与 onReorder 同传时启用 Motion 拖拽排序（原站 API） */
   values?: T[];
   onReorder?: (values: T[]) => void;
-  /** 拖拽排序轴向（原站 API，默认 y；本实现用原生 DnD，轴向仅作语义保留） */
+  /** Motion Reorder.Group 拖拽轴向（原站 API，默认 y） */
   axis?: 'x' | 'y';
   className?: string;
   style?: CSSProperties;
 };
 
-export type PromptInputQueueItemProps<T> = Omit<LiHTMLAttributes<HTMLLIElement>, 'value'> & {
-  /** values 中的对应项；启用拖拽排序时必传（原站 API，遮蔽 li 原生 value 属性） */
+/**
+ * 队列行底座是 Motion 元素（motion.li / Reorder.Item），故剔除会与 Motion 同名 prop 冲突的
+ * 原生拖拽/动画事件（onDrag*、onAnimation*）——这些在本组件由 Motion 接管，对外不暴露。
+ */
+type PromptInputQueueItemConflictingProps =
+  | 'value'
+  | 'onDrag'
+  | 'onDragStart'
+  | 'onDragEnd'
+  | 'onDragEnter'
+  | 'onDragExit'
+  | 'onDragLeave'
+  | 'onDragOver'
+  | 'onDrop'
+  | 'onAnimationStart'
+  | 'onAnimationEnd'
+  | 'onAnimationIteration';
+
+export type PromptInputQueueItemProps<T> = Omit<
+  LiHTMLAttributes<HTMLLIElement>,
+  PromptInputQueueItemConflictingProps
+> & {
+  /** values 中的对应项；启用拖拽排序时必传（原站 API，作为 Reorder.Item 的 value） */
   value?: T;
 };
 
@@ -140,18 +161,21 @@ const PromptInputContext = createContext<PromptInputContextValue>({
 });
 
 type QueueListContextValue = {
+  /** values+onReorder 同传时为真，开启 Reorder.Group 拖拽 */
   hasReorder: boolean;
-  indexOf: (value: unknown) => number;
-  /** 把 from 位置的项移动到 to（List 内部持有 T 类型，子项无需感知） */
-  move: ((from: number, to: number) => void) | null;
-  dragIndexRef: RefObject<number | null>;
 };
 
 const QueueListContext = createContext<QueueListContextValue>({
   hasReorder: false,
-  indexOf: () => -1,
-  move: null,
-  dragIndexRef: { current: null },
+});
+
+type QueueItemContextValue = {
+  /** 该行的 Motion 拖拽控制器；Handle 按下时 start() 启动拖拽（dragListener=false 时唯一入口） */
+  dragControls: DragControls | null;
+};
+
+const QueueItemContext = createContext<QueueItemContextValue>({
+  dragControls: null,
 });
 
 /** 基准快照中 textarea 自带的工具类串（压平 OSS textarea 的边框/底色，使其融入 shell） */
@@ -535,42 +559,31 @@ const QueueRoot = forwardRef<HTMLDivElement, PromptInputQueueProps>(
 );
 QueueRoot.displayName = 'PromptInput.Queue';
 
+/** 队列项增删过渡：高度+透明度收合（layout 负责重排位移），与原站 Motion 队列手感一致 */
+const QUEUE_ITEM_INITIAL = { opacity: 0, height: 0 } as const;
+const QUEUE_ITEM_ANIMATE = { opacity: 1, height: 'auto' } as const;
+const QUEUE_ITEM_EXIT = { opacity: 0, height: 0 } as const;
+const QUEUE_ITEM_TRANSITION = { duration: 0.18, ease: [0.4, 0, 0.2, 1] } as const;
+
 /**
  * 包装 OSS ScrollShadow（默认 vertical/fade 与快照一致）；
- * values + onReorder 同传时子项启用原生 DnD 拖拽排序（原站用 Motion，本仓不引依赖）。
+ * values + onReorder 同传时内层 <ul> 升级为 Motion Reorder.Group（拖拽排序，
+ * 输出与原站一致的 overflow-anchor/transform 内联样式），否则为普通 <ul>。
+ * 两种情况子项都包在 AnimatePresence 中，增删走 layout + exit 过渡。
  */
 const QueueList = <T,>({
   values,
   onReorder,
-  // 原生 DnD 不约束轴向，axis 仅保留 API（下划线豁免 noUnusedParameters）
-  axis: _axis = 'y',
+  axis = 'y',
   className,
   children,
   ...rest
 }: PromptInputQueueListProps<T>) => {
-  const dragIndexRef = useRef<number | null>(null);
+  const hasReorder = values !== undefined && onReorder !== undefined;
 
-  const indexOf = useCallback(
-    (value: unknown) => (values === undefined ? -1 : (values as unknown[]).indexOf(value)),
-    [values],
-  );
+  const contextValue = useMemo<QueueListContextValue>(() => ({ hasReorder }), [hasReorder]);
 
-  const move = useMemo(() => {
-    if (values === undefined || onReorder === undefined) {
-      return null;
-    }
-    return (from: number, to: number) => {
-      const next = [...values];
-      const [moved] = next.splice(from, 1);
-      next.splice(to, 0, moved);
-      onReorder(next);
-    };
-  }, [values, onReorder]);
-
-  const contextValue = useMemo<QueueListContextValue>(
-    () => ({ hasReorder: move !== null, indexOf, move, dragIndexRef }),
-    [move, indexOf],
-  );
+  const items = <AnimatePresence initial={false}>{children}</AnimatePresence>;
 
   return (
     <QueueListContext.Provider value={contextValue}>
@@ -579,96 +592,98 @@ const QueueList = <T,>({
         className={clsx('prompt-input__queue-list', className)}
         {...rest}
       >
-        <ul className="prompt-input__queue-list-items">{children}</ul>
+        {hasReorder ? (
+          <Reorder.Group
+            as="ul"
+            axis={axis}
+            values={values}
+            onReorder={onReorder}
+            className="prompt-input__queue-list-items"
+          >
+            {items}
+          </Reorder.Group>
+        ) : (
+          <ul className="prompt-input__queue-list-items">{items}</ul>
+        )}
       </ScrollShadow>
     </QueueListContext.Provider>
   );
 };
 QueueList.displayName = 'PromptInput.Queue.List';
 
-const QueueItemRoot = <T,>({
-  value,
-  className,
-  onDragStart,
-  onDragOver,
-  onDrop,
-  onDragEnd,
-  ...rest
-}: PromptInputQueueItemProps<T>) => {
-  const { indexOf, move, dragIndexRef } = useContext(QueueListContext);
-  const index = value === undefined ? -1 : indexOf(value);
-  const isReorderEnabled = move !== null && index >= 0;
+/**
+ * 队列行：拖拽开启时为 Motion Reorder.Item（motion.li），由 Handle 经 dragControls 启动拖拽
+ * （dragListener=false 锁住整行拖拽，仅手柄可拖）；layout 让重排有真实位移过渡，
+ * AnimatePresence 配合 initial/exit 让增删收合。未开启拖拽时为普通 motion.li，仍有增删过渡。
+ */
+const QueueItemRoot = <T,>({ value, className, ...rest }: PromptInputQueueItemProps<T>) => {
+  const { hasReorder } = useContext(QueueListContext);
+  const dragControls = useDragControls();
+  const isReorderEnabled = hasReorder && value !== undefined;
 
-  const handleDragStart = useCallback(
-    (event: DragEvent<HTMLLIElement>) => {
-      onDragStart?.(event);
-      if (!isReorderEnabled) {
-        return;
-      }
-      dragIndexRef.current = index;
-      event.dataTransfer.effectAllowed = 'move';
-    },
-    [onDragStart, isReorderEnabled, dragIndexRef, index],
+  const itemContext = useMemo<QueueItemContextValue>(
+    () => ({ dragControls: isReorderEnabled ? dragControls : null }),
+    [isReorderEnabled, dragControls],
   );
 
-  const handleDragOver = useCallback(
-    (event: DragEvent<HTMLLIElement>) => {
-      onDragOver?.(event);
-      if (!isReorderEnabled || dragIndexRef.current === null) {
-        return;
-      }
-      event.preventDefault();
-      const from = dragIndexRef.current;
-      // 拖过其他行即实时换位（与 Motion reorder 的实时预览行为一致）
-      if (from !== index && move !== null) {
-        move(from, index);
-        dragIndexRef.current = index;
-      }
-    },
-    [onDragOver, isReorderEnabled, dragIndexRef, index, move],
-  );
+  const sharedProps = {
+    'data-slot': 'prompt-input-queue-item',
+    className: clsx('prompt-input__queue-item', className),
+    layout: true as const,
+    initial: QUEUE_ITEM_INITIAL,
+    animate: QUEUE_ITEM_ANIMATE,
+    exit: QUEUE_ITEM_EXIT,
+    transition: QUEUE_ITEM_TRANSITION,
+  };
 
-  const handleDrop = useCallback(
-    (event: DragEvent<HTMLLIElement>) => {
-      onDrop?.(event);
-      if (isReorderEnabled) {
-        event.preventDefault();
-      }
-    },
-    [onDrop, isReorderEnabled],
-  );
-
-  const handleDragEnd = useCallback(
-    (event: DragEvent<HTMLLIElement>) => {
-      onDragEnd?.(event);
-      dragIndexRef.current = null;
-    },
-    [onDragEnd, dragIndexRef],
-  );
+  if (isReorderEnabled) {
+    return (
+      <QueueItemContext.Provider value={itemContext}>
+        <Reorder.Item
+          value={value}
+          dragListener={false}
+          dragControls={dragControls}
+          {...sharedProps}
+          {...rest}
+        />
+      </QueueItemContext.Provider>
+    );
+  }
 
   return (
-    <li
-      data-slot="prompt-input-queue-item"
-      className={clsx('prompt-input__queue-item', className)}
-      draggable={isReorderEnabled || undefined}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDrop={handleDrop}
-      onDragEnd={handleDragEnd}
-      {...rest}
-    />
+    <QueueItemContext.Provider value={itemContext}>
+      <motion.li {...sharedProps} {...rest} />
+    </QueueItemContext.Provider>
   );
 };
 QueueItemRoot.displayName = 'PromptInput.Queue.Item';
 
-/** 拖拽手柄（展示性，排序手势在行上）；无 children 时渲染默认网点图标 */
+/**
+ * 拖拽手柄：开启排序时按下经该行 dragControls.start() 启动 Motion 拖拽
+ * （Reorder.Item dragListener=false 时的唯一拖拽入口）；无 children 时渲染默认网点图标。
+ */
 const QueueItemHandle = ({
   className,
   children,
+  onPointerDown,
   'aria-label': ariaLabel = 'Reorder queued prompt',
   ...rest
 }: PromptInputQueueButtonProps) => {
   const { hasReorder } = useContext(QueueListContext);
+  const { dragControls } = useContext(QueueItemContext);
+
+  const handlePointerDown = useCallback(
+    (event: ReactPointerEvent<HTMLButtonElement>) => {
+      onPointerDown?.(event);
+      if (dragControls === null) {
+        return;
+      }
+      // 阻止文本选区/触摸滚动抢占，并把这次手势交给 Motion 拖拽
+      event.preventDefault();
+      dragControls.start(event);
+    },
+    [onPointerDown, dragControls],
+  );
 
   return (
     <Button
@@ -678,6 +693,7 @@ const QueueItemHandle = ({
       variant="ghost"
       aria-label={ariaLabel}
       className={clsx('prompt-input__queue-item-handle', className)}
+      onPointerDown={handlePointerDown}
       {...rest}
     >
       {children ?? <GripIcon />}
