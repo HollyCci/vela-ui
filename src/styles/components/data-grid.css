@@ -13,6 +13,21 @@
   position: relative;
 }
 
+.data-grid__scroll-container[data-virtualized=true] {
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.data-grid__virtual-spacer-row {
+  pointer-events: none;
+}
+
+.data-grid__virtual-spacer-cell {
+  padding: calc(var(--spacing) * 0);
+  border-bottom-width: 0;
+  background-color: transparent;
+}
+
 .data-grid__selection-column {
   width: var(--data-grid-selection-column-width);
   padding-right: calc(var(--spacing) * 0);

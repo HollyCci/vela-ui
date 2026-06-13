@@ -42,7 +42,21 @@ export type DataGridRowReorderEvent<TRow> = {
   orderedRows: TRow[];
 };
 
+export type DataGridVirtualRange = {
+  startIndex: number;
+  endIndex: number;
+  visibleStartIndex: number;
+  visibleEndIndex: number;
+  total: number;
+};
+
 type DataGridDragPoint = Pick<MouseEvent | PointerEvent, 'clientX' | 'clientY'>;
+
+const DEFAULT_VIRTUAL_ROW_HEIGHT = 45;
+const DEFAULT_VIRTUAL_MAX_HEIGHT = 360;
+const DEFAULT_VIRTUAL_OVERSCAN = 4;
+const VIRTUAL_TOP_SPACER_KEY = '__data-grid_virtual_top_spacer__';
+const VIRTUAL_BOTTOM_SPACER_KEY = '__data-grid_virtual_bottom_spacer__';
 
 export type DataGridColumn<TRow> = {
   /** 唯一列标识，同时作为排序 key（原站 API，必填） */
@@ -103,6 +117,16 @@ export type DataGridProps<TRow extends object> = Omit<
   showRowDragHandles?: boolean;
   /** 行拖拽重排回调，调用方据 orderedKeys/orderedRows 写回 data */
   onRowReorder?: (orderedKeys: Key[], event: DataGridRowReorderEvent<TRow>) => void;
+  /** 启用行窗口化渲染：组件内部按滚动位置渲染可见区，而不是调用方手动 slice */
+  virtualized?: boolean;
+  /** 虚拟化估算行高 */
+  virtualRowHeight?: number;
+  /** 虚拟化窗口上下额外渲染的行数 */
+  virtualOverscan?: number;
+  /** 虚拟化滚动容器最大高度 */
+  virtualMaxHeight?: number | string;
+  /** 虚拟化窗口变化回调，用于页脚状态或埋点 */
+  onVirtualRangeChange?: (range: DataGridVirtualRange) => void;
   /** 受控排序描述 */
   sortDescriptor?: SortDescriptor;
   /** 默认排序描述（非受控） */
@@ -119,6 +143,8 @@ export type DataGridProps<TRow extends object> = Omit<
   contentClassName?: string;
   /** 滚动容器追加 className（如 max-h-[400px] overflow-y-auto） */
   scrollContainerClassName?: string;
+  /** 滚动容器追加 style */
+  scrollContainerStyle?: CSSProperties;
   className?: string;
   style?: CSSProperties;
 };
@@ -266,6 +292,11 @@ function DataGrid<TRow extends object>({
   enableRowReordering = false,
   showRowDragHandles = true,
   onRowReorder,
+  virtualized = false,
+  virtualRowHeight = DEFAULT_VIRTUAL_ROW_HEIGHT,
+  virtualOverscan = DEFAULT_VIRTUAL_OVERSCAN,
+  virtualMaxHeight = DEFAULT_VIRTUAL_MAX_HEIGHT,
+  onVirtualRangeChange,
   sortDescriptor,
   defaultSortDescriptor,
   onSortChange,
@@ -274,6 +305,7 @@ function DataGrid<TRow extends object>({
   renderEmptyState,
   contentClassName,
   scrollContainerClassName,
+  scrollContainerStyle,
   className,
   style,
   'aria-label': ariaLabel,
@@ -292,6 +324,12 @@ function DataGrid<TRow extends object>({
     position: DataGridRowReorderPosition;
   } | null>(null);
   const rowDragCleanupRef = useRef<(() => void) | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const onVirtualRangeChangeRef = useRef(onVirtualRangeChange);
+  const [virtualScrollTop, setVirtualScrollTop] = useState(0);
+  const [virtualViewportHeight, setVirtualViewportHeight] = useState(
+    typeof virtualMaxHeight === 'number' ? virtualMaxHeight : DEFAULT_VIRTUAL_MAX_HEIGHT,
+  );
 
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
@@ -299,6 +337,10 @@ function DataGrid<TRow extends object>({
   const withSelection = showSelectionCheckboxes && selectionMode !== 'none';
   const withRowReordering = enableRowReordering && onRowReorder !== undefined;
   const withDragHandles = withRowReordering && showRowDragHandles;
+  const isVirtualized = virtualized && data.length > 0;
+  const safeVirtualRowHeight = Math.max(1, virtualRowHeight);
+  const safeVirtualOverscan = Math.max(0, Math.floor(virtualOverscan));
+  onVirtualRangeChangeRef.current = onVirtualRangeChange;
   const handleSortChange = (descriptor: SortDescriptor) => {
     if (!isControlledSort) setInternalSortDescriptor(descriptor);
     onSortChange?.(descriptor);
@@ -318,6 +360,54 @@ function DataGrid<TRow extends object>({
           return activeSort.direction === 'descending' ? -result : result;
         });
   const sortedKeys = sortedData.map(getRowId);
+  const virtualVisibleCount = isVirtualized
+    ? Math.max(1, Math.ceil(virtualViewportHeight / safeVirtualRowHeight))
+    : sortedData.length;
+  const virtualVisibleStartIndex = isVirtualized
+    ? Math.min(
+        Math.max(0, Math.floor(virtualScrollTop / safeVirtualRowHeight)),
+        Math.max(0, sortedData.length - 1),
+      )
+    : 0;
+  const virtualStartIndex = isVirtualized
+    ? Math.max(0, virtualVisibleStartIndex - safeVirtualOverscan)
+    : 0;
+  const virtualEndIndex = isVirtualized
+    ? Math.min(
+        sortedData.length,
+        virtualVisibleStartIndex + virtualVisibleCount + safeVirtualOverscan,
+      )
+    : sortedData.length;
+  const virtualRows = isVirtualized ? sortedData.slice(virtualStartIndex, virtualEndIndex) : sortedData;
+  const virtualTopSpacer = isVirtualized ? virtualStartIndex * safeVirtualRowHeight : 0;
+  const virtualBottomSpacer = isVirtualized
+    ? Math.max(0, (sortedData.length - virtualEndIndex) * safeVirtualRowHeight)
+    : 0;
+  const tableColumnCount =
+    columns.length + (withSelection ? 1 : 0) + (withDragHandles ? 1 : 0);
+  const mergedDisabledKeys = isVirtualized
+    ? [
+        ...(disabledKeys === undefined ? [] : Array.from(disabledKeys)),
+        VIRTUAL_TOP_SPACER_KEY,
+        VIRTUAL_BOTTOM_SPACER_KEY,
+      ]
+    : disabledKeys;
+  const virtualScrollContainerStyle: CSSProperties | undefined = isVirtualized
+    ? {
+        maxHeight: virtualMaxHeight,
+        overflowY: 'auto',
+        ...scrollContainerStyle,
+      }
+    : scrollContainerStyle;
+  const virtualRange: DataGridVirtualRange = {
+    startIndex: virtualStartIndex,
+    endIndex: virtualEndIndex,
+    visibleStartIndex: virtualVisibleStartIndex,
+    visibleEndIndex: isVirtualized
+      ? Math.min(sortedData.length, virtualVisibleStartIndex + virtualVisibleCount)
+      : sortedData.length,
+    total: sortedData.length,
+  };
 
   const setActiveDropTarget = (
     next: { key: Key; position: DataGridRowReorderPosition } | null,
@@ -477,16 +567,125 @@ function DataGrid<TRow extends object>({
     [],
   );
 
+  useEffect(() => {
+    if (!isVirtualized) {
+      setVirtualScrollTop(0);
+      return;
+    }
+
+    const node = scrollContainerRef.current;
+    if (!node) return;
+
+    const updateVirtualMetrics = () => {
+      setVirtualScrollTop(node.scrollTop);
+      setVirtualViewportHeight(node.clientHeight || DEFAULT_VIRTUAL_MAX_HEIGHT);
+    };
+
+    updateVirtualMetrics();
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateVirtualMetrics) : null;
+    resizeObserver?.observe(node);
+    node.addEventListener('scroll', updateVirtualMetrics, { passive: true });
+
+    return () => {
+      resizeObserver?.disconnect();
+      node.removeEventListener('scroll', updateVirtualMetrics);
+    };
+  }, [isVirtualized, virtualMaxHeight]);
+
+  useEffect(() => {
+    if (!isVirtualized) return;
+    onVirtualRangeChangeRef.current?.(virtualRange);
+  }, [
+    isVirtualized,
+    virtualRange.startIndex,
+    virtualRange.endIndex,
+    virtualRange.visibleStartIndex,
+    virtualRange.visibleEndIndex,
+    virtualRange.total,
+  ]);
+
+  const renderDataGridRow = (item: TRow) => {
+    const rowKey = getRowId(item);
+    const isDragging = draggedKey === rowKey;
+    const isDropTarget = dropTarget?.key === rowKey;
+    const rowDragProps = withRowReordering
+      ? {
+          'data-row-reorderable': true,
+          'data-row-key': String(rowKey),
+          'data-dragging': isDragging || undefined,
+          'data-drop-target': isDropTarget || undefined,
+          'data-drop-position': isDropTarget ? dropTarget.position : undefined,
+        }
+      : {};
+
+    return (
+      <Table.Row id={rowKey} key={rowKey} {...rowDragProps}>
+        {withDragHandles && (
+          <Table.Cell className="data-grid__drag-handle-cell">
+            <DataGridDragHandle
+              onMouseDown={(event) => handleRowMouseDown(rowKey, event)}
+              onPointerDown={(event) => handleRowPointerDown(rowKey, event)}
+              onPointerMove={handleRowPointerMove}
+              onPointerUp={handleRowPointerUp}
+              onPointerCancel={clearDragState}
+            />
+          </Table.Cell>
+        )}
+        {withSelection && (
+          <Table.Cell className="data-grid__selection-cell">
+            <DataGridSelectionCheckbox />
+          </Table.Cell>
+        )}
+        {columns.map((column) => (
+          <Table.Cell
+            key={column.id}
+            data-align={column.align !== 'start' ? column.align : undefined}
+            className={column.cellClassName}
+          >
+            {renderCell(item, column)}
+          </Table.Cell>
+        ))}
+      </Table.Row>
+    );
+  };
+
+  const renderVirtualSpacerRow = (id: string, height: number) =>
+    height > 0 ? (
+      <Table.Row
+        id={id}
+        key={id}
+        aria-hidden="true"
+        className="data-grid__virtual-spacer-row"
+        data-virtual-spacer="true"
+      >
+        <Table.Cell
+          colSpan={tableColumnCount}
+          className="data-grid__virtual-spacer-cell"
+          style={{ height }}
+        />
+      </Table.Row>
+    ) : null;
+
   return (
     <Table.Root
       data-slot="data-grid"
       data-vertical-align={verticalAlign}
+      data-virtualized={isVirtualized || undefined}
+      data-virtual-start={isVirtualized ? virtualRange.startIndex : undefined}
+      data-virtual-end={isVirtualized ? virtualRange.endIndex : undefined}
+      data-virtual-total={isVirtualized ? virtualRange.total : undefined}
       variant={variant}
       className={clsx('data-grid', className)}
       style={style}
       {...rest}
     >
-      <Table.ScrollContainer className={scrollContainerClassName}>
+      <Table.ScrollContainer
+        ref={scrollContainerRef}
+        className={clsx('data-grid__scroll-container', scrollContainerClassName)}
+        data-virtualized={isVirtualized || undefined}
+        style={virtualScrollContainerStyle}
+      >
         <Table.Content
           aria-label={ariaLabel}
           className={contentClassName}
@@ -497,7 +696,7 @@ function DataGrid<TRow extends object>({
           sortDescriptor={activeSort}
           onSortChange={handleSortChange}
           onRowAction={onRowAction}
-          disabledKeys={disabledKeys}
+          disabledKeys={mergedDisabledKeys}
         >
           <Table.Header>
             {withDragHandles && (
@@ -537,52 +736,17 @@ function DataGrid<TRow extends object>({
               );
             })}
           </Table.Header>
-          <Table.Body items={sortedData} renderEmptyState={renderEmptyState}>
-            {(item: TRow) => {
-              const rowKey = getRowId(item);
-              const isDragging = draggedKey === rowKey;
-              const isDropTarget = dropTarget?.key === rowKey;
-              const rowDragProps = withRowReordering
-                ? {
-                    'data-row-reorderable': true,
-                    'data-row-key': String(rowKey),
-                    'data-dragging': isDragging || undefined,
-                    'data-drop-target': isDropTarget || undefined,
-                    'data-drop-position': isDropTarget ? dropTarget.position : undefined,
-                  }
-                : {};
-
-              return (
-                <Table.Row id={rowKey} {...rowDragProps}>
-                  {withDragHandles && (
-                    <Table.Cell className="data-grid__drag-handle-cell">
-                      <DataGridDragHandle
-                        onMouseDown={(event) => handleRowMouseDown(rowKey, event)}
-                        onPointerDown={(event) => handleRowPointerDown(rowKey, event)}
-                        onPointerMove={handleRowPointerMove}
-                        onPointerUp={handleRowPointerUp}
-                        onPointerCancel={clearDragState}
-                      />
-                    </Table.Cell>
-                  )}
-                  {withSelection && (
-                    <Table.Cell className="data-grid__selection-cell">
-                      <DataGridSelectionCheckbox />
-                    </Table.Cell>
-                  )}
-                  {columns.map((column) => (
-                    <Table.Cell
-                      key={column.id}
-                      data-align={column.align !== 'start' ? column.align : undefined}
-                      className={column.cellClassName}
-                    >
-                      {renderCell(item, column)}
-                    </Table.Cell>
-                  ))}
-                </Table.Row>
-              );
-            }}
-          </Table.Body>
+          {isVirtualized ? (
+            <Table.Body className="data-grid__virtual-body" renderEmptyState={renderEmptyState}>
+              {renderVirtualSpacerRow(VIRTUAL_TOP_SPACER_KEY, virtualTopSpacer)}
+              {virtualRows.map((item) => renderDataGridRow(item))}
+              {renderVirtualSpacerRow(VIRTUAL_BOTTOM_SPACER_KEY, virtualBottomSpacer)}
+            </Table.Body>
+          ) : (
+            <Table.Body items={virtualRows} renderEmptyState={renderEmptyState}>
+              {(item: TRow) => renderDataGridRow(item)}
+            </Table.Body>
+          )}
         </Table.Content>
       </Table.ScrollContainer>
     </Table.Root>

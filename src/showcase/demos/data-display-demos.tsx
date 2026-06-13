@@ -8,7 +8,7 @@ import Carousel, { type CarouselApi } from '../../components/carousel';
 import ChartTooltip from '../../components/chart-tooltip';
 import Checkbox from '../../components/checkbox';
 import Chip from '../../components/chip';
-import DataGrid, { type DataGridColumn } from '../../components/data-grid';
+import DataGrid, { type DataGridColumn, type DataGridVirtualRange } from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
 import FileTree, { useFileTree, useFileTreeData, useFileTreeDrag } from '../../components/file-tree';
 import FloatingToc from '../../components/floating-toc';
@@ -1911,34 +1911,32 @@ const VIRTUAL_ROWS = Array.from({ length: 40 }, (_, index) => ({
 }));
 
 const DataGridVirtualizedVariantDemo = () => {
-  const [start, setStart] = useState(0);
-  const visibleRows = VIRTUAL_ROWS.slice(start, start + 8);
+  const [range, setRange] = useState<DataGridVirtualRange>({
+    startIndex: 0,
+    endIndex: 8,
+    visibleStartIndex: 0,
+    visibleEndIndex: 8,
+    total: VIRTUAL_ROWS.length,
+  });
 
   return (
-    <DemoSection isColumn label="virtualized window intent">
+    <DemoSection isColumn label="virtualized rows">
       <div style={{ width: 680 }}>
         <DataGrid
           aria-label="大数据学员窗口"
           columns={STUDENT_COLUMNS}
-          data={visibleRows}
+          data={VIRTUAL_ROWS}
           getRowId={studentRowId}
+          virtualized
+          virtualMaxHeight={360}
+          virtualOverscan={4}
+          virtualRowHeight={45}
+          onVirtualRangeChange={setRange}
         />
       </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-        <Button size="sm" variant="secondary" onClick={() => setStart((value) => Math.max(value - 8, 0))}>
-          上一屏
-        </Button>
-        <span style={demoTextStyle}>
-          {start + 1}-{start + visibleRows.length} / {VIRTUAL_ROWS.length}
-        </span>
-        <Button
-          size="sm"
-          variant="secondary"
-          onClick={() => setStart((value) => Math.min(value + 8, VIRTUAL_ROWS.length - 8))}
-        >
-          下一屏
-        </Button>
-      </div>
+      <span style={demoTextStyle}>
+        可见窗口：{range.visibleStartIndex + 1}-{range.visibleEndIndex} / {range.total}
+      </span>
     </DemoSection>
   );
 };
