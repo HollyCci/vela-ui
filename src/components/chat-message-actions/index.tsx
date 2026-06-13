@@ -20,6 +20,7 @@ const ICON_MOTION_STYLE: CSSProperties = { filter: 'blur(0px)', opacity: 1, tran
 const ACTION_BUTTON_CLASS = 'button button--icon-only button--sm button--ghost chat-message__action';
 
 type IconProps = SVGProps<SVGSVGElement>;
+type CopyStatus = 'idle' | 'copied' | 'failed';
 
 /** 预设图标统一为 16×16；自定义 className 置于基类 size-4 之前，与 custom-icons 快照顺序一致 */
 const baseSvgProps = {
@@ -64,6 +65,24 @@ const CheckIcon = ({ className, ...rest }: IconProps) => (
   </svg>
 );
 CheckIcon.displayName = 'ChatMessageActions.CheckIcon';
+
+/** 复制失败提示图标（clipboard 被拦截或不可用时短暂展示） */
+const ErrorIcon = ({ className, ...rest }: IconProps) => (
+  <svg
+    {...baseSvgProps}
+    className={clsx(className, 'size-4')}
+    data-slot="chat-message-actions-copy-icon"
+    {...rest}
+  >
+    <path
+      clipRule="evenodd"
+      d="M8 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5M6.22 5.72a.75.75 0 0 1 1.06 0L8 6.44l.72-.72a.75.75 0 1 1 1.06 1.06L9.06 7.5l.72.72a.75.75 0 1 1-1.06 1.06L8 8.56l-.72.72a.75.75 0 0 1-1.06-1.06l.72-.72-.72-.72a.75.75 0 0 1 0-1.06"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+ErrorIcon.displayName = 'ChatMessageActions.ErrorIcon';
 
 const ThumbsUpIcon = ({ className, ...rest }: IconProps) => (
   <svg
@@ -133,6 +152,40 @@ const MenuIcon = ({ className, ...rest }: IconProps) => (
 );
 MenuIcon.displayName = 'ChatMessageActions.MenuIcon';
 
+const copyText = async (text: string) => {
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText !== undefined) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  if (typeof document === 'undefined') {
+    throw new Error('Clipboard API is unavailable');
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.inset = '0';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    if (!document.execCommand('copy')) {
+      throw new Error('Copy command was rejected');
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
+};
+
+const getCopyLabel = (status: CopyStatus, label: string) => {
+  if (status === 'copied') return 'Copied';
+  if (status === 'failed') return 'Copy failed';
+  return label;
+};
+
 /**
  * 通用动作按钮：OSS Button（icon-only / sm / ghost），输出 button[data-slot=chat-message-action]。
  * 原站 ChatMessageActions.Action「Extends HeroUI Button props」，故透传全部 Button props。
@@ -159,7 +212,7 @@ const Action = forwardRef<HTMLButtonElement, ChatMessageActionsActionProps>(
 Action.displayName = 'ChatMessageActions.Action';
 
 /**
- * 复制动作：navigator.clipboard 写入成功后切换对勾图标约 2 秒（成功态切换），失败保持原图标。
+ * 复制动作：navigator.clipboard 写入成功后切换对勾图标约 2 秒，失败时短暂展示失败图标。
  * 图标外层 motion span 与快照一致（data-slot=chat-message-actions-copy-icon-motion）。
  */
 export type ChatMessageActionsCopyProps = Omit<ButtonProps, 'className' | 'style' | 'children'> & {
@@ -169,6 +222,8 @@ export type ChatMessageActionsCopyProps = Omit<ButtonProps, 'className' | 'style
   icon?: ReactNode;
   /** 自定义成功态图标；缺省用预设 CheckIcon */
   copiedIcon?: ReactNode;
+  /** 自定义失败态图标；缺省用预设 ErrorIcon */
+  failedIcon?: ReactNode;
   /** 成功态保持毫秒数（默认 2000） */
   timeout?: number;
   className?: string;
@@ -181,6 +236,7 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
       content,
       icon,
       copiedIcon,
+      failedIcon,
       timeout = 2000,
       className,
       onPress,
@@ -189,46 +245,61 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
     },
     ref,
   ) => {
-    const [isCopied, setIsCopied] = useState(false);
+    const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
     const resetTimerRef = useRef<number | null>(null);
+
+    const clearResetTimer = useCallback(() => {
+      if (resetTimerRef.current !== null) {
+        window.clearTimeout(resetTimerRef.current);
+        resetTimerRef.current = null;
+      }
+    }, []);
 
     useEffect(
       () => () => {
-        if (resetTimerRef.current !== null) {
-          window.clearTimeout(resetTimerRef.current);
-        }
+        clearResetTimer();
       },
-      [],
+      [clearResetTimer],
+    );
+
+    const showStatus = useCallback(
+      (status: Exclude<CopyStatus, 'idle'>) => {
+        setCopyStatus(status);
+        clearResetTimer();
+        resetTimerRef.current = window.setTimeout(() => {
+          setCopyStatus('idle');
+          resetTimerRef.current = null;
+        }, timeout);
+      },
+      [clearResetTimer, timeout],
     );
 
     const handlePress = useCallback<NonNullable<ButtonProps['onPress']>>(
       (event) => {
         onPress?.(event);
-        void navigator.clipboard
-          .writeText(content)
-          .then(() => {
-            setIsCopied(true);
-            if (resetTimerRef.current !== null) {
-              window.clearTimeout(resetTimerRef.current);
-            }
-            resetTimerRef.current = window.setTimeout(() => {
-              setIsCopied(false);
-              resetTimerRef.current = null;
-            }, timeout);
-          })
-          .catch(() => undefined);
+        void copyText(content)
+          .then(() => showStatus('copied'))
+          .catch(() => showStatus('failed'));
       },
-      [onPress, content, timeout],
+      [onPress, content, showStatus],
     );
+
+    const currentIcon =
+      copyStatus === 'copied'
+        ? (copiedIcon ?? <CheckIcon />)
+        : copyStatus === 'failed'
+          ? (failedIcon ?? <ErrorIcon />)
+          : (icon ?? <CopyIcon />);
 
     return (
       <Button
         ref={ref}
         data-slot="chat-message-action"
+        data-copy-status={copyStatus}
         isIconOnly
         size="sm"
         variant="ghost"
-        aria-label={isCopied ? 'Copied' : ariaLabel}
+        aria-label={getCopyLabel(copyStatus, ariaLabel)}
         className={clsx(ACTION_BUTTON_CLASS, className)}
         onPress={handlePress}
         {...rest}
@@ -238,7 +309,7 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
           data-slot="chat-message-actions-copy-icon-motion"
           style={ICON_MOTION_STYLE}
         >
-          {isCopied ? (copiedIcon ?? <CheckIcon />) : (icon ?? <CopyIcon />)}
+          {currentIcon}
         </span>
       </Button>
     );
@@ -333,6 +404,7 @@ const ChatMessageActions = Object.assign(ChatMessageActionsRoot, {
   Menu,
   CopyIcon,
   CheckIcon,
+  ErrorIcon,
   ThumbsUpIcon,
   ThumbsDownIcon,
   RegenerateIcon,

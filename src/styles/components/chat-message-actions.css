@@ -8,3 +8,13 @@
   align-items: flex-start;
   display: flex;
 }
+
+.chat-message-actions [data-slot=chat-message-action][data-copy-status=copied],
+.chat-message-actions [data-slot=chat-message-action][data-selected],
+.chat-message-actions [data-slot=chat-message-action][data-selected=true] {
+  color: var(--success-soft-foreground);
+}
+
+.chat-message-actions [data-slot=chat-message-action][data-copy-status=failed] {
+  color: var(--danger-soft-foreground);
+}

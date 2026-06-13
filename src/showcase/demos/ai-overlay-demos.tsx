@@ -26,6 +26,9 @@ import Sheet from '../../components/sheet';
 import TextShimmer from '../../components/text-shimmer';
 import DemoSection from '../demo-section';
 
+const CHAT_MESSAGE_DEMO_ANSWER =
+  '好的，这份报告的核心要点有三个：营收同比增长 18%、新客户留存率提升至 76%、华东区表现最为突出。';
+
 const ChatMessageDemo = () => (
   <DemoSection label="用户 / 助手气泡" isColumn>
     <ChatMessage variant="user">请帮我总结一下这份季度报告的要点。</ChatMessage>
@@ -33,14 +36,12 @@ const ChatMessageDemo = () => (
       variant="assistant"
       avatar={<Avatar fallback="AI" />}
       actions={
-        <ChatMessage.Action>
-          <Button variant="ghost" size="sm" isIconOnly aria-label="复制">
-            ⧉
-          </Button>
-        </ChatMessage.Action>
+        <ChatMessageActions>
+          <ChatMessageActions.Copy content={CHAT_MESSAGE_DEMO_ANSWER} />
+        </ChatMessageActions>
       }
     >
-      好的，这份报告的核心要点有三个：营收同比增长 18%、新客户留存率提升至 76%、华东区表现最为突出。
+      {CHAT_MESSAGE_DEMO_ANSWER}
     </ChatMessage>
   </DemoSection>
 );
@@ -93,50 +94,94 @@ const ChatAttachmentDemo = () => {
   );
 };
 
-const ChatSourceDemo = () => (
-  <DemoSection label="引用来源" isColumn>
-    <div>
-      <ChatSource href="https://react.dev" title="React 官方文档" />{' '}
-      <ChatSource href="https://developer.mozilla.org" title="MDN Web Docs" fallback="M" />
-    </div>
-    <ChatSource.Preview
-      href="https://react.dev"
-      title="React 官方文档"
-      description="用于构建用户界面的 JavaScript 库，提供组件化开发模式。"
-    />
-  </DemoSection>
-);
+const ChatSourceDemo = () => {
+  const [lastOpened, setLastOpened] = useState('尚未打开');
 
-const ChatToolDemo = () => (
-  <DemoSection label="工具调用" isColumn>
-    <ChatTool label="查询数据库：用户表" statusIcon="▾" defaultExpanded>
-      <ChatTool.Args>
-        <CodeBlock>
-          <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
-        </CodeBlock>
-      </ChatTool.Args>
-      <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
-    </ChatTool>
-    <ChatTool label={<TextShimmer>正在执行检索…</TextShimmer>} status="running" isExpandable={false} />
-    <ChatTool label="写入文件失败" status="error" defaultExpanded>
-      <ChatTool.Error>没有目标目录的写入权限。</ChatTool.Error>
-    </ChatTool>
-    <ChatTool label="删除分支需要确认" status="requires-action" defaultExpanded>
-      <ChatTool.Approval
-        actions={
-          <>
-            <Button variant="ghost" size="sm">
-              拒绝
-            </Button>
-            <Button size="sm">允许</Button>
-          </>
-        }
-      >
-        该操作不可撤销，是否允许删除远程分支？
-      </ChatTool.Approval>
-    </ChatTool>
-  </DemoSection>
-);
+  return (
+    <DemoSection label="引用来源（点击打开后显示反馈）" isColumn>
+      <div>
+        <ChatSource
+          href="https://react.dev"
+          title="React 官方文档"
+          onOpen={() => setLastOpened('React 官方文档')}
+        />{' '}
+        <ChatSource
+          href="https://developer.mozilla.org"
+          title="MDN Web Docs"
+          fallback="M"
+          onOpen={() => setLastOpened('MDN Web Docs')}
+        />
+      </div>
+      <ChatSource.Preview
+        href="https://react.dev"
+        title="React 官方文档"
+        description="用于构建用户界面的 JavaScript 库，提供组件化开发模式。"
+        onOpen={() => setLastOpened('React 官方文档预览卡片')}
+      />
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>最近打开：{lastOpened}</span>
+    </DemoSection>
+  );
+};
+
+const ChatToolDemo = () => {
+  const [approvalResult, setApprovalResult] = useState<'pending' | 'rejected' | 'approved'>('pending');
+
+  const handleReject = useCallback(() => {
+    setApprovalResult('rejected');
+  }, []);
+  const handleApprove = useCallback(() => {
+    setApprovalResult('approved');
+  }, []);
+
+  const isApprovalResolved = approvalResult !== 'pending';
+  const approvalLabel =
+    approvalResult === 'approved'
+      ? '已允许删除分支'
+      : approvalResult === 'rejected'
+        ? '已拒绝删除分支'
+        : '删除分支需要确认';
+  const approvalStatus =
+    approvalResult === 'approved' ? 'running' : approvalResult === 'rejected' ? 'error' : 'requires-action';
+  const approvalText =
+    approvalResult === 'approved'
+      ? '已允许操作，模拟执行删除远程分支。'
+      : approvalResult === 'rejected'
+        ? '已拒绝操作，远程分支保持不变。'
+        : '该操作不可撤销，是否允许删除远程分支？';
+
+  return (
+    <DemoSection label="工具调用" isColumn>
+      <ChatTool label="查询数据库：用户表" statusIcon="▾" defaultExpanded>
+        <ChatTool.Args>
+          <CodeBlock>
+            <CodeBlock.Code code={'{ "table": "users", "limit": 10 }'} />
+          </CodeBlock>
+        </ChatTool.Args>
+        <ChatTool.Result>共返回 10 条记录，耗时 42ms。</ChatTool.Result>
+      </ChatTool>
+      <ChatTool label={<TextShimmer>正在执行检索…</TextShimmer>} status="running" isExpandable={false} />
+      <ChatTool label="写入文件失败" status="error" defaultExpanded>
+        <ChatTool.Error>没有目标目录的写入权限。</ChatTool.Error>
+      </ChatTool>
+      <ChatTool label={approvalLabel} status={approvalStatus} defaultExpanded>
+        <ChatTool.Approval
+          actions={
+            <>
+              <Button variant="ghost" size="sm" disabled={isApprovalResolved} onClick={handleReject}>
+                拒绝
+              </Button>
+              <Button size="sm" disabled={isApprovalResolved} onClick={handleApprove}>
+                允许
+              </Button>
+            </>
+          }
+        >
+          {approvalText}
+        </ChatTool.Approval>
+      </ChatTool>
+    </DemoSection>
+  );
+};
 
 const ChainOfThoughtDemo = () => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -513,31 +558,43 @@ const PopoverDemo = () => (
   </DemoSection>
 );
 
+const DROPDOWN_ACTION_LABELS: Record<string, string> = {
+  edit: '编辑学员信息',
+  export: '导出记录',
+  delete: '删除学员',
+};
+
 const DropdownDemo = () => {
   const [isOpen, setIsOpen] = useState(true);
+  const [lastAction, setLastAction] = useState('尚未选择');
+
+  const handleAction = useCallback((key: Key) => {
+    setLastAction(DROPDOWN_ACTION_LABELS[String(key)] ?? String(key));
+  }, []);
 
   return (
     <DemoSection label="受控下拉菜单（按钮触发 / 键盘导航 / 选中回调）" isColumn>
       <Dropdown isOpen={isOpen} onOpenChange={setIsOpen}>
         <Dropdown.Trigger>操作菜单 ▾</Dropdown.Trigger>
         <Dropdown.Popover placement="bottom">
-          <Dropdown.Menu aria-label="操作菜单">
-            <MenuItem textValue="编辑学员信息">
+          <Dropdown.Menu aria-label="操作菜单" onAction={handleAction}>
+            <MenuItem id="edit" textValue="编辑学员信息">
               <MenuItem.Label>编辑学员信息</MenuItem.Label>
             </MenuItem>
-            <MenuItem textValue="导出记录">
+            <MenuItem id="export" textValue="导出记录">
               <MenuItem.Label>导出记录</MenuItem.Label>
               <MenuItem.Description>导出为 Excel 文件</MenuItem.Description>
             </MenuItem>
-            <MenuItem isDisabled textValue="归档（无权限）">
+            <MenuItem id="archive" isDisabled textValue="归档（无权限）">
               <MenuItem.Label>归档（无权限）</MenuItem.Label>
             </MenuItem>
-            <MenuItem variant="danger" textValue="删除学员">
+            <MenuItem id="delete" variant="danger" textValue="删除学员">
               <MenuItem.Label>删除学员</MenuItem.Label>
             </MenuItem>
           </Dropdown.Menu>
         </Dropdown.Popover>
       </Dropdown>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>最近选择：{lastAction}</span>
     </DemoSection>
   );
 };
@@ -757,21 +814,37 @@ const CHAT_ANSWER =
 
 const ChatMessageActionsDemo = () => {
   const [rating, setRating] = useState<'up' | 'down' | null>(null);
+  const [regenerateCount, setRegenerateCount] = useState(0);
+  const [lastAction, setLastAction] = useState('尚未操作');
 
-  const handleThumbsUp = (isSelected: boolean) => setRating(isSelected ? 'up' : null);
-  const handleThumbsDown = (isSelected: boolean) => setRating(isSelected ? 'down' : null);
+  const handleThumbsUp = (isSelected: boolean) => {
+    setRating(isSelected ? 'up' : null);
+    setLastAction(isSelected ? '已赞' : '已取消赞');
+  };
+  const handleThumbsDown = (isSelected: boolean) => {
+    setRating(isSelected ? 'down' : null);
+    setLastAction(isSelected ? '已踩' : '已取消踩');
+  };
+  const handleRegenerate = () => {
+    setRegenerateCount((count) => count + 1);
+    setLastAction('已重新生成');
+  };
+  const handleOpenMore = () => {
+    setLastAction('已打开更多操作');
+  };
 
   return (
-    <DemoSection label="消息操作条（复制成功态 / 赞踩互斥 toggle）" isColumn>
+    <DemoSection label="消息操作条（复制成功态 / 赞踩互斥 toggle / 操作反馈）" isColumn>
       <ChatMessageActions>
         <ChatMessageActions.Copy content={CHAT_ANSWER} />
         <ChatMessageActions.ThumbsUp isSelected={rating === 'up'} onChange={handleThumbsUp} />
         <ChatMessageActions.ThumbsDown isSelected={rating === 'down'} onChange={handleThumbsDown} />
-        <ChatMessageActions.Regenerate />
-        <ChatMessageActions.Menu />
+        <ChatMessageActions.Regenerate onPress={handleRegenerate} />
+        <ChatMessageActions.Menu onPress={handleOpenMore} />
       </ChatMessageActions>
       <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-        当前评价：{rating === 'up' ? '👍 已赞' : rating === 'down' ? '👎 已踩' : '未评价'}
+        当前评价：{rating === 'up' ? '已赞' : rating === 'down' ? '已踩' : '未评价'}；重新生成：
+        {regenerateCount} 次；最近动作：{lastAction}
       </span>
     </DemoSection>
   );

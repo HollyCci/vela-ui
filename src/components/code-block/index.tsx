@@ -30,6 +30,8 @@ export type CodeBlockCopyButtonProps = Omit<ButtonProps, 'className' | 'style' |
   style?: CSSProperties;
 };
 
+type CopyStatus = 'idle' | 'copied' | 'failed';
+
 /** 复制图标（与基准快照 SVG path 一致） */
 const CopyIcon = () => (
   <svg className="size-3.5" fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
@@ -56,8 +58,61 @@ const CheckIcon = () => (
 );
 CheckIcon.displayName = 'CodeBlock.CheckIcon';
 
+/** 复制失败提示图标（clipboard 被拦截或不可用时短暂展示） */
+const ErrorIcon = () => (
+  <svg className="size-3.5" fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
+    <path
+      clipRule="evenodd"
+      d="M8 1.25a6.75 6.75 0 1 0 0 13.5 6.75 6.75 0 0 0 0-13.5M6.22 5.72a.75.75 0 0 1 1.06 0L8 6.44l.72-.72a.75.75 0 1 1 1.06 1.06L9.06 7.5l.72.72a.75.75 0 1 1-1.06 1.06L8 8.56l-.72.72a.75.75 0 0 1-1.06-1.06l.72-.72-.72-.72a.75.75 0 0 1 0-1.06"
+      fill="currentColor"
+      fillRule="evenodd"
+    />
+  </svg>
+);
+ErrorIcon.displayName = 'CodeBlock.ErrorIcon';
+
 /** 基准快照中图标外层 Motion span 的终态内联样式（本仓无动画库，静态对齐） */
 const ICON_MOTION_STYLE: CSSProperties = { filter: 'blur(0px)', opacity: 1, transform: 'none' };
+
+const copyText = async (text: string) => {
+  if (typeof navigator !== 'undefined' && navigator.clipboard?.writeText !== undefined) {
+    await navigator.clipboard.writeText(text);
+    return;
+  }
+
+  if (typeof document === 'undefined') {
+    throw new Error('Clipboard API is unavailable');
+  }
+
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.setAttribute('readonly', '');
+  textarea.style.position = 'fixed';
+  textarea.style.inset = '0';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+
+  try {
+    if (!document.execCommand('copy')) {
+      throw new Error('Copy command was rejected');
+    }
+  } finally {
+    document.body.removeChild(textarea);
+  }
+};
+
+const getCopyLabel = (status: CopyStatus, label: string) => {
+  if (status === 'copied') return 'Copied';
+  if (status === 'failed') return 'Copy failed';
+  return label;
+};
+
+const getCopyIcon = (status: CopyStatus) => {
+  if (status === 'copied') return <CheckIcon />;
+  if (status === 'failed') return <ErrorIcon />;
+  return <CopyIcon />;
+};
 
 const Header = forwardRef<HTMLDivElement, CodeBlockHeaderProps>(({ className, ...rest }, ref) => (
   <div
@@ -88,7 +143,7 @@ Code.displayName = 'CodeBlock.Code';
 
 /**
  * 复制按钮：OSS Button ghost/sm/icon-only；navigator.clipboard 写入成功后
- * 切换对勾图标约 2 秒（原站行为），失败保持原图标。
+ * 切换对勾图标约 2 秒；失败时短暂展示失败图标。
  */
 const CopyButton = ({
   code,
@@ -97,45 +152,53 @@ const CopyButton = ({
   onPress,
   ...rest
 }: CodeBlockCopyButtonProps) => {
-  const [isCopied, setIsCopied] = useState(false);
+  const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
   const resetTimerRef = useRef<number | null>(null);
+
+  const clearResetTimer = useCallback(() => {
+    if (resetTimerRef.current !== null) {
+      window.clearTimeout(resetTimerRef.current);
+      resetTimerRef.current = null;
+    }
+  }, []);
 
   useEffect(
     () => () => {
-      if (resetTimerRef.current !== null) {
-        window.clearTimeout(resetTimerRef.current);
-      }
+      clearResetTimer();
     },
-    [],
+    [clearResetTimer],
+  );
+
+  const showStatus = useCallback(
+    (status: Exclude<CopyStatus, 'idle'>) => {
+      setCopyStatus(status);
+      clearResetTimer();
+      resetTimerRef.current = window.setTimeout(() => {
+        setCopyStatus('idle');
+        resetTimerRef.current = null;
+      }, 2000);
+    },
+    [clearResetTimer],
   );
 
   const handlePress = useCallback<NonNullable<ButtonProps['onPress']>>(
     (event) => {
       onPress?.(event);
-      void navigator.clipboard
-        .writeText(code)
-        .then(() => {
-          setIsCopied(true);
-          if (resetTimerRef.current !== null) {
-            window.clearTimeout(resetTimerRef.current);
-          }
-          resetTimerRef.current = window.setTimeout(() => {
-            setIsCopied(false);
-            resetTimerRef.current = null;
-          }, 2000);
-        })
-        .catch(() => undefined);
+      void copyText(code)
+        .then(() => showStatus('copied'))
+        .catch(() => showStatus('failed'));
     },
-    [onPress, code],
+    [onPress, code, showStatus],
   );
 
   return (
     <Button
       data-slot="code-block-copy-button"
+      data-copy-status={copyStatus}
       isIconOnly
       size="sm"
       variant="ghost"
-      aria-label={isCopied ? 'Copied' : ariaLabel}
+      aria-label={getCopyLabel(copyStatus, ariaLabel)}
       className={clsx('code-block__copy-button', className)}
       onPress={handlePress}
       {...rest}
@@ -145,7 +208,7 @@ const CopyButton = ({
         data-slot="code-block-copy-button-icon-motion"
         style={ICON_MOTION_STYLE}
       >
-        {isCopied ? <CheckIcon /> : <CopyIcon />}
+        {getCopyIcon(copyStatus)}
       </span>
     </Button>
   );
