@@ -2,6 +2,7 @@ import {
   Children,
   cloneElement,
   createContext,
+  Fragment,
   isValidElement,
   useCallback,
   useContext,
@@ -12,12 +13,16 @@ import {
 import { Checkbox } from '@heroui/react';
 import {
   Button,
+  CollectionRendererContext,
+  DefaultCollectionRenderer,
   Tree,
   TreeHeader,
   TreeItem,
   TreeItemContent,
   TreeSection,
+  TreeStateContext,
   useDragAndDrop,
+  type CollectionRenderer,
   type DragAndDropOptions,
   type DropPosition,
   type GridListSectionProps,
@@ -28,6 +33,7 @@ import {
   type TreeItemRenderProps,
   type TreeProps,
 } from 'react-aria-components';
+import { AnimatePresence, motion } from 'motion/react';
 import clsx from 'clsx';
 
 export type FileTreeSize = 'sm' | 'md' | 'lg';
@@ -283,8 +289,136 @@ const SectionHeader = ({ className, ...rest }: FileTreeHeaderProps) => (
 SectionHeader.displayName = 'FileTree.Header';
 
 /**
+ * 子树展开/收起的高度过渡参数：opacity+height(0↔auto)，与原站 motion section 手感一致。
+ * overflow 在动画期间为 hidden（裁剪溢出内容），稳态展开后由 motion 还原为 visible。
+ */
+const SECTION_INITIAL = { height: 0, opacity: 0 } as const;
+const SECTION_ANIMATE = { height: 'auto', opacity: 1 } as const;
+const SECTION_EXIT = { height: 0, opacity: 0 } as const;
+const SECTION_TRANSITION = { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as const;
+
+/**
+ * RAC Tree 默认把所有可见行拍平成 treegrid 的兄弟节点（无嵌套容器，展开瞬时）。
+ * 原站则把每个展开分支的子级行包进一个 motion section（data-tree-motion-section）做高度过渡——
+ * 见 public/reference/demos/file-tree-*.html。此渲染器消费拍平后的 collection，按 node.level
+ * 重建嵌套：每遇到更深一层就开一个 <motion.div data-tree-motion-section>，配合 AnimatePresence
+ * 让分支按 RAC 的展开态进出场。行本身仍由 node.render(node) 渲染，故 role/aria/data-* 全部不变。
+ */
+type FileTreeNodeLike = {
+  key: Key;
+  type: string;
+  level: number;
+  hasChildNodes?: boolean;
+  render: (node: FileTreeNodeLike) => ReactNode;
+};
+
+type MotionTreeCtx = {
+  /** 当前展开的分支 key 集合，决定是否在 AnimatePresence 中放入 section */
+  expandedKeys: Set<Key>;
+};
+
+/**
+ * 把拍平的节点序列按 level 递归重建为嵌套结构。
+ * 每个「有子节点」的 item 行后都挂一个**稳定**的 <AnimatePresence>：展开时其内放入
+ * motion section（含递归出的子级行）→ 触发入场；收起时 section 从仍挂载的 AnimatePresence
+ * 中移除 → 触发 exit 收合动画。AnimatePresence 必须长期挂载，故即便收起也保留空壳。
+ */
+const buildMotionTree = (
+  nodes: FileTreeNodeLike[],
+  startIndex: number,
+  parentLevel: number,
+  ctx: MotionTreeCtx,
+) => {
+  const elements: ReactNode[] = [];
+  let i = startIndex;
+
+  while (i < nodes.length) {
+    const node = nodes[i];
+    if (node.level <= parentLevel) break;
+
+    // 仅 item 行参与嵌套包裹；section/header/loader 等按原样渲染
+    if (node.type !== 'item') {
+      elements.push(<Fragment key={String(node.key)}>{node.render(node)}</Fragment>);
+      i += 1;
+      continue;
+    }
+
+    const row = node.render(node);
+    const isExpanded = node.hasChildNodes === true && ctx.expandedKeys.has(node.key);
+
+    // 展开时，紧随其后的更深层级行即本行子级，递归构建后放入 section
+    let childElements: ReactNode[] = [];
+    if (isExpanded) {
+      const built = buildMotionTree(nodes, i + 1, node.level, ctx);
+      childElements = built.elements;
+      i = built.nextIndex;
+    } else {
+      i += 1;
+    }
+
+    // 只有「可有子节点」的行才挂 AnimatePresence（叶子无需），保持 AnimatePresence 稳定常挂
+    if (node.hasChildNodes === true) {
+      elements.push(
+        <Fragment key={String(node.key)}>
+          {row}
+          <AnimatePresence initial={false}>
+            {isExpanded && (
+              <motion.div
+                key={`${String(node.key)}-section`}
+                data-tree-motion-section
+                role="presentation"
+                style={{ overflow: 'hidden' }}
+                initial={SECTION_INITIAL}
+                animate={SECTION_ANIMATE}
+                exit={SECTION_EXIT}
+                transition={SECTION_TRANSITION}
+              >
+                {childElements}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </Fragment>,
+      );
+    } else {
+      elements.push(<Fragment key={String(node.key)}>{row}</Fragment>);
+    }
+  }
+
+  return { elements, nextIndex: i };
+};
+
+const MotionCollectionRoot: CollectionRenderer['CollectionRoot'] = ({
+  collection,
+  persistedKeys: _persistedKeys,
+  scrollRef: _scrollRef,
+  renderDropIndicator: _renderDropIndicator,
+  ...domProps
+}) => {
+  const state = useContext(TreeStateContext);
+  // 拍平迭代：RAC 的 root collection 迭代器已按可见顺序产出全部行（含各层级）
+  const flat = [...collection] as unknown as FileTreeNodeLike[];
+  const expandedKeys = (state?.expandedKeys ?? new Set<Key>()) as Set<Key>;
+  const { elements } = buildMotionTree(flat, 0, Number.NEGATIVE_INFINITY, { expandedKeys });
+  // 外层 treegrid 容器由 Tree 自身渲染，这里只负责其 children；domProps 无需透传
+  void domProps;
+  return <>{elements}</>;
+};
+MotionCollectionRoot.displayName = 'FileTree.MotionCollectionRoot';
+
+/**
+ * 自定义 collection 渲染器：仅替换 CollectionRoot 以注入 motion section；
+ * CollectionBranch 复用默认实现（拖拽场景不走此渲染器，见 FileTreeRoot）。
+ */
+const motionCollectionRenderer: CollectionRenderer = {
+  ...DefaultCollectionRenderer,
+  CollectionRoot: MotionCollectionRoot,
+};
+
+/**
  * 基于 RAC Tree 的文件树（原站底座）：渲染 role="treegrid"，展开收起、单选/多选、
  * 键盘导航（方向键/typeahead）、拖拽均由 RAC 提供。
+ * 展开/收起的高度过渡由自定义 CollectionRoot 注入的 motion section 承担（reduceMotion 或
+ * 拖拽场景回退到 RAC 默认拍平渲染，避免影响 DnD 的 drop indicator）。
  */
 function FileTreeRoot<T extends object>({
   size = 'md',
@@ -298,14 +432,21 @@ function FileTreeRoot<T extends object>({
     [size, showGuideLines],
   );
 
+  // 拖拽态由 RAC 默认渲染器处理（drop indicator 依赖内部私有逻辑，不在此重写）；
+  // reduceMotion 时同样回退，行为与 CSS [data-reduce-motion] 一致：无展开动画。
+  const useMotionSections = !reduceMotion && rest.dragAndDropHooks === undefined;
+  const renderer = useMotionSections ? motionCollectionRenderer : DefaultCollectionRenderer;
+
   return (
     <FileTreeContext.Provider value={contextValue}>
-      <Tree
-        data-slot="file-tree"
-        data-reduce-motion={reduceMotion ? 'true' : undefined}
-        className={clsx('file-tree', `file-tree--${size}`, className)}
-        {...rest}
-      />
+      <CollectionRendererContext.Provider value={renderer}>
+        <Tree
+          data-slot="file-tree"
+          data-reduce-motion={reduceMotion ? 'true' : undefined}
+          className={clsx('file-tree', `file-tree--${size}`, className)}
+          {...rest}
+        />
+      </CollectionRendererContext.Provider>
     </FileTreeContext.Provider>
   );
 }
