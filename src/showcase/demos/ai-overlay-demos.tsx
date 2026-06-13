@@ -1,4 +1,6 @@
 import { useCallback, useState, type ReactNode } from 'react';
+import type { Key, Selection } from 'react-aria-components';
+import { Description, Dropdown as HeroDropdown, Label, Menu as HeroMenu } from '@heroui/react';
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
@@ -329,10 +331,21 @@ const DropdownDemo = () => {
           </Button>
         }
       >
-        <MenuItem>编辑学员信息</MenuItem>
-        <MenuItem description="导出为 Excel 文件">导出记录</MenuItem>
-        <MenuItem isDisabled>归档（无权限）</MenuItem>
-        <MenuItem isDanger>删除学员</MenuItem>
+        <HeroMenu aria-label="操作菜单">
+          <MenuItem textValue="编辑学员信息">
+            <Label>编辑学员信息</Label>
+          </MenuItem>
+          <MenuItem textValue="导出记录">
+            <Label>导出记录</Label>
+            <Description>导出为 Excel 文件</Description>
+          </MenuItem>
+          <MenuItem isDisabled textValue="归档（无权限）">
+            <Label>归档（无权限）</Label>
+          </MenuItem>
+          <MenuItem variant="danger" textValue="删除学员">
+            <Label>删除学员</Label>
+          </MenuItem>
+        </HeroMenu>
       </Dropdown>
     </DemoSection>
   );
@@ -369,52 +382,129 @@ const SheetDemo = () => {
 
 const AlertDialogDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [lastResult, setLastResult] = useState('尚未操作');
 
-  const handleOpen = useCallback(() => {
-    setIsOpen(true);
+  const handleOpenChange = useCallback((open: boolean) => {
+    setIsOpen(open);
   }, []);
-  const handleClose = useCallback(() => {
+  const handleCancel = useCallback(() => {
+    setLastResult('已取消');
+    setIsOpen(false);
+  }, []);
+  const handleConfirm = useCallback(() => {
+    setLastResult('已确认删除');
     setIsOpen(false);
   }, []);
 
   return (
-    <DemoSection label="危险操作确认">
-      <Button variant="danger" onClick={handleOpen}>
-        删除记录
-      </Button>
-      <AlertDialog isOpen={isOpen} onClose={handleClose} size="xs">
-        <AlertDialog.Header>
-          <AlertDialog.Icon color="danger" aria-hidden="true">
-            !
-          </AlertDialog.Icon>
-          <AlertDialog.Heading>确认删除该辅导记录？</AlertDialog.Heading>
-        </AlertDialog.Header>
-        <AlertDialog.Body>删除后无法恢复，相关统计数据也会同步更新。</AlertDialog.Body>
-        <AlertDialog.Footer>
-          <Button variant="ghost" onClick={handleClose}>
-            取消
-          </Button>
-          <Button variant="danger" onClick={handleClose}>
-            删除
-          </Button>
-        </AlertDialog.Footer>
+    <DemoSection label="危险操作确认（trigger 打开 / Esc 与遮罩关闭 / 焦点圈定）" isColumn>
+      <AlertDialog isOpen={isOpen} onOpenChange={handleOpenChange}>
+        <AlertDialog.Trigger>
+          <Button variant="danger">删除记录</Button>
+        </AlertDialog.Trigger>
+        <AlertDialog.Backdrop isDismissable isKeyboardDismissDisabled={false}>
+          <AlertDialog.Container size="xs">
+            <AlertDialog.Dialog>
+              <AlertDialog.Header>
+                <AlertDialog.Icon status="danger" />
+                <AlertDialog.Heading>确认删除该辅导记录？</AlertDialog.Heading>
+              </AlertDialog.Header>
+              <AlertDialog.Body>删除后无法恢复，相关统计数据也会同步更新。</AlertDialog.Body>
+              <AlertDialog.Footer>
+                <Button variant="ghost" onClick={handleCancel}>
+                  取消
+                </Button>
+                <Button variant="danger" onClick={handleConfirm}>
+                  删除
+                </Button>
+              </AlertDialog.Footer>
+              <AlertDialog.CloseTrigger aria-label="关闭" />
+            </AlertDialog.Dialog>
+          </AlertDialog.Container>
+        </AlertDialog.Backdrop>
       </AlertDialog>
+      <p>最近一次操作：{lastResult}</p>
     </DemoSection>
   );
 };
 
-const MenuItemDemo = () => (
-  <DemoSection label="菜单项状态" isColumn>
-    <MenuItem hasIndicator isSelected selectionMode="single">
-      按创建时间排序
-    </MenuItem>
-    <MenuItem hasIndicator selectionMode="single">
-      按更新时间排序
-    </MenuItem>
-    <MenuItem hasSubmenu>更多操作</MenuItem>
-    <MenuItem isDanger>删除</MenuItem>
-  </DemoSection>
-);
+const SORT_LABELS: Record<string, string> = {
+  created: '按创建时间排序',
+  updated: '按更新时间排序',
+  name: '按学员姓名排序',
+};
+
+const STUDENT_ACTION_LABELS: Record<string, string> = {
+  edit: '编辑学员信息',
+  export: '导出记录',
+  delete: '删除学员',
+};
+
+const MenuItemDemo = () => {
+  const [sortKeys, setSortKeys] = useState<Selection>(new Set(['created']));
+  const [lastAction, setLastAction] = useState('尚未操作');
+
+  const handleSortChange = useCallback((keys: Selection) => {
+    setSortKeys(keys);
+  }, []);
+  const handleStudentAction = useCallback((key: Key) => {
+    setLastAction(STUDENT_ACTION_LABELS[String(key)] ?? String(key));
+  }, []);
+
+  const sortKey = sortKeys === 'all' ? undefined : Array.from(sortKeys)[0];
+  const sortLabel = (sortKey !== undefined && SORT_LABELS[String(sortKey)]) || '未选择';
+
+  return (
+    <DemoSection label="真实下拉菜单（按钮触发 / 键盘导航 / 选中回调）" isColumn>
+      <HeroDropdown>
+        <HeroDropdown.Trigger>排序方式：{sortLabel}</HeroDropdown.Trigger>
+        <HeroDropdown.Popover placement="bottom start">
+          <HeroDropdown.Menu
+            aria-label="排序方式"
+            selectionMode="single"
+            disallowEmptySelection
+            selectedKeys={sortKeys}
+            onSelectionChange={handleSortChange}
+          >
+            <MenuItem id="created" textValue="按创建时间排序">
+              <MenuItem.Indicator />
+              <Label>按创建时间排序</Label>
+            </MenuItem>
+            <MenuItem id="updated" textValue="按更新时间排序">
+              <MenuItem.Indicator />
+              <Label>按更新时间排序</Label>
+            </MenuItem>
+            <MenuItem id="name" textValue="按学员姓名排序">
+              <MenuItem.Indicator />
+              <Label>按学员姓名排序</Label>
+            </MenuItem>
+          </HeroDropdown.Menu>
+        </HeroDropdown.Popover>
+      </HeroDropdown>
+      <HeroDropdown>
+        <HeroDropdown.Trigger>学员操作</HeroDropdown.Trigger>
+        <HeroDropdown.Popover placement="bottom start">
+          <HeroDropdown.Menu aria-label="学员操作" onAction={handleStudentAction}>
+            <MenuItem id="edit" textValue="编辑学员信息">
+              <Label>编辑学员信息</Label>
+            </MenuItem>
+            <MenuItem id="export" textValue="导出记录">
+              <Label>导出记录</Label>
+              <Description>导出为 Excel 文件</Description>
+            </MenuItem>
+            <MenuItem id="archive" isDisabled textValue="归档（无权限）">
+              <Label>归档（无权限）</Label>
+            </MenuItem>
+            <MenuItem id="delete" variant="danger" textValue="删除学员">
+              <Label>删除学员</Label>
+            </MenuItem>
+          </HeroDropdown.Menu>
+        </HeroDropdown.Popover>
+      </HeroDropdown>
+      <p>最近操作：{lastAction}</p>
+    </DemoSection>
+  );
+};
 
 export const aiOverlayDemos: Record<string, ReactNode> = {
   'chat-message': <ChatMessageDemo />,

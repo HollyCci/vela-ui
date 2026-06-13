@@ -1,106 +1,114 @@
-import { forwardRef, type HTMLAttributes, type MouseEventHandler } from 'react';
-import clsx from 'clsx';
-import Button from '../button';
+import type { CSSProperties, HTMLAttributes } from 'react';
+import {
+  AlertDialog as HeroAlertDialog,
+  type AlertDialogBackdropProps as HeroAlertDialogBackdropProps,
+  type AlertDialogCloseTriggerProps as HeroAlertDialogCloseTriggerProps,
+  type AlertDialogContainerProps as HeroAlertDialogContainerProps,
+  type AlertDialogDialogProps as HeroAlertDialogDialogProps,
+  type AlertDialogHeadingProps as HeroAlertDialogHeadingProps,
+  type AlertDialogRootProps as HeroAlertDialogRootProps,
+  type AlertDialogTriggerProps as HeroAlertDialogTriggerProps,
+} from '@heroui/react';
 
-export type AlertDialogSize = 'xs' | 'sm' | 'md' | 'lg' | 'cover';
-export type AlertDialogPlacement = 'auto' | 'top' | 'center' | 'bottom';
-export type AlertDialogBackdrop = 'opaque' | 'blur' | 'transparent';
-export type AlertDialogIconColor = 'default' | 'accent' | 'success' | 'warning' | 'danger';
+export type AlertDialogSize = NonNullable<HeroAlertDialogContainerProps['size']>;
+export type AlertDialogPlacement = NonNullable<HeroAlertDialogContainerProps['placement']>;
+export type AlertDialogBackdropVariant = NonNullable<HeroAlertDialogBackdropProps['variant']>;
+export type AlertDialogIconStatus = 'default' | 'accent' | 'success' | 'warning' | 'danger';
 
-export type AlertDialogProps = HTMLAttributes<HTMLDivElement> & {
-  isOpen: boolean;
-  onClose?: MouseEventHandler<HTMLButtonElement>;
-  size?: AlertDialogSize;
-  placement?: AlertDialogPlacement;
-  backdrop?: AlertDialogBackdrop;
+/** Root 即 RAC DialogTrigger：不渲染 DOM，负责 isOpen/defaultOpen/onOpenChange 与 trigger 关联 */
+export type AlertDialogProps = HeroAlertDialogRootProps;
+
+export type AlertDialogTriggerProps = HeroAlertDialogTriggerProps;
+
+export type AlertDialogBackdropProps = Omit<HeroAlertDialogBackdropProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
 };
 
-type SectionProps = HTMLAttributes<HTMLDivElement>;
+/** 底座类型已剔除 style（与 Backdrop 共有的 ModalOverlay props 被 Omit），只收窄 className */
+export type AlertDialogContainerProps = Omit<HeroAlertDialogContainerProps, 'className'> & {
+  className?: string;
+};
 
-const AlertDialogRoot = forwardRef<HTMLDivElement, AlertDialogProps>(
-  (
-    {
-      isOpen,
-      onClose,
-      size = 'sm',
-      placement = 'auto',
-      backdrop = 'opaque',
-      className,
-      children,
-      ...rest
-    },
-    ref,
-  ) => {
-    if (!isOpen) return null;
-    return (
-      <div className={clsx('alert-dialog__backdrop', `alert-dialog__backdrop--${backdrop}`)}>
-        <div className="alert-dialog__container">
-          <div
-            ref={ref}
-            role="alertdialog"
-            aria-modal="true"
-            className={clsx('alert-dialog__dialog', `alert-dialog__dialog--${size}`, className)}
-            data-placement={placement}
-            {...rest}
-          >
-            {children}
-            {onClose !== undefined && (
-              <Button
-                variant="ghost"
-                size="sm"
-                isIconOnly
-                className="alert-dialog__close-trigger"
-                aria-label="关闭"
-                onClick={onClose}
-              >
-                ✕
-              </Button>
-            )}
-          </div>
-        </div>
-      </div>
-    );
-  },
-);
+export type AlertDialogDialogProps = HeroAlertDialogDialogProps;
+
+export type AlertDialogHeaderProps = HTMLAttributes<HTMLDivElement>;
+
+export type AlertDialogHeadingProps = HeroAlertDialogHeadingProps;
+
+export type AlertDialogBodyProps = HTMLAttributes<HTMLDivElement>;
+
+export type AlertDialogFooterProps = HTMLAttributes<HTMLDivElement>;
+
+export type AlertDialogIconProps = HTMLAttributes<HTMLDivElement> & {
+  /** 语义状态，决定底色与缺省图标（底座默认 danger） */
+  status?: AlertDialogIconStatus;
+};
+
+export type AlertDialogCloseTriggerProps = Omit<
+  HeroAlertDialogCloseTriggerProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+const AlertDialogRoot = (props: AlertDialogProps) => <HeroAlertDialog {...props} />;
 AlertDialogRoot.displayName = 'AlertDialog';
 
-export type AlertDialogIconProps = SectionProps & {
-  color?: AlertDialogIconColor;
-};
+const Trigger = (props: AlertDialogTriggerProps) => <HeroAlertDialog.Trigger {...props} />;
+Trigger.displayName = 'AlertDialog.Trigger';
 
-const Icon = forwardRef<HTMLDivElement, AlertDialogIconProps>(
-  ({ color = 'default', className, ...rest }, ref) => (
-    <div
-      ref={ref}
-      className={clsx('alert-dialog__icon', `alert-dialog__icon--${color}`, className)}
-      {...rest}
-    />
-  ),
+/** 底座默认 isDismissable=false、isKeyboardDismissDisabled=true（警示框需显式操作关闭） */
+const Backdrop = ({ className, style, ...rest }: AlertDialogBackdropProps) => (
+  <HeroAlertDialog.Backdrop className={className} style={style} {...rest} />
 );
-Icon.displayName = 'AlertDialog.Icon';
+Backdrop.displayName = 'AlertDialog.Backdrop';
 
-const Header = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('alert-dialog__header', className)} {...rest} />
-));
+const Container = ({ className, ...rest }: AlertDialogContainerProps) => (
+  <HeroAlertDialog.Container className={className} {...rest} />
+);
+Container.displayName = 'AlertDialog.Container';
+
+const Dialog = (props: AlertDialogDialogProps) => <HeroAlertDialog.Dialog {...props} />;
+Dialog.displayName = 'AlertDialog.Dialog';
+
+const Header = (props: AlertDialogHeaderProps) => <HeroAlertDialog.Header {...props} />;
 Header.displayName = 'AlertDialog.Header';
 
-const Heading = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
-  ({ className, ...rest }, ref) => (
-    <h2 ref={ref} className={clsx('alert-dialog__heading', className)} {...rest} />
-  ),
-);
+const Heading = (props: AlertDialogHeadingProps) => <HeroAlertDialog.Heading {...props} />;
 Heading.displayName = 'AlertDialog.Heading';
 
-const Body = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('alert-dialog__body', className)} {...rest} />
-));
+const Body = (props: AlertDialogBodyProps) => <HeroAlertDialog.Body {...props} />;
 Body.displayName = 'AlertDialog.Body';
 
-const Footer = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('alert-dialog__footer', className)} {...rest} />
-));
+const Footer = (props: AlertDialogFooterProps) => <HeroAlertDialog.Footer {...props} />;
 Footer.displayName = 'AlertDialog.Footer';
 
-const AlertDialog = Object.assign(AlertDialogRoot, { Icon, Header, Heading, Body, Footer });
+const Icon = (props: AlertDialogIconProps) => <HeroAlertDialog.Icon {...props} />;
+Icon.displayName = 'AlertDialog.Icon';
+
+const CloseTrigger = ({ className, style, ...rest }: AlertDialogCloseTriggerProps) => (
+  <HeroAlertDialog.CloseTrigger className={className} style={style} {...rest} />
+);
+CloseTrigger.displayName = 'AlertDialog.CloseTrigger';
+
+/**
+ * 基于 @heroui/react AlertDialog 的警示对话框（原站 API）：
+ * trigger 打开、焦点圈定、Esc/遮罩关闭策略均由底座（RAC DialogTrigger/ModalOverlay/Modal/Dialog）提供，
+ * BEM 类名（alert-dialog__backdrop/container/dialog/...）由底座 variants 输出，天然对齐原站 CSS。
+ */
+const AlertDialog = Object.assign(AlertDialogRoot, {
+  Trigger,
+  Backdrop,
+  Container,
+  Dialog,
+  Header,
+  Heading,
+  Body,
+  Footer,
+  Icon,
+  CloseTrigger,
+});
 
 export default AlertDialog;
