@@ -1397,9 +1397,7 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
 };
 
 const StandaloneFeedbackHost = ({ kind }: { kind: 'highlight' | 'ripple' }) => (
-  <div
-    role="button"
-    tabIndex={0}
+  <PressableFeedback
     style={{
       ...VARIANT_CARD_STYLE,
       position: 'relative',
@@ -1412,7 +1410,7 @@ const StandaloneFeedbackHost = ({ kind }: { kind: 'highlight' | 'ripple' }) => (
   >
     {kind === 'highlight' ? <PressableFeedback.Highlight /> : <PressableFeedback.Ripple />}
     standalone {kind}
-  </div>
+  </PressableFeedback>
 );
 
 const PressableFeedbackVariantDemo = ({ variant }: VariantDemoProps) => {
