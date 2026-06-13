@@ -48,7 +48,7 @@ export { default as Dropdown } from './dropdown';
 export { default as EmojiPicker } from './emoji-picker';
 export { default as EmojiReactionButton } from './emoji-reaction-button';
 export { default as EmptyState } from './empty-state';
-export { default as FileTree, useFileTree, useFileTreeDrag } from './file-tree';
+export { default as FileTree, useFileTree, useFileTreeData, useFileTreeDrag } from './file-tree';
 export { default as FloatingToc } from './floating-toc';
 export { default as HoverCard } from './hover-card';
 export { default as InlineSelect } from './inline-select';
