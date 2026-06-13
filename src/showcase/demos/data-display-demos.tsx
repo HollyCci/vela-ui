@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Avatar from '../../components/avatar';
@@ -1085,10 +1085,21 @@ const AGENDA_EVENTS: AgendaEvent[] = [
 ];
 
 const AgendaDemo = () => {
-  const agenda = useAgenda({ events: AGENDA_EVENTS, defaultView: 'week' });
+  const [events, setEvents] = useState(AGENDA_EVENTS);
+  const updateTimedEvent = useCallback((id: string, start: Date, end: Date) => {
+    setEvents((current) =>
+      current.map((event) => (event.id === id ? { ...event, start, end } : event)),
+    );
+  }, []);
+  const agenda = useAgenda({
+    events,
+    defaultView: 'week',
+    onEventMove: updateTimedEvent,
+    onEventResize: updateTimedEvent,
+  });
 
   return (
-    <DemoSection isColumn label="日历议程 · 视图切换（日/周/月）+ 日期前后导航 / 回今天均可点">
+    <DemoSection isColumn label="日历议程 · 视图切换、导航、事件拖拽移动与调整时长">
       <div style={{ height: 600, width: '100%' }}>
         <Agenda {...agenda}>
           <Agenda.Header>

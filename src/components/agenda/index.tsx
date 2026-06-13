@@ -5,9 +5,12 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
 import { Button } from '@heroui/react';
@@ -119,6 +122,29 @@ export type UseAgendaResult = {
 };
 
 const MS_PER_DAY = 86_400_000;
+const MIN_TIMED_EVENT_DURATION_MINUTES = 15;
+const TIMED_EVENT_SNAP_MINUTES = 15;
+
+type AgendaTimedEventInteractionMode = 'move' | 'resize';
+
+type AgendaTimedEventDraft = {
+  mode: AgendaTimedEventInteractionMode;
+  start: Date;
+  end: Date;
+  translateX: number;
+};
+
+type AgendaTimedEventInteraction = {
+  mode: AgendaTimedEventInteractionMode;
+  originalStart: Date;
+  originalEnd: Date;
+  originalDay: Date;
+  originalColumnLeft: number;
+  grabOffsetMinutes: number;
+  durationMinutes: number;
+  moved: boolean;
+  draft: AgendaTimedEventDraft;
+};
 
 function startOfDay(date: Date): Date {
   return new Date(date.getFullYear(), date.getMonth(), date.getDate());
@@ -156,6 +182,24 @@ function isWeekend(date: Date): boolean {
 
 function dayDiff(a: Date, b: Date): number {
   return Math.round((startOfDay(a).getTime() - startOfDay(b).getTime()) / MS_PER_DAY);
+}
+
+function minuteDiff(a: Date, b: Date): number {
+  return Math.round((a.getTime() - b.getTime()) / 60_000);
+}
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
+function snapMinutes(minutes: number, snap = TIMED_EVENT_SNAP_MINUTES): number {
+  return Math.round(minutes / snap) * snap;
+}
+
+function dateAtMinutes(day: Date, minutes: number): Date {
+  const next = startOfDay(day);
+  next.setMinutes(minutes);
+  return next;
 }
 
 /** 同一天内自午夜起的分钟偏移（跨天事件按所在天 clamp 到 [0, 1440]） */
@@ -961,43 +1005,291 @@ export type AgendaEventProps = {
 
 /** 定时事件卡片：依据起止时间在所在天列内绝对定位（top/height 按分钟换算 slot 高度） */
 const Event = ({ event, className }: AgendaEventProps) => {
-  const { selectedEventId, setSelectedEventId, startHour, slotDuration, locale } =
-    useAgendaContext();
+  const {
+    selectedEventId,
+    setSelectedEventId,
+    startHour,
+    endHour,
+    slotDuration,
+    visibleDays,
+    locale,
+    onEventMove,
+    onEventResize,
+  } = useAgendaContext();
+  const eventRef = useRef<HTMLDivElement | null>(null);
+  const interactionRef = useRef<AgendaTimedEventInteraction | null>(null);
+  const interactionCleanupRef = useRef<(() => void) | null>(null);
+  const skipClickRef = useRef(false);
+  const [draft, setDraft] = useState<AgendaTimedEventDraft | null>(null);
 
-  const day = startOfDay(event.start);
-  const startMin = minutesFromMidnight(event.start, day);
-  const endMin = minutesFromMidnight(event.end, day);
+  const displayStart = draft?.start ?? event.start;
+  const displayEnd = draft?.end ?? event.end;
+  const day = startOfDay(displayStart);
+  const startMin = minutesFromMidnight(displayStart, day);
+  const endMin = minutesFromMidnight(displayEnd, day);
   const top = ((startMin - startHour * 60) / slotDuration) * 60;
   const height = Math.max(20, ((endMin - startMin) / slotDuration) * 60);
+  const canMove = !event.isReadOnly && onEventMove !== undefined;
+  const canResize = !event.isReadOnly && onEventResize !== undefined;
+  const canInteract = canMove || canResize;
 
   const timeFormat = useMemo(
     () => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
     [locale],
   );
 
+  const removeInteractionListeners = useCallback(() => {
+    interactionCleanupRef.current?.();
+    interactionCleanupRef.current = null;
+  }, []);
+
+  useEffect(
+    () => () => {
+      removeInteractionListeners();
+    },
+    [removeInteractionListeners],
+  );
+
+  const resolvePointerPosition = useCallback(
+    (clientX: number, clientY: number) => {
+      const grid = eventRef.current?.closest<HTMLElement>('[data-slot="agenda-time-grid"]');
+      if (!grid) return null;
+      const columns = Array.from(
+        grid.querySelectorAll('[data-slot="agenda-day-column"]'),
+      ) as HTMLElement[];
+      if (columns.length === 0) return null;
+
+      let columnIndex = columns.findIndex((column) => {
+        const rect = column.getBoundingClientRect();
+        return clientX >= rect.left && clientX <= rect.right;
+      });
+      if (columnIndex === -1) {
+        let nearestDistance = Number.POSITIVE_INFINITY;
+        columns.forEach((column, index) => {
+          const rect = column.getBoundingClientRect();
+          const distance =
+            clientX < rect.left ? rect.left - clientX : clientX > rect.right ? clientX - rect.right : 0;
+          if (distance < nearestDistance) {
+            nearestDistance = distance;
+            columnIndex = index;
+          }
+        });
+      }
+
+      const column = columns[columnIndex];
+      const date = visibleDays[columnIndex] ?? startOfDay(event.start);
+      const columnRect = column.getBoundingClientRect();
+      const slot = column.querySelector<HTMLElement>('[data-slot="agenda-time-slot"]');
+      const slotHeight = slot?.getBoundingClientRect().height || 60;
+      const maxGridHeight = (endHour - startHour) * slotHeight;
+      const offsetY = clamp(clientY - columnRect.top, 0, maxGridHeight);
+      const rawMinutes = startHour * 60 + (offsetY / slotHeight) * slotDuration;
+      const minute = clamp(
+        snapMinutes(rawMinutes),
+        startHour * 60,
+        endHour * 60,
+      );
+
+      return {
+        columnLeft: columnRect.left,
+        date,
+        minute,
+      };
+    },
+    [endHour, event.start, slotDuration, startHour, visibleDays],
+  );
+
+  const buildDraft = useCallback(
+    (
+      interaction: AgendaTimedEventInteraction,
+      clientX: number,
+      clientY: number,
+    ): AgendaTimedEventDraft | null => {
+      const position = resolvePointerPosition(
+        interaction.mode === 'resize' ? interaction.originalColumnLeft + 1 : clientX,
+        clientY,
+      );
+      if (!position) return null;
+
+      if (interaction.mode === 'resize') {
+        const startMinute = minutesFromMidnight(interaction.originalStart, interaction.originalDay);
+        const endMinute = clamp(
+          position.minute,
+          startMinute + MIN_TIMED_EVENT_DURATION_MINUTES,
+          endHour * 60,
+        );
+        return {
+          mode: 'resize',
+          start: interaction.originalStart,
+          end: dateAtMinutes(interaction.originalDay, endMinute),
+          translateX: 0,
+        };
+      }
+
+      const latestStartMinute = endHour * 60 - interaction.durationMinutes;
+      const startMinute = clamp(
+        position.minute - interaction.grabOffsetMinutes,
+        startHour * 60,
+        latestStartMinute,
+      );
+      const start = dateAtMinutes(position.date, startMinute);
+      return {
+        mode: 'move',
+        start,
+        end: dateAtMinutes(position.date, startMinute + interaction.durationMinutes),
+        translateX: position.columnLeft - interaction.originalColumnLeft,
+      };
+    },
+    [endHour, resolvePointerPosition, startHour],
+  );
+
+  const finishInteraction = useCallback(() => {
+    removeInteractionListeners();
+    const interaction = interactionRef.current;
+    interactionRef.current = null;
+    setDraft(null);
+
+    if (!interaction || !interaction.moved) return;
+    skipClickRef.current = true;
+    if (interaction.mode === 'resize') {
+      onEventResize?.(event.id, interaction.draft.start, interaction.draft.end);
+    } else {
+      onEventMove?.(event.id, interaction.draft.start, interaction.draft.end);
+    }
+  }, [event.id, onEventMove, onEventResize, removeInteractionListeners]);
+
+  const startInteraction = useCallback(
+    (mode: AgendaTimedEventInteractionMode, pointerEvent: ReactPointerEvent<HTMLElement>) => {
+      if (pointerEvent.button !== 0 || event.isReadOnly) return;
+      if (mode === 'move' && !canMove) return;
+      if (mode === 'resize' && !canResize) return;
+
+      const column = eventRef.current?.closest<HTMLElement>('[data-slot="agenda-day-column"]');
+      if (!column) return;
+      const columnRect = column.getBoundingClientRect();
+      const pointerPosition = resolvePointerPosition(pointerEvent.clientX, pointerEvent.clientY);
+      if (!pointerPosition) return;
+
+      pointerEvent.preventDefault();
+      pointerEvent.stopPropagation();
+      removeInteractionListeners();
+
+      const originalDay = startOfDay(event.start);
+      const originalStartMinute = minutesFromMidnight(event.start, originalDay);
+      const durationMinutes = Math.max(
+        MIN_TIMED_EVENT_DURATION_MINUTES,
+        minuteDiff(event.end, event.start),
+      );
+      const interaction: AgendaTimedEventInteraction = {
+        mode,
+        originalStart: event.start,
+        originalEnd: event.end,
+        originalDay,
+        originalColumnLeft: columnRect.left,
+        grabOffsetMinutes:
+          mode === 'move'
+            ? clamp(pointerPosition.minute - originalStartMinute, 0, durationMinutes)
+            : 0,
+        durationMinutes,
+        moved: false,
+        draft: {
+          mode,
+          start: event.start,
+          end: event.end,
+          translateX: 0,
+        },
+      };
+
+      interactionRef.current = interaction;
+      setDraft(interaction.draft);
+
+      const handlePointerMove = (nativeEvent: PointerEvent) => {
+        nativeEvent.preventDefault();
+        const current = interactionRef.current;
+        if (!current) return;
+        const nextDraft = buildDraft(current, nativeEvent.clientX, nativeEvent.clientY);
+        if (!nextDraft) return;
+        current.moved =
+          current.moved ||
+          nextDraft.start.getTime() !== current.originalStart.getTime() ||
+          nextDraft.end.getTime() !== current.originalEnd.getTime();
+        current.draft = nextDraft;
+        setDraft(nextDraft);
+      };
+      const handlePointerUp = (nativeEvent: PointerEvent) => {
+        nativeEvent.preventDefault();
+        finishInteraction();
+      };
+
+      document.addEventListener('pointermove', handlePointerMove, { passive: false });
+      document.addEventListener('pointerup', handlePointerUp, { passive: false });
+      document.addEventListener('pointercancel', handlePointerUp, { passive: false });
+      interactionCleanupRef.current = () => {
+        document.removeEventListener('pointermove', handlePointerMove);
+        document.removeEventListener('pointerup', handlePointerUp);
+        document.removeEventListener('pointercancel', handlePointerUp);
+      };
+    },
+    [
+      buildDraft,
+      canMove,
+      canResize,
+      event.end,
+      event.isReadOnly,
+      event.start,
+      finishInteraction,
+      removeInteractionListeners,
+      resolvePointerPosition,
+    ],
+  );
+
   const handleClick = useCallback(
-    () => setSelectedEventId(event.id),
+    (clickEvent: ReactMouseEvent<HTMLDivElement>) => {
+      if (skipClickRef.current) {
+        skipClickRef.current = false;
+        clickEvent.preventDefault();
+        clickEvent.stopPropagation();
+        return;
+      }
+      setSelectedEventId(event.id);
+    },
     [event.id, setSelectedEventId],
   );
 
   return (
     <div
+      ref={eventRef}
       data-slot="agenda-event"
       data-event-id={event.id}
       data-status={event.status ?? 'confirmed'}
       data-readonly={event.isReadOnly ? 'true' : undefined}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
+      data-dragging={draft?.mode === 'move' ? 'true' : undefined}
+      data-resizing={draft?.mode === 'resize' ? 'true' : undefined}
       onClick={handleClick}
+      onPointerDown={(pointerEvent) => startInteraction('move', pointerEvent)}
       className={clsx('agenda__event', className)}
-      style={{ top, height, ...eventColorStyle(event.color) }}
+      style={{
+        top,
+        height,
+        transform: draft?.translateX ? `translateX(${draft.translateX}px)` : undefined,
+        touchAction: canInteract ? 'none' : undefined,
+        ...eventColorStyle(event.color),
+      }}
     >
       <span data-slot="agenda-event-title" className="agenda__event-title">
         {event.title}
       </span>
       <span data-slot="agenda-event-time" className="agenda__event-time">
-        {timeFormat.format(event.start)} – {timeFormat.format(event.end)}
+        {timeFormat.format(displayStart)} – {timeFormat.format(displayEnd)}
       </span>
-      {!event.isReadOnly && <div className="agenda__resize-handle" />}
+      {canResize && (
+        <div
+          data-slot="agenda-resize-handle"
+          className="agenda__resize-handle"
+          onPointerDown={(pointerEvent) => startInteraction('resize', pointerEvent)}
+        />
+      )}
     </div>
   );
 };
