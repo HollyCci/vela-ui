@@ -347,28 +347,57 @@ const PromptInputDemo = () => {
   );
 };
 
-const PromptSuggestionDemo = () => (
-  <DemoSection isColumn>
-    <PromptSuggestion title="今天想做点什么？" description="从下面的建议中选择一个快速开始。">
-      <PromptSuggestion.Group label="常用">
-        <PromptSuggestion.Items variant="pill">
-          <PromptSuggestion.Item endIcon="→">总结今天的学员辅导记录</PromptSuggestion.Item>
-          <PromptSuggestion.Item endIcon="→">生成本周排班建议</PromptSuggestion.Item>
-        </PromptSuggestion.Items>
-      </PromptSuggestion.Group>
-      <PromptSuggestion.Group label="数据分析">
-        <PromptSuggestion.Items variant="card">
-          <PromptSuggestion.CardItem description="对比近两个季度的续费率变化。" meta="约 30 秒">
-            续费率分析
-          </PromptSuggestion.CardItem>
-          <PromptSuggestion.CardItem description="找出听力练习完成率最低的班级。" meta="约 1 分钟">
-            班级完成率排查
-          </PromptSuggestion.CardItem>
-        </PromptSuggestion.Items>
-      </PromptSuggestion.Group>
-    </PromptSuggestion>
-  </DemoSection>
-);
+const PromptSuggestionDemo = () => {
+  const [selectedSuggestion, setSelectedSuggestion] = useState('总结今天的学员辅导记录');
+
+  return (
+    <DemoSection isColumn>
+      <PromptSuggestion
+        title="今天想做点什么？"
+        description={`已选择：${selectedSuggestion}`}
+      >
+        <PromptSuggestion.Group label="常用">
+          <PromptSuggestion.Items variant="pill">
+            <PromptSuggestion.Item
+              endIcon="→"
+              aria-pressed={selectedSuggestion === '总结今天的学员辅导记录'}
+              onClick={() => setSelectedSuggestion('总结今天的学员辅导记录')}
+            >
+              总结今天的学员辅导记录
+            </PromptSuggestion.Item>
+            <PromptSuggestion.Item
+              endIcon="→"
+              aria-pressed={selectedSuggestion === '生成本周排班建议'}
+              onClick={() => setSelectedSuggestion('生成本周排班建议')}
+            >
+              生成本周排班建议
+            </PromptSuggestion.Item>
+          </PromptSuggestion.Items>
+        </PromptSuggestion.Group>
+        <PromptSuggestion.Group label="数据分析">
+          <PromptSuggestion.Items variant="card">
+            <PromptSuggestion.CardItem
+              description="对比近两个季度的续费率变化。"
+              meta="约 30 秒"
+              aria-pressed={selectedSuggestion === '续费率分析'}
+              onClick={() => setSelectedSuggestion('续费率分析')}
+            >
+              续费率分析
+            </PromptSuggestion.CardItem>
+            <PromptSuggestion.CardItem
+              description="找出听力练习完成率最低的班级。"
+              meta="约 1 分钟"
+              aria-pressed={selectedSuggestion === '班级完成率排查'}
+              onClick={() => setSelectedSuggestion('班级完成率排查')}
+            >
+              班级完成率排查
+            </PromptSuggestion.CardItem>
+          </PromptSuggestion.Items>
+        </PromptSuggestion.Group>
+      </PromptSuggestion>
+    </DemoSection>
+  );
+};
 
 const TextShimmerDemo = () => (
   <DemoSection label="加载文案微光效果">

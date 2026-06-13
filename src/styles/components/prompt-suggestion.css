@@ -143,6 +143,11 @@
   outline-style: none;
 }
 
+.prompt-suggestion__item--pill[aria-pressed=true] {
+  border-color: var(--color-focus);
+  background-color: var(--default);
+}
+
 .prompt-suggestion__item-label {
   min-width: calc(var(--spacing) * 0);
   text-wrap: pretty;
@@ -172,7 +177,24 @@
   border-radius: calc(var(--radius) * 2);
   flex-direction: column;
   height: 100%;
+  padding: 0;
+  border: 0;
+  text-align: left;
+  color: inherit;
+  background-color: #0000;
+  cursor: var(--cursor-interactive);
   display: flex;
+}
+
+.prompt-suggestion__item--card:focus-visible,
+.prompt-suggestion__item--card[data-focus-visible=true] {
+  --tw-outline-style: none;
+  box-shadow: inset 0 0 0 2px var(--color-focus);
+  outline-style: none;
+}
+
+.prompt-suggestion__item--card[aria-pressed=true] {
+  box-shadow: inset 0 0 0 2px var(--color-focus);
 }
 
 .prompt-suggestion__item-description {

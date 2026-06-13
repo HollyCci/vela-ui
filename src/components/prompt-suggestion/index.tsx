@@ -72,15 +72,20 @@ const Item = forwardRef<HTMLButtonElement, PromptSuggestionItemProps>(
 );
 Item.displayName = 'PromptSuggestion.Item';
 
-export type PromptSuggestionCardItemProps = HTMLAttributes<HTMLDivElement> & {
+export type PromptSuggestionCardItemProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   description?: ReactNode;
   tags?: ReactNode;
   meta?: ReactNode;
 };
 
-const CardItem = forwardRef<HTMLDivElement, PromptSuggestionCardItemProps>(
-  ({ description, tags, meta, className, children, ...rest }, ref) => (
-    <div ref={ref} className={clsx('prompt-suggestion__item--card', className)} {...rest}>
+const CardItem = forwardRef<HTMLButtonElement, PromptSuggestionCardItemProps>(
+  ({ description, tags, meta, className, children, type = 'button', ...rest }, ref) => (
+    <button
+      ref={ref}
+      type={type}
+      className={clsx('prompt-suggestion__item--card', className)}
+      {...rest}
+    >
       <div className="prompt-suggestion__item-label">{children}</div>
       {description !== undefined && (
         <div className="prompt-suggestion__item-description">{description}</div>
@@ -91,7 +96,7 @@ const CardItem = forwardRef<HTMLDivElement, PromptSuggestionCardItemProps>(
           {meta !== undefined && <div className="prompt-suggestion__item-meta">{meta}</div>}
         </div>
       )}
-    </div>
+    </button>
   ),
 );
 CardItem.displayName = 'PromptSuggestion.CardItem';
