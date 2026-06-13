@@ -1,8 +1,13 @@
 import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
 import { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from '@heroui/react';
 import clsx from 'clsx';
+import PressableFeedback from '../pressable-feedback';
 
 export type RadioButtonGroupLayout = 'flex' | 'grid';
+export type RadioButtonGroupItemPressFeedback = 'ripple' | 'none';
+type RadioButtonGroupItemRenderProps = Parameters<
+  Extract<RadioProps['children'], (...args: any[]) => unknown>
+>[0];
 
 export type RadioButtonGroupProps = Omit<RadioGroupProps, 'className' | 'style'> & {
   /** 布局模式（原站 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
@@ -13,7 +18,9 @@ export type RadioButtonGroupProps = Omit<RadioGroupProps, 'className' | 'style'>
 
 export type RadioButtonGroupItemProps = Omit<RadioProps, 'className' | 'style'> & {
   className?: string;
+  pressFeedback?: RadioButtonGroupItemPressFeedback;
   style?: CSSProperties;
+  withRipple?: boolean;
 };
 
 export type RadioButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
@@ -23,13 +30,47 @@ export type RadioButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>;
 export type RadioButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
 
 /** 卡片式单选项；render-prop children（访问选中态）由 OSS Radio 原样支持 */
-const Item = ({ className, ...rest }: RadioButtonGroupItemProps) => (
-  <Radio
-    data-slot="radio-button-group-item"
-    className={clsx('radio-button-group__item', className)}
-    {...rest}
-  />
-);
+const Item = ({
+  children,
+  className,
+  isDisabled,
+  pressFeedback = 'none',
+  withRipple = false,
+  ...rest
+}: RadioButtonGroupItemProps) => {
+  const hasRipple = withRipple || pressFeedback === 'ripple';
+  const ripple = hasRipple ? (
+    <PressableFeedback.Ripple
+      isDisabled={isDisabled}
+      className="radio-button-group__press-feedback"
+    />
+  ) : null;
+  const content =
+    typeof children === 'function'
+      ? (renderProps: RadioButtonGroupItemRenderProps) => (
+          <>
+            {ripple}
+            {children(renderProps)}
+          </>
+        )
+      : (
+          <>
+            {ripple}
+            {children}
+          </>
+        );
+
+  return (
+    <Radio
+      data-slot="radio-button-group-item"
+      className={clsx('radio-button-group__item', className)}
+      isDisabled={isDisabled}
+      {...rest}
+    >
+      {content}
+    </Radio>
+  );
+};
 Item.displayName = 'RadioButtonGroup.Item';
 
 /**

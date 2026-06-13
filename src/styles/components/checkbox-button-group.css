@@ -32,6 +32,7 @@
   flex-direction: column;
   display: flex;
   position: relative;
+  overflow: hidden;
 }
 
 .checkbox-button-group__item[data-selected=true] {
@@ -64,6 +65,18 @@
   top: calc(var(--spacing) * 3);
   right: calc(var(--spacing) * 4);
   position: absolute;
+  z-index: 1;
+}
+
+.checkbox-button-group__press-feedback {
+  color: var(--foreground);
+  border-radius: inherit;
+}
+
+.checkbox-button-group__item-content,
+.checkbox-button-group__item-icon {
+  position: relative;
+  z-index: 1;
 }
 
 .checkbox-button-group__indicator[data-custom=true] {

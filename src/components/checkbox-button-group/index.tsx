@@ -6,8 +6,13 @@ import {
   type CheckboxProps,
 } from '@heroui/react';
 import clsx from 'clsx';
+import PressableFeedback from '../pressable-feedback';
 
 export type CheckboxButtonGroupLayout = 'flex' | 'grid';
+export type CheckboxButtonGroupItemPressFeedback = 'ripple' | 'none';
+type CheckboxButtonGroupItemRenderProps = Parameters<
+  Extract<CheckboxProps['children'], (...args: any[]) => unknown>
+>[0];
 
 export type CheckboxButtonGroupProps = Omit<CheckboxGroupProps, 'className' | 'style'> & {
   /** 布局模式（原站 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
@@ -18,7 +23,9 @@ export type CheckboxButtonGroupProps = Omit<CheckboxGroupProps, 'className' | 's
 
 export type CheckboxButtonGroupItemProps = Omit<CheckboxProps, 'className' | 'style'> & {
   className?: string;
+  pressFeedback?: CheckboxButtonGroupItemPressFeedback;
   style?: CSSProperties;
+  withRipple?: boolean;
 };
 
 export type CheckboxButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
@@ -28,13 +35,47 @@ export type CheckboxButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>
 export type CheckboxButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
 
 /** 卡片式可选项；render-prop children（访问选中态）由 OSS Checkbox 原样支持 */
-const Item = ({ className, ...rest }: CheckboxButtonGroupItemProps) => (
-  <Checkbox
-    data-slot="checkbox-button-group-item"
-    className={clsx('checkbox-button-group__item', className)}
-    {...rest}
-  />
-);
+const Item = ({
+  children,
+  className,
+  isDisabled,
+  pressFeedback = 'none',
+  withRipple = false,
+  ...rest
+}: CheckboxButtonGroupItemProps) => {
+  const hasRipple = withRipple || pressFeedback === 'ripple';
+  const ripple = hasRipple ? (
+    <PressableFeedback.Ripple
+      isDisabled={isDisabled}
+      className="checkbox-button-group__press-feedback"
+    />
+  ) : null;
+  const content =
+    typeof children === 'function'
+      ? (renderProps: CheckboxButtonGroupItemRenderProps) => (
+          <>
+            {ripple}
+            {children(renderProps)}
+          </>
+        )
+      : (
+          <>
+            {ripple}
+            {children}
+          </>
+        );
+
+  return (
+    <Checkbox
+      data-slot="checkbox-button-group-item"
+      className={clsx('checkbox-button-group__item', className)}
+      isDisabled={isDisabled}
+      {...rest}
+    >
+      {content}
+    </Checkbox>
+  );
+};
 Item.displayName = 'CheckboxButtonGroup.Item';
 
 /**

@@ -1744,15 +1744,17 @@ const CheckboxChoiceItem = ({
   customIndicator,
   hideIndicator,
   withIcon,
+  withRipple,
   isDisabled,
 }: {
   option: ChoiceOption;
   customIndicator?: boolean;
   hideIndicator?: boolean;
   withIcon?: boolean;
+  withRipple?: boolean;
   isDisabled?: boolean;
 }) => (
-  <CheckboxButtonGroup.Item value={option.id} isDisabled={isDisabled}>
+  <CheckboxButtonGroup.Item value={option.id} isDisabled={isDisabled} withRipple={withRipple}>
     {!hideIndicator && (
       <CheckboxButtonGroup.Indicator>
         {customIndicator ? <CheckCircleIcon /> : undefined}
@@ -1773,15 +1775,17 @@ const RadioChoiceItem = ({
   customIndicator,
   hideIndicator,
   withIcon,
+  withRipple,
   isDisabled,
 }: {
   option: ChoiceOption;
   customIndicator?: boolean;
   hideIndicator?: boolean;
   withIcon?: boolean;
+  withRipple?: boolean;
   isDisabled?: boolean;
 }) => (
-  <RadioButtonGroup.Item value={option.id} isDisabled={isDisabled}>
+  <RadioButtonGroup.Item value={option.id} isDisabled={isDisabled} withRipple={withRipple}>
     {!hideIndicator && (
       <RadioButtonGroup.Indicator>
         {customIndicator ? <CheckCircleIcon /> : undefined}
@@ -1882,6 +1886,7 @@ const CheckboxButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVaria
               customIndicator={variant === 'custom-indicator'}
               hideIndicator={variant === 'no-indicator'}
               withIcon={variant === 'icon-cards' || variant === 'with-icons'}
+              withRipple={variant === 'with-ripple'}
               isDisabled={variant === 'disabled-group' || (variant === 'default' && index === 2)}
             />
           ),
@@ -1963,6 +1968,7 @@ const RadioButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVariantS
                 variant === 'with-icons' ||
                 variant === 'delivery-and-payment'
               }
+              withRipple={variant === 'with-ripple'}
               isDisabled={variant === 'disabled-group' || (variant === 'default' && index === 2)}
             />
           ),
