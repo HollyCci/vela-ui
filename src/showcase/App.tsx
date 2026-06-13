@@ -2,7 +2,7 @@ import { Fragment, useEffect, useState, type MouseEvent, type ReactNode } from '
 import './showcase.css';
 import DemoFrame from './demo-frame';
 import docsMetaJson from './docs-meta.json';
-import { BASE_CATEGORY, PRO_CATEGORIES, demoRegistry, titleOf } from './registry';
+import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, titleOf } from './registry';
 import {
   AnchorLinkIcon,
   ChevronRightSmIcon,
@@ -25,6 +25,8 @@ type DocsMeta = Record<
 >;
 
 const docsMeta = docsMetaJson as DocsMeta;
+
+const ALL_COMPONENTS_ID = 'all-components';
 
 /** 原站 AI 分类下标记 New 的组件 */
 const NEW_COMPONENTS = new Set([
@@ -112,16 +114,9 @@ const DocsSidebar = ({ activeId, onSelect }: SidebarProps) => (
             <p className="[&_svg]:size-4 [&_svg]:shrink-0" style={SIDEBAR_PAD}>
               Overview
             </p>
-            <a
-              data-active="false"
-              className={SIDEBAR_ITEM_CLASS}
-              style={SIDEBAR_PAD}
-              href="https://heroui.pro/docs/react/components"
-              target="_blank"
-              rel="noreferrer"
-            >
+            <SidebarItem id={ALL_COMPONENTS_ID} activeId={activeId} onSelect={onSelect}>
               All Components
-            </a>
+            </SidebarItem>
             {Object.entries(PRO_CATEGORIES).map(([category, ids]) => (
               <div key={category} className="contents">
                 <p className="[&_svg]:size-4 [&_svg]:shrink-0" style={SIDEBAR_PAD}>
@@ -365,6 +360,10 @@ const useDocContent = (id: string): DocContent | null => {
 
   useEffect(() => {
     let cancelled = false;
+    if (id === ALL_COMPONENTS_ID) {
+      setContent({ blocks: [], tocHtml: '' });
+      return undefined;
+    }
     const cached = docContentCache.get(id);
     if (cached) {
       setContent(cached);
@@ -403,8 +402,63 @@ const SectionHeading = ({ anchor, children }: SectionHeadingProps) => (
 );
 SectionHeading.displayName = 'SectionHeading';
 
+type AllComponentsOverviewProps = {
+  activeId: string;
+  onSelect: (e: MouseEvent<HTMLButtonElement>) => void;
+};
+
+const variantLabel = (count: number): string => `${count} ${count === 1 ? 'variant' : 'variants'}`;
+
+const AllComponentsOverview = ({ activeId, onSelect }: AllComponentsOverviewProps) => (
+  <>
+    <section className="flex flex-col gap-2">
+      <span className="text-muted text-sm">All Components</span>
+      <h1 className="text-[1.75em] font-semibold flex items-center gap-2">All Components</h1>
+      <p className="text-muted">
+        Explore the full list of Pro components available in Vela UI. Each component page pairs
+        a live React implementation with reference variants.
+      </p>
+    </section>
+    {Object.entries(PRO_CATEGORIES).map(([category, ids]) => (
+      <section key={category} className="sc-overview-section" id={`overview-${category.toLowerCase().replace(/\s+/g, '-')}`}>
+        <h2 className="flex scroll-m-28 flex-row items-center gap-2 text-xl font-semibold">
+          {CATEGORY_LABELS[category] ?? category}
+        </h2>
+        <div className="sc-component-grid">
+          {ids.map((id) => {
+            const title = docsMeta[id]?.title ?? titleOf(id);
+            const count = demoIndex[id]?.length ?? 0;
+            return (
+              <button
+                key={id}
+                type="button"
+                className="sc-component-card"
+                data-id={id}
+                data-active={activeId === id}
+                onClick={onSelect}
+              >
+                <span className="sc-component-card__body">
+                  <span className="sc-component-card__title-row">
+                    <span className="sc-component-card__title">{title}</span>
+                    {NEW_COMPONENTS.has(id) && <NewChip />}
+                  </span>
+                  <span className="sc-component-card__meta">{variantLabel(count)}</span>
+                </span>
+                <span className="sc-component-card__preview" aria-hidden="true">
+                  {title}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
+    ))}
+  </>
+);
+AllComponentsOverview.displayName = 'AllComponentsOverview';
+
 const App = () => {
-  const [activeId, setActiveId] = useState('action-bar');
+  const [activeId, setActiveId] = useState(ALL_COMPONENTS_ID);
   const docContent = useDocContent(activeId);
 
   const handleItemClick = (e: MouseEvent<HTMLButtonElement>) => {
@@ -415,12 +469,13 @@ const App = () => {
     }
   };
 
+  const isAllComponents = activeId === ALL_COMPONENTS_ID;
   const meta = docsMeta[activeId];
   const sections = meta?.sections ?? [];
   const reactDemo = demoRegistry[activeId];
   const title = meta?.title ?? titleOf(activeId);
   // 有采集正文的组件直接渲染原站 prose；否则回退到 docs-meta 驱动的渲染
-  const hasDocContent = docContent !== null && docContent.blocks.length > 0;
+  const hasDocContent = !isAllComponents && docContent !== null && docContent.blocks.length > 0;
 
   // 实时可交互演示：真实 React 组件，置于标题正下方作为页面主演示
   // （下方的 Usage/变体是原站静态快照，仅作视觉参考，不可交互）
@@ -464,7 +519,9 @@ const App = () => {
         data-full="false"
         className="flex flex-col gap-4 px-4 py-6 [grid-area:main] *:max-w-[900px] md:px-6 md:pt-8 xl:px-8 xl:pt-14"
       >
-        {hasDocContent ? (
+        {isAllComponents ? (
+          <AllComponentsOverview activeId={activeId} onSelect={handleItemClick} />
+        ) : hasDocContent ? (
           docContent.blocks.map((block, i) => {
             const node =
               block.type === 'html' ? (
@@ -528,7 +585,20 @@ const App = () => {
           On this page
         </h3>
         <div className="relative min-h-0 text-sm ms-px overflow-auto [scrollbar-width:none] py-3">
-          {hasDocContent && docContent.tocHtml !== '' ? (
+          {isAllComponents ? (
+            <div className="flex flex-col">
+              {Object.keys(PRO_CATEGORIES).map((category) => (
+                <a
+                  key={category}
+                  href={`#overview-${category.toLowerCase().replace(/\s+/g, '-')}`}
+                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
+                  style={{ paddingInlineStart: '12px' }}
+                >
+                  {CATEGORY_LABELS[category] ?? category}
+                </a>
+              ))}
+            </div>
+          ) : hasDocContent && docContent.tocHtml !== '' ? (
             <div
               // 原站 TOC 锚点列表（已清洗静态片段）
               className="flex flex-col"
@@ -548,11 +618,11 @@ const App = () => {
               ))}
               {reactDemo !== undefined && (
                 <a
-                  href="#react-implementation"
+                  href="#live-demo"
                   className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
                   style={{ paddingInlineStart: '12px' }}
                 >
-                  React Implementation
+                  实时交互演示
                 </a>
               )}
             </div>

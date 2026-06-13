@@ -66,3 +66,77 @@
   font-size: 12px;
   color: var(--muted);
 }
+
+.sc-overview-section {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 24px;
+}
+
+.sc-component-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 14px;
+}
+
+.sc-component-card {
+  display: flex;
+  min-height: 150px;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 16px;
+  overflow: hidden;
+  border: 1px solid var(--separator);
+  border-radius: 12px;
+  background: var(--background);
+  padding: 14px;
+  color: inherit;
+  text-align: left;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    transform 160ms ease;
+}
+
+.sc-component-card:hover {
+  border-color: color-mix(in srgb, var(--accent) 34%, var(--separator));
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.06);
+  transform: translateY(-1px);
+}
+
+.sc-component-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sc-component-card__title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sc-component-card__title {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.sc-component-card__meta {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.sc-component-card__preview {
+  display: flex;
+  min-height: 64px;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 10%, transparent), transparent),
+    var(--default);
+  color: var(--muted);
+  font-size: 12px;
+}
