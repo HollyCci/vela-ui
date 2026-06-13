@@ -180,8 +180,15 @@ const Item = forwardRef<HTMLDivElement, CarouselItemProps>(({ className, ...rest
 ));
 Item.displayName = 'Carousel.Item';
 
-const Previous = ({ icon, className, ...rest }: CarouselNavButtonProps) => {
+const Previous = ({ icon, className, onPress, ...rest }: CarouselNavButtonProps) => {
   const { layoutType, canScrollPrev, scrollPrev } = useCarouselContext();
+  const handlePress = useCallback<NonNullable<CarouselNavButtonProps['onPress']>>(
+    (event) => {
+      scrollPrev();
+      onPress?.(event);
+    },
+    [scrollPrev, onPress],
+  );
 
   return (
     <UIButton
@@ -191,7 +198,7 @@ const Previous = ({ icon, className, ...rest }: CarouselNavButtonProps) => {
       isIconOnly
       aria-label="Previous slide"
       isDisabled={!canScrollPrev}
-      onPress={scrollPrev}
+      onPress={handlePress}
       className={clsx('carousel__previous', `carousel__previous--${layoutType}`, className)}
       {...rest}
     >
@@ -201,8 +208,15 @@ const Previous = ({ icon, className, ...rest }: CarouselNavButtonProps) => {
 };
 Previous.displayName = 'Carousel.Previous';
 
-const Next = ({ icon, className, ...rest }: CarouselNavButtonProps) => {
+const Next = ({ icon, className, onPress, ...rest }: CarouselNavButtonProps) => {
   const { layoutType, canScrollNext, scrollNext } = useCarouselContext();
+  const handlePress = useCallback<NonNullable<CarouselNavButtonProps['onPress']>>(
+    (event) => {
+      scrollNext();
+      onPress?.(event);
+    },
+    [scrollNext, onPress],
+  );
 
   return (
     <UIButton
@@ -212,7 +226,7 @@ const Next = ({ icon, className, ...rest }: CarouselNavButtonProps) => {
       isIconOnly
       aria-label="Next slide"
       isDisabled={!canScrollNext}
-      onPress={scrollNext}
+      onPress={handlePress}
       className={clsx('carousel__next', `carousel__next--${layoutType}`, className)}
       {...rest}
     >
@@ -300,11 +314,23 @@ const Thumbnails = forwardRef<HTMLDivElement, CarouselThumbnailsProps>(
 );
 Thumbnails.displayName = 'Carousel.Thumbnails';
 
-const Thumbnail = ({ index, src, alt = '', children, className, ...rest }: CarouselThumbnailProps) => {
+const Thumbnail = ({
+  index,
+  src,
+  alt = '',
+  children,
+  className,
+  onPress,
+  ...rest
+}: CarouselThumbnailProps) => {
   const { selectedIndex, scrollTo } = useCarouselContext();
-  const handlePress = useCallback(() => {
-    scrollTo(index);
-  }, [scrollTo, index]);
+  const handlePress = useCallback<NonNullable<CarouselThumbnailProps['onPress']>>(
+    (event) => {
+      scrollTo(index);
+      onPress?.(event);
+    },
+    [scrollTo, index, onPress],
+  );
 
   return (
     <RACButton
