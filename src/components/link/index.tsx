@@ -1,4 +1,8 @@
-import { forwardRef, type AnchorHTMLAttributes } from 'react';
+import {
+  forwardRef,
+  type AnchorHTMLAttributes,
+  type MouseEventHandler,
+} from 'react';
 import clsx from 'clsx';
 
 export type LinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
@@ -16,19 +20,32 @@ const ExternalIcon = () => (
 );
 
 const Link = forwardRef<HTMLAnchorElement, LinkProps>(
-  ({ isDisabled = false, isExternal = false, className, children, ...rest }, ref) => (
-    <a
-      ref={ref}
-      aria-disabled={isDisabled || undefined}
-      target={isExternal ? '_blank' : undefined}
-      rel={isExternal ? 'noopener noreferrer' : undefined}
-      className={clsx('link', className)}
-      {...rest}
-    >
-      {children}
-      {isExternal && <ExternalIcon />}
-    </a>
-  ),
+  ({ isDisabled = false, isExternal = false, className, children, href, onClick, ...rest }, ref) => {
+    const handleClick: MouseEventHandler<HTMLAnchorElement> = (event) => {
+      if (isDisabled) {
+        event.preventDefault();
+        event.stopPropagation();
+        return;
+      }
+      onClick?.(event);
+    };
+
+    return (
+      <a
+        ref={ref}
+        aria-disabled={isDisabled || undefined}
+        href={isDisabled ? undefined : href}
+        target={!isDisabled && isExternal ? '_blank' : undefined}
+        rel={!isDisabled && isExternal ? 'noopener noreferrer' : undefined}
+        className={clsx('link', className)}
+        onClick={handleClick}
+        {...rest}
+      >
+        {children}
+        {!isDisabled && isExternal && <ExternalIcon />}
+      </a>
+    );
+  },
 );
 
 Link.displayName = 'Link';

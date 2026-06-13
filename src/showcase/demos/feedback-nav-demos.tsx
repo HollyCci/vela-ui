@@ -263,8 +263,6 @@ const TooltipDemo = () => (
   </>
 );
 
-const ToastNoop = () => undefined;
-
 const TOAST_VARIANTS = [
   { title: '文件已保存', description: '所有更改已同步到云端。', indicator: '✓', color: 'success' as const },
   { title: '网络连接失败', description: '请检查网络后重试。', indicator: '✕', color: 'danger' as const },
@@ -274,12 +272,17 @@ const TOAST_VARIANTS = [
 const ToastDemo = () => {
   const { toast } = useToast();
   const [seq, setSeq] = useState(0);
+  const [retryCount, setRetryCount] = useState(0);
+  const [isSavedPreviewVisible, setSavedPreviewVisible] = useState(true);
 
   const handlePush = () => {
     const variant = TOAST_VARIANTS[seq % TOAST_VARIANTS.length];
     setSeq((value) => value + 1);
     toast({ ...variant });
   };
+  const handleRetry = () => setRetryCount((value) => value + 1);
+  const handleSavedPreviewClose = () => setSavedPreviewVisible(false);
+  const handleSavedPreviewRestore = () => setSavedPreviewVisible(true);
 
   return (
     <>
@@ -293,18 +296,32 @@ const ToastDemo = () => {
         {/* 编排区域：固定定位、portal 到 body，订阅命令式 toast store */}
         <Toaster placement="bottom-end" />
       </DemoSection>
-      <DemoSection label="静态展示" isColumn>
-        <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
-          <Toast title="文件已保存" description="所有更改已同步到云端。" indicator="✓" color="success" onClose={ToastNoop} />
-        </div>
+      <DemoSection label="可操作预览" isColumn>
+        {isSavedPreviewVisible ? (
+          <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
+            <Toast
+              title="文件已保存"
+              description="所有更改已同步到云端。"
+              indicator="✓"
+              color="success"
+              onClose={handleSavedPreviewClose}
+            />
+          </div>
+        ) : (
+          <Button size="sm" variant="secondary" onClick={handleSavedPreviewRestore}>
+            恢复保存提示
+          </Button>
+        )}
         <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
           <Toast
             title="网络连接失败"
-            description="请检查网络后重试。"
+            description={
+              retryCount > 0 ? `已重试 ${retryCount} 次，请等待网络恢复。` : '请检查网络后重试。'
+            }
             indicator="✕"
             color="danger"
             action={
-              <Button size="sm" variant="outline">
+              <Button size="sm" variant="outline" onClick={handleRetry}>
                 重试
               </Button>
             }
@@ -329,16 +346,44 @@ const PaginationDemo = () => {
   );
 };
 
-const BreadcrumbsDemo = () => (
-  <DemoSection>
-    <Breadcrumbs>
-      <Breadcrumbs.Item label="首页" href="#" />
-      <Breadcrumbs.Item label="组件库" href="#" />
-      <Breadcrumbs.Item label="导航" href="#" />
-      <Breadcrumbs.Item label="面包屑" isCurrent />
-    </Breadcrumbs>
-  </DemoSection>
-);
+const BREADCRUMB_ITEMS = [
+  { id: 'home', label: '首页', href: '/app' },
+  { id: 'components', label: '组件库', href: '/app/components' },
+  { id: 'navigation', label: '导航', href: '/app/components/navigation' },
+  { id: 'breadcrumbs', label: '面包屑', href: '/app/components/navigation/breadcrumbs' },
+];
+
+const BreadcrumbsDemo = () => {
+  const [currentCrumb, setCurrentCrumb] = useState('breadcrumbs');
+  const currentIndex = Math.max(
+    BREADCRUMB_ITEMS.findIndex((item) => item.id === currentCrumb),
+    0,
+  );
+  const visibleItems = BREADCRUMB_ITEMS.slice(0, currentIndex + 1);
+  const currentLabel = BREADCRUMB_ITEMS[currentIndex]?.label ?? '首页';
+
+  const handleNavigate = (id: string) => (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setCurrentCrumb(id);
+  };
+
+  return (
+    <DemoSection isColumn>
+      <Breadcrumbs>
+        {visibleItems.map((item, index) => (
+          <Breadcrumbs.Item
+            key={item.id}
+            label={item.label}
+            href={item.href}
+            isCurrent={index === visibleItems.length - 1}
+            linkProps={index === visibleItems.length - 1 ? undefined : { onClick: handleNavigate(item.id) }}
+          />
+        ))}
+      </Breadcrumbs>
+      <span>当前路径：{currentLabel}</span>
+    </DemoSection>
+  );
+};
 
 const TABS_ITEMS = [
   { key: 'overview', title: '概览', content: '这里是项目概览信息。' },
@@ -461,22 +506,35 @@ const StepperDemo = () => {
   );
 };
 
-const LinkDemo = () => (
-  <DemoSection>
-    <Link href="#">普通链接</Link>
-    <Link href="https://example.com" isExternal>
-      外部链接
-    </Link>
-    <Link href="#" isDisabled>
-      禁用链接
-    </Link>
-  </DemoSection>
-);
+const LinkDemo = () => {
+  const [lastLink, setLastLink] = useState('尚未点击链接');
+  const handleInternalLink = (event: MouseEvent<HTMLAnchorElement>) => {
+    event.preventDefault();
+    setLastLink('已拦截站内跳转：/docs/components/link');
+  };
+
+  return (
+    <DemoSection isColumn>
+      <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+        <Link href="/docs/components/link" onClick={handleInternalLink}>
+          普通链接
+        </Link>
+        <Link href="https://example.com" isExternal>
+          外部链接
+        </Link>
+        <Link isDisabled tabIndex={-1}>
+          禁用链接
+        </Link>
+      </div>
+      <span>{lastLink}</span>
+    </DemoSection>
+  );
+};
 
 const NAVBAR_LINKS = [
-  { href: '#dashboard', label: '工作台', isCurrent: true },
-  { href: '#students', label: '学员管理', isCurrent: false },
-  { href: '#schedule', label: '排班', isCurrent: false },
+  { href: '/app/dashboard', label: '工作台' },
+  { href: '/app/students', label: '学员管理' },
+  { href: '/app/schedule', label: '排班' },
 ];
 
 const NAVBAR_SCROLL_CONTAINER_STYLE: CSSProperties = {
@@ -505,21 +563,31 @@ const NAVBAR_MENU_CONTAINER_STYLE: CSSProperties = {
 const NavbarDemo = () => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [activeHref, setActiveHref] = useState('/app/dashboard');
 
   const handleMenuOpenChange = (isOpen: boolean) => setIsMenuOpen(isOpen);
+  const handleNavigate = (href: string) => setActiveHref(href);
+  const activeLabel =
+    NAVBAR_LINKS.find((link) => link.href === activeHref)?.label ??
+    (activeHref === '/app/settings' ? '设置' : '工作台');
 
   return (
     <>
       <DemoSection label="hide-on-scroll（在容器内下滑隐藏、上滑恢复）" isColumn>
         <div ref={scrollContainerRef} style={NAVBAR_SCROLL_CONTAINER_STYLE}>
-          <Navbar maxWidth="full" hideOnScroll parentRef={scrollContainerRef}>
+          <Navbar
+            maxWidth="full"
+            hideOnScroll
+            parentRef={scrollContainerRef}
+            navigate={handleNavigate}
+          >
             <Navbar.Header>
               <Navbar.Brand>
                 <strong>Matrix</strong>
               </Navbar.Brand>
               <Navbar.Content>
                 {NAVBAR_LINKS.map((link) => (
-                  <Navbar.Item key={link.href} href={link.href} isCurrent={link.isCurrent}>
+                  <Navbar.Item key={link.href} href={link.href} isCurrent={activeHref === link.href}>
                     {link.label}
                   </Navbar.Item>
                 ))}
@@ -527,11 +595,15 @@ const NavbarDemo = () => {
               <Navbar.Spacer />
               <Navbar.Content>
                 <Navbar.Separator />
-                <Navbar.Item href="#settings">设置</Navbar.Item>
+                <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
+                  设置
+                </Navbar.Item>
               </Navbar.Content>
             </Navbar.Header>
           </Navbar>
-          <div style={NAVBAR_SCROLL_FILLER_STYLE}>向下滚动隐藏导航栏，向上滚动立即恢复。</div>
+          <div style={NAVBAR_SCROLL_FILLER_STYLE}>
+            向下滚动隐藏导航栏，向上滚动立即恢复。当前：{activeLabel}
+          </div>
         </div>
       </DemoSection>
       <DemoSection label="移动菜单（受控 MenuToggle，汉堡图标切换为关闭）" isColumn>
@@ -542,6 +614,7 @@ const NavbarDemo = () => {
             isMenuOpen={isMenuOpen}
             onMenuOpenChange={handleMenuOpenChange}
             shouldBlockScroll={false}
+            navigate={handleNavigate}
           >
             <Navbar.Header>
               <Navbar.Brand>
@@ -552,14 +625,16 @@ const NavbarDemo = () => {
             </Navbar.Header>
             <Navbar.Menu>
               {NAVBAR_LINKS.map((link) => (
-                <Navbar.MenuItem key={link.href} href={link.href} isCurrent={link.isCurrent}>
+                <Navbar.MenuItem key={link.href} href={link.href} isCurrent={activeHref === link.href}>
                   {link.label}
                 </Navbar.MenuItem>
               ))}
             </Navbar.Menu>
           </Navbar>
         </div>
-        <span>移动菜单{isMenuOpen ? '已展开（点菜单项自动收起）' : '已收起'}</span>
+        <span>
+          移动菜单{isMenuOpen ? '已展开（点菜单项自动收起）' : '已收起'} · 当前：{activeLabel}
+        </span>
       </DemoSection>
     </>
   );
