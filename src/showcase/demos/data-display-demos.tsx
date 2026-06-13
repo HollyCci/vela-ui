@@ -87,6 +87,7 @@ const KpiGroupDemo = () => (
           </Kpi.Trend>
         </Kpi.Content>
       </Kpi>
+      <KpiGroup.Separator />
       <Kpi>
         <Kpi.Header>
           <Kpi.Title>课程续费率</Kpi.Title>
@@ -100,12 +101,37 @@ const KpiGroupDemo = () => (
           </Kpi.Trend>
         </Kpi.Content>
       </Kpi>
+      <KpiGroup.Separator />
       <Kpi>
         <Kpi.Header>
           <Kpi.Title>待处理订单</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
           <Kpi.Value>47</Kpi.Value>
+        </Kpi.Content>
+      </Kpi>
+    </KpiGroup>
+    <KpiGroup orientation="vertical" style={{ width: 280 }}>
+      <Kpi>
+        <Kpi.Header>
+          <Kpi.Title>本月完课率</Kpi.Title>
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>91.2%</Kpi.Value>
+          <Kpi.Trend>
+            <Chip color="success" size="sm">
+              +3.4%
+            </Chip>
+          </Kpi.Trend>
+        </Kpi.Content>
+      </Kpi>
+      <KpiGroup.Separator />
+      <Kpi>
+        <Kpi.Header>
+          <Kpi.Title>平均学习时长</Kpi.Title>
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>42 分钟</Kpi.Value>
         </Kpi.Content>
       </Kpi>
     </KpiGroup>
@@ -335,15 +361,14 @@ const EmptyStateDemo = () => (
 
 const WidgetDemo = () => (
   <DemoSection isColumn>
-    <Widget style={{ width: 360 }}>
+    <Widget style={{ width: 420 }}>
       <Widget.Header>
-        <div>
-          <Widget.Title>学习时长分布</Widget.Title>
-          <Widget.Description>近 7 天</Widget.Description>
-        </div>
-        <Button size="sm" variant="ghost">
-          导出
-        </Button>
+        <Widget.Title>学习时长分布</Widget.Title>
+        <Widget.Legend>
+          <Widget.LegendItem color="var(--chart-1)">句型训练</Widget.LegendItem>
+          <Widget.LegendItem color="var(--chart-2)">阅读</Widget.LegendItem>
+          <Widget.LegendItem color="var(--chart-3)">拼写</Widget.LegendItem>
+        </Widget.Legend>
       </Widget.Header>
       <Widget.Content>
         <div style={{ height: 96, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--muted)', fontSize: 12 }}>
@@ -351,12 +376,38 @@ const WidgetDemo = () => (
         </div>
       </Widget.Content>
       <Widget.Footer>
-        <Widget.Legend>
-          <Widget.LegendItem dotColor="var(--accent)" label="句型训练" />
-          <Widget.LegendItem dotColor="var(--success)" label="阅读" />
-          <Widget.LegendItem dotColor="var(--warning)" label="拼写" />
-        </Widget.Legend>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>数据每小时更新</span>
+        <Button size="sm" variant="ghost">
+          导出
+        </Button>
       </Widget.Footer>
+    </Widget>
+    <Widget style={{ width: 420 }}>
+      <Widget.Header>
+        <Widget.Title>关键指标</Widget.Title>
+        <Widget.Description>近 30 天</Widget.Description>
+      </Widget.Header>
+      <Widget.Content>
+        <KpiGroup orientation="horizontal">
+          <Kpi>
+            <Kpi.Header>
+              <Kpi.Title>活跃学员</Kpi.Title>
+            </Kpi.Header>
+            <Kpi.Content>
+              <Kpi.Value>5,214</Kpi.Value>
+            </Kpi.Content>
+          </Kpi>
+          <KpiGroup.Separator />
+          <Kpi>
+            <Kpi.Header>
+              <Kpi.Title>新增课程</Kpi.Title>
+            </Kpi.Header>
+            <Kpi.Content>
+              <Kpi.Value>36</Kpi.Value>
+            </Kpi.Content>
+          </Kpi>
+        </KpiGroup>
+      </Widget.Content>
     </Widget>
   </DemoSection>
 );
