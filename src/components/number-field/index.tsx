@@ -1,15 +1,32 @@
 import {
+  createContext,
   forwardRef,
-  useState,
-  type ChangeEvent,
-  type InputHTMLAttributes,
+  useContext,
+  type CSSProperties,
+  type ForwardedRef,
   type ReactNode,
 } from 'react';
+import {
+  Button as AriaButton,
+  FieldError as AriaFieldError,
+  Group as AriaGroup,
+  Input as AriaInput,
+  Label as AriaLabel,
+  NumberField as AriaNumberField,
+  Text as AriaText,
+  type ButtonProps as AriaButtonProps,
+  type FieldErrorProps as AriaFieldErrorProps,
+  type GroupProps as AriaGroupProps,
+  type InputProps as AriaInputProps,
+  type LabelProps as AriaLabelProps,
+  type NumberFieldProps as AriaNumberFieldProps,
+  type TextProps as AriaTextProps,
+} from 'react-aria-components';
 import clsx from 'clsx';
 
 export type NumberFieldProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'value' | 'defaultValue' | 'onChange' | 'min' | 'max' | 'step'
+  AriaNumberFieldProps,
+  'children' | 'className' | 'style' | 'onChange'
 > & {
   value?: number;
   defaultValue?: number;
@@ -23,9 +40,212 @@ export type NumberFieldProps = Omit<
   isDisabled?: boolean;
   label?: ReactNode;
   description?: ReactNode;
+  errorMessage?: ReactNode;
+  children?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
 };
 
-const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
+export type NumberFieldLabelProps = Omit<AriaLabelProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberFieldDescriptionProps = Omit<AriaTextProps, 'className' | 'style' | 'slot'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberFieldErrorMessageProps = Omit<AriaFieldErrorProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberFieldGroupProps = Omit<AriaGroupProps, 'className' | 'style'> & {
+  isFullWidth?: boolean;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberFieldInputProps = Omit<AriaInputProps, 'className' | 'style' | 'type'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberFieldButtonProps = Omit<AriaButtonProps, 'className' | 'style'> & {
+  icon?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+type NumberFieldInputContextValue = {
+  ref: ForwardedRef<HTMLInputElement>;
+};
+
+const NumberFieldInputContext = createContext<NumberFieldInputContextValue | null>(null);
+
+const assignRef = <T,>(ref: ForwardedRef<T>, value: T | null) => {
+  if (typeof ref === 'function') {
+    ref(value);
+  } else if (ref !== null) {
+    ref.current = value;
+  }
+};
+
+const MinusIcon = () => (
+  <svg
+    data-slot="number-field-decrement-button-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M5 12h14" />
+  </svg>
+);
+MinusIcon.displayName = 'NumberField.MinusIcon';
+
+const PlusIcon = () => (
+  <svg
+    data-slot="number-field-increment-button-icon"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    aria-hidden="true"
+  >
+    <path d="M12 5v14M5 12h14" />
+  </svg>
+);
+PlusIcon.displayName = 'NumberField.PlusIcon';
+
+const Label = forwardRef<HTMLLabelElement, NumberFieldLabelProps>(
+  ({ className, ...rest }, ref) => (
+    <AriaLabel ref={ref} className={clsx('label', className)} data-slot="label" {...rest} />
+  ),
+);
+Label.displayName = 'NumberField.Label';
+
+const Description = forwardRef<HTMLElement, NumberFieldDescriptionProps>(
+  ({ className, ...rest }, ref) => (
+    <AriaText
+      ref={ref}
+      slot="description"
+      className={clsx('description', className)}
+      data-slot="description"
+      {...rest}
+    />
+  ),
+);
+Description.displayName = 'NumberField.Description';
+
+const ErrorMessage = forwardRef<HTMLElement, NumberFieldErrorMessageProps>(
+  ({ className, ...rest }, ref) => (
+    <AriaFieldError
+      ref={ref}
+      className={clsx('field-error', className)}
+      data-slot="error-message"
+      data-visible="true"
+      {...rest}
+    />
+  ),
+);
+ErrorMessage.displayName = 'NumberField.ErrorMessage';
+
+const Group = forwardRef<HTMLDivElement, NumberFieldGroupProps>(
+  ({ isFullWidth = false, className, ...rest }, ref) => (
+    <AriaGroup
+      ref={ref}
+      className={clsx(
+        'number-field__group',
+        isFullWidth && 'number-field__group--full-width',
+        className,
+      )}
+      data-slot="number-field-group"
+      {...rest}
+    />
+  ),
+);
+Group.displayName = 'NumberField.Group';
+
+const Input = forwardRef<HTMLInputElement, NumberFieldInputProps>(
+  ({ className, ...rest }, ref) => {
+    const context = useContext(NumberFieldInputContext);
+    const contextRef = context?.ref ?? null;
+
+    return (
+      <AriaInput
+        ref={(node) => {
+          assignRef(contextRef, node);
+          assignRef(ref, node);
+        }}
+        className={clsx('number-field__input', className)}
+        data-slot="number-field-input"
+        {...rest}
+      />
+    );
+  },
+);
+Input.displayName = 'NumberField.Input';
+
+const DecrementButton = forwardRef<HTMLButtonElement, NumberFieldButtonProps>(
+  (
+    {
+      icon,
+      className,
+      children,
+      'aria-label': ariaLabel = '减少',
+      type = 'button',
+      ...rest
+    },
+    ref,
+  ) => (
+    <AriaButton
+      ref={ref}
+      slot="decrement"
+      type={type}
+      aria-label={ariaLabel}
+      className={clsx('number-field__decrement-button', className)}
+      data-slot="number-field-decrement-button"
+      {...rest}
+    >
+      {icon ?? children ?? <MinusIcon />}
+    </AriaButton>
+  ),
+);
+DecrementButton.displayName = 'NumberField.DecrementButton';
+
+const IncrementButton = forwardRef<HTMLButtonElement, NumberFieldButtonProps>(
+  (
+    {
+      icon,
+      className,
+      children,
+      'aria-label': ariaLabel = '增加',
+      type = 'button',
+      ...rest
+    },
+    ref,
+  ) => (
+    <AriaButton
+      ref={ref}
+      slot="increment"
+      type={type}
+      aria-label={ariaLabel}
+      className={clsx('number-field__increment-button', className)}
+      data-slot="number-field-increment-button"
+      {...rest}
+    >
+      {icon ?? children ?? <PlusIcon />}
+    </AriaButton>
+  ),
+);
+IncrementButton.displayName = 'NumberField.IncrementButton';
+
+const NumberFieldRoot = forwardRef<HTMLInputElement, NumberFieldProps>(
   (
     {
       value,
@@ -40,117 +260,65 @@ const NumberField = forwardRef<HTMLInputElement, NumberFieldProps>(
       isDisabled = false,
       label,
       description,
+      errorMessage,
       className,
+      style,
+      children,
       ...rest
     },
     ref,
   ) => {
-    const [innerValue, setInnerValue] = useState(defaultValue);
-    const currentValue = value ?? innerValue;
-
-    const clamp = (next: number) => Math.min(Math.max(next, minValue), maxValue);
-
-    const setValue = (next: number) => {
-      const clamped = clamp(next);
-      if (value === undefined) setInnerValue(clamped);
-      onValueChange?.(clamped);
-    };
-
-    const handleDecrement = () => setValue(currentValue - step);
-    const handleIncrement = () => setValue(currentValue + step);
-
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-      const parsed = Number(event.target.value);
-      if (!Number.isNaN(parsed)) setValue(parsed);
-    };
+    const inputContext: NumberFieldInputContextValue = { ref };
 
     return (
-      <div
+      <AriaNumberField
+        {...rest}
+        value={value}
+        defaultValue={value === undefined ? defaultValue : undefined}
+        onChange={onValueChange}
+        minValue={minValue}
+        maxValue={maxValue}
+        step={step}
+        isInvalid={isInvalid}
+        isDisabled={isDisabled}
         className={clsx(
           'number-field',
           variant === 'secondary' && 'number-field--secondary',
           isFullWidth && 'number-field--full-width',
           className,
         )}
-        data-invalid={isInvalid || undefined}
+        style={style}
       >
-        {label !== undefined && (
-          <span className="label" data-slot="label">
-            {label}
-          </span>
+        {children !== undefined ? (
+          <NumberFieldInputContext.Provider value={inputContext}>
+            {children}
+          </NumberFieldInputContext.Provider>
+        ) : (
+          <>
+            {label !== undefined && <Label>{label}</Label>}
+            <Group isFullWidth={isFullWidth}>
+              <DecrementButton />
+              <Input ref={ref} />
+              <IncrementButton />
+            </Group>
+            {description !== undefined && <Description>{description}</Description>}
+            {errorMessage !== undefined && <ErrorMessage>{errorMessage}</ErrorMessage>}
+          </>
         )}
-        <div
-          className={clsx(
-            'number-field__group',
-            isFullWidth && 'number-field__group--full-width',
-          )}
-          data-invalid={isInvalid || undefined}
-          data-disabled={isDisabled || undefined}
-        >
-          <button
-            type="button"
-            className="number-field__decrement-button"
-            aria-label="减少"
-            onClick={handleDecrement}
-            disabled={isDisabled || currentValue <= minValue}
-          >
-            <svg
-              data-slot="number-field-decrement-button-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M5 12h14" />
-            </svg>
-          </button>
-          <input
-            ref={ref}
-            type="number"
-            inputMode="numeric"
-            className="number-field__input"
-            data-slot="number-field-input"
-            value={currentValue}
-            onChange={handleChange}
-            min={minValue}
-            max={maxValue}
-            step={step}
-            disabled={isDisabled}
-            aria-invalid={isInvalid || undefined}
-            {...rest}
-          />
-          <button
-            type="button"
-            className="number-field__increment-button"
-            aria-label="增加"
-            onClick={handleIncrement}
-            disabled={isDisabled || currentValue >= maxValue}
-          >
-            <svg
-              data-slot="number-field-increment-button-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              aria-hidden="true"
-            >
-              <path d="M12 5v14M5 12h14" />
-            </svg>
-          </button>
-        </div>
-        {description !== undefined && (
-          <span className="description" data-slot="description">
-            {description}
-          </span>
-        )}
-      </div>
+      </AriaNumberField>
     );
   },
 );
+NumberFieldRoot.displayName = 'NumberField';
 
-NumberField.displayName = 'NumberField';
+const NumberField = Object.assign(NumberFieldRoot, {
+  Label,
+  Description,
+  ErrorMessage,
+  Group,
+  Input,
+  DecrementButton,
+  IncrementButton,
+});
 
 export default NumberField;

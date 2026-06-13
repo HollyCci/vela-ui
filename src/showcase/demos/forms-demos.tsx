@@ -32,6 +32,14 @@ const InputDemo = () => (
       <Input placeholder="默认输入框" />
       <Input variant="secondary" placeholder="次级输入框" />
     </DemoSection>
+    <DemoSection label="校验状态" isColumn>
+      <Input isInvalid style={{ width: 320 }}>
+        <Input.Label>学员姓名</Input.Label>
+        <Input.Field placeholder="例如：王同学" />
+        <Input.Description>用于课表、报告与家长通知。</Input.Description>
+        <Input.ErrorMessage>请输入学员姓名。</Input.ErrorMessage>
+      </Input>
+    </DemoSection>
     <DemoSection label="states">
       <Input placeholder="校验失败" isInvalid />
       <Input placeholder="禁用" disabled />
@@ -42,7 +50,11 @@ const InputDemo = () => (
 const TextareaDemo = () => (
   <DemoSection isColumn>
     <Textarea placeholder="请输入备注…" rows={3} style={{ width: 320 }} />
-    <Textarea variant="secondary" placeholder="次级样式" rows={3} style={{ width: 320 }} />
+    <Textarea variant="secondary" style={{ width: 320 }}>
+      <Textarea.Label>课后反馈</Textarea.Label>
+      <Textarea.Field variant="secondary" placeholder="次级样式" rows={3} />
+      <Textarea.Description>支持多行输入，适合记录课堂观察。</Textarea.Description>
+    </Textarea>
   </DemoSection>
 );
 
@@ -186,14 +198,30 @@ const NativeSelectDemo = () => {
 const SearchFieldDemo = () => (
   <DemoSection isColumn>
     <SearchField label="搜索学员" placeholder="输入姓名或手机号" style={{ width: 320 }} />
-    <SearchField variant="secondary" placeholder="次级样式" defaultValue="拓词" style={{ width: 320 }} />
+    <SearchField variant="secondary" defaultValue="拓词" style={{ width: 320 }}>
+      <SearchField.Label>内容检索</SearchField.Label>
+      <SearchField.Group>
+        <SearchField.SearchIcon />
+        <SearchField.Input placeholder="搜索课程、班级或学员" />
+        <SearchField.ClearButton />
+      </SearchField.Group>
+      <SearchField.Description>可快速定位课程、班级和学员记录。</SearchField.Description>
+    </SearchField>
   </DemoSection>
 );
 
 const NumberFieldDemo = () => (
   <DemoSection isColumn>
     <NumberField label="每日单词量" defaultValue={50} minValue={0} maxValue={500} step={10} style={{ width: 280 }} />
-    <NumberField variant="secondary" aria-label="次级数字输入" defaultValue={3} minValue={1} maxValue={10} style={{ width: 280 }} />
+    <NumberField variant="secondary" defaultValue={3} minValue={1} maxValue={10} style={{ width: 280 }}>
+      <NumberField.Label>每组题量</NumberField.Label>
+      <NumberField.Group>
+        <NumberField.DecrementButton />
+        <NumberField.Input />
+        <NumberField.IncrementButton />
+      </NumberField.Group>
+      <NumberField.Description>限制在 1-10 题之间。</NumberField.Description>
+    </NumberField>
   </DemoSection>
 );
 

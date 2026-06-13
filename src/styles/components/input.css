@@ -4,6 +4,24 @@
  * 用于 Vela UI 组件样式。
  */
 
+.input-field {
+  gap: calc(var(--spacing) * 1);
+  flex-direction: column;
+  display: inline-flex;
+}
+
+:is(.input-field[data-invalid=true],.input-field[aria-invalid=true]) [data-slot=description] {
+  display: none;
+}
+
+.input-field [data-slot=label] {
+  width: fit-content;
+}
+
+.input-field > .input {
+  width: 100%;
+}
+
 .input {
   border-radius: var(--field-radius,calc(var(--radius) * 1.5));
   border-style: var(--tw-border-style);
@@ -154,5 +172,9 @@
 }
 
 .input--full-width {
+  width: 100%;
+}
+
+.input-field--full-width {
   width: 100%;
 }
