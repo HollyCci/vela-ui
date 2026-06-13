@@ -1635,44 +1635,13 @@ const REORDER_ROWS: ReorderRow[] = STUDENT_ROWS.map((row, index) => ({
 const DataGridDragAndDropVariantDemo = () => {
   const [rows, setRows] = useState(REORDER_ROWS);
 
-  const moveRow = (id: string, direction: -1 | 1) => {
-    setRows((current) => {
-      const index = current.findIndex((row) => row.id === id);
-      const nextIndex = index + direction;
-      if (index < 0 || nextIndex < 0 || nextIndex >= current.length) return current;
-      const next = [...current];
-      [next[index], next[nextIndex]] = [next[nextIndex], next[index]];
-      return next.map((row, rowIndex) => ({ ...row, order: rowIndex + 1 }));
-    });
-  };
-
   const columns: DataGridColumn<ReorderRow>[] = [
     {
       id: 'order',
-      header: '',
+      header: '顺序',
       width: 56,
-      cell: (row) => (
-        <div style={{ display: 'flex', gap: 2 }}>
-          <Button
-            aria-label="上移"
-            isIconOnly
-            size="sm"
-            variant="ghost"
-            onClick={() => moveRow(row.id, -1)}
-          >
-            ↑
-          </Button>
-          <Button
-            aria-label="下移"
-            isIconOnly
-            size="sm"
-            variant="ghost"
-            onClick={() => moveRow(row.id, 1)}
-          >
-            ↓
-          </Button>
-        </div>
-      ),
+      accessorKey: 'order',
+      align: 'end',
     },
     { id: 'name', header: '学员', accessorKey: 'name', isRowHeader: true },
     { id: 'group', header: '课程', accessorKey: 'group', width: 180 },
@@ -1681,9 +1650,19 @@ const DataGridDragAndDropVariantDemo = () => {
   ];
 
   return (
-    <DemoSection isColumn label="drag ordering intent · current wrapper exposes stateful reordering">
+    <DemoSection isColumn label="drag and drop row reorder">
       <div style={{ width: 760 }}>
-        <DataGrid aria-label="可重排学员" columns={columns} data={rows} getRowId={studentRowId} />
+        <DataGrid
+          aria-label="可重排学员"
+          columns={columns}
+          data={rows}
+          enableRowReordering
+          getRowId={studentRowId}
+          showRowDragHandles
+          onRowReorder={(_, event) => {
+            setRows(event.orderedRows.map((row, index) => ({ ...row, order: index + 1 })));
+          }}
+        />
       </div>
       <span style={demoTextStyle}>当前顺序：{rows.map((row) => row.name).join(' / ')}</span>
     </DemoSection>

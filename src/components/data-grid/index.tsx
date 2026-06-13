@@ -1,4 +1,13 @@
-import { useState, type CSSProperties, type ReactNode } from 'react';
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type HTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from 'react';
 import { Checkbox } from '@heroui/react';
 import { Table, type TableColumnProps, type TableRootProps } from '@heroui/react/table';
 import type {
@@ -22,6 +31,18 @@ export type DataGridAlign = 'start' | 'center' | 'end';
 export type DataGridSortInfo = {
   sortDirection?: SortDirection;
 };
+
+export type DataGridRowReorderPosition = 'before' | 'after';
+
+export type DataGridRowReorderEvent<TRow> = {
+  draggedKey: Key;
+  targetKey: Key;
+  dropPosition: DataGridRowReorderPosition;
+  orderedKeys: Key[];
+  orderedRows: TRow[];
+};
+
+type DataGridDragPoint = Pick<MouseEvent | PointerEvent, 'clientX' | 'clientY'>;
 
 export type DataGridColumn<TRow> = {
   /** 唯一列标识，同时作为排序 key（原站 API，必填） */
@@ -76,6 +97,12 @@ export type DataGridProps<TRow extends object> = Omit<
   onSelectionChange?: (keys: Selection) => void;
   /** 自动前置选择 checkbox 列 */
   showSelectionCheckboxes?: boolean;
+  /** 启用行拖拽重排 */
+  enableRowReordering?: boolean;
+  /** 启用行重排时显示拖拽手柄列 */
+  showRowDragHandles?: boolean;
+  /** 行拖拽重排回调，调用方据 orderedKeys/orderedRows 写回 data */
+  onRowReorder?: (orderedKeys: Key[], event: DataGridRowReorderEvent<TRow>) => void;
   /** 受控排序描述 */
   sortDescriptor?: SortDescriptor;
   /** 默认排序描述（非受控） */
@@ -159,6 +186,67 @@ const DataGridSelectionCheckbox = () => (
 );
 DataGridSelectionCheckbox.displayName = 'DataGrid.SelectionCheckbox';
 
+const DragHandleIcon = () => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    height="16"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="2"
+    viewBox="0 0 24 24"
+    width="16"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="9" cy="5" r="1" />
+    <circle cx="9" cy="12" r="1" />
+    <circle cx="9" cy="19" r="1" />
+    <circle cx="15" cy="5" r="1" />
+    <circle cx="15" cy="12" r="1" />
+    <circle cx="15" cy="19" r="1" />
+  </svg>
+);
+DragHandleIcon.displayName = 'DataGrid.DragHandleIcon';
+
+type DataGridDragHandleProps = HTMLAttributes<HTMLSpanElement>;
+
+const DataGridDragHandle = ({ className, ...rest }: DataGridDragHandleProps) => (
+  <span
+    aria-hidden="true"
+    className={clsx('data-grid__drag-handle', className)}
+    data-slot="data-grid-drag-handle"
+    {...rest}
+  >
+    <DragHandleIcon />
+  </span>
+);
+DataGridDragHandle.displayName = 'DataGrid.DragHandle';
+
+const reorderRows = <TRow,>(
+  rows: TRow[],
+  keys: Key[],
+  draggedKey: Key,
+  targetKey: Key,
+  dropPosition: DataGridRowReorderPosition,
+) => {
+  const fromIndex = keys.indexOf(draggedKey);
+  const targetIndex = keys.indexOf(targetKey);
+  if (fromIndex < 0 || targetIndex < 0 || draggedKey === targetKey) {
+    return { orderedKeys: keys, orderedRows: rows };
+  }
+
+  const nextKeys = [...keys];
+  const nextRows = [...rows];
+  const [movedKey] = nextKeys.splice(fromIndex, 1);
+  const [movedRow] = nextRows.splice(fromIndex, 1);
+  let insertIndex = targetIndex + (dropPosition === 'after' ? 1 : 0);
+  if (fromIndex < insertIndex) insertIndex -= 1;
+  nextKeys.splice(insertIndex, 0, movedKey);
+  nextRows.splice(insertIndex, 0, movedRow);
+  return { orderedKeys: nextKeys, orderedRows: nextRows };
+};
+
 /**
  * 基于 OSS Table（内部 RAC Table）的数据网格：点击可排序列头由 RAC 在 ascending/descending
  * 间切换并输出 aria-sort + 触发 onSortChange；选择启用时 slot="selection" 的 OSS Checkbox 由 RAC
@@ -175,6 +263,9 @@ function DataGrid<TRow extends object>({
   defaultSelectedKeys,
   onSelectionChange,
   showSelectionCheckboxes = false,
+  enableRowReordering = false,
+  showRowDragHandles = true,
+  onRowReorder,
   sortDescriptor,
   defaultSortDescriptor,
   onSortChange,
@@ -190,11 +281,24 @@ function DataGrid<TRow extends object>({
 }: DataGridProps<TRow>) {
   const [internalSortDescriptor, setInternalSortDescriptor] =
     useState<SortDescriptor | undefined>(defaultSortDescriptor);
+  const [draggedKey, setDraggedKey] = useState<Key | null>(null);
+  const [dropTarget, setDropTarget] = useState<{
+    key: Key;
+    position: DataGridRowReorderPosition;
+  } | null>(null);
+  const draggedKeyRef = useRef<Key | null>(null);
+  const dropTargetRef = useRef<{
+    key: Key;
+    position: DataGridRowReorderPosition;
+  } | null>(null);
+  const rowDragCleanupRef = useRef<(() => void) | null>(null);
 
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
   const activeSort = sortDescriptor ?? internalSortDescriptor;
   const withSelection = showSelectionCheckboxes && selectionMode !== 'none';
+  const withRowReordering = enableRowReordering && onRowReorder !== undefined;
+  const withDragHandles = withRowReordering && showRowDragHandles;
   const handleSortChange = (descriptor: SortDescriptor) => {
     if (!isControlledSort) setInternalSortDescriptor(descriptor);
     onSortChange?.(descriptor);
@@ -213,6 +317,165 @@ function DataGrid<TRow extends object>({
             : compareValues(readValue(a, column), readValue(b, column));
           return activeSort.direction === 'descending' ? -result : result;
         });
+  const sortedKeys = sortedData.map(getRowId);
+
+  const setActiveDropTarget = (
+    next: { key: Key; position: DataGridRowReorderPosition } | null,
+  ) => {
+    dropTargetRef.current = next;
+    setDropTarget((current) =>
+      current?.key === next?.key && current?.position === next?.position ? current : next,
+    );
+  };
+
+  const removeRowDragListeners = () => {
+    rowDragCleanupRef.current?.();
+    rowDragCleanupRef.current = null;
+  };
+
+  const getDropPosition = (
+    point: DataGridDragPoint,
+    row: HTMLElement,
+  ): DataGridRowReorderPosition => {
+    const rect = row.getBoundingClientRect();
+    return point.clientY > rect.top + rect.height / 2 ? 'after' : 'before';
+  };
+
+  const resolveDropTarget = (point: DataGridDragPoint) => {
+    const target = document
+      .elementFromPoint(point.clientX, point.clientY)
+      ?.closest<HTMLElement>('tr[data-row-reorderable=true]') ?? null;
+    const targetKey = sortedKeys.find((key) => String(key) === target?.dataset.rowKey);
+
+    if (target === null || targetKey === undefined || targetKey === draggedKeyRef.current) {
+      return null;
+    }
+
+    return {
+      key: targetKey,
+      position: getDropPosition(point, target),
+    };
+  };
+
+  const handleRowDragMove = (point: DataGridDragPoint) => {
+    if (!withRowReordering || draggedKeyRef.current === null) return;
+    setActiveDropTarget(resolveDropTarget(point));
+  };
+
+  const clearDragState = () => {
+    removeRowDragListeners();
+    draggedKeyRef.current = null;
+    dropTargetRef.current = null;
+    setDraggedKey(null);
+    setDropTarget(null);
+  };
+
+  const finishRowDrag = () => {
+    removeRowDragListeners();
+    const activeDraggedKey = draggedKeyRef.current;
+    const activeDropTarget = dropTargetRef.current;
+
+    if (
+      !withRowReordering ||
+      activeDraggedKey === null ||
+      activeDropTarget === null ||
+      activeDropTarget.key === activeDraggedKey
+    ) {
+      clearDragState();
+      return;
+    }
+
+    const { orderedKeys, orderedRows } = reorderRows(
+      sortedData,
+      sortedKeys,
+      activeDraggedKey,
+      activeDropTarget.key,
+      activeDropTarget.position,
+    );
+    onRowReorder?.(orderedKeys, {
+      draggedKey: activeDraggedKey,
+      targetKey: activeDropTarget.key,
+      dropPosition: activeDropTarget.position,
+      orderedKeys,
+      orderedRows,
+    });
+    clearDragState();
+  };
+
+  const installRowDragListeners = () => {
+    removeRowDragListeners();
+
+    const handlePointerMove = (event: PointerEvent) => {
+      event.preventDefault();
+      handleRowDragMove(event);
+    };
+    const handlePointerUp = (event: PointerEvent) => {
+      event.preventDefault();
+      finishRowDrag();
+    };
+    const handleMouseMove = (event: MouseEvent) => {
+      event.preventDefault();
+      handleRowDragMove(event);
+    };
+    const handleMouseUp = (event: MouseEvent) => {
+      event.preventDefault();
+      finishRowDrag();
+    };
+
+    document.addEventListener('pointermove', handlePointerMove, { passive: false });
+    document.addEventListener('pointerup', handlePointerUp, { passive: false });
+    document.addEventListener('pointercancel', handlePointerUp, { passive: false });
+    document.addEventListener('mousemove', handleMouseMove, { passive: false });
+    document.addEventListener('mouseup', handleMouseUp, { passive: false });
+
+    rowDragCleanupRef.current = () => {
+      document.removeEventListener('pointermove', handlePointerMove);
+      document.removeEventListener('pointerup', handlePointerUp);
+      document.removeEventListener('pointercancel', handlePointerUp);
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+    };
+  };
+
+  const startRowDrag = (key: Key) => {
+    if (!withRowReordering || draggedKeyRef.current !== null) return;
+    draggedKeyRef.current = key;
+    setDraggedKey(key);
+    setActiveDropTarget(null);
+    installRowDragListeners();
+  };
+
+  const handleRowPointerDown = (key: Key, event: ReactPointerEvent<HTMLElement>) => {
+    if (!withRowReordering) return;
+    event.preventDefault();
+    event.currentTarget.setPointerCapture(event.pointerId);
+    startRowDrag(key);
+  };
+
+  const handleRowMouseDown = (key: Key, event: ReactMouseEvent<HTMLElement>) => {
+    if (!withRowReordering || event.button !== 0) return;
+    event.preventDefault();
+    startRowDrag(key);
+  };
+
+  const handleRowPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    handleRowDragMove(event);
+  };
+
+  const handleRowPointerUp = (event: ReactPointerEvent<HTMLElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    finishRowDrag();
+  };
+
+  useEffect(
+    () => () => {
+      rowDragCleanupRef.current?.();
+      rowDragCleanupRef.current = null;
+    },
+    [],
+  );
 
   return (
     <Table.Root
@@ -237,6 +500,11 @@ function DataGrid<TRow extends object>({
           disabledKeys={disabledKeys}
         >
           <Table.Header>
+            {withDragHandles && (
+              <Table.Column className="data-grid__drag-handle-column">
+                <span className="sr-only">拖拽排序</span>
+              </Table.Column>
+            )}
             {withSelection && (
               <Table.Column className="data-grid__selection-column">
                 {selectionMode === 'multiple' ? <DataGridSelectionCheckbox /> : null}
@@ -270,24 +538,50 @@ function DataGrid<TRow extends object>({
             })}
           </Table.Header>
           <Table.Body items={sortedData} renderEmptyState={renderEmptyState}>
-            {(item: TRow) => (
-              <Table.Row id={getRowId(item)}>
-                {withSelection && (
-                  <Table.Cell className="data-grid__selection-cell">
-                    <DataGridSelectionCheckbox />
-                  </Table.Cell>
-                )}
-                {columns.map((column) => (
-                  <Table.Cell
-                    key={column.id}
-                    data-align={column.align !== 'start' ? column.align : undefined}
-                    className={column.cellClassName}
-                  >
-                    {renderCell(item, column)}
-                  </Table.Cell>
-                ))}
-              </Table.Row>
-            )}
+            {(item: TRow) => {
+              const rowKey = getRowId(item);
+              const isDragging = draggedKey === rowKey;
+              const isDropTarget = dropTarget?.key === rowKey;
+              const rowDragProps = withRowReordering
+                ? {
+                    'data-row-reorderable': true,
+                    'data-row-key': String(rowKey),
+                    'data-dragging': isDragging || undefined,
+                    'data-drop-target': isDropTarget || undefined,
+                    'data-drop-position': isDropTarget ? dropTarget.position : undefined,
+                  }
+                : {};
+
+              return (
+                <Table.Row id={rowKey} {...rowDragProps}>
+                  {withDragHandles && (
+                    <Table.Cell className="data-grid__drag-handle-cell">
+                      <DataGridDragHandle
+                        onMouseDown={(event) => handleRowMouseDown(rowKey, event)}
+                        onPointerDown={(event) => handleRowPointerDown(rowKey, event)}
+                        onPointerMove={handleRowPointerMove}
+                        onPointerUp={handleRowPointerUp}
+                        onPointerCancel={clearDragState}
+                      />
+                    </Table.Cell>
+                  )}
+                  {withSelection && (
+                    <Table.Cell className="data-grid__selection-cell">
+                      <DataGridSelectionCheckbox />
+                    </Table.Cell>
+                  )}
+                  {columns.map((column) => (
+                    <Table.Cell
+                      key={column.id}
+                      data-align={column.align !== 'start' ? column.align : undefined}
+                      className={column.cellClassName}
+                    >
+                      {renderCell(item, column)}
+                    </Table.Cell>
+                  ))}
+                </Table.Row>
+              );
+            }}
           </Table.Body>
         </Table.Content>
       </Table.ScrollContainer>

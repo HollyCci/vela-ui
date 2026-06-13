@@ -43,6 +43,8 @@
 
 .data-grid__drag-handle {
   cursor: grab;
+  touch-action: none;
+  user-select: none;
   width: 100%;
   height: 100%;
   padding: calc(var(--spacing) * 0);
@@ -87,6 +89,26 @@
 .data-grid__drag-handle:active,
 .data-grid__drag-handle[data-pressed=true] {
   cursor: grabbing;
+}
+
+.data-grid [data-row-reorderable=true] {
+  cursor: grab;
+}
+
+.data-grid [data-row-reorderable=true][data-dragging=true] {
+  opacity: .55;
+}
+
+.data-grid [data-row-reorderable=true][data-drop-target=true] {
+  position: relative;
+}
+
+.data-grid [data-row-reorderable=true][data-drop-position=before] {
+  box-shadow: inset 0 2px 0 var(--accent);
+}
+
+.data-grid [data-row-reorderable=true][data-drop-position=after] {
+  box-shadow: inset 0 -2px 0 var(--accent);
 }
 
 .data-grid .react-aria-DropIndicator {
