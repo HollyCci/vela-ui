@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { Selection } from 'react-aria-components';
+import type { Key, Selection } from 'react-aria-components';
 import {
   Button as UIButton,
   Chip as UIChip,
@@ -14,7 +14,7 @@ import ChartTooltip from '../../components/chart-tooltip';
 import Chip from '../../components/chip';
 import DataGrid, { type DataGridColumn } from '../../components/data-grid';
 import EmptyState from '../../components/empty-state';
-import FileTree, { type FileTreeNode } from '../../components/file-tree';
+import FileTree from '../../components/file-tree';
 import FloatingToc from '../../components/floating-toc';
 import HoverCard from '../../components/hover-card';
 import ItemCard from '../../components/item-card';
@@ -412,43 +412,50 @@ const WidgetDemo = () => (
   </DemoSection>
 );
 
-const FILE_TREE_NODES: FileTreeNode[] = [
-  {
-    key: 'course',
-    label: '课程资料',
-    icon: <FolderIcon />,
-    children: [
-      {
-        key: 'ielts',
-        label: '雅思',
-        icon: <FolderIcon />,
-        children: [
-          { key: 'ielts-words', label: '核心词汇表.xlsx', icon: <FileIcon /> },
-          { key: 'ielts-listening', label: '听力素材清单.docx', icon: <FileIcon /> },
-        ],
-      },
-      { key: 'cet4', label: '四级真题合集.pdf', icon: <FileIcon /> },
-    ],
-  },
-  {
-    key: 'ops',
-    label: '运营物料',
-    icon: <FolderIcon />,
-    children: [{ key: 'poster', label: '暑期活动海报.png', icon: <FileIcon /> }],
-  },
-];
-
 const FileTreeDemo = () => {
-  const [selectedKey, setSelectedKey] = useState<string>('ielts-words');
+  const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(
+    () => new Set<Key>(['course', 'ielts']),
+  );
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(
+    () => new Set<Key>(['ielts-words']),
+  );
+
+  const handleExpandedChange = (keys: Set<Key>) => {
+    setExpandedKeys(new Set(keys));
+  };
+
+  const handleSelectionChange = (keys: Selection) => {
+    setSelectedKeys(keys);
+  };
+
+  const selectedLabel =
+    selectedKeys === 'all' ? '全部' : ([...selectedKeys].map(String).join('、') || '（未选择）');
+
   return (
     <DemoSection isColumn>
       <div style={{ width: 320 }}>
         <FileTree
-          nodes={FILE_TREE_NODES}
-          defaultExpandedKeys={['course', 'ielts']}
-          selectedKey={selectedKey}
-          onSelect={setSelectedKey}
-        />
+          aria-label="课程资料"
+          selectionMode="single"
+          expandedKeys={expandedKeys}
+          onExpandedChange={handleExpandedChange}
+          selectedKeys={selectedKeys}
+          onSelectionChange={handleSelectionChange}
+        >
+          <FileTree.Item id="course" title="课程资料" icon={<FolderIcon />}>
+            <FileTree.Item id="ielts" title="雅思" icon={<FolderIcon />}>
+              <FileTree.Item id="ielts-words" title="核心词汇表.xlsx" icon={<FileIcon />} />
+              <FileTree.Item id="ielts-listening" title="听力素材清单.docx" icon={<FileIcon />} />
+            </FileTree.Item>
+            <FileTree.Item id="cet4" title="四级真题合集.pdf" icon={<FileIcon />} />
+          </FileTree.Item>
+          <FileTree.Item id="ops" title="运营物料" icon={<FolderIcon />}>
+            <FileTree.Item id="poster" title="暑期活动海报.png" icon={<FileIcon />} />
+          </FileTree.Item>
+        </FileTree>
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
+        当前选中：{selectedLabel}（已展开 {expandedKeys.size} 个目录）
       </div>
     </DemoSection>
   );
@@ -541,33 +548,37 @@ const DataGridDemo = () => (
   </DemoSection>
 );
 
-const CarouselDemo = () => {
-  const [index, setIndex] = useState(0);
-  const slides = ['暑期班招生海报', '教师节活动物料', '新版 App 上线公告'];
-  return (
-    <DemoSection isColumn>
-      <Carousel index={index} onIndexChange={setIndex} hasDots style={{ width: 420 }}>
-        {slides.map((slide) => (
-          <div
-            key={slide}
-            style={{
-              height: 160,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              borderRadius: 8,
-              background: 'var(--surface-secondary)',
-              color: 'var(--foreground)',
-              fontSize: 14,
-            }}
-          >
-            {slide}
-          </div>
+const CAROUSEL_SLIDES = ['暑期班招生海报', '教师节活动物料', '新版 App 上线公告'];
+
+const CarouselDemo = () => (
+  <DemoSection isColumn>
+    <Carousel aria-label="运营物料轮播" style={{ width: 420 }}>
+      <Carousel.Content>
+        {CAROUSEL_SLIDES.map((slide) => (
+          <Carousel.Item key={slide}>
+            <div
+              style={{
+                height: 160,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 8,
+                background: 'var(--surface-secondary)',
+                color: 'var(--foreground)',
+                fontSize: 14,
+              }}
+            >
+              {slide}
+            </div>
+          </Carousel.Item>
         ))}
-      </Carousel>
-    </DemoSection>
-  );
-};
+      </Carousel.Content>
+      <Carousel.Previous />
+      <Carousel.Next />
+      <Carousel.Dots />
+    </Carousel>
+  </DemoSection>
+);
 
 type TocEntry = { key: string; label: string; level?: number };
 
