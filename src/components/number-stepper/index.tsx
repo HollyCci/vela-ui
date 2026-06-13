@@ -3,21 +3,28 @@ import {
   Button,
   Group,
   Input,
+  Label,
   NumberField,
   NumberFieldStateContext,
+  Text,
   type ButtonProps,
   type GroupProps,
+  type LabelProps,
   type NumberFieldProps,
+  type TextProps,
 } from 'react-aria-components';
 import NumberFlow, { type Format, type NumberFlowProps } from '@number-flow/react';
 import clsx from 'clsx';
 
 export type NumberStepperSize = 'sm' | 'md' | 'lg';
 
-export type NumberStepperProps = Omit<NumberFieldProps, 'className' | 'style'> & {
+export type NumberStepperProps = Omit<NumberFieldProps, 'className' | 'style' | 'children'> & {
   size?: NumberStepperSize;
   /** 数字格式化选项，同时作用于 RAC NumberField 与 Number Flow 显示（原站 API：Number Flow 的 Format） */
   formatOptions?: Format;
+  label?: ReactNode;
+  description?: ReactNode;
+  children?: ReactNode | NumberFieldRenderChildren;
   className?: string;
   style?: CSSProperties;
 };
@@ -37,6 +44,17 @@ export type NumberStepperValueProps = Omit<NumberFlowProps, 'value' | 'children'
 };
 
 export type NumberStepperButtonProps = Omit<ButtonProps, 'className' | 'style'> & {
+  icon?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberStepperLabelProps = Omit<LabelProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type NumberStepperDescriptionProps = Omit<TextProps, 'className' | 'style' | 'slot'> & {
   className?: string;
   style?: CSSProperties;
 };
@@ -45,6 +63,12 @@ type NumberStepperContextValue = {
   size: NumberStepperSize;
   format?: Format;
 };
+
+type NumberFieldRenderChildren = Extract<
+  NumberFieldProps['children'],
+  (props: any) => ReactNode
+>;
+type NumberFieldRenderProps = Parameters<NumberFieldRenderChildren>[0];
 
 const NumberStepperContext = createContext<NumberStepperContextValue>({ size: 'md' });
 
@@ -72,6 +96,21 @@ const PlusIcon = () => (
   </svg>
 );
 PlusIcon.displayName = 'NumberStepper.PlusIcon';
+
+const StepperLabel = ({ className, ...rest }: NumberStepperLabelProps) => (
+  <Label className={clsx('number-stepper__label', className)} data-slot="label" {...rest} />
+);
+StepperLabel.displayName = 'NumberStepper.Label';
+
+const Description = ({ className, ...rest }: NumberStepperDescriptionProps) => (
+  <Text
+    slot="description"
+    className={clsx('number-stepper__description', className)}
+    data-slot="description"
+    {...rest}
+  />
+);
+Description.displayName = 'NumberStepper.Description';
 
 /** 包装 RAC Group；末尾自动渲染无障碍隐藏输入框（与原站 DOM 一致） */
 const StepperGroup = ({ className, children, ...rest }: NumberStepperGroupProps) => {
@@ -137,7 +176,7 @@ const Value = ({ value, format, children, className, ...rest }: NumberStepperVal
 Value.displayName = 'NumberStepper.Value';
 
 /** 包装 RAC Button slot="decrement"；无 children 时渲染默认减号图标 */
-const DecrementButton = ({ className, children, ...rest }: NumberStepperButtonProps) => {
+const DecrementButton = ({ icon, className, children, ...rest }: NumberStepperButtonProps) => {
   const { size } = useContext(NumberStepperContext);
 
   return (
@@ -151,14 +190,14 @@ const DecrementButton = ({ className, children, ...rest }: NumberStepperButtonPr
       )}
       {...rest}
     >
-      {children ?? <MinusIcon />}
+      {icon ?? children ?? <MinusIcon />}
     </Button>
   );
 };
 DecrementButton.displayName = 'NumberStepper.DecrementButton';
 
 /** 包装 RAC Button slot="increment"；无 children 时渲染默认加号图标 */
-const IncrementButton = ({ className, children, ...rest }: NumberStepperButtonProps) => {
+const IncrementButton = ({ icon, className, children, ...rest }: NumberStepperButtonProps) => {
   const { size } = useContext(NumberStepperContext);
 
   return (
@@ -172,7 +211,7 @@ const IncrementButton = ({ className, children, ...rest }: NumberStepperButtonPr
       )}
       {...rest}
     >
-      {children ?? <PlusIcon />}
+      {icon ?? children ?? <PlusIcon />}
     </Button>
   );
 };
@@ -185,24 +224,50 @@ IncrementButton.displayName = 'NumberStepper.IncrementButton';
 const NumberStepperRoot = ({
   size = 'md',
   formatOptions,
+  label,
+  description,
   className,
   children,
   ...rest
-}: NumberStepperProps) => (
-  <NumberStepperContext.Provider value={{ size, format: formatOptions }}>
-    <NumberField
-      data-slot="number-stepper"
-      formatOptions={formatOptions}
-      className={clsx('number-stepper', className)}
-      {...rest}
-    >
-      {children}
-    </NumberField>
-  </NumberStepperContext.Provider>
-);
+}: NumberStepperProps) => {
+  const labelNode = label !== undefined ? <StepperLabel>{label}</StepperLabel> : null;
+  const descriptionNode =
+    description !== undefined ? <Description>{description}</Description> : null;
+  const content =
+    typeof children === 'function'
+      ? (renderProps: NumberFieldRenderProps) => (
+          <>
+            {labelNode}
+            {(children as NumberFieldRenderChildren)(renderProps)}
+            {descriptionNode}
+          </>
+        )
+      : (
+          <>
+            {labelNode}
+            {children}
+            {descriptionNode}
+          </>
+        );
+
+  return (
+    <NumberStepperContext.Provider value={{ size, format: formatOptions }}>
+      <NumberField
+        data-slot="number-stepper"
+        formatOptions={formatOptions}
+        className={clsx('number-stepper', className)}
+        {...rest}
+      >
+        {content}
+      </NumberField>
+    </NumberStepperContext.Provider>
+  );
+};
 NumberStepperRoot.displayName = 'NumberStepper';
 
 const NumberStepper = Object.assign(NumberStepperRoot, {
+  Label: StepperLabel,
+  Description,
   Group: StepperGroup,
   Value,
   DecrementButton,

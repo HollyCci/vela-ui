@@ -5,8 +5,24 @@
  */
 
 .number-stepper {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 1.5);
   flex-shrink: 0;
   display: inline-flex;
+}
+
+.number-stepper__label {
+  color: var(--foreground);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  font-weight: var(--font-weight-medium);
+}
+
+.number-stepper__description {
+  color: var(--muted);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
 }
 
 .number-stepper__group {

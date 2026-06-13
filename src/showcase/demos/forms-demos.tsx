@@ -2238,17 +2238,33 @@ type NumberStepperVariantSlug =
 const NumberStepperParts = ({
   reversed,
   customButtons,
+  customIcons,
   customValue,
 }: {
   reversed?: boolean;
   customButtons?: boolean;
+  customIcons?: boolean;
   customValue?: boolean;
 }) => {
+  const minusIcon = customIcons ? (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M4 8h8" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+    </svg>
+  ) : undefined;
+  const plusIcon = customIcons ? (
+    <svg viewBox="0 0 16 16" aria-hidden="true">
+      <path d="M8 4v8M4 8h8" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="1.8" />
+    </svg>
+  ) : undefined;
   const decrement = (
-    <NumberStepper.DecrementButton>{customButtons ? '少' : undefined}</NumberStepper.DecrementButton>
+    <NumberStepper.DecrementButton icon={minusIcon}>
+      {customButtons ? '少' : undefined}
+    </NumberStepper.DecrementButton>
   );
   const increment = (
-    <NumberStepper.IncrementButton>{customButtons ? '多' : undefined}</NumberStepper.IncrementButton>
+    <NumberStepper.IncrementButton icon={plusIcon}>
+      {customButtons ? '多' : undefined}
+    </NumberStepper.IncrementButton>
   );
   const value = (
     <NumberStepper.Value>
@@ -2284,8 +2300,7 @@ const NumberStepperVariantDemo = ({ variant }: { variant: NumberStepperVariantSl
       <DemoSection label="Guest picker">
         {['成人', '儿童', '老师'].map((label, index) => (
           <div key={label} style={{ display: 'grid', gap: 6 }}>
-            <span className="text-muted text-sm">{label}</span>
-            <NumberStepper aria-label={label} defaultValue={index === 0 ? 2 : 0} minValue={0} maxValue={12}>
+            <NumberStepper label={label} defaultValue={index === 0 ? 2 : 0} minValue={0} maxValue={12}>
               <NumberStepperParts />
             </NumberStepper>
           </div>
@@ -2333,9 +2348,10 @@ const NumberStepperVariantDemo = ({ variant }: { variant: NumberStepperVariantSl
       }
       isColumn
     >
-      {variant === 'with-label' && <span className="text-muted text-sm">参课人数</span>}
       <NumberStepper
         aria-label="数量"
+        label={variant === 'with-label' ? '参课人数' : undefined}
+        description={variant === 'with-label' ? '用于限制每节课可预约容量' : undefined}
         value={variant === 'controlled' ? count : undefined}
         onChange={variant === 'controlled' ? handleCountChange : undefined}
         defaultValue={variant === 'controlled' ? undefined : variant === 'with-format-options' ? 1280 : 4}
@@ -2347,7 +2363,8 @@ const NumberStepperVariantDemo = ({ variant }: { variant: NumberStepperVariantSl
       >
         <NumberStepperParts
           reversed={variant === 'reversed-layout'}
-          customButtons={variant === 'with-custom-buttons' || variant === 'custom-icons'}
+          customButtons={variant === 'with-custom-buttons'}
+          customIcons={variant === 'custom-icons'}
           customValue={variant === 'custom-value'}
         />
       </NumberStepper>
