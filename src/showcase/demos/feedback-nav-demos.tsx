@@ -252,14 +252,14 @@ const TooltipDemo = () => (
         <Button variant="secondary">受控</Button>
       </Tooltip>
     </DemoSection>
-    <DemoSection label="compound 组合用法（带箭头）">
+    <DemoSection label="带箭头提示">
       <Tooltip delay={0} closeDelay={0}>
         <Tooltip.Trigger>
           <Button variant="secondary">带箭头</Button>
         </Tooltip.Trigger>
         <Tooltip.Content placement="top" showArrow>
           <Tooltip.Arrow />
-          组合用法的提示内容
+          课程详情会显示在这里
         </Tooltip.Content>
       </Tooltip>
     </DemoSection>

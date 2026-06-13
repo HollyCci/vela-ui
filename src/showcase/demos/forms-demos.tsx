@@ -1,4 +1,5 @@
 import { useState, type ChangeEvent, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import Button from '../../components/button';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -796,7 +797,7 @@ const DropZoneCustomIconVariantDemo = () => {
             <BookIcon />
           </DropZone.Icon>
           <DropZone.Label>上传课程资料</DropZone.Label>
-          <DropZone.Description>图标 slot 可替换为业务图标</DropZone.Description>
+          <DropZone.Description>课程图标会帮助区分资料类型</DropZone.Description>
           <DropZone.Trigger>选择资料</DropZone.Trigger>
         </DropZone.Area>
         <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
@@ -821,7 +822,7 @@ const DropZoneCustomTriggersVariantDemo = () => {
         <DropZone.Area>
           <DropZone.Icon />
           <DropZone.Label>从多个入口选择文件</DropZone.Label>
-          <DropZone.Description>多个 Trigger 会共享根组件提供的隐藏 input</DropZone.Description>
+          <DropZone.Description>可从合同或附件入口选择文件</DropZone.Description>
           <div style={{ display: 'flex', gap: 8 }}>
             <DropZone.Trigger>上传合同</DropZone.Trigger>
             <DropZone.Trigger>上传附件</DropZone.Trigger>
@@ -2228,7 +2229,7 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
       <DemoSection label="Form example" isColumn>
         <form onSubmit={handleFormSubmit} style={{ display: 'grid', gap: 12, width: 280 }}>
           {selectControl}
-          <button type="submit" className="button button--primary button--sm">保存</button>
+          <Button type="submit" size="sm">保存</Button>
         </form>
         <span className="text-muted text-sm">已保存：{savedCampus}</span>
       </DemoSection>

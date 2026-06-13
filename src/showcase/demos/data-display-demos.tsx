@@ -1904,7 +1904,7 @@ const DataGridPinnedColumnsVariantDemo = () => {
           }
         />
       </div>
-      <span style={demoMutedStyle}>列定义使用 pin API，并通过 DataGrid 的 resize API 调整宽度。</span>
+      <span style={demoMutedStyle}>拖动列边界可调整宽度，固定列会持续保持可见。</span>
     </DemoSection>
   );
 };
@@ -2239,7 +2239,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
             {(tree.items as DemoTreeNode[]).map(renderTreeDataNode)}
           </FileTree>
         </div>
-        <span style={demoMutedStyle}>拖动文件可在同级或目录间移动。</span>
+        <span style={demoMutedStyle}>把文件拖到目标目录即可调整归档位置。</span>
       </DemoSection>
     );
   }
@@ -2399,7 +2399,7 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
           }}
         >
           <strong>课程运营报告</strong>
-          <p style={demoMutedStyle}>滚动阅读内容时，右侧目录用于定位章节。</p>
+          <p style={demoMutedStyle}>右侧目录会跟随当前章节同步高亮。</p>
           <div style={{ display: 'grid', gap: 8 }}>
             {TOC_ITEMS.slice(0, 3).map((entry) => (
               <div key={entry.key} style={{ padding: 10, borderRadius: 8, background: 'var(--surface-secondary)' }}>
@@ -3254,7 +3254,7 @@ type ChartTooltipVariantKey =
 const ChartTooltipVariantDemo = ({ variant }: { variant: ChartTooltipVariantKey }) => (
   <DemoSection label={variant}>
     {variant === 'inactive' ? (
-      <span style={demoMutedStyle}>Tooltip inactive: 当前没有悬停数据点。</span>
+      <span style={demoMutedStyle}>暂无悬停数据点。</span>
     ) : (
       <ChartTooltip>
         {variant !== 'no-header' && <ChartTooltip.Header>{variant === 'auto-content' ? '自动内容' : '6 月 11 日'}</ChartTooltip.Header>}
