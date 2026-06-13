@@ -2,7 +2,10 @@ import type { CSSProperties, HTMLAttributes } from 'react';
 import {
   Drawer as HeroDrawer,
   type DrawerBackdropProps as HeroDrawerBackdropProps,
+  type DrawerCloseTriggerProps as HeroDrawerCloseTriggerProps,
   type DrawerContentProps as HeroDrawerContentProps,
+  type DrawerDialogProps as HeroDrawerDialogProps,
+  type DrawerHandleProps as HeroDrawerHandleProps,
   type DrawerHeadingProps as HeroDrawerHeadingProps,
   type DrawerRootProps as HeroDrawerRootProps,
 } from '@heroui/react';
@@ -12,8 +15,9 @@ export type DrawerPlacement = NonNullable<HeroDrawerContentProps['placement']>;
 export type DrawerBackdrop = NonNullable<HeroDrawerBackdropProps['variant']>;
 
 export type DrawerProps = Omit<HeroDrawerRootProps, 'children' | 'className' | 'style' | 'onOpenChange'> & {
-  isOpen: boolean;
+  isOpen?: boolean;
   onClose?: () => void;
+  onOpenChange?: HeroDrawerRootProps['onOpenChange'];
   placement?: DrawerPlacement;
   backdrop?: DrawerBackdrop;
   hasHandle?: boolean;
@@ -22,14 +26,36 @@ export type DrawerProps = Omit<HeroDrawerRootProps, 'children' | 'className' | '
   children?: HeroDrawerRootProps['children'];
 };
 
+export type DrawerBackdropProps = Omit<HeroDrawerBackdropProps, 'className' | 'style' | 'variant'> & {
+  variant?: DrawerBackdrop;
+  className?: string;
+  style?: CSSProperties;
+};
+export type DrawerContentProps = Omit<HeroDrawerContentProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+export type DrawerDialogProps = Omit<HeroDrawerDialogProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 export type DrawerHeaderProps = HTMLAttributes<HTMLDivElement>;
 export type DrawerHeadingProps = HeroDrawerHeadingProps;
 export type DrawerBodyProps = HTMLAttributes<HTMLDivElement>;
 export type DrawerFooterProps = HTMLAttributes<HTMLDivElement>;
+export type DrawerHandleProps = Omit<HeroDrawerHandleProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+export type DrawerCloseTriggerProps = Omit<HeroDrawerCloseTriggerProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 
 const DrawerRoot = ({
   isOpen,
   onClose,
+  onOpenChange,
   placement = 'right',
   backdrop = 'opaque',
   hasHandle = false,
@@ -39,19 +65,14 @@ const DrawerRoot = ({
   ...rest
 }: DrawerProps) => {
   const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange?.(nextOpen);
     if (!nextOpen) onClose?.();
   };
 
   return (
     <HeroDrawer data-slot="drawer" isOpen={isOpen} onOpenChange={handleOpenChange} {...rest}>
-      <HeroDrawer.Backdrop
-        data-slot="drawer-backdrop"
-        variant={backdrop}
-      >
-        <HeroDrawer.Content
-          data-slot="drawer-content"
-          placement={placement}
-        >
+      <Backdrop variant={backdrop}>
+        <Content placement={placement}>
           <HeroDrawer.Dialog
             data-slot="drawer-dialog"
             aria-modal="true"
@@ -59,19 +80,39 @@ const DrawerRoot = ({
             style={style}
           >
             {hasHandle && (
-              <HeroDrawer.Handle data-slot="drawer-handle" />
+              <Handle />
             )}
             {children}
             {onClose !== undefined && (
-              <HeroDrawer.CloseTrigger aria-label="关闭" />
+              <CloseTrigger aria-label="关闭" />
             )}
           </HeroDrawer.Dialog>
-        </HeroDrawer.Content>
-      </HeroDrawer.Backdrop>
+        </Content>
+      </Backdrop>
     </HeroDrawer>
   );
 };
 DrawerRoot.displayName = 'Drawer';
+
+const Backdrop = ({ className, variant = 'opaque', ...rest }: DrawerBackdropProps) => (
+  <HeroDrawer.Backdrop data-slot="drawer-backdrop" variant={variant} className={className} {...rest} />
+);
+Backdrop.displayName = 'Drawer.Backdrop';
+
+const Content = ({ className, ...rest }: DrawerContentProps) => (
+  <HeroDrawer.Content data-slot="drawer-content" className={className} {...rest} />
+);
+Content.displayName = 'Drawer.Content';
+
+const Dialog = ({ className, placement = 'right', ...rest }: DrawerDialogProps & { placement?: DrawerPlacement }) => (
+  <HeroDrawer.Dialog
+    data-slot="drawer-dialog"
+    aria-modal="true"
+    className={clsx(placement === 'top' && 'drawer__dialog--top', className)}
+    {...rest}
+  />
+);
+Dialog.displayName = 'Drawer.Dialog';
 
 const Header = ({ className, ...rest }: DrawerHeaderProps) => (
   <HeroDrawer.Header data-slot="drawer-header" className={className} {...rest} />
@@ -97,6 +138,26 @@ const Footer = ({ className, ...rest }: DrawerFooterProps) => (
 );
 Footer.displayName = 'Drawer.Footer';
 
-const Drawer = Object.assign(DrawerRoot, { Header, Heading, Body, Footer });
+const Handle = ({ className, ...rest }: DrawerHandleProps) => (
+  <HeroDrawer.Handle data-slot="drawer-handle" className={className} {...rest} />
+);
+Handle.displayName = 'Drawer.Handle';
+
+const CloseTrigger = ({ className, ...rest }: DrawerCloseTriggerProps) => (
+  <HeroDrawer.CloseTrigger data-slot="drawer-close-trigger" className={className} {...rest} />
+);
+CloseTrigger.displayName = 'Drawer.CloseTrigger';
+
+const Drawer = Object.assign(DrawerRoot, {
+  Backdrop,
+  Content,
+  Dialog,
+  Header,
+  Heading,
+  Body,
+  Footer,
+  Handle,
+  CloseTrigger,
+});
 
 export default Drawer;
