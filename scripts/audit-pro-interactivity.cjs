@@ -18,9 +18,19 @@ const rules = [
     message: 'replace noop demo handlers with visible state changes',
   },
   {
+    name: 'no direct HeroUI imports in demos',
+    pattern: /from ['"]@heroui\/react['"]/,
+    message: 'demo code must exercise Vela component APIs instead of importing HeroUI primitives',
+  },
+  {
     name: 'no direct HeroUI dropdown/menu aliases in demos',
     pattern: /(Dropdown\s+as\s+HeroDropdown|Menu\s+as\s+HeroMenu|<HeroDropdown|<HeroMenu)/,
     message: 'use src/components/dropdown and src/components/menu-item wrappers',
+  },
+  {
+    name: 'no direct HeroUI listbox in demos',
+    pattern: /<(ListBox|ColorArea|ColorSlider|ColorSwatchPicker)\b/,
+    message: 'wrap collection and color primitives through the relevant Vela Pro component',
   },
   {
     name: 'no handwritten chat message internals in demos',
@@ -31,6 +41,11 @@ const rules = [
     name: 'no static-positioning demo labels',
     pattern: /静态定位/,
     message: 'demo should use real trigger/popover behavior',
+  },
+  {
+    name: 'no chart placeholder text',
+    pattern: /图表占位区域/,
+    message: 'demo should render a meaningful live visualization or component state',
   },
 ];
 
