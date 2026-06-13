@@ -1,6 +1,5 @@
 import { useState, type ChangeEvent, type CSSProperties, type ReactNode } from 'react';
 import { isFileDropItem, parseColor, type Color, type Key } from 'react-aria-components';
-import { ColorArea, ColorSlider, ColorSwatchPicker, Description, Label, ListBox } from '@heroui/react';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -115,16 +114,16 @@ const NativeSelectDemo = () => {
     <>
       <DemoSection label="label + description + 受控回显" isColumn>
         <NativeSelect fullWidth style={{ width: 240 }}>
-          <Label>所属校区</Label>
+          <NativeSelect.Label>所属校区</NativeSelect.Label>
           <NativeSelect.Trigger name="campus" value={campus} onChange={handleCampusChange}>
             <NativeSelect.Option value="bj">北京校区</NativeSelect.Option>
             <NativeSelect.Option value="sh">上海校区</NativeSelect.Option>
             <NativeSelect.Option value="gz">广州校区</NativeSelect.Option>
           </NativeSelect.Trigger>
-          <Description>当前选择：{CAMPUS_NAMES[campus]}</Description>
+          <NativeSelect.Description>当前选择：{CAMPUS_NAMES[campus]}</NativeSelect.Description>
         </NativeSelect>
         <NativeSelect fullWidth style={{ width: 240 }}>
-          <Label>所属教研组（分组 + 禁用项）</Label>
+          <NativeSelect.Label>所属教研组（分组 + 禁用项）</NativeSelect.Label>
           <NativeSelect.Trigger name="department" defaultValue="">
             <NativeSelect.Option value="">请选择教研组</NativeSelect.Option>
             <NativeSelect.OptGroup label="教学">
@@ -147,14 +146,14 @@ const NativeSelectDemo = () => {
           </NativeSelect.Trigger>
         </NativeSelect>
         <NativeSelect aria-invalid="true" data-invalid="true" fullWidth style={{ width: 200 }}>
-          <Label>验证失败</Label>
+          <NativeSelect.Label>验证失败</NativeSelect.Label>
           <NativeSelect.Trigger aria-invalid="true" defaultValue="">
             <NativeSelect.Option value="">必选项未选择</NativeSelect.Option>
             <NativeSelect.Option value="ok">合规选项</NativeSelect.Option>
           </NativeSelect.Trigger>
         </NativeSelect>
         <NativeSelect fullWidth style={{ width: 200 }}>
-          <Label>禁用</Label>
+          <NativeSelect.Label>禁用</NativeSelect.Label>
           <NativeSelect.Trigger disabled defaultValue="done">
             <NativeSelect.Option value="done">已完成</NativeSelect.Option>
           </NativeSelect.Trigger>
@@ -405,14 +404,14 @@ const InlineSelectDemo = () => {
             <InlineSelect.Indicator />
           </InlineSelect.Trigger>
           <InlineSelect.Popover>
-            <ListBox>
+            <InlineSelect.List>
               {SORT_OPTIONS.map((option) => (
-                <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+                <InlineSelect.Item key={option.id} id={option.id} textValue={option.label}>
                   {option.label}
-                  <ListBox.ItemIndicator />
-                </ListBox.Item>
+                  <InlineSelect.ItemIndicator />
+                </InlineSelect.Item>
               ))}
-            </ListBox>
+            </InlineSelect.List>
           </InlineSelect.Popover>
         </InlineSelect>
         <span>当前：{sortLabel}</span>
@@ -424,20 +423,20 @@ const InlineSelectDemo = () => {
             <InlineSelect.Indicator />
           </InlineSelect.Trigger>
           <InlineSelect.Popover>
-            <ListBox>
-              <ListBox.Item id="email" textValue="邮件">
+            <InlineSelect.List>
+              <InlineSelect.Item id="email" textValue="邮件">
                 邮件
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="sms" textValue="短信" isDisabled>
+                <InlineSelect.ItemIndicator />
+              </InlineSelect.Item>
+              <InlineSelect.Item id="sms" textValue="短信" isDisabled>
                 短信（暂不可用）
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-              <ListBox.Item id="push" textValue="推送">
+                <InlineSelect.ItemIndicator />
+              </InlineSelect.Item>
+              <InlineSelect.Item id="push" textValue="推送">
                 推送
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-            </ListBox>
+                <InlineSelect.ItemIndicator />
+              </InlineSelect.Item>
+            </InlineSelect.List>
           </InlineSelect.Popover>
         </InlineSelect>
       </DemoSection>
@@ -448,12 +447,12 @@ const InlineSelectDemo = () => {
             <InlineSelect.Indicator />
           </InlineSelect.Trigger>
           <InlineSelect.Popover>
-            <ListBox>
-              <ListBox.Item id="locked" textValue="锁定中">
+            <InlineSelect.List>
+              <InlineSelect.Item id="locked" textValue="锁定中">
                 锁定中
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
-            </ListBox>
+                <InlineSelect.ItemIndicator />
+              </InlineSelect.Item>
+            </InlineSelect.List>
           </InlineSelect.Popover>
         </InlineSelect>
       </DemoSection>
@@ -668,14 +667,14 @@ const CellSelectDemo = () => {
           <CellSelect.Indicator />
         </CellSelect.Trigger>
         <CellSelect.Popover>
-          <ListBox>
+          <CellSelect.List>
             {SLOT_OPTIONS.map((option) => (
-              <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+              <CellSelect.Item key={option.id} id={option.id} textValue={option.label}>
                 {option.label}
-                <ListBox.ItemIndicator />
-              </ListBox.Item>
+                <CellSelect.ItemIndicator />
+              </CellSelect.Item>
             ))}
-          </ListBox>
+          </CellSelect.List>
         </CellSelect.Popover>
       </CellSelect>
       <CellSelect
@@ -690,20 +689,20 @@ const CellSelectDemo = () => {
           <CellSelect.Indicator />
         </CellSelect.Trigger>
         <CellSelect.Popover>
-          <ListBox>
-            <ListBox.Item id="daily" textValue="每天">
+          <CellSelect.List>
+            <CellSelect.Item id="daily" textValue="每天">
               每天
-              <ListBox.ItemIndicator />
-            </ListBox.Item>
-            <ListBox.Item id="weekly" textValue="每周">
+              <CellSelect.ItemIndicator />
+            </CellSelect.Item>
+            <CellSelect.Item id="weekly" textValue="每周">
               每周
-              <ListBox.ItemIndicator />
-            </ListBox.Item>
-            <ListBox.Item id="never" textValue="从不" isDisabled>
+              <CellSelect.ItemIndicator />
+            </CellSelect.Item>
+            <CellSelect.Item id="never" textValue="从不" isDisabled>
               从不（不可选）
-              <ListBox.ItemIndicator />
-            </ListBox.Item>
-          </ListBox>
+              <CellSelect.ItemIndicator />
+            </CellSelect.Item>
+          </CellSelect.List>
         </CellSelect.Popover>
       </CellSelect>
       <CellSelect aria-label="禁用项" isDisabled defaultValue="fixed" style={{ width: 320 }}>
@@ -713,12 +712,12 @@ const CellSelectDemo = () => {
           <CellSelect.Indicator />
         </CellSelect.Trigger>
         <CellSelect.Popover>
-          <ListBox>
-            <ListBox.Item id="fixed" textValue="固定时段">
+          <CellSelect.List>
+            <CellSelect.Item id="fixed" textValue="固定时段">
               固定时段
-              <ListBox.ItemIndicator />
-            </ListBox.Item>
-          </ListBox>
+              <CellSelect.ItemIndicator />
+            </CellSelect.Item>
+          </CellSelect.List>
         </CellSelect.Popover>
       </CellSelect>
     </DemoSection>
@@ -826,21 +825,21 @@ const CellColorPickerDemo = () => {
           </CellColorPicker.Trigger>
           <CellColorPicker.Popover>
             <div style={colorPanelStyle}>
-              <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness">
-                <ColorArea.Thumb />
-              </ColorArea>
-              <ColorSlider aria-label="色相" channel="hue" colorSpace="hsb">
-                <ColorSlider.Track>
-                  <ColorSlider.Thumb />
-                </ColorSlider.Track>
-              </ColorSlider>
-              <ColorSwatchPicker aria-label="预设色板">
+              <CellColorPicker.Area colorSpace="hsb" xChannel="saturation" yChannel="brightness">
+                <CellColorPicker.Area.Thumb />
+              </CellColorPicker.Area>
+              <CellColorPicker.Slider aria-label="色相" channel="hue" colorSpace="hsb">
+                <CellColorPicker.Slider.Track>
+                  <CellColorPicker.Slider.Thumb />
+                </CellColorPicker.Slider.Track>
+              </CellColorPicker.Slider>
+              <CellColorPicker.SwatchPicker aria-label="预设色板">
                 {PRESET_COLORS.map((preset) => (
-                  <ColorSwatchPicker.Item key={preset} color={preset}>
-                    <ColorSwatchPicker.Swatch />
-                  </ColorSwatchPicker.Item>
+                  <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
+                    <CellColorPicker.SwatchPicker.Swatch />
+                  </CellColorPicker.SwatchPicker.Item>
                 ))}
-              </ColorSwatchPicker>
+              </CellColorPicker.SwatchPicker>
             </div>
           </CellColorPicker.Popover>
         </CellColorPicker>
@@ -854,13 +853,13 @@ const CellColorPickerDemo = () => {
           </CellColorPicker.Trigger>
           <CellColorPicker.Popover>
             <div style={colorPanelStyle}>
-              <ColorSwatchPicker aria-label="预设色板">
+              <CellColorPicker.SwatchPicker aria-label="预设色板">
                 {PRESET_COLORS.map((preset) => (
-                  <ColorSwatchPicker.Item key={preset} color={preset}>
-                    <ColorSwatchPicker.Swatch />
-                  </ColorSwatchPicker.Item>
+                  <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
+                    <CellColorPicker.SwatchPicker.Swatch />
+                  </CellColorPicker.SwatchPicker.Item>
                 ))}
-              </ColorSwatchPicker>
+              </CellColorPicker.SwatchPicker>
             </div>
           </CellColorPicker.Popover>
         </CellColorPicker>
@@ -874,13 +873,13 @@ const CellColorPickerDemo = () => {
           </CellColorPicker.Trigger>
           <CellColorPicker.Popover>
             <div style={colorPanelStyle}>
-              <ColorSwatchPicker aria-label="预设色板">
+              <CellColorPicker.SwatchPicker aria-label="预设色板">
                 {PRESET_COLORS.map((preset) => (
-                  <ColorSwatchPicker.Item key={preset} color={preset}>
-                    <ColorSwatchPicker.Swatch />
-                  </ColorSwatchPicker.Item>
+                  <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
+                    <CellColorPicker.SwatchPicker.Swatch />
+                  </CellColorPicker.SwatchPicker.Item>
                 ))}
-              </ColorSwatchPicker>
+              </CellColorPicker.SwatchPicker>
             </div>
           </CellColorPicker.Popover>
         </CellColorPicker>

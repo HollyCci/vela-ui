@@ -1,5 +1,8 @@
 import type { ComponentProps, CSSProperties, SVGProps } from 'react';
 import {
+  ListBox,
+  type ListBoxItemProps,
+  type ListBoxProps,
   Select,
   type SelectPopoverProps,
   type SelectRootProps,
@@ -32,6 +35,21 @@ export type InlineSelectPopoverProps = Omit<SelectPopoverProps, 'className' | 's
   className?: string;
   style?: CSSProperties;
 };
+
+export type InlineSelectListProps<T extends object = object> = Omit<
+  ListBoxProps<T>,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type InlineSelectItemProps = Omit<ListBoxItemProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type InlineSelectItemIndicatorProps = ComponentProps<typeof ListBox.ItemIndicator>;
 
 /**
  * 原站默认指示器（ChevronsExpandVertical，16x16）；快照中 clipPath id 即为 "a"。
@@ -103,6 +121,33 @@ const Popover = ({ className, placement = 'bottom end', ...rest }: InlineSelectP
 );
 Popover.displayName = 'InlineSelect.Popover';
 
+const List = <T extends object = object>({ className, ...rest }: InlineSelectListProps<T>) => (
+  <ListBox
+    data-slot="inline-select-list"
+    className={clsx('inline-select__list', className)}
+    {...rest}
+  />
+);
+List.displayName = 'InlineSelect.List';
+
+const Item = ({ className, ...rest }: InlineSelectItemProps) => (
+  <ListBox.Item
+    data-slot="inline-select-item"
+    className={clsx('inline-select__item', className)}
+    {...rest}
+  />
+);
+Item.displayName = 'InlineSelect.Item';
+
+const ItemIndicator = ({ className, ...rest }: InlineSelectItemIndicatorProps) => (
+  <ListBox.ItemIndicator
+    data-slot="inline-select-item-indicator"
+    className={clsx('inline-select__item-indicator', className)}
+    {...rest}
+  />
+);
+ItemIndicator.displayName = 'InlineSelect.ItemIndicator';
+
 /**
  * 包装 OSS Select 的行内下拉（原站 API）：真实弹出列表、键盘导航、typeahead、
  * 受控 value/onChange、selectionMode="multiple" 多选均由底座（RAC Select）提供。
@@ -120,6 +165,9 @@ const InlineSelect = Object.assign(InlineSelectRoot, {
   Value,
   Indicator,
   Popover,
+  List,
+  Item,
+  ItemIndicator,
 });
 
 export default InlineSelect;

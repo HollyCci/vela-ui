@@ -8,6 +8,9 @@ import {
   type SVGProps,
 } from 'react';
 import {
+  ListBox,
+  type ListBoxItemProps,
+  type ListBoxProps,
   Select,
   type SelectPopoverProps,
   type SelectRootProps,
@@ -46,6 +49,21 @@ export type CellSelectPopoverProps = Omit<SelectPopoverProps, 'className' | 'sty
   className?: string;
   style?: CSSProperties;
 };
+
+export type CellSelectListProps<T extends object = object> = Omit<
+  ListBoxProps<T>,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellSelectItemProps = Omit<ListBoxItemProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellSelectItemIndicatorProps = ComponentProps<typeof ListBox.ItemIndicator>;
 
 /** Trigger 需要根据根组件 variant 渲染对应修饰类 */
 const CellSelectContext = createContext<CellSelectVariant>('default');
@@ -134,6 +152,33 @@ const Popover = ({ className, placement = 'bottom end', ...rest }: CellSelectPop
 );
 Popover.displayName = 'CellSelect.Popover';
 
+const List = <T extends object = object>({ className, ...rest }: CellSelectListProps<T>) => (
+  <ListBox
+    data-slot="cell-select-list"
+    className={clsx('cell-select__list', className)}
+    {...rest}
+  />
+);
+List.displayName = 'CellSelect.List';
+
+const Item = ({ className, ...rest }: CellSelectItemProps) => (
+  <ListBox.Item
+    data-slot="cell-select-item"
+    className={clsx('cell-select__item', className)}
+    {...rest}
+  />
+);
+Item.displayName = 'CellSelect.Item';
+
+const ItemIndicator = ({ className, ...rest }: CellSelectItemIndicatorProps) => (
+  <ListBox.ItemIndicator
+    data-slot="cell-select-item-indicator"
+    className={clsx('cell-select__item-indicator', className)}
+    {...rest}
+  />
+);
+ItemIndicator.displayName = 'CellSelect.ItemIndicator';
+
 /**
  * 包装 OSS Select 的设置单元格下拉（原站 API "wraps Select"）：真实弹出列表、键盘导航、
  * 受控 value/onChange、isDisabled（data-disabled 落到 root/trigger）均由底座提供。
@@ -156,6 +201,9 @@ const CellSelect = Object.assign(CellSelectRoot, {
   Value,
   Indicator,
   Popover,
+  List,
+  Item,
+  ItemIndicator,
 });
 
 export default CellSelect;

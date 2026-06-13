@@ -3,8 +3,14 @@ import {
   createContext,
   forwardRef,
   isValidElement,
+  useCallback,
   useContext,
+  useEffect,
+  useId,
+  useMemo,
+  useState,
   type HTMLAttributes,
+  type LabelHTMLAttributes,
   type OptgroupHTMLAttributes,
   type OptionHTMLAttributes,
   type ReactNode,
@@ -34,8 +40,25 @@ export type NativeSelectOptionProps = OptionHTMLAttributes<HTMLOptionElement>;
 
 export type NativeSelectOptGroupProps = OptgroupHTMLAttributes<HTMLOptGroupElement>;
 
-/** Trigger 需要感知根组件 fullWidth 以渲染 __trigger--full-width 修饰类 */
-const NativeSelectContext = createContext(false);
+export type NativeSelectLabelProps = LabelHTMLAttributes<HTMLLabelElement>;
+
+export type NativeSelectDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
+
+type NativeSelectContextValue = {
+  fullWidth: boolean;
+  selectId: string;
+  descriptionId: string;
+  hasDescription: boolean;
+  registerDescription: () => () => void;
+};
+
+const NativeSelectContext = createContext<NativeSelectContextValue>({
+  fullWidth: false,
+  selectId: '',
+  descriptionId: '',
+  hasDescription: false,
+  registerDescription: () => () => undefined,
+});
 
 /** 包装原生 span 指示器；无 children 时渲染原站默认下箭头 SVG（原站 API） */
 const Indicator = forwardRef<HTMLSpanElement, NativeSelectIndicatorProps>(
@@ -69,16 +92,56 @@ Indicator.displayName = 'NativeSelect.Indicator';
 const isIndicatorElement = (child: ReactNode): boolean =>
   isValidElement(child) && child.type === Indicator;
 
+const Label = forwardRef<HTMLLabelElement, NativeSelectLabelProps>(
+  ({ className, htmlFor, ...rest }, ref) => {
+    const { selectId } = useContext(NativeSelectContext);
+
+    return (
+      <label
+        ref={ref}
+        data-slot="native-select-label"
+        htmlFor={htmlFor ?? selectId}
+        className={clsx('native-select__label', className)}
+        {...rest}
+      />
+    );
+  },
+);
+Label.displayName = 'NativeSelect.Label';
+
+const Description = forwardRef<HTMLParagraphElement, NativeSelectDescriptionProps>(
+  ({ className, id, ...rest }, ref) => {
+    const { descriptionId, registerDescription } = useContext(NativeSelectContext);
+    const resolvedId = id ?? descriptionId;
+
+    useEffect(() => registerDescription(), [registerDescription]);
+
+    return (
+      <p
+        ref={ref}
+        data-slot="native-select-description"
+        id={resolvedId}
+        className={clsx('native-select__description', className)}
+        {...rest}
+      />
+    );
+  },
+);
+Description.displayName = 'NativeSelect.Description';
+
 /**
  * 原生 select 的可视包装（原站 API）：children 中的 Indicator 渲染在 select 外
  * （trigger div 内），其余（Option/OptGroup）渲染进 select；未提供 Indicator 时渲染默认指示器。
  */
 const Trigger = forwardRef<HTMLSelectElement, NativeSelectTriggerProps>(
-  ({ className, wrapperClassName, children, ...rest }, ref) => {
-    const fullWidth = useContext(NativeSelectContext);
+  ({ className, id, wrapperClassName, children, ...rest }, ref) => {
+    const { fullWidth, selectId, descriptionId, hasDescription } =
+      useContext(NativeSelectContext);
     const childArray = Children.toArray(children);
     const indicator = childArray.find(isIndicatorElement);
     const options = childArray.filter((child) => !isIndicatorElement(child));
+    const { 'aria-describedby': ariaDescribedBy, ...selectProps } = rest;
+    const describedBy = ariaDescribedBy ?? (hasDescription ? descriptionId : undefined);
 
     return (
       <div
@@ -90,10 +153,12 @@ const Trigger = forwardRef<HTMLSelectElement, NativeSelectTriggerProps>(
         )}
       >
         <select
+          {...selectProps}
           ref={ref}
           data-slot="native-select-select"
+          id={id ?? selectId}
+          aria-describedby={describedBy}
           className={clsx('native-select__select', className)}
-          {...rest}
         >
           {options}
         </select>
@@ -120,8 +185,27 @@ OptGroup.displayName = 'NativeSelect.OptGroup';
  * （CSS 依赖 .native-select[data-invalid=true] / [aria-invalid=true]）。
  */
 const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
-  ({ variant = 'primary', fullWidth = false, className, ...rest }, ref) => (
-    <NativeSelectContext.Provider value={fullWidth}>
+  ({ variant = 'primary', fullWidth = false, className, ...rest }, ref) => {
+    const selectId = useId();
+    const descriptionId = useId();
+    const [descriptionCount, setDescriptionCount] = useState(0);
+    const registerDescription = useCallback(() => {
+      setDescriptionCount((count) => count + 1);
+      return () => setDescriptionCount((count) => Math.max(0, count - 1));
+    }, []);
+    const contextValue = useMemo<NativeSelectContextValue>(
+      () => ({
+        fullWidth,
+        selectId,
+        descriptionId,
+        hasDescription: descriptionCount > 0,
+        registerDescription,
+      }),
+      [descriptionCount, descriptionId, fullWidth, registerDescription, selectId],
+    );
+
+    return (
+      <NativeSelectContext.Provider value={contextValue}>
       <div
         ref={ref}
         data-slot="native-select"
@@ -133,8 +217,9 @@ const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
         )}
         {...rest}
       />
-    </NativeSelectContext.Provider>
-  ),
+      </NativeSelectContext.Provider>
+    );
+  },
 );
 NativeSelectRoot.displayName = 'NativeSelect';
 
@@ -143,6 +228,8 @@ const NativeSelect = Object.assign(NativeSelectRoot, {
   Indicator,
   Option,
   OptGroup,
+  Label,
+  Description,
 });
 
 export default NativeSelect;

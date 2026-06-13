@@ -6,11 +6,24 @@ import {
   type HTMLAttributes,
 } from 'react';
 import {
+  ColorArea,
   ColorPicker,
+  ColorSlider,
   ColorSwatch,
+  ColorSwatchPicker,
+  type ColorAreaProps,
+  type ColorAreaThumbProps,
   type ColorPickerPopoverProps,
   type ColorPickerProps,
+  type ColorSliderOutputProps,
+  type ColorSliderProps,
+  type ColorSliderThumbProps,
+  type ColorSliderTrackProps,
   type ColorSwatchProps,
+  type ColorSwatchPickerIndicatorProps,
+  type ColorSwatchPickerItemProps,
+  type ColorSwatchPickerProps,
+  type ColorSwatchPickerSwatchProps,
 } from '@heroui/react';
 import { Button, ColorPickerStateContext, type ButtonProps } from 'react-aria-components';
 import clsx from 'clsx';
@@ -44,6 +57,75 @@ export type CellColorPickerPopoverProps = Omit<ColorPickerPopoverProps, 'classNa
   className?: string;
   style?: CSSProperties;
 };
+
+export type CellColorPickerAreaProps = Omit<ColorAreaProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerAreaThumbProps = Omit<
+  ColorAreaThumbProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSliderProps = Omit<ColorSliderProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSliderOutputProps = Omit<
+  ColorSliderOutputProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSliderTrackProps = Omit<
+  ColorSliderTrackProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSliderThumbProps = Omit<
+  ColorSliderThumbProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSwatchPickerProps = Omit<
+  ColorSwatchPickerProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSwatchPickerItemProps = Omit<
+  ColorSwatchPickerItemProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSwatchPickerSwatchProps = Omit<
+  ColorSwatchPickerSwatchProps,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CellColorPickerSwatchPickerIndicatorProps =
+  ColorSwatchPickerIndicatorProps;
 
 /** Trigger 需要根据根组件 variant 渲染对应修饰类 */
 const CellColorPickerContext = createContext<CellColorPickerVariant>('default');
@@ -116,6 +198,103 @@ const Popover = ({ className, placement = 'bottom end', ...rest }: CellColorPick
 );
 Popover.displayName = 'CellColorPicker.Popover';
 
+const AreaThumb = ({ className, ...rest }: CellColorPickerAreaThumbProps) => (
+  <ColorArea.Thumb className={clsx('cell-color-picker__area-thumb', className)} {...rest} />
+);
+AreaThumb.displayName = 'CellColorPicker.Area.Thumb';
+
+const AreaRoot = ({ className, ...rest }: CellColorPickerAreaProps) => (
+  <ColorArea
+    data-slot="cell-color-picker-area"
+    className={clsx('cell-color-picker__area', className)}
+    {...rest}
+  />
+);
+AreaRoot.displayName = 'CellColorPicker.Area';
+
+const Area = Object.assign(AreaRoot, {
+  Thumb: AreaThumb,
+});
+
+const SliderOutput = ({ className, ...rest }: CellColorPickerSliderOutputProps) => (
+  <ColorSlider.Output className={clsx('cell-color-picker__slider-output', className)} {...rest} />
+);
+SliderOutput.displayName = 'CellColorPicker.Slider.Output';
+
+const SliderTrack = ({ className, ...rest }: CellColorPickerSliderTrackProps) => (
+  <ColorSlider.Track className={clsx('cell-color-picker__slider-track', className)} {...rest} />
+);
+SliderTrack.displayName = 'CellColorPicker.Slider.Track';
+
+const SliderThumb = ({ className, ...rest }: CellColorPickerSliderThumbProps) => (
+  <ColorSlider.Thumb className={clsx('cell-color-picker__slider-thumb', className)} {...rest} />
+);
+SliderThumb.displayName = 'CellColorPicker.Slider.Thumb';
+
+const SliderRoot = (props: CellColorPickerSliderProps) => {
+  const sliderProps = {
+    ...props,
+    'data-slot': 'cell-color-picker-slider',
+    className: clsx('cell-color-picker__slider', props.className),
+  } as ColorSliderProps & { 'data-slot': string };
+
+  return <ColorSlider {...sliderProps} />;
+};
+SliderRoot.displayName = 'CellColorPicker.Slider';
+
+const Slider = Object.assign(SliderRoot, {
+  Output: SliderOutput,
+  Track: SliderTrack,
+  Thumb: SliderThumb,
+});
+
+const SwatchPickerItem = ({ className, ...rest }: CellColorPickerSwatchPickerItemProps) => (
+  <ColorSwatchPicker.Item
+    data-slot="cell-color-picker-swatch-picker-item"
+    className={clsx('cell-color-picker__swatch-picker-item', className)}
+    {...rest}
+  />
+);
+SwatchPickerItem.displayName = 'CellColorPicker.SwatchPicker.Item';
+
+const SwatchPickerSwatch = ({
+  className,
+  ...rest
+}: CellColorPickerSwatchPickerSwatchProps) => (
+  <ColorSwatchPicker.Swatch
+    className={clsx('cell-color-picker__swatch-picker-swatch', className)}
+    {...rest}
+  />
+);
+SwatchPickerSwatch.displayName = 'CellColorPicker.SwatchPicker.Swatch';
+
+const SwatchPickerIndicator = ({
+  className,
+  ...rest
+}: CellColorPickerSwatchPickerIndicatorProps) => (
+  <ColorSwatchPicker.Indicator
+    data-slot="cell-color-picker-swatch-picker-indicator"
+    className={clsx('cell-color-picker__swatch-picker-indicator', className)}
+    {...rest}
+  />
+);
+SwatchPickerIndicator.displayName = 'CellColorPicker.SwatchPicker.Indicator';
+
+const SwatchPickerRoot = ({ className, ...rest }: CellColorPickerSwatchPickerProps) => (
+  <ColorSwatchPicker
+    data-slot="cell-color-picker-swatch-picker"
+    className={clsx('cell-color-picker__swatch-picker', className)}
+    {...rest}
+  />
+);
+SwatchPickerRoot.displayName = 'CellColorPicker.SwatchPicker';
+
+const SwatchPicker = Object.assign(SwatchPickerRoot, {
+  Item: SwatchPickerItem,
+  Swatch: SwatchPickerSwatch,
+  Indicator: SwatchPickerIndicator,
+});
+
 /**
  * 包装 OSS ColorPicker 的单元格取色器（原站 API "wraps ColorPicker"）：点击触发弹出
  * 取色面板、受控 value/onChange（Color 或 hex 字符串）均由底座（RAC ColorPicker +
@@ -138,6 +317,9 @@ const CellColorPicker = Object.assign(CellColorPickerRoot, {
   ValueDisplay,
   Swatch,
   Popover,
+  Area,
+  Slider,
+  SwatchPicker,
 });
 
 export default CellColorPicker;
