@@ -94,9 +94,9 @@ const SwitchDemo = () => (
 
 const SliderDemo = () => (
   <DemoSection isColumn>
-    <Slider label="音量" value={40} style={{ width: 320 }} />
-    <Slider label="进度" value={75} minValue={0} maxValue={100} style={{ width: 320 }} />
-    <Slider label="禁用" value={20} isDisabled style={{ width: 320 }} />
+    <Slider label="音量" defaultValue={40} style={{ width: 320 }} />
+    <Slider label="进度" defaultValue={75} minValue={0} maxValue={100} style={{ width: 320 }} />
+    <Slider label="禁用" defaultValue={20} isDisabled style={{ width: 320 }} />
   </DemoSection>
 );
 
