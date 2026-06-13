@@ -86,13 +86,32 @@ export type CommandItemProps = Omit<MenuItemProps, 'className' | 'style'> & {
   style?: CSSProperties;
 };
 
+type CommandKey = string | number;
+
+export type CommandCollectionItem = {
+  id: CommandKey;
+  label: ReactNode;
+  description?: ReactNode;
+  shortcut?: ReactNode;
+  icon?: ReactNode;
+  textValue?: string;
+  isDisabled?: boolean;
+  itemProps?: Omit<CommandItemProps, 'id' | 'textValue' | 'isDisabled' | 'children'>;
+};
+
+export type CommandCollectionGroup<TItem extends CommandCollectionItem = CommandCollectionItem> = {
+  id?: CommandKey;
+  heading?: ReactNode;
+  items: readonly TItem[];
+};
+
 export type CommandGroupProps<T extends object = object> = Omit<
   MenuSectionProps<T>,
   'className' | 'style' | 'children'
 > & {
   /** 分组标题，渲染为 command__group-heading（对齐原站 Anatomy 的 heading prop） */
   heading?: ReactNode;
-  /** 分组内的命令项（静态集合；heading 由本组件单独渲染为 Header 槽） */
+  /** 分组内的命令项；heading 由本组件单独渲染为 Header 槽 */
   children?: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -101,6 +120,16 @@ export type CommandGroupProps<T extends object = object> = Omit<
 export type CommandSeparatorProps = Omit<SeparatorProps, 'className' | 'style'> & {
   className?: string;
   style?: CSSProperties;
+};
+
+export type CommandCollectionProps<TItem extends CommandCollectionItem = CommandCollectionItem> = Omit<
+  CommandListProps<TItem>,
+  'children'
+> & {
+  groups: readonly CommandCollectionGroup<TItem>[];
+  groupClassName?: string;
+  itemClassName?: string;
+  renderItem?: (item: TItem, group: CommandCollectionGroup<TItem>) => ReactNode;
 };
 
 /** Container → Dialog 透传尺寸（二者非直接父子，用 context 串联，对齐 command__dialog--<size>） */
@@ -254,6 +283,23 @@ CommandSeparator.displayName = 'Command.Separator';
 
 const defaultEmptyState = () => <div className="command__empty">No results found.</div>;
 
+const getPlainText = (node: ReactNode): string | undefined => {
+  if (typeof node === 'string' || typeof node === 'number') {
+    return String(node);
+  }
+
+  return undefined;
+};
+
+const getCollectionItemTextValue = <TItem extends CommandCollectionItem>(
+  item: TItem,
+  group: CommandCollectionGroup<TItem>,
+) =>
+  item.textValue ??
+  [getPlainText(item.label), getPlainText(item.description), getPlainText(group.heading)]
+    .filter(Boolean)
+    .join(' ');
+
 /**
  * 命令列表（RAC Menu）：作为 Autocomplete 的 collection，输入框打字 → 经 filter 实时过滤；
  * 方向键移动高亮、Enter/点击触发 onAction 均由底座提供。空态走 renderEmptyState（缺省统一类名）。
@@ -274,6 +320,51 @@ const List = <T extends object = object>({
 );
 List.displayName = 'Command.List';
 
+const Collection = <TItem extends CommandCollectionItem = CommandCollectionItem>({
+  groups,
+  groupClassName,
+  itemClassName,
+  renderItem,
+  ...rest
+}: CommandCollectionProps<TItem>) => (
+  <List<TItem> {...rest}>
+    {groups.map((group, groupIndex) => {
+      const groupKey = group.id ?? getPlainText(group.heading) ?? groupIndex;
+
+      return (
+        <Group<TItem> key={groupKey} heading={group.heading} className={groupClassName}>
+          {group.items.map((item) => (
+            <Item
+              key={item.id}
+              id={item.id}
+              textValue={getCollectionItemTextValue(item, group)}
+              isDisabled={item.isDisabled}
+              className={itemClassName}
+              {...item.itemProps}
+            >
+              {renderItem !== undefined ? (
+                renderItem(item, group)
+              ) : (
+                <>
+                  {item.icon !== undefined && <span className="command__item-icon">{item.icon}</span>}
+                  <span className="command__item-content">
+                    <span className="command__item-label">{item.label}</span>
+                    {item.description !== undefined && (
+                      <span className="command__item-description">{item.description}</span>
+                    )}
+                  </span>
+                  {item.shortcut !== undefined && <kbd>{item.shortcut}</kbd>}
+                </>
+              )}
+            </Item>
+          ))}
+        </Group>
+      );
+    })}
+  </List>
+);
+Collection.displayName = 'Command.Collection';
+
 /**
  * 命令面板（原站 API）：Backdrop/Container/Dialog 为 RAC ModalOverlay/Modal/Dialog；
  * Dialog 内嵌 RAC Autocomplete + useFilter，把 InputGroup（SearchField）与 List（Menu）联动，
@@ -286,6 +377,7 @@ const Command = Object.assign(CommandRoot, {
   Header: CommandHeader,
   InputGroup,
   List,
+  Collection,
   Item,
   Group,
   Separator: CommandSeparator,

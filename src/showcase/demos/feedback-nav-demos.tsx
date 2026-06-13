@@ -646,6 +646,7 @@ const NavbarDemo = () => {
 type CommandAction = {
   id: string;
   label: string;
+  description?: string;
   shortcut?: string;
 };
 
@@ -658,17 +659,17 @@ const COMMAND_GROUPS: CommandGroup[] = [
   {
     heading: '建议',
     items: [
-      { id: 'new-file', label: '新建文件', shortcut: '⌘N' },
-      { id: 'new-folder', label: '新建文件夹', shortcut: '⌘⇧N' },
-      { id: 'search', label: '全局搜索', shortcut: '⌘P' },
+      { id: 'new-file', label: '新建文件', description: '在当前工作区创建文档', shortcut: '⌘N' },
+      { id: 'new-folder', label: '新建文件夹', description: '整理项目资源和组件草稿', shortcut: '⌘⇧N' },
+      { id: 'search', label: '全局搜索', description: '跨页面定位组件、示例和设置', shortcut: '⌘P' },
     ],
   },
   {
     heading: '导航',
     items: [
-      { id: 'goto-dashboard', label: '前往工作台' },
-      { id: 'goto-settings', label: '前往设置' },
-      { id: 'goto-billing', label: '前往账单' },
+      { id: 'goto-dashboard', label: '前往工作台', description: '查看团队当前状态' },
+      { id: 'goto-settings', label: '前往设置', description: '调整偏好和权限' },
+      { id: 'goto-billing', label: '前往账单', description: '管理席位与付款方式' },
     ],
   },
 ];
@@ -709,24 +710,12 @@ const CommandDemo = () => {
                   <Command.InputGroup.ClearButton />
                 </Command.InputGroup.Suffix>
               </Command.InputGroup>
-              <Command.List
+              <Command.Collection
                 aria-label="命令列表"
+                groups={COMMAND_GROUPS}
                 onAction={handleAction}
                 renderEmptyState={CommandEmptyState}
-              >
-                {COMMAND_GROUPS.map((group) => (
-                  <Command.Group key={group.heading} heading={group.heading}>
-                    {group.items.map((item) => (
-                      <Command.Item key={item.id} id={item.id} textValue={item.label}>
-                        <span>{item.label}</span>
-                        {item.shortcut !== undefined && (
-                          <Kbd isLight>{item.shortcut}</Kbd>
-                        )}
-                      </Command.Item>
-                    ))}
-                  </Command.Group>
-                ))}
-              </Command.List>
+              />
               <Command.Footer>方向键移动 · Enter 执行 · Esc 关闭</Command.Footer>
             </Command.Dialog>
           </Command.Container>
@@ -1786,16 +1775,16 @@ const COMMAND_VARIANT_GROUPS: CommandGroup[] = [
   {
     heading: '工作区',
     items: [
-      { id: 'open-dashboard', label: '打开工作台', shortcut: '⌘1' },
-      { id: 'invite-member', label: '邀请成员', shortcut: 'I' },
-      { id: 'create-course', label: '创建课程', shortcut: 'C' },
+      { id: 'open-dashboard', label: '打开工作台', description: '进入团队指标总览', shortcut: '⌘1' },
+      { id: 'invite-member', label: '邀请成员', description: '发送团队协作邀请', shortcut: 'I' },
+      { id: 'create-course', label: '创建课程', description: '生成新的课程工作流', shortcut: 'C' },
     ],
   },
   {
     heading: '系统',
     items: [
-      { id: 'toggle-sidebar', label: '切换侧栏', shortcut: '⌘B' },
-      { id: 'open-settings', label: '打开设置', shortcut: '⌘,' },
+      { id: 'toggle-sidebar', label: '切换侧栏', description: '展开或收起主导航', shortcut: '⌘B' },
+      { id: 'open-settings', label: '打开设置', description: '修改显示、通知和团队偏好', shortcut: '⌘,' },
     ],
   },
 ];
@@ -1806,7 +1795,7 @@ const CommandVariantDemo = ({ variant }: VariantDemoProps) => {
 
   const size = variant === 'sizes' ? 'lg' : variant === 'minimal' ? 'sm' : 'md';
   const backdropVariant = variant === 'backdrop-variants' ? 'transparent' : variant === 'clean' ? 'blur' : 'opaque';
-  const defaultInputValue = variant === 'multiple-search-terms' ? 'open work' : undefined;
+  const defaultInputValue = variant === 'multiple-search-terms' ? '打开 工作' : undefined;
   const filter =
     variant === 'multiple-search-terms'
       ? (textValue: string, inputValue: string) =>
@@ -1863,18 +1852,16 @@ const CommandVariantDemo = ({ variant }: VariantDemoProps) => {
                   <Kbd isLight>Esc</Kbd>
                 </div>
               )}
-              <Command.List aria-label="命令列表" onAction={handleAction} renderEmptyState={CommandEmptyState}>
-                {groups.map((group) => (
-                  <Command.Group key={group.heading} heading={variant === 'clean' ? undefined : group.heading}>
-                    {group.items.map((item) => (
-                      <Command.Item key={item.id} id={item.id} textValue={`${item.label} ${group.heading}`}>
-                        <span>{item.label}</span>
-                        {item.shortcut !== undefined && <Kbd isLight>{item.shortcut}</Kbd>}
-                      </Command.Item>
-                    ))}
-                  </Command.Group>
-                ))}
-              </Command.List>
+              <Command.Collection
+                aria-label="命令列表"
+                groups={
+                  variant === 'clean'
+                    ? groups.map((group) => ({ ...group, heading: undefined }))
+                    : groups
+                }
+                onAction={handleAction}
+                renderEmptyState={CommandEmptyState}
+              />
               {variant === 'split-view' && (
                 <Command.Footer>
                   <span>预览：选中命令后会在当前工作区执行</span>
