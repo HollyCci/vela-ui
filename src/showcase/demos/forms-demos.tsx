@@ -1,6 +1,6 @@
-import { useState, type ChangeEvent, type ReactNode } from 'react';
-import { isFileDropItem, type Key } from 'react-aria-components';
-import { Description, Label, ListBox } from '@heroui/react';
+import { useState, type ChangeEvent, type CSSProperties, type ReactNode } from 'react';
+import { isFileDropItem, parseColor, type Color, type Key } from 'react-aria-components';
+import { ColorArea, ColorSlider, ColorSwatchPicker, Description, Label, ListBox } from '@heroui/react';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -18,6 +18,8 @@ import InlineSelect from '../../components/inline-select';
 import DropZone, { type DropZoneAreaProps } from '../../components/drop-zone';
 import CellSwitch from '../../components/cell-switch';
 import CellSelect from '../../components/cell-select';
+import CellSlider from '../../components/cell-slider';
+import CellColorPicker from '../../components/cell-color-picker';
 import DemoSection from '../demo-section';
 
 const InputDemo = () => (
@@ -653,6 +655,170 @@ const CellSelectDemo = () => {
   );
 };
 
+const CellSliderDemo = () => {
+  const [spacing, setSpacing] = useState(0.5);
+  const handleSpacingChange = (value: number | number[]) => {
+    if (typeof value === 'number') {
+      setSpacing(value);
+    }
+  };
+
+  return (
+    <DemoSection isColumn>
+      <CellSlider
+        aria-label="字间距"
+        value={spacing}
+        onChange={handleSpacingChange}
+        minValue={0}
+        maxValue={1}
+        step={0.01}
+        style={{ width: 320 }}
+      >
+        <CellSlider.Track>
+          <CellSlider.Fill />
+          <CellSlider.Thumb />
+          <CellSlider.Label>字间距（受控：{spacing.toFixed(2)}）</CellSlider.Label>
+          <CellSlider.Output />
+        </CellSlider.Track>
+      </CellSlider>
+      <CellSlider
+        aria-label="音量"
+        defaultValue={75}
+        minValue={0}
+        maxValue={100}
+        step={1}
+        style={{ width: 320 }}
+      >
+        <CellSlider.Track>
+          <CellSlider.Fill />
+          <CellSlider.Thumb />
+          <CellSlider.Label>音量（整数步进）</CellSlider.Label>
+          <CellSlider.Output />
+        </CellSlider.Track>
+      </CellSlider>
+      <CellSlider
+        aria-label="次级样式"
+        variant="secondary"
+        defaultValue={0.5}
+        minValue={0}
+        maxValue={1}
+        step={0.01}
+        style={{ width: 320 }}
+      >
+        <CellSlider.Track>
+          <CellSlider.Fill />
+          <CellSlider.Thumb />
+          <CellSlider.Label>次级样式</CellSlider.Label>
+          <CellSlider.Output />
+        </CellSlider.Track>
+      </CellSlider>
+      <CellSlider
+        aria-label="禁用项"
+        isDisabled
+        defaultValue={0.3}
+        minValue={0}
+        maxValue={1}
+        step={0.01}
+        style={{ width: 320 }}
+      >
+        <CellSlider.Track>
+          <CellSlider.Fill />
+          <CellSlider.Thumb />
+          <CellSlider.Label>禁用项</CellSlider.Label>
+          <CellSlider.Output />
+        </CellSlider.Track>
+      </CellSlider>
+    </DemoSection>
+  );
+};
+
+const PRESET_COLORS = ['#3B82F6', '#22C55E', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899'];
+
+const colorPanelStyle = {
+  display: 'flex',
+  flexDirection: 'column',
+  gap: 8,
+  padding: 8,
+} satisfies CSSProperties;
+
+const CellColorPickerDemo = () => {
+  const [accent, setAccent] = useState(() => parseColor('#3B82F6'));
+  const handleAccentChange = (color: Color) => setAccent(color);
+
+  return (
+    <DemoSection isColumn>
+      <div style={{ width: 320 }}>
+        <CellColorPicker value={accent} onChange={handleAccentChange}>
+          <CellColorPicker.Trigger>
+            <CellColorPicker.Label>主题色（受控）</CellColorPicker.Label>
+            <CellColorPicker.ValueDisplay />
+            <CellColorPicker.Swatch />
+          </CellColorPicker.Trigger>
+          <CellColorPicker.Popover>
+            <div style={colorPanelStyle}>
+              <ColorArea colorSpace="hsb" xChannel="saturation" yChannel="brightness">
+                <ColorArea.Thumb />
+              </ColorArea>
+              <ColorSlider aria-label="色相" channel="hue" colorSpace="hsb">
+                <ColorSlider.Track>
+                  <ColorSlider.Thumb />
+                </ColorSlider.Track>
+              </ColorSlider>
+              <ColorSwatchPicker aria-label="预设色板">
+                {PRESET_COLORS.map((preset) => (
+                  <ColorSwatchPicker.Item key={preset} color={preset}>
+                    <ColorSwatchPicker.Swatch />
+                  </ColorSwatchPicker.Item>
+                ))}
+              </ColorSwatchPicker>
+            </div>
+          </CellColorPicker.Popover>
+        </CellColorPicker>
+      </div>
+      <div style={{ width: 320 }}>
+        <CellColorPicker variant="secondary" defaultValue="#22C55E">
+          <CellColorPicker.Trigger>
+            <CellColorPicker.Label>次级样式（仅预设色板）</CellColorPicker.Label>
+            <CellColorPicker.ValueDisplay />
+            <CellColorPicker.Swatch />
+          </CellColorPicker.Trigger>
+          <CellColorPicker.Popover>
+            <div style={colorPanelStyle}>
+              <ColorSwatchPicker aria-label="预设色板">
+                {PRESET_COLORS.map((preset) => (
+                  <ColorSwatchPicker.Item key={preset} color={preset}>
+                    <ColorSwatchPicker.Swatch />
+                  </ColorSwatchPicker.Item>
+                ))}
+              </ColorSwatchPicker>
+            </div>
+          </CellColorPicker.Popover>
+        </CellColorPicker>
+      </div>
+      <div style={{ width: 320 }}>
+        <CellColorPicker defaultValue="#EF4444">
+          <CellColorPicker.Trigger isDisabled>
+            <CellColorPicker.Label>禁用项</CellColorPicker.Label>
+            <CellColorPicker.ValueDisplay />
+            <CellColorPicker.Swatch />
+          </CellColorPicker.Trigger>
+          <CellColorPicker.Popover>
+            <div style={colorPanelStyle}>
+              <ColorSwatchPicker aria-label="预设色板">
+                {PRESET_COLORS.map((preset) => (
+                  <ColorSwatchPicker.Item key={preset} color={preset}>
+                    <ColorSwatchPicker.Swatch />
+                  </ColorSwatchPicker.Item>
+                ))}
+              </ColorSwatchPicker>
+            </div>
+          </CellColorPicker.Popover>
+        </CellColorPicker>
+      </div>
+    </DemoSection>
+  );
+};
+
 function noop() {
   // 演示用空回调
 }
@@ -701,4 +867,6 @@ export const formsDemos: Record<string, ReactNode> = {
   'drop-zone': <DropZoneDemo />,
   'cell-switch': <CellSwitchDemo />,
   'cell-select': <CellSelectDemo />,
+  'cell-slider': <CellSliderDemo />,
+  'cell-color-picker': <CellColorPickerDemo />,
 };
