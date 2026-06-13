@@ -51,19 +51,37 @@ const MeterDemo = () => (
   </DemoSection>
 );
 
+const RATING_VALUES = [1, 2, 3, 4, 5];
+
 const RatingDemo = () => {
   const [score, setScore] = useState(3);
 
   return (
     <>
-      <DemoSection label="可交互（点击打分）">
-        <Rating value={score} onChange={setScore} />
+      <DemoSection label="受控（点击或方向键打分，按下星星有缩放反馈）">
+        <Rating aria-label="评分" value={score} onValueChange={setScore}>
+          {RATING_VALUES.map((v) => (
+            <Rating.Item key={v} value={v} />
+          ))}
+        </Rating>
         <span>当前 {score} 分</span>
       </DemoSection>
-      <DemoSection label="只读（含半星）">
-        <Rating value={3.5} isReadOnly />
-        <Rating value={4} size="lg" isReadOnly />
-        <Rating value={2} size="sm" isDisabled />
+      <DemoSection label="只读（半星）与禁用">
+        <Rating aria-label="3.5 out of 5 stars" value={3.5} isReadOnly>
+          {RATING_VALUES.map((v) => (
+            <Rating.Item key={v} value={v} />
+          ))}
+        </Rating>
+        <Rating aria-label="4 out of 5 stars" size="lg" value={4} isReadOnly>
+          {RATING_VALUES.map((v) => (
+            <Rating.Item key={v} value={v} />
+          ))}
+        </Rating>
+        <Rating aria-label="评分（禁用）" size="sm" value={2} isDisabled>
+          {RATING_VALUES.map((v) => (
+            <Rating.Item key={v} value={v} />
+          ))}
+        </Rating>
       </DemoSection>
     </>
   );
@@ -99,15 +117,34 @@ const PressableFeedbackDemo = () => (
 
 const EmojiReactionButtonDemo = () => {
   const [isLiked, setIsLiked] = useState(false);
-  const handleToggle = () => setIsLiked((prev) => !prev);
 
   return (
-    <DemoSection label="表情回应">
-      <EmojiReactionButton emoji="👍" count={isLiked ? 13 : 12} isSelected={isLiked} onClick={handleToggle} />
-      <EmojiReactionButton emoji="🎉" count={5} />
-      <EmojiReactionButton emoji="❤️" count={28} isSelected size="lg" />
-      <EmojiReactionButton emoji="👀" count={3} size="sm" isReadOnly />
-    </DemoSection>
+    <>
+      <DemoSection label="受控切换（悬停变底色，按下缩放）">
+        <EmojiReactionButton isSelected={isLiked} onChange={setIsLiked}>
+          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>{isLiked ? 13 : 12}</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton defaultSelected size="lg">
+          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>28</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton size="sm">
+          <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>5</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+      </DemoSection>
+      <DemoSection label="只读与禁用">
+        <EmojiReactionButton isSelected isReadOnly>
+          <EmojiReactionButton.Emoji>👀</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton isDisabled>
+          <EmojiReactionButton.Emoji>😂</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>7</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+      </DemoSection>
+    </>
   );
 };
 
