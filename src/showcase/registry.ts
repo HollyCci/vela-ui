@@ -4,7 +4,7 @@ import { formsDemos, formsVariantDemos } from './demos/forms-demos';
 import { dataDisplayDemos } from './demos/data-display-demos';
 import { feedbackNavDemos } from './demos/feedback-nav-demos';
 import { aiOverlayDemos } from './demos/ai-overlay-demos';
-import { chartsDemos } from './demos/charts-demos';
+import { chartsDemos, chartsVariantDemos } from './demos/charts-demos';
 import demoIndexJson from './demo-index.json';
 
 /** 组件 → 该组件在 Pro 文档中的全部变体 slug，用于驱动 Vela live demo 分组 */
@@ -126,6 +126,7 @@ export const demoRegistry: Record<string, ReactNode> = {
 /** demo slug → 独立变体演示；未覆盖时页面会回退到组件级 demo */
 export const variantDemoRegistry: Record<string, ReactNode> = {
   ...formsVariantDemos,
+  ...chartsVariantDemos,
 };
 
 export function resolveDemo(component: string, slug: string): ReactNode | undefined {
