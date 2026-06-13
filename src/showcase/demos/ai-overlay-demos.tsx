@@ -51,13 +51,21 @@ const ChatMessageDemo = () => (
 const ChatLoaderDemo = () => (
   <>
     <DemoSection label="dots / pulse / spinner">
-      <ChatLoader variant="dots" />
-      <ChatLoader variant="dots" size="lg" />
-      <ChatLoader variant="pulse" />
-      <ChatLoader variant="spinner" />
+      <ChatLoader.Dots />
+      <ChatLoader.Dots size="lg" />
+      <ChatLoader.Pulse />
+      <ChatLoader.Spinner />
     </DemoSection>
     <DemoSection label="skeleton" isColumn>
-      <ChatLoader variant="skeleton" />
+      <ChatLoader.Skeleton />
+      <ChatLoader.Skeleton aria-label="自定义加载骨架">
+        <ChatLoader.SkeletonAvatar size="lg" />
+        <ChatLoader.SkeletonBlock>
+          <ChatLoader.SkeletonLine />
+          <ChatLoader.SkeletonLine />
+          <ChatLoader.SkeletonLine size="sm" />
+        </ChatLoader.SkeletonBlock>
+      </ChatLoader.Skeleton>
     </DemoSection>
   </>
 );

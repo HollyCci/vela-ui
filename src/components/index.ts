@@ -20,7 +20,16 @@ export { default as ChartTooltip } from './chart-tooltip';
 export { default as ChatAttachment } from './chat-attachment';
 export { default as ChatConversation } from './chat-conversation';
 export { default as ChatListView } from './chat-list-view';
-export { default as ChatLoader } from './chat-loader';
+export {
+  default as ChatLoader,
+  ChatLoaderDots,
+  ChatLoaderPulse,
+  ChatLoaderSkeleton,
+  ChatLoaderSkeletonAvatar,
+  ChatLoaderSkeletonBlock,
+  ChatLoaderSkeletonLine,
+  ChatLoaderSpinner,
+} from './chat-loader';
 export { default as ChatMessage } from './chat-message';
 export { default as ChatMessageActions } from './chat-message-actions';
 export { default as ChatSource } from './chat-source';
