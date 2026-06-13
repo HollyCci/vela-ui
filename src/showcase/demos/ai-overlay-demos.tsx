@@ -6,9 +6,13 @@ import Avatar from '../../components/avatar';
 import Button from '../../components/button';
 import ChainOfThought from '../../components/chain-of-thought';
 import ChatAttachment from '../../components/chat-attachment';
+import ChatConversation from '../../components/chat-conversation';
+import ChatListView from '../../components/chat-list-view';
 import ChatLoader from '../../components/chat-loader';
 import ChatMessage from '../../components/chat-message';
+import ChatMessageActions from '../../components/chat-message-actions';
 import ChatSource from '../../components/chat-source';
+import Markdown from '../../components/markdown';
 import ChatTool from '../../components/chat-tool';
 import CodeBlock from '../../components/code-block';
 import Drawer from '../../components/drawer';
@@ -727,8 +731,142 @@ const MenuItemDemo = () => {
   );
 };
 
+const CHAT_ANSWER =
+  '助手回复下方可以露出快捷操作：复制、赞、踩、重新生成等。点击复制会切换成功态，赞/踩互斥可切换。';
+
+const ChatMessageActionsDemo = () => {
+  const [rating, setRating] = useState<'up' | 'down' | null>(null);
+
+  const handleThumbsUp = (isSelected: boolean) => setRating(isSelected ? 'up' : null);
+  const handleThumbsDown = (isSelected: boolean) => setRating(isSelected ? 'down' : null);
+
+  return (
+    <DemoSection label="消息操作条（复制成功态 / 赞踩互斥 toggle）" isColumn>
+      <ChatMessageActions>
+        <ChatMessageActions.Copy content={CHAT_ANSWER} />
+        <ChatMessageActions.ThumbsUp isSelected={rating === 'up'} onChange={handleThumbsUp} />
+        <ChatMessageActions.ThumbsDown isSelected={rating === 'down'} onChange={handleThumbsDown} />
+        <ChatMessageActions.Regenerate />
+        <ChatMessageActions.Menu />
+      </ChatMessageActions>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+        当前评价：{rating === 'up' ? '👍 已赞' : rating === 'down' ? '👎 已踩' : '未评价'}
+      </span>
+    </DemoSection>
+  );
+};
+
+const CHAT_LIST = [
+  { id: '1', title: '产品发布计划', preview: '帮我起草一份发布清单', meta: '2 小时前' },
+  { id: '2', title: '用户反馈整理', preview: '总结上周的用户反馈', meta: '昨天' },
+  { id: '3', title: '文案润色', preview: '把这段话改得更简洁', meta: '周一' },
+];
+
+const ChatListViewDemo = () => {
+  const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['1']));
+
+  const handleSelectionChange = (keys: Selection) => setSelectedKeys(keys);
+  const current = selectedKeys === 'all' ? 'all' : [...selectedKeys][0];
+
+  return (
+    <DemoSection label="会话列表（点击选中高亮，键盘上下导航）" isColumn>
+      <div style={{ width: 420 }}>
+        <ChatListView
+          aria-label="最近会话"
+          selectionMode="single"
+          disallowEmptySelection
+          selectedKeys={selectedKeys}
+          items={CHAT_LIST}
+          onSelectionChange={handleSelectionChange}
+        >
+          {(chat) => (
+            <ChatListView.Item
+              id={chat.id}
+              textValue={chat.title}
+              aria-label={`${chat.title} ${chat.preview}`}
+            >
+              <ChatListView.ItemContent>
+                <ChatListView.Icon />
+                <ChatListView.Text>
+                  <ChatListView.Title>{chat.title}</ChatListView.Title>
+                  <ChatListView.Preview>{chat.preview}</ChatListView.Preview>
+                </ChatListView.Text>
+                <ChatListView.Meta>{chat.meta}</ChatListView.Meta>
+              </ChatListView.ItemContent>
+            </ChatListView.Item>
+          )}
+        </ChatListView>
+      </div>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>当前选中：{String(current)}</span>
+    </DemoSection>
+  );
+};
+
+const ConversationBubble = ({ role, text }: { role: 'user' | 'assistant'; text: string }) => (
+  <div className={`chat-message--${role}`} data-slot={`chat-message-${role}`}>
+    <div className="chat-message__bubble" data-slot="chat-message-bubble">
+      <div className="chat-message__content" data-slot="chat-message-content">
+        {text}
+      </div>
+    </div>
+  </div>
+);
+ConversationBubble.displayName = 'ConversationBubble';
+
+const CONVERSATION_TURNS = Array.from({ length: 8 }, (_, i) => ({
+  role: (i % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
+  text:
+    i % 2 === 0
+      ? `第 ${i / 2 + 1} 个问题：聊天界面的自动滚动是怎么实现的？`
+      : '当用户停留在底部时，新消息会把视口保持钉在最新一条；向上滚动阅读时则不打扰。',
+}));
+
+const ChatConversationDemo = () => (
+  <DemoSection label="对话视图（滚动消息流 / 离底显示回到底部按钮）" isColumn>
+    <div style={{ display: 'flex', flexDirection: 'column', height: 360, width: 560, overflow: 'hidden', border: '1px solid var(--separator)', borderRadius: 12 }}>
+      <ChatConversation style={{ flex: 1 }}>
+        <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
+          {CONVERSATION_TURNS.map((turn, i) => (
+            <ConversationBubble key={i} role={turn.role} text={turn.text} />
+          ))}
+          <ChatConversation.ScrollButton />
+          <ChatConversation.ScrollAnchor />
+        </ChatConversation.Content>
+      </ChatConversation>
+    </div>
+  </DemoSection>
+);
+
+const MARKDOWN_SAMPLE = `# Vela UI Markdown
+
+支持 **加粗**、行内 \`code\` 与[链接](https://heroui.pro)。
+
+## 特性
+
+- 标题、列表与链接
+- 行内代码片段
+- 带复制按钮的代码块
+
+\`\`\`tsx
+<Markdown>{response}</Markdown>
+\`\`\`
+
+> AI 回复可以带富文本格式，且不耦合任何 SDK。`;
+
+const MarkdownDemo = () => (
+  <DemoSection label="Markdown 渲染（代码块可复制）" isColumn>
+    <div style={{ width: 600 }}>
+      <Markdown>{MARKDOWN_SAMPLE}</Markdown>
+    </div>
+  </DemoSection>
+);
+
 export const aiOverlayDemos: Record<string, ReactNode> = {
   'chat-message': <ChatMessageDemo />,
+  'chat-message-actions': <ChatMessageActionsDemo />,
+  'chat-list-view': <ChatListViewDemo />,
+  'chat-conversation': <ChatConversationDemo />,
+  markdown: <MarkdownDemo />,
   'chat-loader': <ChatLoaderDemo />,
   'chat-attachment': <ChatAttachmentDemo />,
   'chat-source': <ChatSourceDemo />,
