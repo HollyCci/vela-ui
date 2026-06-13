@@ -4,6 +4,7 @@ import {
   useCallback,
   useContext,
   useEffect,
+  isValidElement,
   useMemo,
   useRef,
   useState,
@@ -50,6 +51,13 @@ export type HoverCardArrowProps = Omit<OverlayArrowProps, 'className' | 'style'>
   style?: CSSProperties;
 };
 
+type FocusableElementProps = {
+  contentEditable?: boolean | 'true' | 'false' | 'plaintext-only';
+  disabled?: boolean;
+  href?: string;
+  tabIndex?: number;
+};
+
 type HoverCardContextValue = {
   isOpen: boolean;
   triggerRef: RefObject<HTMLSpanElement | null>;
@@ -68,13 +76,39 @@ const useHoverCardContext = (part: string): HoverCardContextValue => {
   return ctx;
 };
 
+const naturallyFocusableTags = new Set(['button', 'input', 'select', 'textarea', 'iframe']);
+
+const hasFocusableChild = (children: ReactNode): boolean => {
+  if (!isValidElement<FocusableElementProps>(children)) return false;
+  const { contentEditable, disabled, href, tabIndex } = children.props;
+  if (typeof tabIndex === 'number') return tabIndex >= 0;
+  if (disabled) return false;
+  if (contentEditable === true || contentEditable === 'true' || contentEditable === 'plaintext-only') {
+    return true;
+  }
+  if (typeof children.type !== 'string') return false;
+  if (children.type === 'a' || children.type === 'area') return typeof href === 'string';
+  return naturallyFocusableTags.has(children.type);
+};
+
 const Trigger = forwardRef<HTMLSpanElement, HoverCardTriggerProps>(
   (
-    { className, onPointerEnter, onPointerLeave, onFocus, onBlur, onKeyDown, children, ...rest },
+    {
+      className,
+      onPointerEnter,
+      onPointerLeave,
+      onFocus,
+      onBlur,
+      onKeyDown,
+      tabIndex,
+      children,
+      ...rest
+    },
     forwardedRef,
   ) => {
     const { triggerRef, scheduleOpen, scheduleClose, openNow, closeNow } =
       useHoverCardContext('HoverCard.Trigger');
+    const resolvedTabIndex = tabIndex ?? (hasFocusableChild(children) ? undefined : 0);
 
     const handleRef = useCallback(
       (node: HTMLSpanElement | null) => {
@@ -105,6 +139,11 @@ const Trigger = forwardRef<HTMLSpanElement, HoverCardTriggerProps>(
     const handleKeyDown = (event: ReactKeyboardEvent<HTMLSpanElement>) => {
       onKeyDown?.(event);
       if (event.key === 'Escape') closeNow();
+      if (event.defaultPrevented) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        if (event.key === ' ' && event.target === event.currentTarget) event.preventDefault();
+        openNow();
+      }
     };
 
     return (
@@ -117,6 +156,7 @@ const Trigger = forwardRef<HTMLSpanElement, HoverCardTriggerProps>(
         onFocus={handleFocus}
         onBlur={handleBlur}
         onKeyDown={handleKeyDown}
+        tabIndex={resolvedTabIndex}
         {...rest}
       >
         {children}
