@@ -320,15 +320,27 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       [children],
     );
 
+    const sidebarState = isSidebarOpen ? 'expanded' : 'collapsed';
+    const expandedSidebarWidth =
+      sidebarVariant === 'floating'
+        ? 'calc(var(--sidebar-width) + var(--spacing) * 4)'
+        : 'var(--sidebar-width)';
+    const collapsedSidebarWidth =
+      sidebarVariant === 'floating'
+        ? 'calc(var(--sidebar-width-collapsed) + var(--spacing) * 4)'
+        : 'var(--sidebar-width-collapsed)';
+
     // 折叠联动的 CSS 变量：侧栏区宽度随展开/折叠在展开宽与折叠宽之间切换
     const sidebarWidthVar =
-      sidebarCollapsible === 'offcanvas'
-        ? isSidebarOpen
-          ? 'var(--sidebar-width)'
-          : '0px'
-        : isSidebarOpen
-          ? 'var(--sidebar-width)'
-          : 'var(--sidebar-width-collapsed)';
+      sidebarCollapsible === 'none'
+        ? expandedSidebarWidth
+        : sidebarCollapsible === 'offcanvas'
+          ? isSidebarOpen
+            ? expandedSidebarWidth
+            : '0px'
+          : isSidebarOpen
+            ? expandedSidebarWidth
+            : collapsedSidebarWidth;
 
     const rootStyle: CSSProperties = {
       display: 'flex',
@@ -378,6 +390,21 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       </aside>
     ) : null;
 
+    const sidebarRegion = hasSidebar ? (
+      <div
+        className="app-layout__sidebar"
+        data-slot="app-layout-sidebar"
+        data-state={sidebarState}
+        data-side={sidebarSide}
+        data-collapsible={sidebarCollapsible}
+        data-variant={sidebarVariant}
+      >
+        <div className="app-layout__sidebar-inner" data-slot="app-layout-sidebar-inner">
+          {sidebar}
+        </div>
+      </div>
+    ) : null;
+
     const shouldRenderAsidePanel = hasAside && (!isResizable || isAsideOpen);
     const sidebarPanelSize = hasSidebar ? sidebarDefaultSize : 0;
     const asidePanelSize = shouldRenderAsidePanel ? asideDefaultSize : 0;
@@ -400,6 +427,10 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
             maxSize={resolvedSidebarResizable ? sidebarMaxSize : undefined}
             disabled={!resolvedSidebarResizable}
             className="app-layout__sidebar-panel"
+            data-state={sidebarState}
+            data-side={sidebarSide}
+            data-collapsible={sidebarCollapsible}
+            data-variant={sidebarVariant}
           >
             {sidebar}
           </Resizable.Panel>
@@ -431,7 +462,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       </Resizable>
     ) : (
       <>
-        {sidebar}
+        {sidebarRegion}
         {body}
         {asideRegion}
       </>
@@ -449,7 +480,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
           data-sidebar-side={sidebarSide}
           data-sidebar-variant={sidebarVariant}
           data-sidebar-collapsible={sidebarCollapsible}
-          data-sidebar-state={isSidebarOpen ? 'expanded' : 'collapsed'}
+          data-sidebar-state={sidebarState}
           data-reduce-motion={reduceMotion ? '' : undefined}
           className={clsx('app-layout', className)}
           style={rootStyle}
