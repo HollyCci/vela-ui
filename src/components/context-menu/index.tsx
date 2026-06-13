@@ -22,9 +22,11 @@ import {
 import {
   Popover,
   Separator,
+  SubmenuTrigger,
   type PopoverProps,
   type SeparatorProps,
   type Placement,
+  type SubmenuTriggerProps,
 } from 'react-aria-components';
 import clsx from 'clsx';
 
@@ -63,6 +65,16 @@ export type ContextMenuMenuProps<T extends object = object> = Omit<
 
 export type ContextMenuItemProps = HeroMenuItemRootProps;
 export type ContextMenuSectionProps = HeroMenuSectionRootProps;
+export type ContextMenuSubmenuTriggerProps = SubmenuTriggerProps;
+
+export type ContextMenuSubmenuPopoverProps = Omit<
+  PopoverProps,
+  'children' | 'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+  children?: ReactNode;
+};
 
 export type ContextMenuSeparatorProps = Omit<SeparatorProps, 'className' | 'style'> & {
   className?: string;
@@ -243,6 +255,31 @@ const SubmenuIndicator = (props: Parameters<typeof HeroMenuItem.SubmenuIndicator
 );
 SubmenuIndicator.displayName = 'ContextMenu.SubmenuIndicator';
 
+const ContextMenuSubmenuTrigger = (props: ContextMenuSubmenuTriggerProps) => (
+  <SubmenuTrigger {...props} />
+);
+ContextMenuSubmenuTrigger.displayName = 'ContextMenu.SubmenuTrigger';
+
+const ContextMenuSubmenuPopover = ({
+  offset = 6,
+  placement = 'right top',
+  className,
+  style,
+  children,
+  ...rest
+}: ContextMenuSubmenuPopoverProps) => (
+  <Popover
+    offset={offset}
+    placement={placement as Placement}
+    className={clsx('context-menu__popover', className)}
+    style={style}
+    {...rest}
+  >
+    {children}
+  </Popover>
+);
+ContextMenuSubmenuPopover.displayName = 'ContextMenu.SubmenuPopover';
+
 const Section = (props: ContextMenuSectionProps) => <HeroMenuSection {...props} />;
 Section.displayName = 'ContextMenu.Section';
 
@@ -254,7 +291,7 @@ ContextMenuSeparator.displayName = 'ContextMenu.Separator';
 /**
  * 右键上下文菜单（原站 API）：在 Trigger 区域 onContextMenu 阻止默认、于鼠标坐标处打开受控 RAC Popover，
  * 浮层内为 OSS Menu（键盘导航/分组/分隔线/危险项 variant=danger），Esc 与点击外部关闭。
- * 子菜单经 RAC SubmenuTrigger 配合 Item + 嵌套 Popover/Menu 实现（在 demo 中组合）。
+ * 子菜单经 ContextMenu.SubmenuTrigger + ContextMenu.SubmenuPopover 组合。
  */
 const ContextMenu = Object.assign(ContextMenuRoot, {
   Trigger,
@@ -263,6 +300,8 @@ const ContextMenu = Object.assign(ContextMenuRoot, {
   Item,
   ItemIndicator,
   SubmenuIndicator,
+  SubmenuTrigger: ContextMenuSubmenuTrigger,
+  SubmenuPopover: ContextMenuSubmenuPopover,
   Section,
   Separator: ContextMenuSeparator,
 });

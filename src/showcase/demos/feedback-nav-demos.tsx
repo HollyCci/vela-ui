@@ -6,7 +6,6 @@ import {
   type MouseEvent,
   type ReactNode,
 } from 'react';
-import { Popover as AriaPopover, SubmenuTrigger, type Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
 import Command from '../../components/command';
@@ -34,6 +33,8 @@ import Toast, { Toaster, useToast } from '../../components/toast';
 import Tooltip from '../../components/tooltip';
 import TrendChip from '../../components/trend-chip';
 import DemoSection from '../demo-section';
+
+type DemoKey = string | number;
 
 const ProgressBarDemo = () => (
   <>
@@ -424,7 +425,7 @@ const SEGMENT_RANGES = [
 ];
 
 const SegmentDemo = () => {
-  const [range, setRange] = useState<Key>('week');
+  const [range, setRange] = useState<DemoKey>('week');
 
   return (
     <>
@@ -1966,18 +1967,18 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
       return (
         <ContextMenu.Menu aria-label="带子菜单" onAction={handleAction}>
           <ContextMenu.Item id="open" textValue="打开">打开</ContextMenu.Item>
-          <SubmenuTrigger delay={0}>
+          <ContextMenu.SubmenuTrigger delay={0}>
             <ContextMenu.Item id="open-with" textValue="打开方式">
               打开方式
               <ContextMenu.SubmenuIndicator />
             </ContextMenu.Item>
-            <AriaPopover className="context-menu__popover" placement="right top" offset={6}>
+            <ContextMenu.SubmenuPopover>
               <ContextMenu.Menu aria-label="打开方式" onAction={handleAction}>
                 <ContextMenu.Item id="browser" textValue="浏览器">浏览器</ContextMenu.Item>
                 <ContextMenu.Item id="editor" textValue="编辑器">编辑器</ContextMenu.Item>
               </ContextMenu.Menu>
-            </AriaPopover>
-          </SubmenuTrigger>
+            </ContextMenu.SubmenuPopover>
+          </ContextMenu.SubmenuTrigger>
           <ContextMenu.Separator />
           <ContextMenu.Item id="delete" textValue="删除" variant="danger">删除</ContextMenu.Item>
         </ContextMenu.Menu>
@@ -2128,7 +2129,7 @@ const SEGMENT_VARIANT_ITEMS = [
 ];
 
 const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
-  const [selectedKey, setSelectedKey] = useState<Key>('analytics');
+  const [selectedKey, setSelectedKey] = useState<DemoKey>('analytics');
   const size = variant === 'sizes' ? 'lg' : variant === 'theme-switcher' ? 'sm' : 'md';
   const segmentVariant = variant === 'ghost' || variant === 'without-separators' ? 'ghost' : 'default';
 
