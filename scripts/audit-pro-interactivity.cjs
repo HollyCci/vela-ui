@@ -118,6 +118,12 @@ const interactiveButtonWrappers = new Set([
   'Sheet.Trigger',
 ]);
 
+const compoundActionComponents = [
+  'PromptInput.Action',
+  'ChatMessageActions.Regenerate',
+  'ChatMessageActions.Menu',
+];
+
 const files = fs
   .readdirSync(demosDir)
   .filter((file) => file.endsWith('-demos.tsx'))
@@ -519,6 +525,38 @@ const collectShowcaseVariantResolutionProblems = (source, file, lineLookup, prob
   }
 };
 
+const collectCompoundActionHandlers = (source, file, lineLookup, problems) => {
+  for (const component of compoundActionComponents) {
+    const tagPattern = new RegExp(`<${escapeRegExp(component)}\\b`, 'g');
+    let match;
+
+    while ((match = tagPattern.exec(source)) !== null) {
+      const tagEnd = findTagEnd(source, match.index);
+      if (tagEnd === -1) break;
+
+      const attrs = source.slice(match.index, tagEnd + 1);
+      if (
+        buttonHandlerPattern.test(attrs) ||
+        disabledButtonPattern.test(attrs) ||
+        /\bonPress\s*=/.test(attrs)
+      ) {
+        tagPattern.lastIndex = tagEnd + 1;
+        continue;
+      }
+
+      problems.push({
+        file: path.relative(root, file),
+        line: lineLookup.lineNumberAt(match.index),
+        rule: 'no unhandled compound action',
+        message: `${component} must wire onClick/onPress or be disabled`,
+        text: lineLookup.textAt(match.index),
+      });
+
+      tagPattern.lastIndex = tagEnd + 1;
+    }
+  }
+};
+
 const problems = [];
 for (const file of files) {
   const source = fs.readFileSync(file, 'utf8');
@@ -542,6 +580,7 @@ for (const file of files) {
   collectStaticDemoLabels(source, file, lineLookup, problems);
   collectHashHrefs(source, file, lineLookup, problems);
   collectNakedActionButtons(source, file, lineLookup, problems);
+  collectCompoundActionHandlers(source, file, lineLookup, problems);
   collectShowcaseVariantResolutionProblems(source, file, lineLookup, problems);
 }
 

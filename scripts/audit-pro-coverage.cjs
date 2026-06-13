@@ -11,12 +11,14 @@ const path = require('path');
 const root = path.join(__dirname, '..');
 const registryPath = path.join(root, 'src/showcase/registry.ts');
 const demoIndexPath = path.join(root, 'src/showcase/demo-index.json');
+const docsMetaPath = path.join(root, 'src/showcase/docs-meta.json');
 const packageIndexPath = path.join(root, 'src/components/index.ts');
 const componentsDir = path.join(root, 'src/components');
 const demosDir = path.join(root, 'src/showcase/demos');
 
 const registrySource = fs.readFileSync(registryPath, 'utf8');
 const demoIndex = JSON.parse(fs.readFileSync(demoIndexPath, 'utf8'));
+const docsMeta = JSON.parse(fs.readFileSync(docsMetaPath, 'utf8'));
 const packageIndexSource = fs.readFileSync(packageIndexPath, 'utf8');
 
 const proBlockMatch = /export const PRO_CATEGORIES:[\s\S]*?=\s*\{([\s\S]*?)\};/.exec(registrySource);
@@ -52,6 +54,8 @@ const packageExportNames = new Set(
 );
 
 const allVariantSlugs = new Set(Object.values(demoIndex).flat());
+const componentIdForSlug = (slug) =>
+  Object.keys(demoIndex).find((id) => Array.isArray(demoIndex[id]) && demoIndex[id].includes(slug));
 const liveDemoKeys = new Set();
 const variantDemoKeys = new Set();
 for (const file of fs.readdirSync(demosDir)) {
@@ -97,6 +101,41 @@ const exportProblems = [...componentDirs].filter((id) => !packageExportNames.has
 const unknownVariantDemoKeys = [...variantDemoKeys].filter((slug) => !allVariantSlugs.has(slug));
 const requiredVariantSlugs = [...allVariantSlugs];
 const missingRequiredVariantSlugs = requiredVariantSlugs.filter((slug) => !variantDemoKeys.has(slug));
+const docsMetaProblems = [];
+for (const [id, expectedSlugs] of Object.entries(demoIndex)) {
+  const sections = docsMeta[id]?.sections;
+  if (!sections) continue;
+
+  const sectionSlugs = sections.map((section) => section.demo);
+  const unexpected = sectionSlugs.filter((slug) => !expectedSlugs.includes(slug));
+  const missing = expectedSlugs.filter((slug) => !sectionSlugs.includes(slug));
+
+  if (unexpected.length > 0 || missing.length > 0) {
+    docsMetaProblems.push({ id, unexpected, missing });
+  }
+}
+const genericVariantDemoEntries = [];
+for (const file of fs.readdirSync(demosDir)) {
+  if (!file.endsWith('-demos.tsx')) continue;
+  const source = fs.readFileSync(path.join(demosDir, file), 'utf8');
+  const variantExportMatches = [
+    ...source.matchAll(/export\s+const\s+[A-Za-z0-9]+VariantDemos[\s\S]*?=\s*\{([\s\S]*?)\};/g),
+  ];
+
+  for (const exportMatch of variantExportMatches) {
+    const objectSource = exportMatch[1];
+    const entryPattern = /['"]([a-z0-9-]+)['"]\s*:\s*<([A-Za-z0-9]+Demo)\s*\/>/g;
+    let entryMatch;
+
+    while ((entryMatch = entryPattern.exec(objectSource)) !== null) {
+      const [, slug, componentName] = entryMatch;
+      if (componentName.endsWith('VariantDemo')) continue;
+      const componentId = componentIdForSlug(slug);
+      if (componentId && demoIndex[componentId].length <= 1) continue;
+      genericVariantDemoEntries.push({ file, slug, componentName });
+    }
+  }
+}
 
 console.log(`Pro components: ${rows.length}`);
 console.log(`Component directories: ${componentDirs.size}`);
@@ -118,7 +157,9 @@ if (
   coverageProblems.length > 0 ||
   exportProblems.length > 0 ||
   unknownVariantDemoKeys.length > 0 ||
-  missingRequiredVariantSlugs.length > 0
+  missingRequiredVariantSlugs.length > 0 ||
+  docsMetaProblems.length > 0 ||
+  genericVariantDemoEntries.length > 0
 ) {
   console.error('');
   console.error('Coverage gaps:');
@@ -138,6 +179,19 @@ if (
   }
   for (const slug of missingRequiredVariantSlugs) {
     console.error(`- ${slug}: missing required slug-level live demo`);
+  }
+  for (const problem of docsMetaProblems) {
+    if (problem.unexpected.length > 0) {
+      console.error(`- ${problem.id}: docs-meta has unexpected demos ${problem.unexpected.join(', ')}`);
+    }
+    if (problem.missing.length > 0) {
+      console.error(`- ${problem.id}: docs-meta is missing demos ${problem.missing.join(', ')}`);
+    }
+  }
+  for (const entry of genericVariantDemoEntries) {
+    console.error(
+      `- ${entry.file}: ${entry.slug} reuses ${entry.componentName}; use a slug-specific VariantDemo with explicit props`,
+    );
   }
   process.exitCode = 1;
 }

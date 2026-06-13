@@ -383,7 +383,9 @@ const PromptInputDemo = () => {
           </PromptInput.Content>
           <PromptInput.Toolbar>
             <PromptInput.ToolbarStart>
-              <PromptInput.Action aria-label="添加附件">＋</PromptInput.Action>
+              <PromptInput.Action aria-label="添加附件" onPress={handleAttach}>
+                ＋
+              </PromptInput.Action>
             </PromptInput.ToolbarStart>
             <PromptInput.ToolbarEnd>
               <PromptInput.Send />
@@ -1017,6 +1019,7 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
     { name: '朗读片段.mp4', kind: 'video' as const, fallbackIcon: 'VID' },
   ]);
   const [draftAttachments, setDraftAttachments] = useState(['家长沟通记录.docx']);
+  const [composerStatus, setComposerStatus] = useState('附件尚未发送');
 
   const removeAttachment = useCallback((name: string) => {
     setAttachments((prev) => prev.filter((attachment) => attachment.name !== name));
@@ -1027,11 +1030,14 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
   const removeDraftAttachment = useCallback((name: string) => {
     setDraftAttachments((prev) => prev.filter((item) => item !== name));
   }, []);
+  const submitComposer = useCallback((submitted: string) => {
+    setComposerStatus(`已发送：${submitted.slice(0, 18)} · 附件 ${draftAttachments.length} 个`);
+  }, [draftAttachments.length]);
 
   if (variant === 'composer') {
     return (
       <DemoSection label="chat-attachment-composer" isColumn>
-        <PromptInput defaultValue="请结合附件整理一次家长沟通摘要。">
+        <PromptInput defaultValue="请结合附件整理一次家长沟通摘要。" onSubmit={submitComposer}>
           <PromptInput.Shell>
             <PromptInput.Content>
               <PromptInput.Attachments>
@@ -1053,6 +1059,7 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
             </PromptInput.Toolbar>
           </PromptInput.Shell>
         </PromptInput>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{composerStatus}</span>
       </DemoSection>
     );
   }
@@ -1262,6 +1269,7 @@ type ChatMessageActionsVariant = 'custom-icons' | 'default' | 'minimal';
 const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageActionsVariant }) => {
   const [rating, setRating] = useState<'up' | 'down' | null>(null);
   const [regenerateCount, setRegenerateCount] = useState(0);
+  const [menuCount, setMenuCount] = useState(0);
 
   return (
     <DemoSection label={`chat-message-actions-${variant}`} isColumn>
@@ -1290,10 +1298,12 @@ const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageAction
             </ChatMessageActions.Regenerate>
           </>
         )}
-        <ChatMessageActions.Menu>{variant === 'custom-icons' ? '…' : undefined}</ChatMessageActions.Menu>
+        <ChatMessageActions.Menu onPress={() => setMenuCount((count) => count + 1)}>
+          {variant === 'custom-icons' ? '…' : undefined}
+        </ChatMessageActions.Menu>
       </ChatMessageActions>
       <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-        评价：{rating ?? 'none'}；重新生成：{regenerateCount}
+        评价：{rating ?? 'none'}；重新生成：{regenerateCount}；更多：{menuCount}
       </span>
     </DemoSection>
   );
@@ -1518,10 +1528,14 @@ const PromptInputVariantDemo = ({
   const [value, setValue] = useState('');
   const [status, setStatus] = useState<PromptInputStatus>(variant === 'run-state' ? 'streaming' : 'ready');
   const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
+  const [attachmentCount, setAttachmentCount] = useState(0);
 
   const submitPrompt = useCallback((submitted: string) => {
     setValue(`已发送：${submitted}`);
     setStatus('submitted');
+  }, []);
+  const addAttachment = useCallback(() => {
+    setAttachmentCount((count) => count + 1);
   }, []);
 
   if (variant === 'with-suggestions') {
@@ -1555,7 +1569,7 @@ const PromptInputVariantDemo = ({
   if (variant === 'queue') {
     return (
       <DemoSection label="prompt-input-queue" isColumn>
-        <PromptInput defaultValue="依次处理这些任务">
+        <PromptInput defaultValue="依次处理这些任务" onSubmit={submitPrompt}>
           <PromptInput.Queue actionsVisibility="always">
             <PromptInput.Queue.List values={queuedPrompts} onReorder={setQueuedPrompts}>
               {queuedPrompts.map((prompt) => (
@@ -1578,6 +1592,7 @@ const PromptInputVariantDemo = ({
             </PromptInput.Toolbar>
           </PromptInput.Shell>
         </PromptInput>
+        {value.startsWith('已发送') && <span style={{ fontSize: 12, color: 'var(--muted)' }}>{value}</span>}
       </DemoSection>
     );
   }
@@ -1630,7 +1645,7 @@ const PromptInputVariantDemo = ({
           </PromptInput.Content>
           <PromptInput.Toolbar>
             <PromptInput.ToolbarStart>
-              <PromptInput.Action aria-label="添加附件" tooltip="添加附件">
+              <PromptInput.Action aria-label="添加附件" tooltip="添加附件" onPress={addAttachment}>
                 ＋
               </PromptInput.Action>
             </PromptInput.ToolbarStart>
@@ -1639,7 +1654,13 @@ const PromptInputVariantDemo = ({
             </PromptInput.ToolbarEnd>
           </PromptInput.Toolbar>
         </PromptInput.Shell>
-        {variant === 'secondary' && <PromptInput.Footer>Secondary 外观适合低优先级输入区。</PromptInput.Footer>}
+        {(attachmentCount > 0 || variant === 'secondary') && (
+          <PromptInput.Footer>
+            {attachmentCount > 0
+              ? `已添加 ${attachmentCount} 个附件`
+              : 'Secondary 外观适合低优先级输入区。'}
+          </PromptInput.Footer>
+        )}
       </PromptInput>
       {value.startsWith('已发送') && <span style={{ fontSize: 12, color: 'var(--muted)' }}>{value}</span>}
     </DemoSection>
@@ -1731,6 +1752,14 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
   const [emoji, setEmoji] = useState('😀');
   const [snapStep, setSnapStep] = useState(1);
   const [professionKeys, setProfessionKeys] = useState<Selection>(new Set(['teacher']));
+  const [actionMessage, setActionMessage] = useState('尚未执行动作');
+  const [hasDeadline, setHasDeadline] = useState(false);
+  const handleRegenerate = () => setActionMessage('已重新生成 Sheet 内消息');
+  const handleOpenMenu = () => setActionMessage('已打开更多操作菜单');
+  const handleDeadline = () => setHasDeadline((value) => !value);
+  const handleTaskSubmit = (submitted: string) => {
+    setActionMessage(`已创建任务：${submitted.slice(0, 18)}`);
+  };
 
   const professionOptions = [
     { id: 'teacher', title: '授课老师', preview: '负责课堂讲解与答疑', meta: '8 人' },
@@ -1955,38 +1984,46 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
                     ))}
                   </div>
                 ) : variant === 'slack-message-actions' ? (
-                  <ChatMessage
-                    variant="assistant"
-                    avatar={<Avatar fallback="AI" />}
-                    actions={
-                      <ChatMessageActions>
-                        <ChatMessageActions.Copy content="已整理为 Slack 风格操作面板。" />
-                        <ChatMessageActions.Regenerate />
-                        <ChatMessageActions.Menu />
-                      </ChatMessageActions>
-                    }
-                  >
-                    这条消息可以复制、重新生成，或在更多菜单中转发给协作群。
-                  </ChatMessage>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <ChatMessage
+                      variant="assistant"
+                      avatar={<Avatar fallback="AI" />}
+                      actions={
+                        <ChatMessageActions>
+                          <ChatMessageActions.Copy content="已整理为 Slack 风格操作面板。" />
+                          <ChatMessageActions.Regenerate onClick={handleRegenerate} />
+                          <ChatMessageActions.Menu onClick={handleOpenMenu} />
+                        </ChatMessageActions>
+                      }
+                    >
+                      这条消息可以复制、重新生成，或在更多菜单中转发给协作群。
+                    </ChatMessage>
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{actionMessage}</span>
+                  </div>
                 ) : variant === 'with-form' ? (
-                  <PromptInput defaultValue="为三年级 A 班创建阅读理解跟进任务">
-                    <PromptInput.Shell>
-                      <PromptInput.Content>
-                        <PromptInput.TextArea aria-label="任务描述" />
-                      </PromptInput.Content>
-                      <PromptInput.Toolbar>
-                        <PromptInput.ToolbarStart>
-                          <PromptInput.Action aria-label="设置截止日期" tooltip="设置截止日期">
-                            日
-                          </PromptInput.Action>
-                        </PromptInput.ToolbarStart>
-                        <PromptInput.ToolbarEnd>
-                          <PromptInput.Send aria-label="创建任务" />
-                        </PromptInput.ToolbarEnd>
-                      </PromptInput.Toolbar>
-                    </PromptInput.Shell>
-                    <PromptInput.Footer>表单内容保留在 Sheet 内，提交后可继续补充附件。</PromptInput.Footer>
-                  </PromptInput>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                    <PromptInput defaultValue="为三年级 A 班创建阅读理解跟进任务" onSubmit={handleTaskSubmit}>
+                      <PromptInput.Shell>
+                        <PromptInput.Content>
+                          <PromptInput.TextArea aria-label="任务描述" />
+                        </PromptInput.Content>
+                        <PromptInput.Toolbar>
+                          <PromptInput.ToolbarStart>
+                            <PromptInput.Action aria-label="设置截止日期" tooltip="设置截止日期" onPress={handleDeadline}>
+                              日
+                            </PromptInput.Action>
+                          </PromptInput.ToolbarStart>
+                          <PromptInput.ToolbarEnd>
+                            <PromptInput.Send aria-label="创建任务" />
+                          </PromptInput.ToolbarEnd>
+                        </PromptInput.Toolbar>
+                      </PromptInput.Shell>
+                      <PromptInput.Footer>
+                        {hasDeadline ? '已设置截止日期：本周五 18:00' : '表单内容保留在 Sheet 内，提交后可继续补充附件。'}
+                      </PromptInput.Footer>
+                    </PromptInput>
+                    <span style={{ fontSize: 12, color: 'var(--muted)' }}>{actionMessage}</span>
+                  </div>
                 ) : (
                   variant === 'non-dismissable'
                     ? '遮罩和 Esc 不会关闭，需要使用底部按钮完成操作。'

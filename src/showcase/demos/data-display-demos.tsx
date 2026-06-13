@@ -1530,20 +1530,25 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
   );
 };
 
-const DataGridDefaultVariantDemo = () => (
-  <DemoSection isColumn label="default sorting + row actions">
-    <div style={{ width: 720 }}>
-      <DataGrid
-        aria-label="学员列表"
-        columns={STUDENT_COLUMNS}
-        data={STUDENT_ROWS}
-        defaultSortDescriptor={{ column: 'score', direction: 'descending' }}
-        getRowId={studentRowId}
-        onRowAction={() => undefined}
-      />
-    </div>
-  </DemoSection>
-);
+const DataGridDefaultVariantDemo = () => {
+  const [rowAction, setRowAction] = useState('双击行或按 Enter 打开学员详情');
+
+  return (
+    <DemoSection isColumn label="default sorting + row actions">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="学员列表"
+          columns={STUDENT_COLUMNS}
+          data={STUDENT_ROWS}
+          defaultSortDescriptor={{ column: 'score', direction: 'descending' }}
+          getRowId={studentRowId}
+          onRowAction={(key) => setRowAction(`已打开学员 ${String(key)}`)}
+        />
+      </div>
+      <span style={demoTextStyle}>{rowAction}</span>
+    </DemoSection>
+  );
+};
 
 const DataGridAsyncLoadingVariantDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
@@ -1573,7 +1578,10 @@ const DataGridAsyncLoadingVariantDemo = () => {
 
 const DataGridBulkActionsVariantDemo = () => {
   const [selectedKeys, setSelectedKeys] = useState<Selection>(new Set(['u1', 'u2']));
+  const [action, setAction] = useState('选择学员后可执行批量操作');
   const count = selectedKeys === 'all' ? STUDENT_ROWS.length : selectedKeys.size;
+  const handleAssignClass = () => setAction(`已将 ${count} 名学员加入冲刺班`);
+  const handleNotify = () => setAction(`已向 ${count} 名学员发送通知`);
 
   return (
     <DemoSection isColumn label="bulk actions">
@@ -1598,14 +1606,15 @@ const DataGridBulkActionsVariantDemo = () => {
         </ActionBar.Prefix>
         <Separator orientation="vertical" />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" onClick={handleAssignClass}>
             分班
           </Button>
-          <Button size="sm" variant="ghost">
+          <Button size="sm" variant="ghost" onClick={handleNotify}>
             发通知
           </Button>
         </ActionBar.Content>
       </ActionBar>
+      <span style={demoTextStyle}>{action}</span>
     </DemoSection>
   );
 };
@@ -2093,6 +2102,7 @@ type FileTreeVariant =
 
 const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   const [query, setQuery] = useState('course');
+  const [expandedKeys, setExpandedKeys] = useState<Set<Key>>(new Set(['courses']));
   const tree = useTreeData<DemoFileNode>({
     initialItems: FILE_TREE_ITEMS,
     getKey: (item) => item.id,
@@ -2125,13 +2135,19 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   }
 
   if (variant === 'custom-indicator') {
+    const isCoursesOpen = expandedKeys.has('courses');
+
     return (
       <DemoSection label="custom indicator">
         <div style={{ width: 300 }}>
-          <FileTree aria-label="自定义展开图标" defaultExpandedKeys={['courses']}>
+          <FileTree
+            aria-label="自定义展开图标"
+            expandedKeys={expandedKeys}
+            onExpandedChange={setExpandedKeys}
+          >
             <FileTree.Item id="courses" icon={<FolderIcon />} title="courses">
               <FileTree.Indicator>
-                <span style={{ fontSize: 12 }}>+</span>
+                <span style={{ fontSize: 12 }}>{isCoursesOpen ? '-' : '+'}</span>
               </FileTree.Indicator>
               <FileTree.Item id="course-outline" icon={<FileIcon />} title="outline.md" />
             </FileTree.Item>
@@ -2429,6 +2445,60 @@ const KanbanNotionVariantDemo = () => {
             kanban={kanban}
             column={column}
             actions={<Chip size="sm">{column.id}</Chip>}
+          />
+        ))}
+      </Kanban>
+    </DemoSection>
+  );
+};
+
+const KanbanDefaultVariantDemo = () => {
+  const kanban = useKanban<KanbanTask>({
+    initialItems: KANBAN_TASKS.slice(0, 4),
+    getColumn: getKanbanColumn,
+    setColumn: setKanbanColumn,
+  });
+
+  return (
+    <DemoSection label="default kanban">
+      <Kanban size="sm" style={{ width: 760 }}>
+        {KANBAN_COLUMNS.map((column) => (
+          <KanbanColumnView key={column.id} kanban={kanban} column={column} />
+        ))}
+      </Kanban>
+    </DemoSection>
+  );
+};
+
+const PROJECT_KANBAN_TASKS: KanbanTask[] = [
+  { id: 'p1', title: '定义组件验收清单', status: 'todo', priority: 'high' },
+  { id: 'p2', title: '补齐浏览器 smoke test', status: 'todo', priority: 'normal' },
+  { id: 'p3', title: '实现变体级 demo resolver', status: 'doing', priority: 'high' },
+  { id: 'p4', title: '发布 Vela UI beta', status: 'done', priority: 'low' },
+];
+
+const PROJECT_KANBAN_COLUMNS = [
+  { id: 'todo', title: 'Backlog', color: 'var(--warning)' },
+  { id: 'doing', title: 'In progress', color: 'var(--accent)' },
+  { id: 'done', title: 'Shipped', color: 'var(--success)' },
+];
+
+const KanbanProjectBoardVariantDemo = () => {
+  const kanban = useKanban<KanbanTask>({
+    initialItems: PROJECT_KANBAN_TASKS,
+    getColumn: getKanbanColumn,
+    setColumn: setKanbanColumn,
+  });
+
+  return (
+    <DemoSection label="project board">
+      <Kanban size="md" style={{ width: 820 }}>
+        {PROJECT_KANBAN_COLUMNS.map((column) => (
+          <KanbanColumnView
+            key={column.id}
+            kanban={kanban}
+            column={column}
+            actions={<Chip size="sm">{column.title}</Chip>}
           />
         ))}
       </Kanban>
@@ -3200,9 +3270,9 @@ export const dataDisplayVariantDemos: Record<string, ReactNode> = {
   'hover-card-placements': <HoverCardVariantDemo variant="placements" />,
   'hover-card-with-arrow': <HoverCardVariantDemo variant="with-arrow" />,
   'hover-card-with-image': <HoverCardVariantDemo variant="with-image" />,
-  'kanban-default': <KanbanDemo />,
+  'kanban-default': <KanbanDefaultVariantDemo />,
   'kanban-notion-board': <KanbanNotionVariantDemo />,
-  'kanban-project-board': <KanbanDemo />,
+  'kanban-project-board': <KanbanProjectBoardVariantDemo />,
   'kanban-sizes': <KanbanSizesVariantDemo />,
   'item-card-default': <ItemCardVariantDemo variant="default" />,
   'item-card-device-list': <ItemCardVariantDemo variant="device-list" />,

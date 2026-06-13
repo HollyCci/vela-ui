@@ -872,7 +872,7 @@
       {
         "heading": "Variants",
         "anchor": "variants",
-        "demo": "list-view-default"
+        "demo": "list-view-secondary"
       },
       {
         "heading": "Disabled Items",
@@ -1201,11 +1201,6 @@
         "heading": "Queue",
         "anchor": "queue",
         "demo": "prompt-input-queue"
-      },
-      {
-        "heading": "With Attachments",
-        "anchor": "with-attachments",
-        "demo": "chat-attachment-composer"
       }
     ]
   },
@@ -2110,6 +2105,11 @@
         "heading": "Resizable Sidebar and Aside",
         "anchor": "resizable-sidebar-and-aside",
         "demo": "app-layout-resizable-sidebar"
+      },
+      {
+        "heading": "Resizable Aside",
+        "anchor": "resizable-aside",
+        "demo": "app-layout-resizable-aside"
       },
       {
         "heading": "Toolbar and Footer",
