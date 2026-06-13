@@ -31,6 +31,7 @@ import clsx from 'clsx';
 /** 根组件提供的 file picker context：Trigger 点击转发到隐藏 Input（原站 "Provides file picker context"） */
 type DropZoneFilePickerContextValue = {
   inputRef: RefObject<HTMLInputElement | null>;
+  isDisabled: boolean;
 };
 
 const DropZoneFilePickerContext = createContext<DropZoneFilePickerContextValue | null>(null);
@@ -40,15 +41,22 @@ export type DropZoneRenderFunction = (props: HTMLAttributes<HTMLDivElement>) => 
 export type DropZoneProps = HTMLAttributes<HTMLDivElement> & {
   /** 自定义渲染函数，替换默认的 div 根元素（原站 API：DOMRenderFunction） */
   render?: DropZoneRenderFunction;
+  /** 禁用整个上传区，同时禁用拖放区域、触发按钮与隐藏文件输入 */
+  isDisabled?: boolean;
 };
 
 const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
-  ({ render, className, ...rest }, ref) => {
+  ({ render, className, isDisabled = false, ...rest }, ref) => {
     const inputRef = useRef<HTMLInputElement>(null);
-    const contextValue = useMemo<DropZoneFilePickerContextValue>(() => ({ inputRef }), []);
+    const contextValue = useMemo<DropZoneFilePickerContextValue>(
+      () => ({ inputRef, isDisabled }),
+      [isDisabled],
+    );
 
     const domProps = {
       'data-slot': 'drop-zone',
+      'data-disabled': isDisabled || undefined,
+      'aria-disabled': isDisabled || undefined,
       className: clsx('drop-zone', className),
       ...rest,
     };
@@ -72,13 +80,19 @@ export type DropZoneAreaProps = Omit<RacDropZoneProps, 'className' | 'style'> & 
  * 拖放高亮 [data-drop-target]、焦点 [data-focus-visible]、禁用 [data-disabled]
  * 与 onDrop/getDropOperation 等均由底座提供。
  */
-const Area = ({ className, ...rest }: DropZoneAreaProps) => (
-  <RacDropZone
-    data-slot="drop-zone-area"
-    className={clsx('drop-zone__area', className)}
-    {...rest}
-  />
-);
+const Area = ({ className, isDisabled, ...rest }: DropZoneAreaProps) => {
+  const context = useContext(DropZoneFilePickerContext);
+  const mergedIsDisabled = context?.isDisabled === true || isDisabled === true;
+
+  return (
+    <RacDropZone
+      data-slot="drop-zone-area"
+      className={clsx('drop-zone__area', className)}
+      isDisabled={mergedIsDisabled}
+      {...rest}
+    />
+  );
+};
 Area.displayName = 'DropZone.Area';
 
 /** 原站默认云上传图标（与基准快照 SVG path 一致） */
@@ -154,11 +168,13 @@ export type DropZoneTriggerProps = Omit<RacButtonProps, 'className' | 'style'> &
 };
 
 /** 浏览按钮，包装 RAC Button；点击通过根组件 context 打开隐藏文件输入 */
-const Trigger = ({ className, children, onPress, ...rest }: DropZoneTriggerProps) => {
+const Trigger = ({ className, children, isDisabled, onPress, ...rest }: DropZoneTriggerProps) => {
   const context = useContext(DropZoneFilePickerContext);
+  const mergedIsDisabled = context?.isDisabled === true || isDisabled === true;
 
   const handlePress = (event: PressEvent) => {
     onPress?.(event);
+    if (mergedIsDisabled) return;
     context?.inputRef.current?.click();
   };
 
@@ -166,6 +182,7 @@ const Trigger = ({ className, children, onPress, ...rest }: DropZoneTriggerProps
     <RacButton
       data-slot="drop-zone-trigger"
       className={clsx('drop-zone__trigger', className)}
+      isDisabled={mergedIsDisabled}
       onPress={handlePress}
       {...rest}
     >
@@ -187,8 +204,9 @@ export type DropZoneInputProps = Omit<
 
 /** 隐藏文件输入（快照中为 Area 的兄弟节点）；注册到根 context 供 Trigger 点击 */
 const Input = forwardRef<HTMLInputElement, DropZoneInputProps>(
-  ({ onSelect, onChange, className, ...rest }, ref) => {
+  ({ onSelect, onChange, className, disabled, ...rest }, ref) => {
     const context = useContext(DropZoneFilePickerContext);
+    const mergedDisabled = context?.isDisabled === true || disabled === true;
 
     const handleRef = (node: HTMLInputElement | null) => {
       if (context !== null) context.inputRef.current = node;
@@ -198,6 +216,10 @@ const Input = forwardRef<HTMLInputElement, DropZoneInputProps>(
 
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
       onChange?.(event);
+      if (mergedDisabled) {
+        event.target.value = '';
+        return;
+      }
       if (event.target.files !== null && event.target.files.length > 0) {
         onSelect?.(event.target.files);
       }
@@ -211,6 +233,7 @@ const Input = forwardRef<HTMLInputElement, DropZoneInputProps>(
         tabIndex={-1}
         data-slot="drop-zone-input"
         className={clsx('drop-zone__input', className)}
+        disabled={mergedDisabled}
         onChange={handleChange}
         {...rest}
         ref={handleRef}
