@@ -7,6 +7,7 @@ import {
   Tooltip as UITooltip,
 } from '@heroui/react';
 import ActionBar from '../../components/action-bar';
+import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Badge from '../../components/badge';
 import Button from '../../components/button';
 import Carousel from '../../components/carousel';
@@ -783,7 +784,154 @@ const ChartTooltipDemo = () => (
   </DemoSection>
 );
 
+/** 以本周一为锚生成事件日期，保证 demo 中事件始终落在可视范围内 */
+const agendaWeekMonday = (() => {
+  const now = new Date();
+  const base = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  const weekday = (base.getDay() + 6) % 7;
+  base.setDate(base.getDate() - weekday);
+  return base;
+})();
+
+/** 相对本周一第 offset 天的指定时分 */
+const agendaAt = (dayOffset: number, hour: number, minute = 0): Date => {
+  const date = new Date(agendaWeekMonday);
+  date.setDate(date.getDate() + dayOffset);
+  date.setHours(hour, minute, 0, 0);
+  return date;
+};
+
+const AGENDA_EVENTS: AgendaEvent[] = [
+  { id: '1', title: 'Team Standup', start: agendaAt(4, 9, 0), end: agendaAt(4, 9, 30), color: '#06b6d4' },
+  { id: '2', title: 'Lunch', start: agendaAt(4, 12, 0), end: agendaAt(4, 13, 0), color: '#d946ef' },
+  { id: '3', title: 'Design Review', start: agendaAt(4, 14, 0), end: agendaAt(4, 15, 30), color: '#3b82f6' },
+  { id: '4', title: '1:1 with Manager', start: agendaAt(4, 16, 0), end: agendaAt(4, 16, 30), color: '#10b981' },
+  { id: '5', title: 'Product Sync', start: agendaAt(4, 9, 0), end: agendaAt(4, 10, 0), color: '#f59e0b' },
+  { id: '6', title: 'Eng Huddle', start: agendaAt(4, 9, 15), end: agendaAt(4, 10, 15), color: '#8b5cf6' },
+  { id: '7', title: 'Client Call', start: agendaAt(4, 14, 30), end: agendaAt(4, 15, 30), color: '#ef4444' },
+  { id: '10', title: 'Sprint Planning', start: agendaAt(3, 10, 0), end: agendaAt(3, 11, 30), color: '#f59e0b' },
+  { id: '14', title: 'Code Review', start: agendaAt(6, 11, 0), end: agendaAt(6, 12, 0), color: '#10b981' },
+  {
+    id: '16',
+    title: 'Planning',
+    start: agendaAt(4, 10, 15),
+    end: agendaAt(4, 11, 15),
+    color: '#3b82f6',
+    status: 'unconfirmed',
+  },
+  {
+    id: '17',
+    title: 'Company All-Hands',
+    start: agendaAt(5, 9, 0),
+    end: agendaAt(5, 10, 0),
+    color: '#6b7280',
+    isReadOnly: true,
+  },
+  {
+    id: 'h1',
+    title: 'Company Holiday',
+    start: agendaAt(4, 0, 0),
+    end: agendaAt(6, 0, 0),
+    color: '#10b981',
+    isAllDay: true,
+  },
+  {
+    id: 'h2',
+    title: 'Team Offsite',
+    start: agendaAt(4, 0, 0),
+    end: agendaAt(4, 0, 0),
+    color: '#3b82f6',
+    isAllDay: true,
+  },
+];
+
+const AgendaDemo = () => {
+  const agenda = useAgenda({ events: AGENDA_EVENTS, defaultView: 'week' });
+
+  return (
+    <DemoSection isColumn label="日历议程 · 视图切换（日/周/月）+ 日期前后导航 / 回今天均可点">
+      <div style={{ height: 600, width: '100%' }}>
+        <Agenda {...agenda}>
+          <Agenda.Header>
+            <Agenda.Heading />
+            <Agenda.ViewSelector />
+            <Agenda.Navigation>
+              <Agenda.NavButton slot="previous" />
+              <Agenda.TodayButton />
+              <Agenda.NavButton slot="next" />
+            </Agenda.Navigation>
+          </Agenda.Header>
+          <Agenda.Body>
+            {agenda.view === 'month' ? (
+              <Agenda.MonthGrid>
+                {agenda.visibleWeeks.map((week, weekIndex) => {
+                  const rowLayout = agenda.getMonthRowLayout(week);
+                  return (
+                    <Agenda.MonthRow
+                      // eslint-disable-next-line react/no-array-index-key -- 周序号在当前视图内稳定
+                      key={weekIndex}
+                      spanningRowCount={rowLayout.rowCount}
+                    >
+                      {rowLayout.items.map((item) => (
+                        <Agenda.MonthSpanningEvent
+                          key={item.event.id}
+                          event={item.event}
+                          colStart={item.colStart}
+                          colSpan={item.colSpan}
+                          row={item.row}
+                        />
+                      ))}
+                      {week.map((day, colIndex) => (
+                        <Agenda.MonthCell
+                          key={day.toISOString()}
+                          date={day}
+                          spanningRowCount={rowLayout.rowCountPerCol[colIndex] ?? 0}
+                        >
+                          {agenda.getPerCellEvents(day, week).map((event) => (
+                            <Agenda.MonthEvent key={event.id} event={event} />
+                          ))}
+                        </Agenda.MonthCell>
+                      ))}
+                    </Agenda.MonthRow>
+                  );
+                })}
+              </Agenda.MonthGrid>
+            ) : (
+              <>
+                <Agenda.WeekHeader />
+                <Agenda.AllDaySection>
+                  <Agenda.AllDayLabel>all-day</Agenda.AllDayLabel>
+                  {agenda.allDayLayout.map((item) => (
+                    <Agenda.AllDayEvent
+                      key={item.event.id}
+                      event={item.event}
+                      colStart={item.colStart}
+                      colSpan={item.colSpan}
+                      row={item.row}
+                    />
+                  ))}
+                </Agenda.AllDaySection>
+                <Agenda.TimeGrid>
+                  <Agenda.CurrentTimeIndicator />
+                  {agenda.visibleDays.map((day) => (
+                    <Agenda.DayColumn key={day.toISOString()} date={day}>
+                      {agenda.getEventsForDay(day).map((event) => (
+                        <Agenda.Event key={event.id} event={event} />
+                      ))}
+                    </Agenda.DayColumn>
+                  ))}
+                </Agenda.TimeGrid>
+              </>
+            )}
+          </Agenda.Body>
+        </Agenda>
+      </div>
+    </DemoSection>
+  );
+};
+
 export const dataDisplayDemos: Record<string, ReactNode> = {
+  agenda: <AgendaDemo />,
   kpi: <KpiDemo />,
   'kpi-group': <KpiGroupDemo />,
   'item-card': <ItemCardDemo />,
