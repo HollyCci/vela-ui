@@ -1,5 +1,6 @@
-import { useState, type ReactNode } from 'react';
-import { isFileDropItem } from 'react-aria-components';
+import { useState, type ChangeEvent, type ReactNode } from 'react';
+import { isFileDropItem, type Key } from 'react-aria-components';
+import { Description, Label, ListBox } from '@heroui/react';
 import Input from '../../components/input';
 import Textarea from '../../components/textarea';
 import Checkbox from '../../components/checkbox';
@@ -97,19 +98,69 @@ const SliderDemo = () => (
   </DemoSection>
 );
 
-const NativeSelectDemo = () => (
-  <DemoSection>
-    <NativeSelect label="所属校区" defaultValue="bj" description="选择学员归属校区">
-      <option value="bj">北京校区</option>
-      <option value="sh">上海校区</option>
-      <option value="gz">广州校区</option>
-    </NativeSelect>
-    <NativeSelect variant="secondary" aria-label="次级选择器" defaultValue="a">
-      <option value="a">选项 A</option>
-      <option value="b">选项 B</option>
-    </NativeSelect>
-  </DemoSection>
-);
+const CAMPUS_NAMES: Record<string, string> = {
+  bj: '北京校区',
+  sh: '上海校区',
+  gz: '广州校区',
+};
+
+const NativeSelectDemo = () => {
+  const [campus, setCampus] = useState('bj');
+  const handleCampusChange = (event: ChangeEvent<HTMLSelectElement>) =>
+    setCampus(event.target.value);
+
+  return (
+    <>
+      <DemoSection label="label + description + 受控回显" isColumn>
+        <NativeSelect fullWidth style={{ width: 240 }}>
+          <Label>所属校区</Label>
+          <NativeSelect.Trigger name="campus" value={campus} onChange={handleCampusChange}>
+            <NativeSelect.Option value="bj">北京校区</NativeSelect.Option>
+            <NativeSelect.Option value="sh">上海校区</NativeSelect.Option>
+            <NativeSelect.Option value="gz">广州校区</NativeSelect.Option>
+          </NativeSelect.Trigger>
+          <Description>当前选择：{CAMPUS_NAMES[campus]}</Description>
+        </NativeSelect>
+        <NativeSelect fullWidth style={{ width: 240 }}>
+          <Label>所属教研组（分组 + 禁用项）</Label>
+          <NativeSelect.Trigger name="department" defaultValue="">
+            <NativeSelect.Option value="">请选择教研组</NativeSelect.Option>
+            <NativeSelect.OptGroup label="教学">
+              <NativeSelect.Option value="english">英语教研组</NativeSelect.Option>
+              <NativeSelect.Option value="vocab" disabled>
+                词汇教研组（满员）
+              </NativeSelect.Option>
+            </NativeSelect.OptGroup>
+            <NativeSelect.OptGroup label="运营">
+              <NativeSelect.Option value="support">学员服务组</NativeSelect.Option>
+            </NativeSelect.OptGroup>
+          </NativeSelect.Trigger>
+        </NativeSelect>
+      </DemoSection>
+      <DemoSection label="variants + 验证态 + 禁用">
+        <NativeSelect variant="secondary" fullWidth style={{ width: 200 }}>
+          <NativeSelect.Trigger aria-label="次级样式" defaultValue="a">
+            <NativeSelect.Option value="a">次级选项 A</NativeSelect.Option>
+            <NativeSelect.Option value="b">次级选项 B</NativeSelect.Option>
+          </NativeSelect.Trigger>
+        </NativeSelect>
+        <NativeSelect aria-invalid="true" data-invalid="true" fullWidth style={{ width: 200 }}>
+          <Label>验证失败</Label>
+          <NativeSelect.Trigger aria-invalid="true" defaultValue="">
+            <NativeSelect.Option value="">必选项未选择</NativeSelect.Option>
+            <NativeSelect.Option value="ok">合规选项</NativeSelect.Option>
+          </NativeSelect.Trigger>
+        </NativeSelect>
+        <NativeSelect fullWidth style={{ width: 200 }}>
+          <Label>禁用</Label>
+          <NativeSelect.Trigger disabled defaultValue="done">
+            <NativeSelect.Option value="done">已完成</NativeSelect.Option>
+          </NativeSelect.Trigger>
+        </NativeSelect>
+      </DemoSection>
+    </>
+  );
+};
 
 const SearchFieldDemo = () => (
   <DemoSection isColumn>
@@ -323,20 +374,79 @@ const NumberStepperDemo = () => (
   </>
 );
 
+const SORT_OPTIONS = [
+  { id: 'created', label: '按创建时间排序' },
+  { id: 'updated', label: '按更新时间排序' },
+  { id: 'name', label: '按名称排序' },
+];
+
 const InlineSelectDemo = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const handleToggle = () => setIsOpen((v) => !v);
+  const [sortKey, setSortKey] = useState<Key | null>('created');
+  const handleSortChange = (value: Key | null) => setSortKey(value);
+  const sortLabel = SORT_OPTIONS.find((option) => option.id === sortKey)?.label ?? '未选择';
 
   return (
-    <DemoSection>
-      <InlineSelect
-        value="按创建时间排序"
-        isOpen={isOpen}
-        onTriggerClick={handleToggle}
-        popover={<div style={{ padding: 8 }}>静态弹层内容</div>}
-      />
-      <InlineSelect value="禁用状态" isDisabled />
-    </DemoSection>
+    <>
+      <DemoSection label="受控单选（点击打开真实弹层）">
+        <InlineSelect aria-label="排序方式" value={sortKey} onChange={handleSortChange}>
+          <InlineSelect.Trigger>
+            <InlineSelect.Value />
+            <InlineSelect.Indicator />
+          </InlineSelect.Trigger>
+          <InlineSelect.Popover>
+            <ListBox>
+              {SORT_OPTIONS.map((option) => (
+                <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+                  {option.label}
+                  <ListBox.ItemIndicator />
+                </ListBox.Item>
+              ))}
+            </ListBox>
+          </InlineSelect.Popover>
+        </InlineSelect>
+        <span>当前：{sortLabel}</span>
+      </DemoSection>
+      <DemoSection label="多选 + 禁用项">
+        <InlineSelect aria-label="通知渠道" selectionMode="multiple" defaultValue={['email']}>
+          <InlineSelect.Trigger>
+            <InlineSelect.Value />
+            <InlineSelect.Indicator />
+          </InlineSelect.Trigger>
+          <InlineSelect.Popover>
+            <ListBox>
+              <ListBox.Item id="email" textValue="邮件">
+                邮件
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+              <ListBox.Item id="sms" textValue="短信" isDisabled>
+                短信（暂不可用）
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+              <ListBox.Item id="push" textValue="推送">
+                推送
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+            </ListBox>
+          </InlineSelect.Popover>
+        </InlineSelect>
+      </DemoSection>
+      <DemoSection label="整体禁用">
+        <InlineSelect aria-label="排序方式（禁用）" isDisabled defaultValue="locked">
+          <InlineSelect.Trigger>
+            <InlineSelect.Value />
+            <InlineSelect.Indicator />
+          </InlineSelect.Trigger>
+          <InlineSelect.Popover>
+            <ListBox>
+              <ListBox.Item id="locked" textValue="锁定中">
+                锁定中
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+            </ListBox>
+          </InlineSelect.Popover>
+        </InlineSelect>
+      </DemoSection>
+    </>
   );
 };
 
@@ -466,22 +576,79 @@ const CellSwitchDemo = () => {
   );
 };
 
+const SLOT_OPTIONS = [
+  { id: 'morning', label: '上午 09:00–11:00' },
+  { id: 'afternoon', label: '下午 14:00–16:00' },
+  { id: 'evening', label: '晚上 19:00–21:00' },
+];
+
 const CellSelectDemo = () => {
-  const [isOpen, setIsOpen] = useState(false);
-  const handleToggle = () => setIsOpen((v) => !v);
+  const [slot, setSlot] = useState<Key | null>('evening');
+  const handleSlotChange = (value: Key | null) => setSlot(value);
+  const slotLabel = SLOT_OPTIONS.find((option) => option.id === slot)?.label ?? '未设置';
 
   return (
     <DemoSection isColumn>
+      <CellSelect aria-label="上课时段" value={slot} onChange={handleSlotChange} style={{ width: 320 }}>
+        <CellSelect.Trigger>
+          <CellSelect.Label>上课时段（受控：{slotLabel}）</CellSelect.Label>
+          <CellSelect.Value />
+          <CellSelect.Indicator />
+        </CellSelect.Trigger>
+        <CellSelect.Popover>
+          <ListBox>
+            {SLOT_OPTIONS.map((option) => (
+              <ListBox.Item key={option.id} id={option.id} textValue={option.label}>
+                {option.label}
+                <ListBox.ItemIndicator />
+              </ListBox.Item>
+            ))}
+          </ListBox>
+        </CellSelect.Popover>
+      </CellSelect>
       <CellSelect
-        label="上课时段"
-        value="晚上 19:00–21:00"
-        isOpen={isOpen}
-        onTriggerClick={handleToggle}
-        popover={<div style={{ padding: 8 }}>静态弹层内容</div>}
+        aria-label="提醒频率"
+        variant="secondary"
+        defaultValue="daily"
         style={{ width: 320 }}
-      />
-      <CellSelect label="次级样式" value="未设置" variant="secondary" style={{ width: 320 }} />
-      <CellSelect label="禁用项" value="-" isDisabled style={{ width: 320 }} />
+      >
+        <CellSelect.Trigger>
+          <CellSelect.Label>提醒频率（次级 + 禁用项）</CellSelect.Label>
+          <CellSelect.Value />
+          <CellSelect.Indicator />
+        </CellSelect.Trigger>
+        <CellSelect.Popover>
+          <ListBox>
+            <ListBox.Item id="daily" textValue="每天">
+              每天
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+            <ListBox.Item id="weekly" textValue="每周">
+              每周
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+            <ListBox.Item id="never" textValue="从不" isDisabled>
+              从不（不可选）
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          </ListBox>
+        </CellSelect.Popover>
+      </CellSelect>
+      <CellSelect aria-label="禁用项" isDisabled defaultValue="fixed" style={{ width: 320 }}>
+        <CellSelect.Trigger>
+          <CellSelect.Label>禁用整体</CellSelect.Label>
+          <CellSelect.Value />
+          <CellSelect.Indicator />
+        </CellSelect.Trigger>
+        <CellSelect.Popover>
+          <ListBox>
+            <ListBox.Item id="fixed" textValue="固定时段">
+              固定时段
+              <ListBox.ItemIndicator />
+            </ListBox.Item>
+          </ListBox>
+        </CellSelect.Popover>
+      </CellSelect>
     </DemoSection>
   );
 };
