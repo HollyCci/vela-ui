@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
+import { Fragment, useEffect, useState, type MouseEvent, type ReactNode } from 'react';
 import './showcase.css';
 import DemoFrame from './demo-frame';
 import docsMetaJson from './docs-meta.json';
@@ -422,6 +422,24 @@ const App = () => {
   // 有采集正文的组件直接渲染原站 prose；否则回退到 docs-meta 驱动的渲染
   const hasDocContent = docContent !== null && docContent.blocks.length > 0;
 
+  // 实时可交互演示：真实 React 组件，置于标题正下方作为页面主演示
+  // （下方的 Usage/变体是原站静态快照，仅作视觉参考，不可交互）
+  const liveDemo =
+    reactDemo !== undefined ? (
+      <section className="sc-live-demo flex flex-col gap-3" id="live-demo">
+        <h2 className="flex scroll-m-28 flex-row items-center gap-2 text-xl font-semibold">
+          实时交互演示
+          <span
+            className="chip chip--default chip--primary h-5 rounded-full bg-accent/10 px-2 text-[11px] font-medium text-accent"
+            data-slot="chip"
+          >
+            真实组件 · 可点击 / 拖拽
+          </span>
+        </h2>
+        <div className="sc-react-demo">{reactDemo}</div>
+      </section>
+    ) : null;
+
   return (
     <div
       id="nd-notebook-layout"
@@ -447,18 +465,29 @@ const App = () => {
         className="flex flex-col gap-4 px-4 py-6 [grid-area:main] *:max-w-[900px] md:px-6 md:pt-8 xl:px-8 xl:pt-14"
       >
         {hasDocContent ? (
-          docContent.blocks.map((block, i) =>
-            block.type === 'html' ? (
-              <div
-                // 渲染本仓库采集、已清洗（去脚本）的原站静态正文，无用户输入
-                key={`${activeId}-${i}`}
-                className="contents"
-                dangerouslySetInnerHTML={{ __html: block.html }}
-              />
-            ) : (
-              <ComponentPreview key={`${activeId}-${i}`} component={activeId} slug={block.slug} />
-            ),
-          )
+          docContent.blocks.map((block, i) => {
+            const node =
+              block.type === 'html' ? (
+                <div
+                  // 渲染本仓库采集、已清洗（去脚本）的原站静态正文，无用户输入
+                  key={`${activeId}-${i}`}
+                  className="contents"
+                  dangerouslySetInnerHTML={{ __html: block.html }}
+                />
+              ) : (
+                <ComponentPreview key={`${activeId}-${i}`} component={activeId} slug={block.slug} />
+              );
+            // 标题块（第一块）之后立即插入实时可交互演示，让它成为页面主演示
+            if (i === 0 && reactDemo !== undefined) {
+              return (
+                <Fragment key={`live-${activeId}`}>
+                  {node}
+                  {liveDemo}
+                </Fragment>
+              );
+            }
+            return node;
+          })
         ) : (
           <>
             <section className="flex flex-col gap-2">
@@ -479,6 +508,7 @@ const App = () => {
               )}
               {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
             </section>
+            {liveDemo}
             {sections.map((s) => (
               <div key={s.anchor} className="contents">
                 <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
@@ -486,12 +516,6 @@ const App = () => {
               </div>
             ))}
           </>
-        )}
-        {reactDemo !== undefined && (
-          <div className="contents">
-            <SectionHeading anchor="react-implementation">React Implementation</SectionHeading>
-            <div className="sc-react-demo">{reactDemo}</div>
-          </div>
         )}
       </article>
       <div
