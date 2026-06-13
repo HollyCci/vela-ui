@@ -76,6 +76,9 @@ PlusIcon.displayName = 'NumberStepper.PlusIcon';
 /** 包装 RAC Group；末尾自动渲染无障碍隐藏输入框（与原站 DOM 一致） */
 const StepperGroup = ({ className, children, ...rest }: NumberStepperGroupProps) => {
   const { size } = useContext(NumberStepperContext);
+  const state = useContext(NumberFieldStateContext);
+  const currentValue =
+    state !== null && !Number.isNaN(state.numberValue) ? state.numberValue : undefined;
 
   return (
     <Group
@@ -86,7 +89,15 @@ const StepperGroup = ({ className, children, ...rest }: NumberStepperGroupProps)
       {(renderProps) => (
         <>
           {typeof children === 'function' ? children(renderProps) : children}
-          <Input className="number-stepper__input" data-slot="number-stepper-input" tabIndex={-1} />
+          <Input
+            aria-valuemax={state?.maxValue}
+            aria-valuemin={state?.minValue}
+            aria-valuenow={currentValue}
+            aria-valuetext={state?.inputValue || undefined}
+            className="number-stepper__input"
+            data-slot="number-stepper-input"
+            role="spinbutton"
+          />
         </>
       )}
     </Group>
