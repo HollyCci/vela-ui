@@ -28,7 +28,7 @@ import Sidebar from '../../components/sidebar';
 import Segment from '../../components/segment';
 import Stepper from '../../components/stepper';
 import Tabs from '../../components/tabs';
-import Toast from '../../components/toast';
+import Toast, { Toaster, useToast } from '../../components/toast';
 import Tooltip from '../../components/tooltip';
 import TrendChip from '../../components/trend-chip';
 import DemoSection from '../demo-section';
@@ -265,29 +265,58 @@ const TooltipDemo = () => (
 
 const ToastNoop = () => undefined;
 
-const ToastDemo = () => (
-  <DemoSection label="静态展示" isColumn>
-    <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
-      <Toast title="文件已保存" description="所有更改已同步到云端。" indicator="✓" color="success" onClose={ToastNoop} />
-    </div>
-    <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
-      <Toast
-        title="网络连接失败"
-        description="请检查网络后重试。"
-        indicator="✕"
-        color="danger"
-        action={
-          <Button size="sm" variant="outline">
-            重试
-          </Button>
-        }
-      />
-    </div>
-    <div style={{ position: 'relative', height: 60, maxWidth: 420 }}>
-      <Toast title="新版本可用" indicator="ℹ︎" color="accent" />
-    </div>
-  </DemoSection>
-);
+const TOAST_VARIANTS = [
+  { title: '文件已保存', description: '所有更改已同步到云端。', indicator: '✓', color: 'success' as const },
+  { title: '网络连接失败', description: '请检查网络后重试。', indicator: '✕', color: 'danger' as const },
+  { title: '新版本可用', indicator: 'ℹ︎', color: 'accent' as const },
+] as const;
+
+const ToastDemo = () => {
+  const { toast } = useToast();
+  const [seq, setSeq] = useState(0);
+
+  const handlePush = () => {
+    const variant = TOAST_VARIANTS[seq % TOAST_VARIANTS.length];
+    setSeq((value) => value + 1);
+    toast({ ...variant });
+  };
+
+  return (
+    <>
+      <DemoSection label="编排：滑入 / 自动消失" isColumn>
+        <Button variant="primary" onClick={handlePush}>
+          弹出一条 toast
+        </Button>
+        <p style={{ fontSize: 13, color: 'var(--muted)', margin: 0, maxWidth: 420 }}>
+          点击后从右下角滑入（View Transitions），4 秒后或点关闭按钮滑出移除。
+        </p>
+        {/* 编排区域：固定定位、portal 到 body，订阅命令式 toast store */}
+        <Toaster placement="bottom-end" />
+      </DemoSection>
+      <DemoSection label="静态展示" isColumn>
+        <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
+          <Toast title="文件已保存" description="所有更改已同步到云端。" indicator="✓" color="success" onClose={ToastNoop} />
+        </div>
+        <div style={{ position: 'relative', height: 76, maxWidth: 420 }}>
+          <Toast
+            title="网络连接失败"
+            description="请检查网络后重试。"
+            indicator="✕"
+            color="danger"
+            action={
+              <Button size="sm" variant="outline">
+                重试
+              </Button>
+            }
+          />
+        </div>
+        <div style={{ position: 'relative', height: 60, maxWidth: 420 }}>
+          <Toast title="新版本可用" indicator="ℹ︎" color="accent" />
+        </div>
+      </DemoSection>
+    </>
+  );
+};
 
 const PaginationDemo = () => {
   const [page, setPage] = useState(3);
