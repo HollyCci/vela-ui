@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import AreaChart from '../../components/area-chart';
 import BarChart from '../../components/bar-chart';
 import LineChart from '../../components/line-chart';
@@ -7,6 +7,10 @@ import PieChart from '../../components/pie-chart';
 import RadialChart from '../../components/radial-chart';
 import RadarChart from '../../components/radar-chart';
 import ChartTooltip from '../../components/chart-tooltip';
+import Kpi from '../../components/kpi';
+import KpiGroup from '../../components/kpi-group';
+import TrendChip from '../../components/trend-chip';
+import Widget from '../../components/widget';
 import DemoSection from '../demo-section';
 
 const MONTHLY = [
@@ -385,93 +389,104 @@ const ChartBox = ({ width = 520, children }: { width?: number; children: ReactNo
   <div style={{ width }}>{children}</div>
 );
 
-const MetricPanel = ({
-  title,
-  value,
-  delta,
-  children,
-}: {
-  title: string;
-  value: string;
-  delta: string;
-  children: ReactNode;
-}) => (
-  <div
-    style={{
-      width: 360,
-      border: '1px solid var(--separator)',
-      borderRadius: 8,
-      padding: 16,
-      background: 'var(--surface)',
-    }}
-  >
-    <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 12 }}>
-      <div>
-        <div style={{ color: 'var(--muted)', fontSize: 12 }}>{title}</div>
-        <div style={{ color: 'var(--foreground)', fontSize: 26, fontWeight: 700 }}>{value}</div>
-      </div>
-      <div style={{ color: 'var(--success)', fontSize: 12, fontWeight: 600 }}>{delta}</div>
-    </div>
-    <div style={{ marginTop: 12 }}>{children}</div>
-  </div>
-);
+const kpiCardStyle: CSSProperties = { width: 360 };
 
-const LegendList = ({
-  items,
+const toggleLegendKey = (items: Set<string>, key: string) => {
+  const next = new Set(items);
+
+  if (next.has(key)) {
+    if (next.size > 1) next.delete(key);
+    return next;
+  }
+
+  next.add(key);
+  return next;
+};
+
+const legendItemStyle = (active: boolean, highlighted: boolean): CSSProperties => ({
+  borderRadius: 999,
+  cursor: 'pointer',
+  opacity: active ? (highlighted ? 1 : 0.72) : 0.36,
+  padding: '2px 4px',
+  transform: highlighted ? 'translateY(-1px)' : undefined,
+  transition: 'opacity 120ms ease, transform 120ms ease',
+});
+
+const InteractiveLegendItem = ({
+  active,
+  fill,
+  highlighted,
+  label,
+  value,
+  onHover,
+  onToggle,
 }: {
-  items: Array<{ label: string; value: number; fill: string }>;
+  active: boolean;
+  fill: string;
+  highlighted: boolean;
+  label: string;
+  value: number;
+  onHover: (label: string | null) => void;
+  onToggle: (label: string) => void;
 }) => (
-  <div style={{ display: 'grid', gap: 8, minWidth: 150 }}>
-    {items.map((item) => (
-      <div
-        key={item.label}
-        style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 12 }}
-      >
-        <span
-          aria-hidden="true"
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: 999,
-            background: item.fill,
-            flex: '0 0 auto',
-          }}
-        />
-        <span style={{ color: 'var(--muted)', flex: 1 }}>{item.label}</span>
-        <span style={{ color: 'var(--foreground)', fontWeight: 600 }}>{item.value}%</span>
-      </div>
-    ))}
-  </div>
+  <Widget.LegendItem
+    aria-label={`${active ? 'Hide' : 'Show'} ${label}`}
+    aria-pressed={active}
+    color={fill}
+    isPressable
+    style={legendItemStyle(active, highlighted)}
+    onClick={() => onToggle(label)}
+    onFocus={() => onHover(label)}
+    onBlur={() => onHover(null)}
+    onMouseEnter={() => onHover(label)}
+    onMouseLeave={() => onHover(null)}
+  >
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <span>{label}</span>
+      <strong style={{ color: 'var(--foreground)', fontWeight: 600 }}>{value}%</strong>
+    </span>
+  </Widget.LegendItem>
 );
 
 const AreaVariantDemo = ({ variant }: { variant: AreaVariant }) => {
   if (variant === 'kpi-with-area-chart') {
     return (
       <DemoSection label="KPI with area chart" isColumn>
-        <MetricPanel title="Recurring revenue" value="$62.4k" delta="+14.2%">
-          <AreaChart data={MONTHLY} height={118} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
-            <defs>
-              <linearGradient id="area-kpi-fill" x1="0" x2="0" y1="0" y2="1">
-                <stop offset="0%" stopColor="var(--chart-4)" stopOpacity={0.32} />
-                <stop offset="100%" stopColor="var(--chart-4)" stopOpacity={0.02} />
-              </linearGradient>
-            </defs>
-            <AreaChart.Tooltip
-              cursor={false}
-              content={<AreaChart.TooltipContent valueFormatter={formatCurrency} />}
-            />
-            <AreaChart.Area
-              type="monotone"
-              dataKey="revenue"
-              name="Revenue"
-              stroke="var(--chart-4)"
-              strokeWidth={2}
-              fill="url(#area-kpi-fill)"
-              fillOpacity={1}
-              dot={false}
-            />
-          </AreaChart>
-        </MetricPanel>
+        <Kpi style={kpiCardStyle}>
+          <Kpi.Header>
+            <Kpi.Title>Recurring revenue</Kpi.Title>
+          </Kpi.Header>
+          <Kpi.Content>
+            <Kpi.Value>$62.4k</Kpi.Value>
+            <Kpi.Trend>
+              <TrendChip trend="up" value="14.2%" suffix="MoM" size="sm" />
+            </Kpi.Trend>
+          </Kpi.Content>
+          <Kpi.Chart>
+            <AreaChart data={MONTHLY} height={118} margin={{ top: 8, right: 0, bottom: 0, left: 0 }}>
+              <defs>
+                <linearGradient id="area-kpi-fill" x1="0" x2="0" y1="0" y2="1">
+                  <stop offset="0%" stopColor="var(--chart-4)" stopOpacity={0.32} />
+                  <stop offset="100%" stopColor="var(--chart-4)" stopOpacity={0.02} />
+                </linearGradient>
+              </defs>
+              <AreaChart.Tooltip
+                cursor={false}
+                content={<AreaChart.TooltipContent valueFormatter={formatCurrency} />}
+              />
+              <AreaChart.Area
+                type="monotone"
+                dataKey="revenue"
+                name="Revenue"
+                stroke="var(--chart-4)"
+                strokeWidth={2}
+                fill="url(#area-kpi-fill)"
+                fillOpacity={1}
+                dot={false}
+              />
+            </AreaChart>
+          </Kpi.Chart>
+        </Kpi>
       </DemoSection>
     );
   }
@@ -641,15 +656,26 @@ const BarVariantDemo = ({ variant }: { variant: BarVariant }) => {
   if (variant === 'kpi-with-bar-chart') {
     return (
       <DemoSection label="KPI with bar chart" isColumn>
-        <MetricPanel title="Units shipped" value="292k" delta="+8.6%">
-          <BarChart data={BAR_DATA} height={118} margin={{ top: 8, right: 2, bottom: 0, left: 2 }}>
-            <BarChart.Tooltip
-              cursor={false}
-              content={<BarChart.TooltipContent valueFormatter={formatNumber} />}
-            />
-            <BarChart.Bar dataKey="units" name="Units" fill="var(--chart-4)" radius={[6, 6, 0, 0]} />
-          </BarChart>
-        </MetricPanel>
+        <Kpi style={kpiCardStyle}>
+          <Kpi.Header>
+            <Kpi.Title>Units shipped</Kpi.Title>
+          </Kpi.Header>
+          <Kpi.Content>
+            <Kpi.Value>292k</Kpi.Value>
+            <Kpi.Trend>
+              <TrendChip trend="up" value="8.6%" suffix="QoQ" size="sm" />
+            </Kpi.Trend>
+          </Kpi.Content>
+          <Kpi.Chart>
+            <BarChart data={BAR_DATA} height={118} margin={{ top: 8, right: 2, bottom: 0, left: 2 }}>
+              <BarChart.Tooltip
+                cursor={false}
+                content={<BarChart.TooltipContent valueFormatter={formatNumber} />}
+              />
+              <BarChart.Bar dataKey="units" name="Units" fill="var(--chart-4)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </Kpi.Chart>
+        </Kpi>
       </DemoSection>
     );
   }
@@ -948,7 +974,18 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
     return (
       <DemoSection label={isKpi ? 'KPI with line chart' : 'Sparkline'} isColumn>
         {isKpi ? (
-          <MetricPanel title="Net revenue" value="$28.7k" delta="+11.8%">{chart}</MetricPanel>
+          <Kpi style={kpiCardStyle}>
+            <Kpi.Header>
+              <Kpi.Title>Net revenue</Kpi.Title>
+            </Kpi.Header>
+            <Kpi.Content>
+              <Kpi.Value>$28.7k</Kpi.Value>
+              <Kpi.Trend>
+                <TrendChip trend="up" value="11.8%" suffix="MoM" size="sm" />
+              </Kpi.Trend>
+            </Kpi.Content>
+            <Kpi.Chart>{chart}</Kpi.Chart>
+          </Kpi>
         ) : (
           <ChartBox width={320}>{chart}</ChartBox>
         )}
@@ -959,18 +996,31 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
   if (variant === 'stats-with-chart') {
     return (
       <DemoSection label="Stats with chart" isColumn>
-        <div style={{ display: 'flex', gap: 18, alignItems: 'center', flexWrap: 'wrap' }}>
-          <div style={{ display: 'grid', gap: 10, minWidth: 120 }}>
-            <div>
-              <div style={{ color: 'var(--muted)', fontSize: 12 }}>Visitors</div>
-              <div style={{ color: 'var(--foreground)', fontSize: 22, fontWeight: 700 }}>12.8k</div>
-            </div>
-            <div>
-              <div style={{ color: 'var(--muted)', fontSize: 12 }}>Conversion</div>
-              <div style={{ color: 'var(--foreground)', fontSize: 22, fontWeight: 700 }}>7.4%</div>
-            </div>
-          </div>
-          <ChartBox width={380}>
+        <Widget style={{ width: 560 }}>
+          <Widget.Header>
+            <Widget.Title>Traffic overview</Widget.Title>
+            <TrendChip trend="up" value="9.3%" suffix="WoW" size="sm" />
+          </Widget.Header>
+          <Widget.Content style={{ display: 'grid', gap: 16 }}>
+            <KpiGroup orientation="horizontal">
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Visitors</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>12.8k</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+              <KpiGroup.Separator />
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Conversion</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>7.4%</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+            </KpiGroup>
             <LineChart data={TRAFFIC_DATA} height={180}>
               <LineChart.Grid vertical={false} />
               <LineChart.XAxis dataKey="month" tickLine={false} axisLine={false} />
@@ -978,8 +1028,8 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
               <LineChart.Tooltip content={<LineChart.TooltipContent formatter={formatNumber} />} />
               <LineChart.Line type="monotone" dataKey="search" name="Search" stroke="var(--chart-4)" strokeWidth={2} dot={false} />
             </LineChart>
-          </ChartBox>
-        </div>
+          </Widget.Content>
+        </Widget>
       </DemoSection>
     );
   }
@@ -1098,17 +1148,123 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
   );
 };
 
+const PieBreakdownDemo = () => {
+  const [enabledChannels, setEnabledChannels] = useState<Set<string>>(
+    () => new Set(PIE_BREAKDOWN_DATA.map((item) => item.channel)),
+  );
+  const [hoveredChannel, setHoveredChannel] = useState<string | null>(null);
+  const visibleData = PIE_BREAKDOWN_DATA.filter((item) => enabledChannels.has(item.channel));
+  const visibleTotal = visibleData.reduce((total, item) => total + item.value, 0);
+  const highlightedItem =
+    (hoveredChannel && visibleData.find((item) => item.channel === hoveredChannel)) ||
+    visibleData[0];
+
+  return (
+    <DemoSection label="Pie chart with breakdown">
+      <Widget style={{ width: 560 }}>
+        <Widget.Header>
+          <Widget.Title>Revenue mix</Widget.Title>
+          <Widget.Legend style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {PIE_BREAKDOWN_DATA.map((item) => (
+              <InteractiveLegendItem
+                key={item.channel}
+                active={enabledChannels.has(item.channel)}
+                fill={item.fill}
+                highlighted={hoveredChannel === item.channel}
+                label={item.channel}
+                value={item.value}
+                onHover={setHoveredChannel}
+                onToggle={(channel) => {
+                  setHoveredChannel((current) => (current === channel ? null : current));
+                  setEnabledChannels((items) => toggleLegendKey(items, channel));
+                }}
+              />
+            ))}
+          </Widget.Legend>
+        </Widget.Header>
+        <Widget.Content
+          style={{
+            alignItems: 'center',
+            display: 'grid',
+            gap: 16,
+            gridTemplateColumns: '240px minmax(0, 1fr)',
+          }}
+        >
+          <PieChart height={240} width={240}>
+            <PieChart.Tooltip content={<PieChart.TooltipContent valueFormatter={formatPercent} />} />
+            <PieChart.Pie
+              data={visibleData}
+              dataKey="value"
+              nameKey="channel"
+              innerRadius={48}
+              outerRadius={92}
+              paddingAngle={2}
+              stroke="var(--surface)"
+            >
+              {visibleData.map((item) => {
+                const isHighlighted = hoveredChannel === item.channel;
+                const isDimmed = hoveredChannel !== null && !isHighlighted;
+
+                return (
+                  <PieChart.Cell
+                    key={item.channel}
+                    fill={item.fill}
+                    opacity={isDimmed ? 0.42 : 1}
+                    strokeWidth={isHighlighted ? 3 : 1}
+                  />
+                );
+              })}
+              <PieChart.Label
+                value={`${visibleTotal}%`}
+                position="center"
+                fill="var(--foreground)"
+                fontSize={22}
+                fontWeight={700}
+              />
+            </PieChart.Pie>
+          </PieChart>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <KpiGroup orientation="vertical">
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Visible share</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>{visibleTotal}%</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+              <KpiGroup.Separator />
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Active segments</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>{visibleData.length}</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+            </KpiGroup>
+            {highlightedItem && (
+              <ChartTooltip>
+                <ChartTooltip.Header>{highlightedItem.channel}</ChartTooltip.Header>
+                <ChartTooltip.Item
+                  indicator="dot"
+                  indicatorColor={highlightedItem.fill}
+                  label="Share"
+                  value={`${highlightedItem.value}%`}
+                />
+                <ChartTooltip.Item label="Visible total" value={`${visibleTotal}%`} />
+              </ChartTooltip>
+            )}
+          </div>
+        </Widget.Content>
+      </Widget>
+    </DemoSection>
+  );
+};
+
 const PieVariantDemo = ({ variant }: { variant: PieVariant }) => {
   if (variant === 'with-breakdown') {
-    return (
-      <DemoSection label="Pie chart with breakdown">
-        <PieChart height={240} width={240}>
-          <PieChart.Tooltip content={<PieChart.TooltipContent valueFormatter={formatPercent} />} />
-          <PieChart.Pie data={PIE_BREAKDOWN_DATA} dataKey="value" nameKey="channel" innerRadius={48} outerRadius={92} paddingAngle={2} />
-        </PieChart>
-        <LegendList items={PIE_BREAKDOWN_DATA.map((item) => ({ label: item.channel, value: item.value, fill: item.fill }))} />
-      </DemoSection>
-    );
+    return <PieBreakdownDemo />;
   }
 
   if (variant === 'nested-donut') {
@@ -1223,6 +1379,109 @@ const RadarVariantDemo = ({ variant }: { variant: RadarVariant }) => (
   </DemoSection>
 );
 
+const RadialLegendDemo = () => {
+  const [enabledMetrics, setEnabledMetrics] = useState<Set<string>>(
+    () => new Set(RADIAL_LEGEND_DATA.map((item) => item.label)),
+  );
+  const [hoveredMetric, setHoveredMetric] = useState<string | null>(null);
+  const visibleData = RADIAL_LEGEND_DATA.filter((item) => enabledMetrics.has(item.label));
+  const averageScore = Math.round(
+    visibleData.reduce((total, item) => total + item.value, 0) / visibleData.length,
+  );
+  const topMetric = visibleData.reduce<(typeof RADIAL_LEGEND_DATA)[number] | undefined>(
+    (current, item) => (!current || item.value > current.value ? item : current),
+    undefined,
+  );
+  const highlightedMetric =
+    (hoveredMetric && visibleData.find((item) => item.label === hoveredMetric)) || topMetric;
+
+  return (
+    <DemoSection label="Radial chart with legend">
+      <Widget style={{ width: 560 }}>
+        <Widget.Header>
+          <Widget.Title>Health score</Widget.Title>
+          <Widget.Legend style={{ flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+            {RADIAL_LEGEND_DATA.map((item) => (
+              <InteractiveLegendItem
+                key={item.label}
+                active={enabledMetrics.has(item.label)}
+                fill={item.fill}
+                highlighted={hoveredMetric === item.label}
+                label={item.label}
+                value={item.value}
+                onHover={setHoveredMetric}
+                onToggle={(metric) => {
+                  setHoveredMetric((current) => (current === metric ? null : current));
+                  setEnabledMetrics((items) => toggleLegendKey(items, metric));
+                }}
+              />
+            ))}
+          </Widget.Legend>
+        </Widget.Header>
+        <Widget.Content
+          style={{
+            alignItems: 'center',
+            display: 'grid',
+            gap: 16,
+            gridTemplateColumns: '240px minmax(0, 1fr)',
+          }}
+        >
+          <RadialChart data={visibleData} height={240} width={240} innerRadius="28%" outerRadius="100%" barSize={12}>
+            <RadialChart.Tooltip content={<RadialChart.TooltipContent valueFormatter={formatPercent} />} />
+            <RadialChart.Bar dataKey="value" name="Score" background cornerRadius={8}>
+              {visibleData.map((item) => {
+                const isHighlighted = hoveredMetric === item.label;
+                const isDimmed = hoveredMetric !== null && !isHighlighted;
+
+                return (
+                  <RadialChart.Cell
+                    key={item.label}
+                    fill={item.fill}
+                    opacity={isDimmed ? 0.36 : 1}
+                  />
+                );
+              })}
+            </RadialChart.Bar>
+          </RadialChart>
+          <div style={{ display: 'grid', gap: 12 }}>
+            <KpiGroup orientation="horizontal">
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Average</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>{averageScore}%</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+              <KpiGroup.Separator />
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Top metric</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>{topMetric?.value ?? 0}%</Kpi.Value>
+                </Kpi.Content>
+              </Kpi>
+            </KpiGroup>
+            {highlightedMetric && (
+              <ChartTooltip>
+                <ChartTooltip.Header>{highlightedMetric.label}</ChartTooltip.Header>
+                <ChartTooltip.Item
+                  indicator="line"
+                  indicatorColor={highlightedMetric.fill}
+                  label="Score"
+                  value={`${highlightedMetric.value}%`}
+                />
+                <ChartTooltip.Item label="Visible rings" value={visibleData.length} />
+              </ChartTooltip>
+            )}
+          </div>
+        </Widget.Content>
+      </Widget>
+    </DemoSection>
+  );
+};
+
 const RadialVariantDemo = ({ variant }: { variant: RadialVariant }) => {
   if (variant === 'gauge' || variant === 'gauge-grid') {
     return (
@@ -1267,19 +1526,7 @@ const RadialVariantDemo = ({ variant }: { variant: RadialVariant }) => {
   }
 
   if (variant === 'with-legend') {
-    return (
-      <DemoSection label="Radial chart with legend">
-        <RadialChart data={RADIAL_LEGEND_DATA} height={240} width={240} innerRadius="28%" outerRadius="100%" barSize={12}>
-          <RadialChart.Tooltip content={<RadialChart.TooltipContent valueFormatter={formatPercent} />} />
-          <RadialChart.Bar dataKey="value" name="Score" background cornerRadius={8}>
-            {RADIAL_LEGEND_DATA.map((item) => (
-              <RadialChart.Cell key={item.label} fill={item.fill} />
-            ))}
-          </RadialChart.Bar>
-        </RadialChart>
-        <LegendList items={RADIAL_LEGEND_DATA} />
-      </DemoSection>
-    );
+    return <RadialLegendDemo />;
   }
 
   return (

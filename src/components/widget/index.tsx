@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type ButtonHTMLAttributes,
   type ComponentProps,
   type CSSProperties,
   type HTMLAttributes,
@@ -18,9 +19,12 @@ export type WidgetProps = Omit<DomDivProps, 'className' | 'style'> & {
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 type TextProps = HTMLAttributes<HTMLSpanElement>;
 
-export type WidgetLegendItemProps = HTMLAttributes<HTMLDivElement> & {
+export type WidgetLegendItemProps = HTMLAttributes<HTMLElement> & {
   /** 圆点颜色（原站 API，必填），如 "var(--chart-3)" */
   color: string;
+  /** 渲染为真实 button，适合可点击筛选/高亮图例 */
+  isPressable?: boolean;
+  type?: ButtonHTMLAttributes<HTMLButtonElement>['type'];
 };
 
 const WidgetRoot = forwardRef<HTMLDivElement, WidgetProps>(({ className, ...rest }, ref) => (
@@ -88,16 +92,18 @@ const Legend = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest },
 ));
 Legend.displayName = 'Widget.Legend';
 
-const LegendItem = forwardRef<HTMLDivElement, WidgetLegendItemProps>(
-  ({ color, className, children, ...rest }, ref) => {
+const LegendItem = forwardRef<HTMLElement, WidgetLegendItemProps>(
+  ({ color, isPressable = false, type = 'button', className, children, ...rest }, ref) => {
     const dotStyle: CSSProperties = { backgroundColor: color };
+    const Element = isPressable ? 'button' : 'div';
+    const elementProps = isPressable ? { type, ...rest } : rest;
 
     return (
-      <div
-        ref={ref}
+      <Element
+        ref={ref as never}
         data-slot="widget-legend-item"
         className={clsx('widget__legend-item', className)}
-        {...rest}
+        {...elementProps}
       >
         <span
           data-slot="widget-legend-item-dot"
@@ -107,7 +113,7 @@ const LegendItem = forwardRef<HTMLDivElement, WidgetLegendItemProps>(
         <span data-slot="widget-legend-item-label" className="widget__legend-item-label">
           {children}
         </span>
-      </div>
+      </Element>
     );
   },
 );

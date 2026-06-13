@@ -1033,7 +1033,28 @@ const ChatListViewDemo = () => {
   );
 };
 
-type ConversationTurn = { id: number; role: 'user' | 'assistant'; text: string };
+type FullChatToolStatus = Extract<
+  ChatToolStatus,
+  'pending' | 'running' | 'success' | 'error' | 'requires-action'
+>;
+
+type FullChatRun = {
+  phase: PromptInputStatus;
+  thoughtStepCount: number;
+  markdown: string;
+  searchStatus: FullChatToolStatus;
+  approvalStatus: FullChatToolStatus;
+  auditStatus: FullChatToolStatus;
+  isApprovalVisible: boolean;
+  isAuditVisible: boolean;
+};
+
+type ConversationTurn = {
+  id: number;
+  role: 'user' | 'assistant';
+  text: string;
+  run?: FullChatRun;
+};
 
 const INITIAL_CONVERSATION_TURNS: ConversationTurn[] = Array.from({ length: 8 }, (_, i) => ({
   id: i,
@@ -1303,6 +1324,234 @@ const CONVERSATION_VARIANT_TURNS: ConversationTurn[] = [
   { id: 4, role: 'assistant', text: '原因是练习量上升但讲评不足；建议补一节错题精讲并跟进家长反馈。' },
 ];
 
+const FULL_CHAT_DEFAULT_PROMPT = '把本周阅读理解风险、原因和下一步动作串成一段可执行建议。';
+
+const FULL_CHAT_RESPONSE_TOKENS = [
+  '### 本周阅读理解风险\n\n',
+  '三年级 A 班的阅读理解问题增长最快，近 7 天新增错题占比约 **18%**，集中在主旨概括和细节定位。\n\n',
+  '- 先安排 20 分钟错题精讲，优先覆盖高频题型。\n',
+  '- 明天课后追加 10 道分层练习，系统会避开已掌握题型。\n',
+  '- 周五前同步家长沟通摘要，并标注需要配合复习的短文类型。\n\n',
+  '> 写入任务时权限校验失败，已保留草稿，老师确认后可手动发送提醒。',
+] as const;
+
+const FULL_CHAT_TOOL_STATUS_LABELS: Record<FullChatToolStatus, string> = {
+  pending: '等待',
+  running: '运行中',
+  success: '成功',
+  error: '错误',
+  'requires-action': '待批准',
+};
+
+const FULL_CHAT_SEARCH_ARGS = `{
+  "classId": "grade3-a",
+  "range": "7d",
+  "metric": "reading_risk"
+}`;
+
+const FULL_CHAT_SEARCH_RESULT = `{
+  "riskType": "阅读理解",
+  "growth": "18%",
+  "clusters": ["主旨概括", "细节定位"]
+}`;
+
+const FULL_CHAT_AUDIT_ARGS = `{
+  "draftId": "followup-reading-grade3-a",
+  "channel": "parent_notice"
+}`;
+
+const createFullChatRun = (): FullChatRun => ({
+  phase: 'submitted',
+  thoughtStepCount: 1,
+  markdown: '',
+  searchStatus: 'pending',
+  approvalStatus: 'requires-action',
+  auditStatus: 'pending',
+  isApprovalVisible: false,
+  isAuditVisible: false,
+});
+
+const clearDemoTimers = (timersRef: { current: number[] }) => {
+  timersRef.current.forEach((id) => window.clearTimeout(id));
+  timersRef.current = [];
+};
+
+const scheduleDemoTimer = (
+  timersRef: { current: number[] },
+  delay: number,
+  action: () => void,
+) => {
+  const timerId = window.setTimeout(action, delay);
+  timersRef.current.push(timerId);
+};
+
+type FullChatRunActions = {
+  onApprove: () => void;
+  onReject: () => void;
+  onRegenerate: () => void;
+};
+
+const renderFullChatAssistantRun = (
+  run: FullChatRun,
+  { onApprove, onReject, onRegenerate }: FullChatRunActions,
+) => {
+  const isRunning = run.phase === 'submitted' || run.phase === 'streaming';
+  const isInterrupted = run.phase === 'error';
+  const copyContent = run.markdown || '本次运行尚未生成正文。';
+  const isAwaitingApproval = run.approvalStatus === 'requires-action';
+
+  return (
+    <ChatMessage
+      variant="assistant"
+      avatar={<Avatar fallback="AI" />}
+      actions={
+        <ChatMessageActions>
+          <ChatMessageActions.Copy content={copyContent} />
+          <ChatMessageActions.Regenerate aria-label="重新生成回答" onPress={onRegenerate} />
+        </ChatMessageActions>
+      }
+    >
+      <ChainOfThought defaultExpanded isStreaming={isRunning}>
+        <ChainOfThought.Trigger>
+          {isRunning ? '正在分析请求…' : isInterrupted ? '运行已停止' : '已完成推理'}
+        </ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            {run.thoughtStepCount >= 1 && (
+              <ChainOfThought.Step label="理解目标">
+                识别用户需要风险、原因与下一步动作连贯输出。
+              </ChainOfThought.Step>
+            )}
+            {run.thoughtStepCount >= 2 && (
+              <ChainOfThought.Step label="检索数据">
+                拉取最近 7 天班级题型、错题与跟进记录。
+              </ChainOfThought.Step>
+            )}
+            {run.thoughtStepCount >= 3 && (
+              <ChainOfThought.Step label="权限确认">
+                检查家长通知发送前是否需要人工批准。
+              </ChainOfThought.Step>
+            )}
+            {run.thoughtStepCount >= 4 && (
+              <ChainOfThought.Step label="生成建议">
+                合并风险聚类、练习安排与沟通草稿。
+              </ChainOfThought.Step>
+            )}
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>
+
+      <ChatTool
+        label={
+          run.searchStatus === 'running' ? (
+            <TextShimmer>learning_risk.search 正在执行</TextShimmer>
+          ) : (
+            'learning_risk.search'
+          )
+        }
+        status={run.searchStatus}
+        statusLabel={FULL_CHAT_TOOL_STATUS_LABELS[run.searchStatus]}
+        defaultExpanded
+      >
+        <ChatTool.Args>
+          <CodeBlock>
+            <CodeBlock.Code code={FULL_CHAT_SEARCH_ARGS} language="json" />
+          </CodeBlock>
+        </ChatTool.Args>
+        <ChatTool.Result>
+          {run.searchStatus === 'pending' && '已进入工具队列，等待调度。'}
+          {run.searchStatus === 'running' && <TextShimmer>正在聚合班级错题与题型变化…</TextShimmer>}
+          {run.searchStatus === 'success' && (
+            <CodeBlock>
+              <CodeBlock.Code code={FULL_CHAT_SEARCH_RESULT} language="json" />
+            </CodeBlock>
+          )}
+        </ChatTool.Result>
+      </ChatTool>
+
+      {run.isApprovalVisible && (
+        <ChatTool
+          label={
+            run.approvalStatus === 'success'
+              ? '已批准发送家长提醒'
+              : run.approvalStatus === 'error'
+                ? '已拒绝发送家长提醒'
+                : '需要确认：发送家长提醒'
+          }
+          status={run.approvalStatus}
+          statusLabel={FULL_CHAT_TOOL_STATUS_LABELS[run.approvalStatus]}
+          defaultExpanded
+        >
+          <ChatTool.Approval
+            actions={
+              <>
+                <Button size="sm" variant="ghost" disabled={!isAwaitingApproval} onClick={onReject}>
+                  拒绝
+                </Button>
+                <Button size="sm" disabled={!isAwaitingApproval} onClick={onApprove}>
+                  允许
+                </Button>
+              </>
+            }
+          >
+            {run.approvalStatus === 'success' &&
+              '已确认提醒对象与内容，进入后续写入校验。'}
+            {run.approvalStatus === 'error' &&
+              '已拒绝发送家长提醒，回答已停在草稿状态。'}
+            {run.approvalStatus === 'requires-action' &&
+              '发送前需要确认提醒对象、风险描述与跟进动作。'}
+          </ChatTool.Approval>
+        </ChatTool>
+      )}
+
+      {run.isAuditVisible && (
+        <ChatTool
+          label={
+            run.auditStatus === 'running' ? (
+              <TextShimmer>parent_notice.write 正在校验</TextShimmer>
+            ) : run.auditStatus === 'error' ? (
+              'parent_notice.write 校验失败'
+            ) : (
+              'parent_notice.write 等待写入'
+            )
+          }
+          status={run.auditStatus}
+          statusLabel={FULL_CHAT_TOOL_STATUS_LABELS[run.auditStatus]}
+          defaultExpanded
+        >
+          <ChatTool.Args>
+            <CodeBlock>
+              <CodeBlock.Code code={FULL_CHAT_AUDIT_ARGS} language="json" />
+            </CodeBlock>
+          </ChatTool.Args>
+          {run.auditStatus === 'error' ? (
+            <ChatTool.Error>缺少 parent_notice.write 权限，已保留草稿并继续返回建议。</ChatTool.Error>
+          ) : (
+            <ChatTool.Result>
+              {run.auditStatus === 'pending' && '写入任务已排队。'}
+              {run.auditStatus === 'running' && <TextShimmer>正在校验通知权限与草稿内容…</TextShimmer>}
+            </ChatTool.Result>
+          )}
+        </ChatTool>
+      )}
+
+      {run.markdown.length > 0 ? (
+        <Markdown>{run.markdown}</Markdown>
+      ) : isInterrupted ? (
+        <Markdown>{'生成已停止。点击输入框右侧错误图标可按原提示重试。'}</Markdown>
+      ) : (
+        <ChatLoader.Skeleton aria-label="等待生成回答">
+          <ChatLoader.SkeletonAvatar />
+          <ChatLoader.SkeletonBlock>
+            <ChatLoader.SkeletonLine />
+            <ChatLoader.SkeletonLine />
+          </ChatLoader.SkeletonBlock>
+        </ChatLoader.Skeleton>
+      )}
+    </ChatMessage>
+  );
+};
+
 type ChatConversationVariant = 'default' | 'full-chat' | 'scroll-button';
 
 const ChatConversationFrame = ({ children, height = 300 }: { children: ReactNode; height?: number }) => (
@@ -1323,7 +1572,62 @@ const ChatConversationFrame = ({ children, height = 300 }: { children: ReactNode
 
 const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVariant }) => {
   const [turns, setTurns] = useState<ConversationTurn[]>(CONVERSATION_VARIANT_TURNS);
-  const [value, setValue] = useState('');
+  const [value, setValue] = useState(variant === 'full-chat' ? FULL_CHAT_DEFAULT_PROMPT : '');
+  const [fullChatStatus, setFullChatStatus] = useState<PromptInputStatus>('ready');
+  const fullChatTimersRef = useRef<number[]>([]);
+  const fullChatAssistantIdRef = useRef<number | null>(null);
+  const fullChatLastPromptRef = useRef(FULL_CHAT_DEFAULT_PROMPT);
+
+  const clearFullChatTimers = useCallback(() => {
+    clearDemoTimers(fullChatTimersRef);
+  }, []);
+
+  useEffect(() => clearFullChatTimers, [clearFullChatTimers]);
+
+  const updateFullChatRun = useCallback((updater: (run: FullChatRun) => FullChatRun) => {
+    const assistantId = fullChatAssistantIdRef.current;
+    if (assistantId === null) {
+      return;
+    }
+
+    setTurns((prev) =>
+      prev.map((turn) => {
+        if (turn.id !== assistantId || turn.role !== 'assistant') {
+          return turn;
+        }
+
+        return { ...turn, run: updater(turn.run ?? createFullChatRun()) };
+      }),
+    );
+  }, []);
+
+  const scheduleFullChatCompletion = useCallback(() => {
+    setFullChatStatus('streaming');
+    updateFullChatRun((run) => ({ ...run, approvalStatus: 'success', thoughtStepCount: 4 }));
+
+    scheduleDemoTimer(fullChatTimersRef, 550, () => {
+      updateFullChatRun((run) => ({ ...run, isAuditVisible: true }));
+    });
+
+    scheduleDemoTimer(fullChatTimersRef, 1150, () => {
+      updateFullChatRun((run) => ({ ...run, auditStatus: 'running' }));
+    });
+
+    scheduleDemoTimer(fullChatTimersRef, 1900, () => {
+      updateFullChatRun((run) => ({ ...run, auditStatus: 'error' }));
+    });
+
+    FULL_CHAT_RESPONSE_TOKENS.slice(3).forEach((token, index) => {
+      scheduleDemoTimer(fullChatTimersRef, 500 + index * 680, () => {
+        updateFullChatRun((run) => ({ ...run, markdown: run.markdown + token }));
+      });
+    });
+
+    scheduleDemoTimer(fullChatTimersRef, 3600, () => {
+      setFullChatStatus('ready');
+      updateFullChatRun((run) => ({ ...run, phase: 'ready' }));
+    });
+  }, [updateFullChatRun]);
 
   const sendTurn = useCallback(
     (message = '追加一个跟进问题。') => {
@@ -1337,6 +1641,86 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
     [],
   );
 
+  const startFullChatRun = useCallback(
+    (submitted: string) => {
+      const prompt = submitted.trim() || FULL_CHAT_DEFAULT_PROMPT;
+      const submittedAt = Date.now();
+      const userId = submittedAt;
+      const assistantId = submittedAt + 1;
+
+      clearFullChatTimers();
+      fullChatAssistantIdRef.current = assistantId;
+      fullChatLastPromptRef.current = prompt;
+      setFullChatStatus('submitted');
+      setValue('');
+      setTurns((prev) => [
+        ...prev,
+        { id: userId, role: 'user', text: prompt },
+        { id: assistantId, role: 'assistant', text: '', run: createFullChatRun() },
+      ]);
+
+      scheduleDemoTimer(fullChatTimersRef, 650, () => {
+        setFullChatStatus('streaming');
+        updateFullChatRun((run) => ({
+          ...run,
+          phase: 'streaming',
+          thoughtStepCount: 2,
+          searchStatus: 'running',
+        }));
+      });
+
+      scheduleDemoTimer(fullChatTimersRef, 1350, () => {
+        updateFullChatRun((run) => ({ ...run, thoughtStepCount: 3 }));
+      });
+
+      scheduleDemoTimer(fullChatTimersRef, 1900, () => {
+        updateFullChatRun((run) => ({ ...run, searchStatus: 'success' }));
+      });
+
+      scheduleDemoTimer(fullChatTimersRef, 2450, () => {
+        updateFullChatRun((run) => ({ ...run, isApprovalVisible: true }));
+      });
+
+      FULL_CHAT_RESPONSE_TOKENS.slice(0, 3).forEach((token, index) => {
+        scheduleDemoTimer(fullChatTimersRef, 1150 + index * 650, () => {
+          updateFullChatRun((run) => ({ ...run, markdown: run.markdown + token }));
+        });
+      });
+    },
+    [clearFullChatTimers, updateFullChatRun],
+  );
+
+  const approveFullChatRun = useCallback(() => {
+    scheduleFullChatCompletion();
+  }, [scheduleFullChatCompletion]);
+
+  const rejectFullChatRun = useCallback(() => {
+    clearFullChatTimers();
+    setFullChatStatus('error');
+    setValue(fullChatLastPromptRef.current);
+    updateFullChatRun((run) => ({
+      ...run,
+      phase: 'error',
+      approvalStatus: 'error',
+      markdown: `${run.markdown}\n\n> 已拒绝发送家长提醒，可修改提示后重试。`,
+    }));
+  }, [clearFullChatTimers, updateFullChatRun]);
+
+  const regenerateFullChatRun = useCallback(() => {
+    startFullChatRun(fullChatLastPromptRef.current);
+  }, [startFullChatRun]);
+
+  const stopFullChatRun = useCallback(() => {
+    clearFullChatTimers();
+    setFullChatStatus('error');
+    setValue(fullChatLastPromptRef.current);
+    updateFullChatRun((run) => ({
+      ...run,
+      phase: 'error',
+      auditStatus: run.auditStatus === 'running' ? 'error' : run.auditStatus,
+    }));
+  }, [clearFullChatTimers, updateFullChatRun]);
+
   if (variant === 'full-chat') {
     return (
       <DemoSection label="chat-conversation-full-chat" isColumn>
@@ -1346,7 +1730,20 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
               <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
                 {turns.map((turn) => (
                   <ChatConversation.Message key={turn.id}>
-                    <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
+                    {turn.run !== undefined ? (
+                      renderFullChatAssistantRun(turn.run, {
+                        onApprove: approveFullChatRun,
+                        onReject: rejectFullChatRun,
+                        onRegenerate: regenerateFullChatRun,
+                      })
+                    ) : (
+                      <ChatMessage
+                        variant={turn.role}
+                        avatar={turn.role === 'assistant' ? <Avatar fallback="AI" /> : undefined}
+                      >
+                        {turn.role === 'assistant' ? <Markdown>{turn.text}</Markdown> : turn.text}
+                      </ChatMessage>
+                    )}
                   </ChatConversation.Message>
                 ))}
               </ChatConversation.Messages>
@@ -1354,7 +1751,14 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
               <ChatConversation.ScrollAnchor />
             </ChatConversation.Content>
           </ChatConversation>
-          <PromptInput value={value} onValueChange={setValue} onSubmit={sendTurn} variant="inline">
+          <PromptInput
+            value={value}
+            onValueChange={setValue}
+            onSubmit={startFullChatRun}
+            onStop={stopFullChatRun}
+            status={fullChatStatus}
+            variant="inline"
+          >
             <PromptInput.Shell>
               <PromptInput.Content>
                 <PromptInput.TextArea placeholder="继续追问…" />
@@ -1738,20 +2142,83 @@ const MarkdownVariantDemo = ({ variant }: { variant: 'default' | 'streaming' | '
   );
 };
 
+const PROMPT_RUN_STATE_DEFAULT_PROMPT = '生成一段课程反馈';
+
+const PROMPT_RUN_STATE_TOKENS = [
+  '### 课程反馈\n\n',
+  '今天课堂整体参与度较高，朗读环节能主动跟读，但阅读理解的细节定位还需要继续练习。\n\n',
+  '- 明天先复盘 2 道错题，确认关键词定位方法。\n',
+  '- 课后追加 10 分钟短文精读，并记录易错句型。\n',
+] as const;
+
 const PromptInputVariantDemo = ({
   variant,
 }: {
   variant: 'default' | 'inline' | 'queue' | 'run-state' | 'secondary' | 'with-suggestions';
 }) => {
-  const [value, setValue] = useState('');
-  const [status, setStatus] = useState<PromptInputStatus>(variant === 'run-state' ? 'streaming' : 'ready');
+  const [value, setValue] = useState(variant === 'run-state' ? PROMPT_RUN_STATE_DEFAULT_PROMPT : '');
+  const [status, setStatus] = useState<PromptInputStatus>('ready');
+  const [runStateText, setRunStateText] = useState('');
+  const [runStateSummary, setRunStateSummary] = useState('等待发送');
   const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
   const [attachmentCount, setAttachmentCount] = useState(0);
+  const runStateTimersRef = useRef<number[]>([]);
+  const runStateLastPromptRef = useRef(PROMPT_RUN_STATE_DEFAULT_PROMPT);
+
+  const clearRunStateTimers = useCallback(() => {
+    clearDemoTimers(runStateTimersRef);
+  }, []);
+
+  useEffect(() => clearRunStateTimers, [clearRunStateTimers]);
+
+  const startRunStateFlow = useCallback(
+    (submitted: string) => {
+      const prompt = submitted.trim() || PROMPT_RUN_STATE_DEFAULT_PROMPT;
+
+      clearRunStateTimers();
+      runStateLastPromptRef.current = prompt;
+      setValue('');
+      setRunStateText('');
+      setRunStateSummary(`已提交：${prompt}`);
+      setStatus('submitted');
+
+      scheduleDemoTimer(runStateTimersRef, 700, () => {
+        setStatus('streaming');
+        setRunStateSummary('正在生成课程反馈…');
+      });
+
+      PROMPT_RUN_STATE_TOKENS.forEach((token, index) => {
+        scheduleDemoTimer(runStateTimersRef, 1000 + index * 700, () => {
+          setRunStateText((current) => current + token);
+        });
+      });
+
+      scheduleDemoTimer(runStateTimersRef, 1000 + PROMPT_RUN_STATE_TOKENS.length * 700, () => {
+        setStatus('ready');
+        setRunStateSummary('生成完成，可继续发送新提示。');
+      });
+    },
+    [clearRunStateTimers],
+  );
 
   const submitPrompt = useCallback((submitted: string) => {
+    if (variant === 'run-state') {
+      startRunStateFlow(submitted);
+      return;
+    }
+
     setValue(`已发送：${submitted}`);
     setStatus('submitted');
-  }, []);
+  }, [startRunStateFlow, variant]);
+
+  const stopRunStateFlow = useCallback(() => {
+    clearRunStateTimers();
+    setStatus('error');
+    setValue(runStateLastPromptRef.current);
+    setRunStateSummary('已停止生成，点击错误图标可重试。');
+    setRunStateText((current) => current || '生成已停止，尚未收到正文。');
+  }, [clearRunStateTimers]);
+
   const addAttachment = useCallback(() => {
     setAttachmentCount((count) => count + 1);
   }, []);
@@ -1818,32 +2285,42 @@ const PromptInputVariantDemo = ({
   if (variant === 'run-state') {
     return (
       <DemoSection label="prompt-input-run-state" isColumn>
-        <div className="flex flex-wrap gap-2">
-          {(['ready', 'submitted', 'streaming', 'error'] as PromptInputStatus[]).map((nextStatus) => (
-            <Button key={nextStatus} size="sm" variant={status === nextStatus ? 'primary' : 'secondary'} onClick={() => setStatus(nextStatus)}>
-              {nextStatus}
-            </Button>
-          ))}
-        </div>
         <PromptInput
-          value={value || '生成一段课程反馈'}
+          value={value}
           onValueChange={setValue}
           onSubmit={submitPrompt}
-          onStop={() => setStatus('ready')}
+          onStop={stopRunStateFlow}
           status={status}
-          lockInputOnRun={false}
         >
           <PromptInput.Shell>
             <PromptInput.Content>
-              <PromptInput.TextArea />
+              <PromptInput.TextArea placeholder="发送后观察 submitted / streaming / ready / error" />
             </PromptInput.Content>
             <PromptInput.Toolbar>
               <PromptInput.ToolbarEnd>
-                <PromptInput.Send />
+                <PromptInput.Send aria-label={status === 'error' ? '重试生成' : undefined} />
               </PromptInput.ToolbarEnd>
             </PromptInput.Toolbar>
           </PromptInput.Shell>
         </PromptInput>
+        <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
+          {status === 'submitted' ? (
+            <ChatLoader.Skeleton aria-label="正在提交">
+              <ChatLoader.SkeletonAvatar />
+              <ChatLoader.SkeletonBlock>
+                <ChatLoader.SkeletonLine />
+                <ChatLoader.SkeletonLine size="sm" />
+              </ChatLoader.SkeletonBlock>
+            </ChatLoader.Skeleton>
+          ) : runStateText.length > 0 ? (
+            <Markdown>{runStateText}</Markdown>
+          ) : (
+            <TextShimmer>{runStateSummary}</TextShimmer>
+          )}
+        </ChatMessage>
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>
+          当前状态：{status}；{runStateSummary}
+        </span>
       </DemoSection>
     );
   }
