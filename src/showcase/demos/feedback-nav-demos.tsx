@@ -406,12 +406,23 @@ const TabsDemo = () => {
       </DemoSection>
       <DemoSection label="次级样式（下划线）" isColumn>
         <Tabs
-          items={TABS_ITEMS}
           selectedKey={secondaryKey}
           onChange={setSecondaryKey}
           variant="secondary"
           style={{ maxWidth: 480 }}
-        />
+        >
+          <Tabs.List aria-label="项目区块">
+            <Tabs.Tab id="overview">概览</Tabs.Tab>
+            <Tabs.Tab id="members">成员</Tabs.Tab>
+            <Tabs.Tab id="settings">设置</Tabs.Tab>
+            <Tabs.Tab id="archive" isDisabled>
+              归档
+            </Tabs.Tab>
+          </Tabs.List>
+          <Tabs.Panel id="overview">这里是项目概览信息。</Tabs.Panel>
+          <Tabs.Panel id="members">共有 8 名成员参与本项目。</Tabs.Panel>
+          <Tabs.Panel id="settings">在这里调整项目配置。</Tabs.Panel>
+        </Tabs>
       </DemoSection>
     </>
   );
