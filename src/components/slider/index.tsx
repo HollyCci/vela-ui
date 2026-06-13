@@ -1,177 +1,267 @@
 import {
   forwardRef,
-  useCallback,
-  useRef,
-  useState,
-  type HTMLAttributes,
-  type KeyboardEvent,
-  type PointerEvent as ReactPointerEvent,
+  useContext,
+  type ComponentProps,
+  type CSSProperties,
   type ReactNode,
 } from 'react';
+import {
+  Slider as HeroSlider,
+  type SliderFillProps as HeroSliderFillProps,
+  type SliderMarksProps as HeroSliderMarksProps,
+  type SliderOutputProps as HeroSliderOutputProps,
+  type SliderProps as HeroSliderProps,
+  type SliderThumbProps as HeroSliderThumbProps,
+  type SliderTrackProps as HeroSliderTrackProps,
+} from '@heroui/react';
+import {
+  Label as AriaLabel,
+  SliderStateContext,
+  type LabelProps as AriaLabelProps,
+  type SliderState,
+} from 'react-aria-components';
 import clsx from 'clsx';
 
 export type SliderOrientation = 'horizontal' | 'vertical';
 
-export type SliderProps = Omit<HTMLAttributes<HTMLDivElement>, 'children' | 'onChange'> & {
+export type SliderOutputRender = (value: number, values: number[]) => ReactNode;
+
+export type SliderMark = {
+  value: number;
+  label?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type SliderProps = Omit<
+  HeroSliderProps,
+  'children' | 'className' | 'style' | 'value' | 'defaultValue' | 'onChange' | 'onChangeEnd'
+> & {
   value?: number;
   defaultValue?: number;
   onChange?: (value: number) => void;
+  onChangeEnd?: (value: number) => void;
   minValue?: number;
   maxValue?: number;
   step?: number;
   label?: ReactNode;
   formatValue?: (value: number) => string;
+  output?: ReactNode | SliderOutputRender | false;
+  marks?: readonly (number | SliderMark)[];
   orientation?: SliderOrientation;
   isDisabled?: boolean;
+  className?: string;
+  style?: CSSProperties;
+  children?: HeroSliderProps['children'];
 };
 
-const defaultFormatValue = (value: number) => String(value);
+export type SliderLabelProps = Omit<AriaLabelProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
+export type SliderOutputProps = Omit<HeroSliderOutputProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
 
-const Slider = forwardRef<HTMLDivElement, SliderProps>(
+export type SliderTrackProps = Omit<HeroSliderTrackProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type SliderFillProps = HeroSliderFillProps<'div'> &
+  Omit<ComponentProps<'div'>, keyof HeroSliderFillProps<'div'>>;
+
+export type SliderThumbProps = Omit<HeroSliderThumbProps, 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type SliderMarksProps = HeroSliderMarksProps<'div'> &
+  Omit<ComponentProps<'div'>, keyof HeroSliderMarksProps<'div'>>;
+
+export type SliderMarkProps = Omit<ComponentProps<'span'>, 'className' | 'style'> & {
+  value: number;
+  className?: string;
+  style?: CSSProperties;
+};
+
+const formatOutputValue = (
+  state: SliderState,
+  formatValue: SliderProps['formatValue'],
+  output: SliderProps['output'],
+) => {
+  const values = state.values;
+  const firstValue = values[0] ?? 0;
+
+  if (typeof output === 'function') return output(firstValue, values);
+  if (output !== undefined && output !== false) return output;
+  if (formatValue !== undefined) return values.map((item) => formatValue(item)).join(' – ');
+
+  return values.map((_, index) => state.getThumbValueLabel(index)).join(' – ');
+};
+
+const Label = forwardRef<HTMLLabelElement, SliderLabelProps>(({ className, ...rest }, ref) => (
+  <AriaLabel
+    ref={ref}
+    data-slot="label"
+    className={clsx('label', className)}
+    {...rest}
+  />
+));
+Label.displayName = 'Slider.Label';
+
+const Output = ({ className, ...rest }: SliderOutputProps) => (
+  <HeroSlider.Output className={clsx('slider__output', className)} {...rest} />
+);
+Output.displayName = 'Slider.Output';
+
+const Track = ({ className, ...rest }: SliderTrackProps) => (
+  <HeroSlider.Track className={clsx('slider__track', className)} {...rest} />
+);
+Track.displayName = 'Slider.Track';
+
+const Fill = ({ className, ...rest }: SliderFillProps) => (
+  <HeroSlider.Fill className={clsx('slider__fill', className)} {...rest} />
+);
+Fill.displayName = 'Slider.Fill';
+
+const Thumb = ({ className, ...rest }: SliderThumbProps) => (
+  <HeroSlider.Thumb className={clsx('slider__thumb', className)} {...rest} />
+);
+Thumb.displayName = 'Slider.Thumb';
+
+const Marks = ({ className, ...rest }: SliderMarksProps) => (
+  <HeroSlider.Marks className={clsx('slider__marks', className)} {...rest} />
+);
+Marks.displayName = 'Slider.Marks';
+
+const Mark = forwardRef<HTMLSpanElement, SliderMarkProps>(
+  ({ value, className, style, children, ...rest }, ref) => {
+    const state = useContext(SliderStateContext);
+    const orientation = state?.orientation ?? 'horizontal';
+    const percent = state === null ? 0 : state.getValuePercent(value) * 100;
+    const placement =
+      orientation === 'vertical'
+        ? { bottom: `${percent}%`, transform: 'translate(-50%, 50%)' }
+        : { left: `${percent}%`, transform: 'translate(-50%, 0)' };
+
+    return (
+      <span
+        ref={ref}
+        data-slot="slider-mark"
+        data-orientation={orientation}
+        className={clsx('slider__mark', className)}
+        style={{ ...placement, ...style }}
+        {...rest}
+      >
+        {children ?? state?.getFormattedValue(value) ?? value}
+      </span>
+    );
+  },
+);
+Mark.displayName = 'Slider.Mark';
+
+const renderMarks = (
+  marks: NonNullable<SliderProps['marks']>,
+  formatValue: SliderProps['formatValue'],
+) =>
+  marks.map((item, index) => {
+    const mark = typeof item === 'number' ? { value: item } : item;
+    const label = mark.label ?? (formatValue === undefined ? undefined : formatValue(mark.value));
+
+    return (
+      <Mark
+        key={`${mark.value}-${index}`}
+        value={mark.value}
+        className={mark.className}
+        style={mark.style}
+      >
+        {label}
+      </Mark>
+    );
+  });
+
+const SliderRoot = forwardRef<HTMLDivElement, SliderProps>(
   (
     {
       value,
       defaultValue,
       onChange,
+      onChangeEnd,
       minValue = 0,
       maxValue = 100,
       step = 1,
       label,
-      formatValue = defaultFormatValue,
+      formatValue,
+      output,
+      marks,
       orientation = 'horizontal',
       isDisabled = false,
       className,
+      children,
       ...rest
     },
     ref,
   ) => {
-    const [innerValue, setInnerValue] = useState(value ?? defaultValue ?? minValue);
-    const currentValue = value ?? innerValue;
-
-    const trackRef = useRef<HTMLDivElement>(null);
-    const draggingRef = useRef(false);
-    const [isDragging, setIsDragging] = useState(false);
-
-    const range = maxValue - minValue;
-    const ratio = range === 0 ? 0 : clamp((currentValue - minValue) / range, 0, 1);
-    const percent = `${ratio * 100}%`;
-    const isHorizontal = orientation === 'horizontal';
-
-    const commitValue = useCallback(
-      (next: number) => {
-        const snapped = clamp(Math.round((next - minValue) / step) * step + minValue, minValue, maxValue);
-        if (value === undefined) setInnerValue(snapped);
-        if (snapped !== currentValue) onChange?.(snapped);
-      },
-      [minValue, maxValue, step, value, currentValue, onChange],
-    );
-
-    const valueFromPointer = useCallback(
-      (clientX: number, clientY: number) => {
-        const track = trackRef.current;
-        if (track === null) return minValue;
-        const rect = track.getBoundingClientRect();
-        const pointerRatio = isHorizontal
-          ? (clientX - rect.left) / rect.width
-          : (rect.bottom - clientY) / rect.height;
-        return minValue + clamp(pointerRatio, 0, 1) * range;
-      },
-      [isHorizontal, minValue, range],
-    );
-
-    const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (isDisabled) return;
-      event.preventDefault();
-      try {
-        event.currentTarget.setPointerCapture(event.pointerId);
-      } catch {
-        // 某些环境（如测试或无指针捕获支持时）会抛错，忽略后仍可拖拽
-      }
-      draggingRef.current = true;
-      setIsDragging(true);
-      commitValue(valueFromPointer(event.clientX, event.clientY));
-    };
-
-    const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!draggingRef.current) return;
-      commitValue(valueFromPointer(event.clientX, event.clientY));
-    };
-
-    const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-      if (!draggingRef.current) return;
-      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-        event.currentTarget.releasePointerCapture(event.pointerId);
-      }
-      draggingRef.current = false;
-      setIsDragging(false);
-    };
-
-    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-      if (isDisabled) return;
-      let next: number | undefined;
-      if (event.key === 'ArrowRight' || event.key === 'ArrowUp') next = currentValue + step;
-      else if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') next = currentValue - step;
-      else if (event.key === 'Home') next = minValue;
-      else if (event.key === 'End') next = maxValue;
-      else if (event.key === 'PageUp') next = currentValue + step * 10;
-      else if (event.key === 'PageDown') next = currentValue - step * 10;
-      if (next === undefined) return;
-      event.preventDefault();
-      commitValue(next);
-    };
-
-    const fillStyle = isHorizontal ? { left: 0, width: percent } : { bottom: 0, height: percent };
-    const thumbStyle = isHorizontal
-      ? { left: percent, transform: 'translate(-50%, -50%)' }
-      : { bottom: percent, transform: 'translate(-50%, 50%)' };
+    const hasMarks = marks !== undefined && marks.length > 0;
+    const handleChange =
+      onChange === undefined
+        ? undefined
+        : (nextValue: number | number[]) => {
+            if (typeof nextValue === 'number') onChange(nextValue);
+          };
+    const handleChangeEnd =
+      onChangeEnd === undefined
+        ? undefined
+        : (nextValue: number | number[]) => {
+            if (typeof nextValue === 'number') onChangeEnd(nextValue);
+          };
 
     return (
-      <div
-        ref={ref}
-        className={clsx('slider', className)}
-        data-orientation={orientation}
-        data-disabled={isDisabled || undefined}
+      <HeroSlider
         {...rest}
+        ref={ref}
+        data-has-marks={hasMarks || undefined}
+        className={clsx('slider', className)}
+        value={value}
+        defaultValue={defaultValue}
+        onChange={handleChange}
+        onChangeEnd={handleChangeEnd}
+        minValue={minValue}
+        maxValue={maxValue}
+        step={step}
+        orientation={orientation}
+        isDisabled={isDisabled}
       >
-        {label !== undefined && (
-          <span className="label" data-slot="label">
-            {label}
-          </span>
+        {children !== undefined ? children : (
+          <>
+            {label !== undefined && <Label>{label}</Label>}
+            {output !== false && (
+              <Output>{({ state }) => formatOutputValue(state, formatValue, output)}</Output>
+            )}
+            <Track>
+              <Fill />
+              <Thumb />
+            </Track>
+            {hasMarks && <Marks>{renderMarks(marks, formatValue)}</Marks>}
+          </>
         )}
-        <output className="slider__output">{formatValue(currentValue)}</output>
-        <div
-          ref={trackRef}
-          className="slider__track"
-          data-fill-start={ratio > 0 || undefined}
-          onPointerDown={handlePointerDown}
-          onPointerMove={handlePointerMove}
-          onPointerUp={handlePointerUp}
-          onPointerCancel={handlePointerUp}
-          style={{ touchAction: 'none' }}
-        >
-          <div className="slider__fill" style={fillStyle} />
-          <div
-            className="slider__thumb"
-            style={thumbStyle}
-            role="slider"
-            aria-valuemin={minValue}
-            aria-valuemax={maxValue}
-            aria-valuenow={currentValue}
-            aria-orientation={orientation}
-            aria-disabled={isDisabled || undefined}
-            tabIndex={isDisabled ? undefined : 0}
-            data-disabled={isDisabled || undefined}
-            data-dragging={isDragging || undefined}
-            onKeyDown={handleKeyDown}
-          />
-        </div>
-      </div>
+      </HeroSlider>
     );
   },
 );
+SliderRoot.displayName = 'Slider';
 
-Slider.displayName = 'Slider';
+const Slider = Object.assign(SliderRoot, {
+  Label,
+  Output,
+  Track,
+  Fill,
+  Thumb,
+  Marks,
+  Mark,
+});
 
 export default Slider;

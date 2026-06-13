@@ -96,13 +96,28 @@ const SwitchDemo = () => (
   </DemoSection>
 );
 
-const SliderDemo = () => (
-  <DemoSection isColumn>
-    <Slider label="音量" defaultValue={40} style={{ width: 320 }} />
-    <Slider label="进度" defaultValue={75} minValue={0} maxValue={100} style={{ width: 320 }} />
-    <Slider label="禁用" defaultValue={20} isDisabled style={{ width: 320 }} />
-  </DemoSection>
-);
+const SliderDemo = () => {
+  const [mastery, setMastery] = useState(0.65);
+
+  return (
+    <DemoSection isColumn>
+      <Slider
+        label="掌握度"
+        value={mastery}
+        onChange={setMastery}
+        minValue={0}
+        maxValue={1}
+        step={0.05}
+        formatOptions={{ style: 'percent', maximumFractionDigits: 0 }}
+        marks={[0, 0.5, 1]}
+        style={{ width: 320 }}
+      />
+      <Slider label="音量" defaultValue={40} style={{ width: 320 }} />
+      <Slider label="进度" defaultValue={75} minValue={0} maxValue={100} style={{ width: 320 }} />
+      <Slider label="禁用" defaultValue={20} isDisabled style={{ width: 320 }} />
+    </DemoSection>
+  );
+};
 
 const CAMPUS_NAMES: Record<string, string> = {
   bj: '北京校区',
