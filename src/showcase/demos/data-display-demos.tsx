@@ -623,7 +623,7 @@ const DataGridDemo = () => {
   }）`;
 
   return (
-    <DemoSection isColumn label="受控排序（点列头切换 aria-sort）+ 多选回显">
+    <DemoSection isColumn label="受控/非受控排序（点列头切换 aria-sort）+ 多选回显">
       <div style={{ width: 720 }}>
         <DataGrid
           aria-label="订单"
@@ -640,6 +640,15 @@ const DataGridDemo = () => {
       </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
         排序：{sortLabel} · 已选：{selectedLabel}
+      </div>
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="默认排序订单"
+          columns={ORDER_COLUMNS}
+          data={ORDER_ROWS}
+          getRowId={orderRowId}
+          defaultSortDescriptor={{ column: 'student', direction: 'ascending' }}
+        />
       </div>
     </DemoSection>
   );

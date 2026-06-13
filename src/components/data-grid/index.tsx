@@ -1,4 +1,4 @@
-import { type CSSProperties, type ReactNode } from 'react';
+import { useState, type CSSProperties, type ReactNode } from 'react';
 import { Checkbox } from '@heroui/react';
 import { Table, type TableColumnProps, type TableRootProps } from '@heroui/react/table';
 import type {
@@ -184,10 +184,17 @@ function DataGrid<TRow extends object>({
   'aria-label': ariaLabel,
   ...rest
 }: DataGridProps<TRow>) {
+  const [internalSortDescriptor, setInternalSortDescriptor] =
+    useState<SortDescriptor | undefined>(defaultSortDescriptor);
+
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
-  const activeSort = sortDescriptor ?? defaultSortDescriptor;
+  const activeSort = sortDescriptor ?? internalSortDescriptor;
   const withSelection = showSelectionCheckboxes && selectionMode !== 'none';
+  const handleSortChange = (descriptor: SortDescriptor) => {
+    if (!isControlledSort) setInternalSortDescriptor(descriptor);
+    onSortChange?.(descriptor);
+  };
 
   const sortedData =
     isControlledSort || activeSort === undefined
@@ -220,8 +227,8 @@ function DataGrid<TRow extends object>({
           selectedKeys={selectedKeys}
           defaultSelectedKeys={defaultSelectedKeys}
           onSelectionChange={onSelectionChange}
-          sortDescriptor={sortDescriptor ?? defaultSortDescriptor}
-          onSortChange={onSortChange}
+          sortDescriptor={activeSort}
+          onSortChange={handleSortChange}
           onRowAction={onRowAction}
           disabledKeys={disabledKeys}
         >
