@@ -1,28 +1,36 @@
 import {
   createContext,
   forwardRef,
+  useCallback,
   useContext,
+  useEffect,
   useId,
   useImperativeHandle,
   useMemo,
   useRef,
-  useState,
   type CSSProperties,
   type HTMLAttributes,
-  type KeyboardEvent,
   type MutableRefObject,
-  type PointerEvent as ReactPointerEvent,
   type ReactNode,
   type Ref,
 } from 'react';
 import clsx from 'clsx';
+import {
+  Group,
+  Panel as RPanel,
+  Separator,
+  type GroupImperativeHandle,
+  type Layout,
+  type PanelImperativeHandle,
+  type PanelSize,
+} from 'react-resizable-panels';
 
 export type ResizableOrientation = 'horizontal' | 'vertical';
 export type ResizableHandleType = 'line' | 'drag' | 'pill' | 'handle';
 export type ResizableVariant = 'primary' | 'secondary' | 'tertiary';
 export type ResizableIndicatorType = 'pill' | 'drag';
 
-/** 命令式句柄（原站 API：尺寸为百分比数组） */
+/** 命令式句柄（对外 API：尺寸为百分比数组，内部桥接真引擎的 {panelId: number} 布局 map） */
 export type ResizableImperativeHandle = {
   getLayout: () => number[];
   setLayout: (sizes: number[]) => void;
@@ -30,18 +38,27 @@ export type ResizableImperativeHandle = {
 
 export type ResizableProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
   orientation?: ResizableOrientation;
-  /** 持久化 id：写入 localStorage，重载后恢复布局（原站 API） */
+  /** 持久化 id：写入 localStorage，重载后恢复布局（基于真引擎 onLayoutChanged + defaultLayout） */
   autoSaveId?: string;
-  /** 每次布局变化（含拖拽过程）触发，回传各面板百分比 */
+  /** 每次布局变化（含拖拽过程）触发，回传各面板百分比（按 DOM 顺序） */
   onLayout?: (sizes: number[]) => void;
   /** 命令式控制布局（原站 handleRef） */
   handleRef?: Ref<ResizableImperativeHandle>;
+  /** 禁用整组拖拽 */
+  disabled?: boolean;
+  /** 拖拽时不接管全局鼠标光标样式 */
+  disableCursor?: boolean;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
 };
 
-export type ResizablePanelProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type ResizablePanelProps = Omit<
+  HTMLAttributes<HTMLDivElement>,
+  'className' | 'style' | 'onResize' | 'id'
+> & {
+  /** 面板 id（透传给真引擎，落到 data-panel/id，并作为布局 map 的 key；缺省由引擎 useId 生成） */
+  id?: string;
   /** 初始尺寸（百分比，原站 API） */
   defaultSize?: number;
   /** 最小尺寸（百分比） */
@@ -52,9 +69,14 @@ export type ResizablePanelProps = Omit<HTMLAttributes<HTMLDivElement>, 'classNam
   collapsible?: boolean;
   /** 折叠后的尺寸（百分比） */
   collapsedSize?: number;
+  /** 禁用该面板的尺寸调整 */
+  disabled?: boolean;
   onCollapse?: () => void;
   onExpand?: () => void;
+  /** 尺寸变化回调，回传当前百分比（对齐原站签名） */
   onResize?: (size: number) => void;
+  /** 命令式面板句柄（collapse/expand/resize/getSize/isCollapsed，透传真引擎） */
+  panelRef?: Ref<PanelImperativeHandle | null>;
   className?: string;
   style?: CSSProperties;
   children?: ReactNode;
@@ -62,13 +84,17 @@ export type ResizablePanelProps = Omit<HTMLAttributes<HTMLDivElement>, 'classNam
 
 export type ResizableHandleProps = Omit<
   HTMLAttributes<HTMLDivElement>,
-  'className' | 'style' | 'children'
+  'className' | 'style' | 'children' | 'id'
 > & {
+  id?: string;
   type?: ResizableHandleType;
   variant?: ResizableVariant;
-  /** 便捷：在 line 型 handle 内渲染默认指示器 */
+  /** 便捷：在 line 型 handle 内渲染默认指示器（pill） */
   withIndicator?: boolean;
   disabled?: boolean;
+  /** 关闭双击复位面板尺寸（透传真引擎 disableDoubleClick） */
+  disableDoubleClick?: boolean;
+  /** 拖拽状态变化回调（由真引擎 data-separator 状态驱动） */
   onDragging?: (isDragging: boolean) => void;
   className?: string;
   style?: CSSProperties;
@@ -81,33 +107,17 @@ export type ResizableIndicatorProps = {
   className?: string;
 };
 
-/** 面板注册时携带的尺寸约束（百分比） */
-type PanelConstraint = {
-  defaultSize: number;
-  minSize: number;
-  maxSize: number;
-  collapsible: boolean;
-  collapsedSize: number;
-  onResize?: (size: number) => void;
-  onCollapse?: () => void;
-  onExpand?: () => void;
+type PanelOrderRegistry = {
+  /** 面板挂载时按 DOM 顺序登记 id，卸载时移除 —— 用于在 {panelId: size} map 与百分比数组间转换 */
+  register: (id: string) => void;
+  unregister: (id: string) => void;
+  /** 当前有序 id 列表 */
+  order: MutableRefObject<string[]>;
 };
 
 type ResizableContextValue = {
   orientation: ResizableOrientation;
-  groupRef: MutableRefObject<HTMLDivElement | null>;
-  /** 面板首渲染时注册约束，返回其在 sizes 数组中的索引 */
-  registerPanel: (constraint: PanelConstraint) => number;
-  /** handle 首渲染时领取其左侧面板索引 */
-  registerHandle: () => number;
-  getSize: (index: number) => number;
-  /** 拖拽：把像素位移换算为百分比并分摊到相邻两面板 */
-  resizeByPointer: (leftPanelIndex: number, deltaPx: number) => void;
-  /** 键盘步进 */
-  resizeByKeyboard: (leftPanelIndex: number, deltaPercent: number) => void;
-  getPanelConstraint: (index: number) => PanelConstraint;
-  beginDrag: () => void;
-  endDrag: () => void;
+  registry: PanelOrderRegistry;
 };
 
 const ResizableContext = createContext<ResizableContextValue | null>(null);
@@ -118,226 +128,132 @@ const useResizableContext = (sub: string) => {
   return ctx;
 };
 
-const clamp = (value: number, min: number, max: number) => Math.min(Math.max(value, min), max);
-
 const STORAGE_PREFIX = 'react-resizable-panels:';
 
-const readStoredLayout = (autoSaveId: string): number[] | null => {
+/** 把真引擎的 {panelId: 百分比} 布局按登记顺序转成数组 */
+const layoutToArray = (layout: Layout, order: string[]): number[] =>
+  order.map((id) => layout[id] ?? 0);
+
+/** 把百分比数组按登记顺序转回真引擎布局 map */
+const arrayToLayout = (sizes: number[], order: string[]): Layout => {
+  const layout: Layout = {};
+  order.forEach((id, index) => {
+    if (typeof sizes[index] === 'number') layout[id] = sizes[index];
+  });
+  return layout;
+};
+
+const readStoredLayout = (autoSaveId: string): Layout | null => {
   if (typeof window === 'undefined') return null;
   try {
     const raw = window.localStorage.getItem(STORAGE_PREFIX + autoSaveId);
     if (raw === null) return null;
     const parsed: unknown = JSON.parse(raw);
-    return Array.isArray(parsed) && parsed.every((n) => typeof n === 'number') ? parsed : null;
+    if (parsed !== null && typeof parsed === 'object') return parsed as Layout;
+    return null;
   } catch {
     return null;
   }
 };
 
-const writeStoredLayout = (autoSaveId: string, sizes: number[]) => {
+const writeStoredLayout = (autoSaveId: string, layout: Layout) => {
   if (typeof window === 'undefined') return;
   try {
-    window.localStorage.setItem(STORAGE_PREFIX + autoSaveId, JSON.stringify(sizes));
+    window.localStorage.setItem(STORAGE_PREFIX + autoSaveId, JSON.stringify(layout));
   } catch {
     // 隐私模式 / 配额超限：静默降级为非持久化
   }
 };
 
-/** 把各面板的 defaultSize 归一化为总和 100 的百分比数组（未声明的均分剩余空间） */
-const normalizeDefaults = (constraints: PanelConstraint[]): number[] => {
-  const provided = constraints.map((c) => c.defaultSize);
-  const known = provided.reduce((sum, v) => sum + (v > 0 ? v : 0), 0);
-  const unknownCount = provided.filter((v) => v <= 0).length;
-  const remaining = Math.max(100 - known, 0);
-  const fill = unknownCount > 0 ? remaining / unknownCount : 0;
-  const filled = provided.map((v) => (v > 0 ? v : fill));
-  const sum = filled.reduce((a, b) => a + b, 0) || 1;
-  return filled.map((v) => (v / sum) * 100);
-};
-
-/** 拖动一个 handle 时，把百分比增量分摊到相邻两面板，各自夹紧到 min/max，支持折叠吸附 */
-const applyDelta = (
-  sizes: number[],
-  constraints: PanelConstraint[],
-  leftIndex: number,
-  deltaPercent: number,
-): number[] => {
-  const rightIndex = leftIndex + 1;
-  if (rightIndex >= sizes.length) return sizes;
-
-  const left = constraints[leftIndex];
-  const right = constraints[rightIndex];
-  const next = [...sizes];
-
-  let proposedLeft = sizes[leftIndex] + deltaPercent;
-  if (left.collapsible && proposedLeft < left.minSize) {
-    const threshold = (left.minSize + left.collapsedSize) / 2;
-    proposedLeft = proposedLeft <= threshold ? left.collapsedSize : left.minSize;
-  } else {
-    proposedLeft = clamp(proposedLeft, left.minSize, left.maxSize);
-  }
-
-  const actualDelta = proposedLeft - sizes[leftIndex];
-  let proposedRight = sizes[rightIndex] - actualDelta;
-  if (right.collapsible && proposedRight < right.minSize) {
-    const threshold = (right.minSize + right.collapsedSize) / 2;
-    proposedRight = proposedRight <= threshold ? right.collapsedSize : right.minSize;
-  } else {
-    proposedRight = clamp(proposedRight, right.minSize, right.maxSize);
-  }
-
-  // 右侧被夹住产生的差额退回左侧，保证两面板尺寸之和守恒
-  const correction = sizes[rightIndex] - proposedRight - actualDelta;
-  next[leftIndex] = proposedLeft + correction;
-  next[rightIndex] = proposedRight;
-  return next;
-};
-
-const mergeRefs =
-  <T,>(...refs: Array<Ref<T> | undefined>) =>
-  (node: T | null) => {
-    for (const r of refs) {
-      if (typeof r === 'function') r(node);
-      else if (r != null) (r as MutableRefObject<T | null>).current = node;
-    }
-  };
-
 const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
   (
-    { orientation = 'horizontal', autoSaveId, onLayout, handleRef, className, style, children, ...rest },
+    {
+      orientation = 'horizontal',
+      autoSaveId,
+      onLayout,
+      handleRef,
+      disabled,
+      disableCursor,
+      className,
+      style,
+      children,
+      ...rest
+    },
     ref,
   ) => {
-    const groupRef = useRef<HTMLDivElement | null>(null);
-    const constraintsRef = useRef<PanelConstraint[]>([]);
-    const handleCursorRef = useRef(0);
-    const prevCollapsedRef = useRef<boolean[]>([]);
-    const initializedRef = useRef(false);
+    const orderRef = useRef<string[]>([]);
+    const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
 
-    const [sizes, setSizes] = useState<number[]>([]);
-    const sizesRef = useRef<number[]>(sizes);
-    sizesRef.current = sizes;
-    const dragStartSizesRef = useRef<number[] | null>(null);
-
-    const commitSizes = useMemo(
-      () => (nextSizes: number[]) => {
-        sizesRef.current = nextSizes;
-        setSizes(nextSizes);
-        onLayout?.(nextSizes);
-        if (autoSaveId !== undefined) writeStoredLayout(autoSaveId, nextSizes);
-        const constraints = constraintsRef.current;
-        nextSizes.forEach((size, index) => {
-          const c = constraints[index];
-          if (c === undefined) return;
-          c.onResize?.(size);
-          const collapsed = c.collapsible && size <= c.collapsedSize + 0.01;
-          const was = prevCollapsedRef.current[index] ?? false;
-          if (collapsed && !was) c.onCollapse?.();
-          else if (!collapsed && was) c.onExpand?.();
-          prevCollapsedRef.current[index] = collapsed;
-        });
-      },
-      [autoSaveId, onLayout],
+    const registry = useMemo<PanelOrderRegistry>(
+      () => ({
+        order: orderRef,
+        register: (id) => {
+          if (!orderRef.current.includes(id)) orderRef.current.push(id);
+        },
+        unregister: (id) => {
+          orderRef.current = orderRef.current.filter((value) => value !== id);
+        },
+      }),
+      [],
     );
 
-    const initializeIfReady = useMemo(
-      () => () => {
-        if (initializedRef.current) return;
-        const constraints = constraintsRef.current;
-        if (constraints.length === 0) return;
-        initializedRef.current = true;
-        const stored = autoSaveId !== undefined ? readStoredLayout(autoSaveId) : null;
-        const initial =
-          stored !== null && stored.length === constraints.length
-            ? stored
-            : normalizeDefaults(constraints);
-        prevCollapsedRef.current = initial.map((size, index) =>
-          constraints[index].collapsible ? size <= constraints[index].collapsedSize + 0.01 : false,
-        );
-        sizesRef.current = initial;
-        setSizes(initial);
+    const contextValue = useMemo<ResizableContextValue>(
+      () => ({ orientation, registry }),
+      [orientation, registry],
+    );
+
+    // 拖拽过程（每次指针移动）触发：换算成百分比数组回调
+    const handleLayoutChange = useCallback(
+      (layout: Layout) => {
+        onLayout?.(layoutToArray(layout, orderRef.current));
+      },
+      [onLayout],
+    );
+
+    // 拖拽/键盘结束后触发：持久化最终布局（指针移动期间不写）
+    const handleLayoutChanged = useCallback(
+      (layout: Layout) => {
+        if (autoSaveId !== undefined) writeStoredLayout(autoSaveId, layout);
       },
       [autoSaveId],
     );
 
-    const contextValue = useMemo<ResizableContextValue>(
-      () => ({
-        orientation,
-        groupRef,
-        registerPanel: (constraint) => {
-          const index = constraintsRef.current.length;
-          constraintsRef.current.push(constraint);
-          // 每个面板注册后尝试初始化（最后一个注册时长度齐全）
-          queueMicrotask(initializeIfReady);
-          return index;
-        },
-        registerHandle: () => {
-          const index = handleCursorRef.current;
-          handleCursorRef.current += 1;
-          return index;
-        },
-        getSize: (index) => sizesRef.current[index] ?? 0,
-        resizeByPointer: (leftPanelIndex, deltaPx) => {
-          const group = groupRef.current;
-          if (group === null) return;
-          const total = orientation === 'horizontal' ? group.clientWidth : group.clientHeight;
-          if (total === 0) return;
-          const base = dragStartSizesRef.current ?? sizesRef.current;
-          const next = applyDelta(
-            base,
-            constraintsRef.current,
-            leftPanelIndex,
-            (deltaPx / total) * 100,
-          );
-          commitSizes(next);
-        },
-        resizeByKeyboard: (leftPanelIndex, deltaPercent) => {
-          const next = applyDelta(
-            sizesRef.current,
-            constraintsRef.current,
-            leftPanelIndex,
-            deltaPercent,
-          );
-          commitSizes(next);
-        },
-        getPanelConstraint: (index) =>
-          constraintsRef.current[index] ?? {
-            defaultSize: 0,
-            minSize: 0,
-            maxSize: 100,
-            collapsible: false,
-            collapsedSize: 0,
-          },
-        beginDrag: () => {
-          dragStartSizesRef.current = [...sizesRef.current];
-        },
-        endDrag: () => {
-          dragStartSizesRef.current = null;
-        },
-      }),
-      [orientation, commitSizes, initializeIfReady],
-    );
-
+    // 对外命令式句柄：数组 <-> 真引擎布局 map
     useImperativeHandle(
       handleRef,
       (): ResizableImperativeHandle => ({
-        getLayout: () => sizesRef.current,
-        setLayout: (next) => commitSizes(next),
+        getLayout: () => {
+          const layout = groupHandleRef.current?.getLayout() ?? {};
+          return layoutToArray(layout, orderRef.current);
+        },
+        setLayout: (sizes) => {
+          groupHandleRef.current?.setLayout(arrayToLayout(sizes, orderRef.current));
+        },
       }),
-      [commitSizes],
+      [],
     );
+
+    const defaultLayout =
+      autoSaveId !== undefined ? (readStoredLayout(autoSaveId) ?? undefined) : undefined;
 
     return (
       <ResizableContext.Provider value={contextValue}>
-        <div
-          ref={mergeRefs(groupRef, ref)}
+        <Group
+          elementRef={ref ?? undefined}
+          groupRef={groupHandleRef}
+          orientation={orientation}
+          disabled={disabled}
+          disableCursor={disableCursor}
+          defaultLayout={defaultLayout}
+          onLayoutChange={handleLayoutChange}
+          onLayoutChanged={handleLayoutChanged}
           data-slot="resizable"
-          data-orientation={orientation}
           className={clsx('resizable', `resizable--${orientation}`, className)}
           style={style}
           {...rest}
         >
           {children}
-        </div>
+        </Group>
       </ResizableContext.Provider>
     );
   },
@@ -345,48 +261,69 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
 ResizableRoot.displayName = 'Resizable';
 
 const Panel = ({
-  defaultSize = 0,
-  minSize = 0,
-  maxSize = 100,
-  collapsible = false,
-  collapsedSize = 0,
+  id: idProp,
+  defaultSize,
+  minSize,
+  maxSize,
+  collapsible,
+  collapsedSize,
+  disabled,
   onCollapse,
   onExpand,
   onResize,
+  panelRef,
   className,
   style,
   children,
   ...rest
 }: ResizablePanelProps) => {
-  const ctx = useResizableContext('Resizable.Panel');
+  const { registry } = useResizableContext('Resizable.Panel');
+  const generatedId = useId();
+  const id = idProp ?? generatedId;
 
-  // 仅首渲染注册一次，锁定索引以读取实时尺寸
-  const indexRef = useRef<number | null>(null);
-  if (indexRef.current === null) {
-    indexRef.current = ctx.registerPanel({
-      defaultSize,
-      minSize,
-      maxSize,
-      collapsible,
-      collapsedSize,
-      onResize,
-      onCollapse,
-      onExpand,
-    });
-  }
-  const size = ctx.getSize(indexRef.current);
+  // 按 DOM 顺序登记 / 注销，供布局 map<->数组转换
+  useEffect(() => {
+    registry.register(id);
+    return () => registry.unregister(id);
+  }, [registry, id]);
+
+  // 真引擎 onResize 回传 {asPercentage,inPixels}，并带折叠语义；映射到原站 onResize/onCollapse/onExpand
+  const prevCollapsedRef = useRef<boolean | null>(null);
+  const handleResize = useCallback(
+    (panelSize: PanelSize) => {
+      onResize?.(panelSize.asPercentage);
+      if (!collapsible) return;
+      const collapsed = panelSize.asPercentage <= (collapsedSize ?? 0) + 0.01;
+      const was = prevCollapsedRef.current;
+      if (was !== null) {
+        if (collapsed && !was) onCollapse?.();
+        else if (!collapsed && was) onExpand?.();
+      }
+      prevCollapsedRef.current = collapsed;
+    },
+    [onResize, onCollapse, onExpand, collapsible, collapsedSize],
+  );
 
   return (
-    <div
-      data-slot="resizable-panel"
-      data-panel="true"
+    <RPanel
+      id={id}
+      panelRef={panelRef}
+      defaultSize={defaultSize}
+      minSize={minSize}
+      maxSize={maxSize}
+      collapsible={collapsible}
+      collapsedSize={collapsedSize}
+      disabled={disabled}
+      onResize={handleResize}
+      // className 落到引擎渲染的内层 div（对齐快照 <div class="resizable__panel">）
       className={clsx('resizable__panel', className)}
-      // flex-grow 表达百分比（basis 0），相邻面板按 grow 比例瓜分空间
-      style={{ flexGrow: size, flexShrink: 1, flexBasis: '0px', overflow: 'hidden', ...style }}
+      style={style}
+      // data-slot 等 rest 落到引擎渲染的外层 div（带 data-panel/id）
+      data-slot="resizable-panel"
       {...rest}
     >
       {children}
-    </div>
+    </RPanel>
   );
 };
 Panel.displayName = 'Resizable.Panel';
@@ -416,101 +353,78 @@ const Indicator = ({ type = 'pill', children, className }: ResizableIndicatorPro
   <span
     aria-hidden="true"
     data-slot="resizable-handle-indicator"
-    className={clsx('resizable__handle-indicator', `resizable__handle-indicator--${type}`, className)}
+    className={clsx(
+      'resizable__handle-indicator',
+      `resizable__handle-indicator--${type}`,
+      className,
+    )}
   >
     {children ?? (type === 'drag' ? <DragDotsIcon /> : null)}
   </span>
 );
 Indicator.displayName = 'Resizable.Indicator';
 
-const KEYBOARD_STEP = 5;
-
 const Handle = ({
+  id: idProp,
   type = 'line',
   variant = 'primary',
   withIndicator = false,
   disabled = false,
+  disableDoubleClick,
   onDragging,
   className,
   style,
   children,
   ...rest
 }: ResizableHandleProps) => {
-  const ctx = useResizableContext('Resizable.Handle');
-  const { orientation } = ctx;
+  const { orientation } = useResizableContext('Resizable.Handle');
+  const elementRef = useRef<HTMLDivElement>(null);
+  const draggingRef = useRef(false);
+  const onDraggingRef = useRef(onDragging);
+  onDraggingRef.current = onDragging;
 
-  // handle 紧跟其左侧面板，索引首渲染锁定
-  const leftIndexRef = useRef<number | null>(null);
-  if (leftIndexRef.current === null) leftIndexRef.current = ctx.registerHandle();
-  const leftIndex = leftIndexRef.current;
+  // 真引擎在拖拽时把 data-separator 置为 "active"，桥接成真站 BEM CSS 期望的
+  // data-resize-handle-state="drag" / data-resize-handle-active / data-pressed，并驱动 onDragging
+  useEffect(() => {
+    const node = elementRef.current;
+    if (node === null) return;
+    const sync = () => {
+      const state = node.getAttribute('data-separator');
+      const isDragging = state === 'active';
+      if (isDragging) {
+        node.setAttribute('data-resize-handle-state', 'drag');
+        node.setAttribute('data-resize-handle-active', '');
+        node.setAttribute('data-pressed', 'true');
+      } else {
+        node.removeAttribute('data-resize-handle-state');
+        node.removeAttribute('data-resize-handle-active');
+        node.removeAttribute('data-pressed');
+      }
+      if (isDragging !== draggingRef.current) {
+        draggingRef.current = isDragging;
+        onDraggingRef.current?.(isDragging);
+      }
+    };
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(node, { attributes: true, attributeFilter: ['data-separator'] });
+    return () => observer.disconnect();
+  }, []);
 
-  const id = useId();
-  const startPosRef = useRef<number | null>(null);
-  const [isDragging, setIsDragging] = useState(false);
-
-  const meta = ctx.getPanelConstraint(leftIndex);
-  const valueNow = Math.round(ctx.getSize(leftIndex));
-
-  const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    event.preventDefault();
-    event.currentTarget.setPointerCapture(event.pointerId);
-    startPosRef.current = orientation === 'horizontal' ? event.clientX : event.clientY;
-    ctx.beginDrag();
-    setIsDragging(true);
-    onDragging?.(true);
-  };
-
-  const handlePointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (startPosRef.current === null) return;
-    const current = orientation === 'horizontal' ? event.clientX : event.clientY;
-    ctx.resizeByPointer(leftIndex, current - startPosRef.current);
-  };
-
-  const handlePointerUp = (event: ReactPointerEvent<HTMLDivElement>) => {
-    if (startPosRef.current === null) return;
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-    startPosRef.current = null;
-    ctx.endDrag();
-    setIsDragging(false);
-    onDragging?.(false);
-  };
-
-  const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
-    if (disabled) return;
-    const decrease =
-      orientation === 'horizontal' ? event.key === 'ArrowLeft' : event.key === 'ArrowUp';
-    const increase =
-      orientation === 'horizontal' ? event.key === 'ArrowRight' : event.key === 'ArrowDown';
-    if (!decrease && !increase) return;
-    event.preventDefault();
-    ctx.resizeByKeyboard(leftIndex, increase ? KEYBOARD_STEP : -KEYBOARD_STEP);
-  };
-
-  // line + withIndicator 渲染 drag-dots；pill/handle/drag 自带抓手
+  // line + withIndicator 渲染 pill；pill/handle 渲染 pill；drag 渲染 drag-dots
   const shouldRenderIndicator = withIndicator || type !== 'line';
-  const indicatorType: ResizableIndicatorType =
-    type === 'drag' || (type === 'line' && withIndicator) ? 'drag' : 'pill';
+  const indicatorType: ResizableIndicatorType = type === 'drag' ? 'drag' : 'pill';
 
   return (
-    <div
-      id={id}
-      role="separator"
-      tabIndex={disabled ? undefined : 0}
-      aria-label="Resize handle"
-      aria-orientation={orientation === 'horizontal' ? 'vertical' : 'horizontal'}
-      aria-valuemin={Math.round(meta.minSize)}
-      aria-valuemax={Math.round(meta.maxSize)}
-      aria-valuenow={valueNow}
-      aria-disabled={disabled || undefined}
+    <Separator
+      elementRef={elementRef}
+      id={idProp}
+      disabled={disabled}
+      disableDoubleClick={disableDoubleClick}
       data-slot="resizable-handle"
       data-type={type}
       data-variant={variant}
-      data-resize-handle-active={isDragging ? '' : undefined}
-      data-pressed={isDragging ? 'true' : undefined}
-      data-disabled={disabled ? '' : undefined}
+      aria-label="Resize handle"
       className={clsx(
         'resizable__handle',
         `resizable__handle--${orientation}`,
@@ -518,16 +432,11 @@ const Handle = ({
         `resizable__handle--${variant}`,
         className,
       )}
-      style={{ touchAction: 'none', ...style }}
-      onPointerDown={handlePointerDown}
-      onPointerMove={handlePointerMove}
-      onPointerUp={handlePointerUp}
-      onPointerCancel={handlePointerUp}
-      onKeyDown={handleKeyDown}
+      style={style}
       {...rest}
     >
       {children ?? (shouldRenderIndicator ? <Indicator type={indicatorType} /> : null)}
-    </div>
+    </Separator>
   );
 };
 Handle.displayName = 'Resizable.Handle';
