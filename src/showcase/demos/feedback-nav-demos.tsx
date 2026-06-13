@@ -1,7 +1,10 @@
-import { useRef, useState, type CSSProperties, type ReactNode } from 'react';
+import { useRef, useState, type CSSProperties, type Key as ReactKey, type ReactNode } from 'react';
 import type { Key } from 'react-aria-components';
 import Breadcrumbs from '../../components/breadcrumbs';
 import Button from '../../components/button';
+import Command from '../../components/command';
+import ContextMenu from '../../components/context-menu';
+import Kbd from '../../components/kbd';
 import EmojiReactionButton from '../../components/emoji-reaction-button';
 import Link from '../../components/link';
 import Meter from '../../components/meter';
@@ -523,6 +526,176 @@ const NavbarDemo = () => {
   );
 };
 
+type CommandAction = {
+  id: string;
+  label: string;
+  shortcut?: string;
+};
+
+type CommandGroup = {
+  heading: string;
+  items: CommandAction[];
+};
+
+const COMMAND_GROUPS: CommandGroup[] = [
+  {
+    heading: '建议',
+    items: [
+      { id: 'new-file', label: '新建文件', shortcut: '⌘N' },
+      { id: 'new-folder', label: '新建文件夹', shortcut: '⌘⇧N' },
+      { id: 'search', label: '全局搜索', shortcut: '⌘P' },
+    ],
+  },
+  {
+    heading: '导航',
+    items: [
+      { id: 'goto-dashboard', label: '前往工作台' },
+      { id: 'goto-settings', label: '前往设置' },
+      { id: 'goto-billing', label: '前往账单' },
+    ],
+  },
+];
+
+const CommandEmptyState = () => (
+  <div className="command__empty">没有匹配的命令，换个关键词试试。</div>
+);
+
+const CommandDemo = () => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [lastAction, setLastAction] = useState<string>('');
+
+  const handleOpenChange = (open: boolean) => setIsOpen(open);
+  const handleOpen = () => setIsOpen(true);
+
+  const handleAction = (key: ReactKey) => {
+    setLastAction(String(key));
+    setIsOpen(false);
+  };
+
+  return (
+    <DemoSection label="打字实时过滤 · 方向键移动高亮 · Enter/点击触发" isColumn>
+      <Button variant="outline" onClick={handleOpen}>
+        打开命令面板{' '}
+        <Kbd abbr="⌘" abbrTitle="Command">
+          K
+        </Kbd>
+      </Button>
+      <span>{lastAction ? `已执行：${lastAction}` : '尚未执行命令'}</span>
+      <Command>
+        <Command.Backdrop variant="blur" isOpen={isOpen} onOpenChange={handleOpenChange}>
+          <Command.Container size="md">
+            <Command.Dialog aria-label="命令面板">
+              <Command.InputGroup>
+                <Command.InputGroup.Prefix>⌕</Command.InputGroup.Prefix>
+                <Command.InputGroup.Input placeholder="搜索命令…" />
+                <Command.InputGroup.Suffix>
+                  <Command.InputGroup.ClearButton />
+                </Command.InputGroup.Suffix>
+              </Command.InputGroup>
+              <Command.List
+                aria-label="命令列表"
+                onAction={handleAction}
+                renderEmptyState={CommandEmptyState}
+              >
+                {COMMAND_GROUPS.map((group) => (
+                  <Command.Group key={group.heading} heading={group.heading}>
+                    {group.items.map((item) => (
+                      <Command.Item key={item.id} id={item.id} textValue={item.label}>
+                        <span>{item.label}</span>
+                        {item.shortcut !== undefined && (
+                          <Kbd isLight>{item.shortcut}</Kbd>
+                        )}
+                      </Command.Item>
+                    ))}
+                  </Command.Group>
+                ))}
+              </Command.List>
+              <Command.Footer>方向键移动 · Enter 执行 · Esc 关闭</Command.Footer>
+            </Command.Dialog>
+          </Command.Container>
+        </Command.Backdrop>
+      </Command>
+    </DemoSection>
+  );
+};
+
+const CONTEXT_MENU_TARGET_STYLE: CSSProperties = {
+  display: 'flex',
+  height: 160,
+  width: 320,
+  userSelect: 'none',
+  alignItems: 'center',
+  justifyContent: 'center',
+  borderRadius: 12,
+  border: '1px dashed var(--border)',
+  color: 'var(--muted)',
+  fontSize: 14,
+};
+
+const ContextMenuDemo = () => {
+  const [lastItem, setLastItem] = useState<string>('');
+
+  const handleAction = (key: ReactKey) => setLastItem(String(key));
+
+  return (
+    <>
+      <DemoSection label="右键区域 → 光标处打开 · 键盘导航 · Esc/点击外部关闭" isColumn>
+        <ContextMenu>
+          <ContextMenu.Trigger>
+            <div style={CONTEXT_MENU_TARGET_STYLE}>在此处右键</div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Popover>
+            <ContextMenu.Menu aria-label="操作" onAction={handleAction}>
+              <ContextMenu.Item id="back" textValue="后退">
+                后退
+              </ContextMenu.Item>
+              <ContextMenu.Item id="forward" textValue="前进" isDisabled>
+                前进
+              </ContextMenu.Item>
+              <ContextMenu.Item id="reload" textValue="重新加载">
+                重新加载
+              </ContextMenu.Item>
+              <ContextMenu.Item id="save" textValue="另存为">
+                另存为…
+              </ContextMenu.Item>
+            </ContextMenu.Menu>
+          </ContextMenu.Popover>
+        </ContextMenu>
+        <span>{lastItem ? `已选择：${lastItem}` : '尚未操作'}</span>
+      </DemoSection>
+      <DemoSection label="分组 · 分隔线 · 危险项（variant=danger）" isColumn>
+        <ContextMenu>
+          <ContextMenu.Trigger>
+            <div style={CONTEXT_MENU_TARGET_STYLE}>右键查看完整菜单</div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Popover>
+            <ContextMenu.Menu aria-label="文件操作" onAction={handleAction}>
+              <ContextMenu.Section>
+                <ContextMenu.Item id="cut" textValue="剪切">
+                  剪切
+                </ContextMenu.Item>
+                <ContextMenu.Item id="copy" textValue="复制">
+                  复制
+                </ContextMenu.Item>
+                <ContextMenu.Item id="paste" textValue="粘贴">
+                  粘贴
+                </ContextMenu.Item>
+              </ContextMenu.Section>
+              <ContextMenu.Separator />
+              <ContextMenu.Item id="rename" textValue="重命名">
+                重命名
+              </ContextMenu.Item>
+              <ContextMenu.Item id="delete" textValue="删除" variant="danger">
+                删除
+              </ContextMenu.Item>
+            </ContextMenu.Menu>
+          </ContextMenu.Popover>
+        </ContextMenu>
+      </DemoSection>
+    </>
+  );
+};
+
 export const feedbackNavDemos: Record<string, ReactNode> = {
   'progress-bar': <ProgressBarDemo />,
   'progress-circle': <ProgressCircleDemo />,
@@ -541,4 +714,6 @@ export const feedbackNavDemos: Record<string, ReactNode> = {
   stepper: <StepperDemo />,
   link: <LinkDemo />,
   navbar: <NavbarDemo />,
+  command: <CommandDemo />,
+  'context-menu': <ContextMenuDemo />,
 };
