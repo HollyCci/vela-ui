@@ -27,6 +27,8 @@ export type SegmentProps = Omit<
   /** 视觉变体（原站 API） */
   variant?: SegmentVariant;
   size?: SegmentSize;
+  /** 是否渲染分隔线；用于 without-separators 变体 */
+  showSeparators?: boolean;
   /** 受控选中项（单选 API，包装 RAC 的 selectedKeys 集合） */
   selectedKey?: Key | null;
   defaultSelectedKey?: Key;
@@ -45,6 +47,7 @@ export type SegmentSeparatorProps = HTMLAttributes<HTMLSpanElement>;
 type SegmentContextValue = {
   size: SegmentSize;
   variant: SegmentVariant;
+  showSeparators: boolean;
   /** FLIP 滑动动画：记录上一个选中 indicator 的位置 */
   lastRect: RefObject<DOMRect | null>;
 };
@@ -52,6 +55,7 @@ type SegmentContextValue = {
 const SegmentContext = createContext<SegmentContextValue>({
   size: 'md',
   variant: 'default',
+  showSeparators: true,
   lastRect: { current: null },
 });
 
@@ -112,7 +116,7 @@ Separator.displayName = 'Segment.Separator';
 
 /** 包装 RAC ToggleButton；选中时自动渲染指示器，并内置分隔线（相邻选中项时由 CSS 隐藏） */
 const Item = ({ className, children, ...rest }: SegmentItemProps) => {
-  const { size, variant } = useContext(SegmentContext);
+  const { size, variant, showSeparators } = useContext(SegmentContext);
 
   return (
     <ToggleButton
@@ -128,7 +132,7 @@ const Item = ({ className, children, ...rest }: SegmentItemProps) => {
       {(renderProps) => (
         <>
           {renderProps.isSelected && <Indicator />}
-          <Separator />
+          {showSeparators && <Separator />}
           {typeof children === 'function' ? children(renderProps) : children}
         </>
       )}
@@ -146,6 +150,7 @@ const SegmentRoot = forwardRef<HTMLDivElement, SegmentProps>(
     {
       variant = 'default',
       size = 'md',
+      showSeparators = true,
       selectedKey,
       defaultSelectedKey,
       onSelectionChange,
@@ -163,10 +168,11 @@ const SegmentRoot = forwardRef<HTMLDivElement, SegmentProps>(
     };
 
     return (
-      <SegmentContext.Provider value={{ size, variant, lastRect }}>
+      <SegmentContext.Provider value={{ size, variant, showSeparators, lastRect }}>
         <ToggleButtonGroup
           ref={ref}
           data-slot="segment"
+          data-separators={showSeparators ? 'true' : 'false'}
           selectionMode="single"
           disallowEmptySelection
           selectedKeys={

@@ -243,6 +243,7 @@ const Step = forwardRef<HTMLLIElement, StepperStepProps>(
     );
 
     const handleClick = () => onStepSelect(index);
+    const stepButtonContent = <>{buttonChildren}</>;
 
     return (
       <StepContext.Provider value={stepContextValue}>
@@ -254,17 +255,26 @@ const Step = forwardRef<HTMLLIElement, StepperStepProps>(
           className={clsx('stepper__step', `stepper__step--${orientation}`, className)}
           {...rest}
         >
-          <button
-            type="button"
-            data-slot="stepper-step-button"
-            data-clickable={isInteractive ? 'true' : undefined}
-            tabIndex={isInteractive ? undefined : -1}
-            aria-current={status === 'active' ? 'step' : undefined}
-            className={clsx('stepper__step-button', `stepper__step-button--${orientation}`)}
-            onClick={isInteractive ? handleClick : undefined}
-          >
-            {buttonChildren}
-          </button>
+          {isInteractive ? (
+            <button
+              type="button"
+              data-slot="stepper-step-button"
+              data-clickable="true"
+              aria-current={status === 'active' ? 'step' : undefined}
+              className={clsx('stepper__step-button', `stepper__step-button--${orientation}`)}
+              onClick={handleClick}
+            >
+              {stepButtonContent}
+            </button>
+          ) : (
+            <span
+              data-slot="stepper-step-button"
+              aria-current={status === 'active' ? 'step' : undefined}
+              className={clsx('stepper__step-button', `stepper__step-button--${orientation}`)}
+            >
+              {stepButtonContent}
+            </span>
+          )}
           {separatorChildren.length > 0 ? separatorChildren : <Separator />}
         </li>
       </StepContext.Provider>

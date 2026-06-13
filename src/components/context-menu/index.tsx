@@ -2,6 +2,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useRef,
   useState,
@@ -35,6 +36,8 @@ export type ContextMenuProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
+  /** 外部受控打开时使用的视口坐标锚点 */
+  anchorPoint?: Point;
   /** 禁用后右键不再打开菜单 */
   isDisabled?: boolean;
   children?: ReactNode;
@@ -42,6 +45,8 @@ export type ContextMenuProps = {
 
 export type ContextMenuTriggerProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
   className?: string;
+  /** 触摸/鼠标长按打开菜单的延迟；不传则不启用长按 */
+  longPressDelay?: number;
 };
 
 export type ContextMenuPopoverProps = Omit<
@@ -82,6 +87,7 @@ export type ContextMenuSeparatorProps = Omit<SeparatorProps, 'className' | 'styl
 };
 
 type Point = { x: number; y: number };
+type AnchorSource = 'event' | 'fallback' | 'prop';
 
 type ContextMenuContextValue = {
   isOpen: boolean;
@@ -89,8 +95,10 @@ type ContextMenuContextValue = {
   isDisabled: boolean;
   /** 跟随鼠标坐标的虚拟锚点 div（0 尺寸绝对定位），RAC Popover 据此 triggerRef 定位 */
   anchorRef: RefObject<HTMLDivElement | null>;
+  /** 触发区域，用于无事件坐标时回退到中心点定位 */
+  triggerRef: RefObject<HTMLDivElement | null>;
   /** 把锚点 div 移动到光标坐标处（相对 Trigger 容器） */
-  positionAnchor: (point: Point) => void;
+  positionAnchor: (point: Point, source?: AnchorSource) => void;
 };
 
 const ContextMenuContext = createContext<ContextMenuContextValue | null>(null);
@@ -119,6 +127,7 @@ const ContextMenuRoot = ({
   open,
   defaultOpen = false,
   onOpenChange,
+  anchorPoint,
   isDisabled = false,
   children,
 }: ContextMenuProps) => {
@@ -127,6 +136,9 @@ const ContextMenuRoot = ({
   const isOpen = isControlled ? open : uncontrolledOpen;
 
   const anchorRef = useRef<HTMLDivElement | null>(null);
+  const triggerRef = useRef<HTMLDivElement | null>(null);
+  const hasPositionedAnchorRef = useRef(false);
+  const anchorSourceRef = useRef<AnchorSource | null>(null);
 
   const setOpen = useCallback(
     (next: boolean) => {
@@ -137,18 +149,71 @@ const ContextMenuRoot = ({
   );
 
   /** 锚点 div 相对 Trigger 容器绝对定位，故用相对父容器的偏移坐标 */
-  const positionAnchor = useCallback((point: Point) => {
+  const positionAnchor = useCallback((point: Point, source: AnchorSource = 'event') => {
     const anchor = anchorRef.current;
     if (anchor === null) return;
     const parent = anchor.offsetParent as HTMLElement | null;
     const rect = parent?.getBoundingClientRect();
     anchor.style.left = `${point.x - (rect?.left ?? 0)}px`;
     anchor.style.top = `${point.y - (rect?.top ?? 0)}px`;
+    hasPositionedAnchorRef.current = true;
+    anchorSourceRef.current = source;
   }, []);
 
+  const positionAnchorAtTriggerCenter = useCallback(() => {
+    const trigger = triggerRef.current;
+    if (trigger === null) return;
+    const rect = trigger.getBoundingClientRect();
+    positionAnchor(
+      {
+        x: rect.left + rect.width / 2,
+        y: rect.top + rect.height / 2,
+      },
+      'fallback',
+    );
+  }, [positionAnchor]);
+
+  const ensureOpenAnchor = useCallback(() => {
+    if (anchorPoint !== undefined && anchorSourceRef.current !== 'event') {
+      positionAnchor(anchorPoint, 'prop');
+      return;
+    }
+    if (!hasPositionedAnchorRef.current) {
+      positionAnchorAtTriggerCenter();
+    }
+  }, [anchorPoint, positionAnchor, positionAnchorAtTriggerCenter]);
+
+  const setContextMenuOpen = useCallback(
+    (next: boolean) => {
+      if (next) ensureOpenAnchor();
+      setOpen(next);
+      if (!next) {
+        hasPositionedAnchorRef.current = false;
+        anchorSourceRef.current = null;
+      }
+    },
+    [ensureOpenAnchor, setOpen],
+  );
+
+  useEffect(() => {
+    if (isOpen) {
+      ensureOpenAnchor();
+      return;
+    }
+    hasPositionedAnchorRef.current = false;
+    anchorSourceRef.current = null;
+  }, [ensureOpenAnchor, isOpen]);
+
   const value = useMemo<ContextMenuContextValue>(
-    () => ({ isOpen, setOpen, isDisabled, anchorRef, positionAnchor }),
-    [isOpen, setOpen, isDisabled, positionAnchor],
+    () => ({
+      isOpen,
+      setOpen: setContextMenuOpen,
+      isDisabled,
+      anchorRef,
+      triggerRef,
+      positionAnchor,
+    }),
+    [isOpen, setContextMenuOpen, isDisabled, positionAnchor],
   );
 
   return <ContextMenuContext.Provider value={value}>{children}</ContextMenuContext.Provider>;
@@ -159,22 +224,110 @@ ContextMenuRoot.displayName = 'ContextMenu';
  * 右键目标区域：onContextMenu 阻止系统菜单、记录光标坐标并打开浮层。
  * 锚点 div 渲染在区域内、定位为鼠标坐标处的零尺寸点（Popover 的 triggerRef）。
  */
-const Trigger = ({ className, children, onContextMenu, ...rest }: ContextMenuTriggerProps) => {
-  const { isDisabled, setOpen, anchorRef, positionAnchor } = useContextMenuContext();
+const LONG_PRESS_MOVE_TOLERANCE = 10;
+
+const Trigger = ({
+  className,
+  children,
+  onContextMenu,
+  onPointerCancel,
+  onPointerDown,
+  onPointerLeave,
+  onPointerMove,
+  onPointerUp,
+  longPressDelay,
+  ...rest
+}: ContextMenuTriggerProps) => {
+  const { isDisabled, setOpen, anchorRef, triggerRef, positionAnchor } = useContextMenuContext();
+  const longPressTimerRef = useRef<ReturnType<typeof window.setTimeout> | null>(null);
+  const longPressPointRef = useRef<Point | null>(null);
+
+  const clearLongPress = useCallback(() => {
+    if (longPressTimerRef.current !== null) {
+      window.clearTimeout(longPressTimerRef.current);
+      longPressTimerRef.current = null;
+    }
+    longPressPointRef.current = null;
+  }, []);
+
+  const openAtPoint = useCallback(
+    (point: Point) => {
+      positionAnchor(point);
+      setOpen(true);
+    },
+    [positionAnchor, setOpen],
+  );
+
+  useEffect(() => clearLongPress, [clearLongPress]);
 
   const handleContextMenu = (event: ReactMouseEvent<HTMLDivElement>) => {
     onContextMenu?.(event);
     if (isDisabled || event.defaultPrevented) return;
     event.preventDefault();
-    positionAnchor({ x: event.clientX, y: event.clientY });
-    setOpen(true);
+    openAtPoint({ x: event.clientX, y: event.clientY });
+  };
+
+  const handlePointerDown: NonNullable<ContextMenuTriggerProps['onPointerDown']> = (event) => {
+    onPointerDown?.(event);
+    if (
+      isDisabled ||
+      event.defaultPrevented ||
+      longPressDelay === undefined ||
+      longPressDelay < 0 ||
+      !event.isPrimary ||
+      event.button !== 0
+    ) {
+      return;
+    }
+
+    const point = { x: event.clientX, y: event.clientY };
+    clearLongPress();
+    longPressPointRef.current = point;
+    longPressTimerRef.current = window.setTimeout(() => {
+      openAtPoint(point);
+      clearLongPress();
+    }, longPressDelay);
+  };
+
+  const handlePointerMove: NonNullable<ContextMenuTriggerProps['onPointerMove']> = (event) => {
+    onPointerMove?.(event);
+    const point = longPressPointRef.current;
+    if (point === null) return;
+
+    if (
+      Math.abs(event.clientX - point.x) > LONG_PRESS_MOVE_TOLERANCE ||
+      Math.abs(event.clientY - point.y) > LONG_PRESS_MOVE_TOLERANCE
+    ) {
+      clearLongPress();
+    }
+  };
+
+  const handlePointerUp: NonNullable<ContextMenuTriggerProps['onPointerUp']> = (event) => {
+    onPointerUp?.(event);
+    clearLongPress();
+  };
+
+  const handlePointerLeave: NonNullable<ContextMenuTriggerProps['onPointerLeave']> = (event) => {
+    onPointerLeave?.(event);
+    clearLongPress();
+  };
+
+  const handlePointerCancel: NonNullable<ContextMenuTriggerProps['onPointerCancel']> = (event) => {
+    onPointerCancel?.(event);
+    clearLongPress();
   };
 
   return (
     <div
+      ref={triggerRef}
       data-slot="context-menu-trigger"
       className={clsx('context-menu__trigger', className)}
       onContextMenu={handleContextMenu}
+      onPointerCancel={handlePointerCancel}
+      onPointerDown={handlePointerDown}
+      onPointerLeave={handlePointerLeave}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
       {...rest}
     >
       {children}

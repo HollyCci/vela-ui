@@ -1881,33 +1881,8 @@ const CommandVariantDemo = ({ variant }: VariantDemoProps) => {
 const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
   const [lastItem, setLastItem] = useState('尚未操作');
   const [isOpen, setOpen] = useState(false);
-  const longPressTimerRef = useRef<number | null>(null);
 
   const handleAction = (key: ReactKey) => setLastItem(`已选择：${String(key)}`);
-  const clearLongPress = () => {
-    if (longPressTimerRef.current !== null) {
-      window.clearTimeout(longPressTimerRef.current);
-      longPressTimerRef.current = null;
-    }
-  };
-  const longPressProps =
-    variant === 'long-press'
-      ? {
-          onPointerDown: (event: React.PointerEvent<HTMLDivElement>) => {
-            clearLongPress();
-            const target = event.currentTarget;
-            const { clientX, clientY } = event;
-            longPressTimerRef.current = window.setTimeout(() => {
-              target.dispatchEvent(
-                new MouseEvent('contextmenu', { bubbles: true, cancelable: true, clientX, clientY }),
-              );
-            }, 550);
-          },
-          onPointerUp: clearLongPress,
-          onPointerLeave: clearLongPress,
-          onPointerCancel: clearLongPress,
-        }
-      : {};
 
   const renderMenu = () => {
     if (variant === 'with-sections') {
@@ -1996,7 +1971,7 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
         onOpenChange={variant === 'controlled' ? setOpen : undefined}
         isDisabled={variant === 'disabled'}
       >
-        <ContextMenu.Trigger {...longPressProps}>
+        <ContextMenu.Trigger longPressDelay={variant === 'long-press' ? 550 : undefined}>
           <div style={CONTEXT_MENU_TARGET_STYLE}>
             {variant === 'disabled' ? '禁用：右键无响应' : variant === 'long-press' ? '长按或右键打开' : '在此处右键'}
           </div>
@@ -2213,6 +2188,7 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
         defaultSelectedKey={variant === 'controlled' ? undefined : 'analytics'}
         size={size}
         variant={segmentVariant}
+        showSeparators={variant !== 'without-separators'}
         onSelectionChange={variant === 'controlled' ? setSelectedKey : undefined}
       >
         {SEGMENT_VARIANT_ITEMS.map((item) => (
