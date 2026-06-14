@@ -31,6 +31,15 @@ export type ChatToolProps = HTMLAttributes<HTMLDivElement> & {
 
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
+export type ChatToolArgsProps = SectionProps;
+export type ChatToolResultProps = SectionProps;
+export type ChatToolErrorProps = SectionProps;
+export type ChatToolMetaProps = SectionProps;
+export type ChatToolApprovalProps = SectionProps & {
+  /** 审批操作区（按钮组等），提供时渲染在内容下方 */
+  actions?: ReactNode;
+};
+
 const STATUS_MODIFIERS: Partial<Record<ChatToolStatus, string>> = {
   pending: 'chat-tool--pending',
   running: 'chat-tool--running',
@@ -126,7 +135,7 @@ const ChatToolRoot = forwardRef<HTMLDivElement, ChatToolProps>(
 );
 ChatToolRoot.displayName = 'ChatTool';
 
-const Args = forwardRef<HTMLDivElement, SectionProps>(({ className, children, ...rest }, ref) => (
+const Args = forwardRef<HTMLDivElement, ChatToolArgsProps>(({ className, children, ...rest }, ref) => (
   <div ref={ref} className={clsx('chat-tool__args', className)} {...rest}>
     <div className="chat-tool__args-label">参数</div>
     {children}
@@ -134,7 +143,7 @@ const Args = forwardRef<HTMLDivElement, SectionProps>(({ className, children, ..
 ));
 Args.displayName = 'ChatTool.Args';
 
-const Result = forwardRef<HTMLDivElement, SectionProps>(({ className, children, ...rest }, ref) => (
+const Result = forwardRef<HTMLDivElement, ChatToolResultProps>(({ className, children, ...rest }, ref) => (
   <div ref={ref} className={clsx('chat-tool__result', className)} {...rest}>
     <div className="chat-tool__result-label">结果</div>
     {children}
@@ -142,7 +151,7 @@ const Result = forwardRef<HTMLDivElement, SectionProps>(({ className, children, 
 ));
 Result.displayName = 'ChatTool.Result';
 
-const ErrorSection = forwardRef<HTMLDivElement, SectionProps>(
+const ErrorSection = forwardRef<HTMLDivElement, ChatToolErrorProps>(
   ({ className, children, ...rest }, ref) => (
     <div ref={ref} className={clsx('chat-tool__error', className)} {...rest}>
       <div className="chat-tool__error-label">错误</div>
@@ -152,7 +161,7 @@ const ErrorSection = forwardRef<HTMLDivElement, SectionProps>(
 );
 ErrorSection.displayName = 'ChatTool.Error';
 
-const Approval = forwardRef<HTMLDivElement, SectionProps & { actions?: ReactNode }>(
+const Approval = forwardRef<HTMLDivElement, ChatToolApprovalProps>(
   ({ actions, className, children, ...rest }, ref) => (
     <div ref={ref} className={clsx('chat-tool__approval', className)} {...rest}>
       {children}
@@ -162,7 +171,7 @@ const Approval = forwardRef<HTMLDivElement, SectionProps & { actions?: ReactNode
 );
 Approval.displayName = 'ChatTool.Approval';
 
-const Meta = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Meta = forwardRef<HTMLDivElement, ChatToolMetaProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('chat-tool__meta', className)} {...rest} />
 ));
 Meta.displayName = 'ChatTool.Meta';

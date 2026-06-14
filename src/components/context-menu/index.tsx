@@ -69,6 +69,8 @@ export type ContextMenuMenuProps<T extends object = object> = Omit<
 };
 
 export type ContextMenuItemProps = HeroMenuItemRootProps;
+export type ContextMenuItemIndicatorProps = Parameters<typeof HeroMenuItem.Indicator>[0];
+export type ContextMenuSubmenuIndicatorProps = Parameters<typeof HeroMenuItem.SubmenuIndicator>[0];
 export type ContextMenuSectionProps = HeroMenuSectionRootProps;
 export type ContextMenuSubmenuTriggerProps = SubmenuTriggerProps;
 
@@ -397,13 +399,13 @@ ContextMenuMenu.displayName = 'ContextMenu.Menu';
 const Item = (props: ContextMenuItemProps) => <HeroMenuItem {...props} />;
 Item.displayName = 'ContextMenu.Item';
 
-const ItemIndicator = (props: Parameters<typeof HeroMenuItem.Indicator>[0]) => (
+const ItemIndicator = (props: ContextMenuItemIndicatorProps) => (
   <HeroMenuItem.Indicator {...props} />
 );
 ItemIndicator.displayName = 'ContextMenu.ItemIndicator';
 
 /** 子菜单箭头（OSS MenuItem.SubmenuIndicator），仅在 SubmenuTrigger 内渲染 */
-const SubmenuIndicator = (props: Parameters<typeof HeroMenuItem.SubmenuIndicator>[0]) => (
+const SubmenuIndicator = (props: ContextMenuSubmenuIndicatorProps) => (
   <HeroMenuItem.SubmenuIndicator {...props} />
 );
 SubmenuIndicator.displayName = 'ContextMenu.SubmenuIndicator';

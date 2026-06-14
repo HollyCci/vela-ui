@@ -10,7 +10,7 @@ export type ChatMessageProps = HTMLAttributes<HTMLDivElement> & {
   actions?: ReactNode;
 };
 
-type SectionProps = HTMLAttributes<HTMLDivElement>;
+export type ChatMessageActionProps = HTMLAttributes<HTMLDivElement>;
 
 const ChatMessageRoot = forwardRef<HTMLDivElement, ChatMessageProps>(
   ({ variant, avatar, media, actions, className, children, ...rest }, ref) => {
@@ -43,7 +43,7 @@ const ChatMessageRoot = forwardRef<HTMLDivElement, ChatMessageProps>(
 );
 ChatMessageRoot.displayName = 'ChatMessage';
 
-const Action = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Action = forwardRef<HTMLDivElement, ChatMessageActionProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('chat-message__action', className)} {...rest} />
 ));
 Action.displayName = 'ChatMessage.Action';

@@ -32,6 +32,13 @@ export type ChatListViewItemProps = Omit<GridListItemProps, 'className' | 'style
 type DivProps = HTMLAttributes<HTMLDivElement>;
 type SpanProps = HTMLAttributes<HTMLSpanElement>;
 
+export type ChatListViewItemContentProps = DivProps;
+export type ChatListViewIconProps = DivProps;
+export type ChatListViewTextProps = DivProps;
+export type ChatListViewMetaProps = DivProps;
+export type ChatListViewTitleProps = SpanProps;
+export type ChatListViewPreviewProps = SpanProps;
+
 /**
  * 会话/消息列表：基于 RAC GridList，键盘导航与单选高亮（data-selected）由 RAC 提供。
  * 受控选中走 selectedKeys/onSelectionChange，复用 list-view--secondary 的选中态样式。
@@ -67,7 +74,7 @@ const Item = ({ className, ...rest }: ChatListViewItemProps) => (
 Item.displayName = 'ChatListView.Item';
 
 /** 行内容外层：容纳 Icon / Text / Meta，对齐快照的 list-view__item-content */
-const ItemContent = forwardRef<HTMLDivElement, DivProps>(({ className, ...rest }, ref) => (
+const ItemContent = forwardRef<HTMLDivElement, ChatListViewItemContentProps>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     data-slot="chat-list-view-item-content"
@@ -89,7 +96,7 @@ const DEFAULT_ICON: ReactNode = (
   </svg>
 );
 
-const Icon = forwardRef<HTMLDivElement, DivProps>(({ className, children, ...rest }, ref) => (
+const Icon = forwardRef<HTMLDivElement, ChatListViewIconProps>(({ className, children, ...rest }, ref) => (
   <div
     ref={ref}
     data-slot="chat-list-view-icon"
@@ -102,7 +109,7 @@ const Icon = forwardRef<HTMLDivElement, DivProps>(({ className, children, ...res
 Icon.displayName = 'ChatListView.Icon';
 
 /** 标题/预览文本列容器 */
-const Text = forwardRef<HTMLDivElement, DivProps>(({ className, ...rest }, ref) => (
+const Text = forwardRef<HTMLDivElement, ChatListViewTextProps>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     data-slot="chat-list-view-text"
@@ -112,7 +119,7 @@ const Text = forwardRef<HTMLDivElement, DivProps>(({ className, ...rest }, ref) 
 ));
 Text.displayName = 'ChatListView.Text';
 
-const Title = forwardRef<HTMLSpanElement, SpanProps>(({ className, ...rest }, ref) => (
+const Title = forwardRef<HTMLSpanElement, ChatListViewTitleProps>(({ className, ...rest }, ref) => (
   <span
     ref={ref}
     data-slot="chat-list-view-title"
@@ -122,7 +129,7 @@ const Title = forwardRef<HTMLSpanElement, SpanProps>(({ className, ...rest }, re
 ));
 Title.displayName = 'ChatListView.Title';
 
-const Preview = forwardRef<HTMLSpanElement, SpanProps>(({ className, ...rest }, ref) => (
+const Preview = forwardRef<HTMLSpanElement, ChatListViewPreviewProps>(({ className, ...rest }, ref) => (
   <span
     ref={ref}
     data-slot="chat-list-view-preview"
@@ -132,7 +139,7 @@ const Preview = forwardRef<HTMLSpanElement, SpanProps>(({ className, ...rest }, 
 ));
 Preview.displayName = 'ChatListView.Preview';
 
-const Meta = forwardRef<HTMLDivElement, DivProps>(({ className, ...rest }, ref) => (
+const Meta = forwardRef<HTMLDivElement, ChatListViewMetaProps>(({ className, ...rest }, ref) => (
   <div
     ref={ref}
     data-slot="chat-list-view-meta"

@@ -9,6 +9,11 @@ export type EmptyStateProps = HTMLAttributes<HTMLDivElement> & {
 
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
+export type EmptyStateHeaderProps = SectionProps;
+export type EmptyStateTitleProps = SectionProps;
+export type EmptyStateDescriptionProps = SectionProps;
+export type EmptyStateContentProps = SectionProps;
+
 export type EmptyStateMediaProps = HTMLAttributes<HTMLDivElement> & {
   /** variant="icon" 时渲染圆形图标底座（CSS [data-variant=icon]） */
   variant?: 'icon';
@@ -26,7 +31,7 @@ const EmptyStateRoot = forwardRef<HTMLDivElement, EmptyStateProps>(
 );
 EmptyStateRoot.displayName = 'EmptyState';
 
-const Header = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Header = forwardRef<HTMLDivElement, EmptyStateHeaderProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('empty-state__header', className)} {...rest} />
 ));
 Header.displayName = 'EmptyState.Header';
@@ -44,17 +49,17 @@ const Media = forwardRef<HTMLDivElement, EmptyStateMediaProps>(
 );
 Media.displayName = 'EmptyState.Media';
 
-const Title = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Title = forwardRef<HTMLDivElement, EmptyStateTitleProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('empty-state__title', className)} {...rest} />
 ));
 Title.displayName = 'EmptyState.Title';
 
-const Description = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Description = forwardRef<HTMLDivElement, EmptyStateDescriptionProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('empty-state__description', className)} {...rest} />
 ));
 Description.displayName = 'EmptyState.Description';
 
-const Content = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
+const Content = forwardRef<HTMLDivElement, EmptyStateContentProps>(({ className, ...rest }, ref) => (
   <div ref={ref} className={clsx('empty-state__content', className)} {...rest} />
 ));
 Content.displayName = 'EmptyState.Content';

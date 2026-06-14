@@ -32,6 +32,9 @@ import clsx from 'clsx';
 export type CommandSize = 'sm' | 'md' | 'lg';
 export type CommandBackdropVariant = 'opaque' | 'blur' | 'transparent';
 
+/** 根 provider 仅透传 children，不渲染 DOM；开合由 Command.Backdrop 受控驱动 */
+export type CommandProps = { children?: ReactNode };
+
 /** ModalOverlay 已含遮罩全部 props，这里加 variant 并收窄 className/style */
 export type CommandBackdropProps = Omit<ModalOverlayProps, 'className' | 'style'> & {
   variant?: CommandBackdropVariant;
@@ -136,7 +139,7 @@ export type CommandCollectionProps<TItem extends CommandCollectionItem = Command
 const CommandSizeContext = createContext<CommandSize>('md');
 
 /** 根 provider 只透传 children，不渲染 DOM；开合由 Command.Backdrop 的 isOpen/onOpenChange 受控驱动 */
-const CommandRoot = ({ children }: { children?: ReactNode }) => <>{children}</>;
+const CommandRoot = ({ children }: CommandProps) => <>{children}</>;
 CommandRoot.displayName = 'Command';
 
 /** 全屏遮罩（RAC ModalOverlay）：isEntering/isExiting 由底座输出 data-entering/data-exiting，对齐原站动画 */

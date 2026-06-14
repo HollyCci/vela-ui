@@ -36,6 +36,7 @@ export type DrawerContentProps = Omit<HeroDrawerContentProps, 'className' | 'sty
   style?: CSSProperties;
 };
 export type DrawerDialogProps = Omit<HeroDrawerDialogProps, 'className' | 'style'> & {
+  placement?: DrawerPlacement;
   className?: string;
   style?: CSSProperties;
 };
@@ -104,7 +105,7 @@ const Content = ({ className, ...rest }: DrawerContentProps) => (
 );
 Content.displayName = 'Drawer.Content';
 
-const Dialog = ({ className, placement = 'right', ...rest }: DrawerDialogProps & { placement?: DrawerPlacement }) => (
+const Dialog = ({ className, placement = 'right', ...rest }: DrawerDialogProps) => (
   <HeroDrawer.Dialog
     data-slot="drawer-dialog"
     aria-modal="true"

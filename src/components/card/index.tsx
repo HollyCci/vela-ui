@@ -5,7 +5,8 @@ export type CardProps = HTMLAttributes<HTMLDivElement> & {
   variant?: 'default' | 'secondary' | 'tertiary' | 'transparent';
 };
 
-type SectionProps = HTMLAttributes<HTMLDivElement>;
+export type CardSectionProps = HTMLAttributes<HTMLDivElement>;
+type SectionProps = CardSectionProps;
 
 const CardRoot = forwardRef<HTMLDivElement, CardProps>(
   ({ variant = 'default', className, ...rest }, ref) => (

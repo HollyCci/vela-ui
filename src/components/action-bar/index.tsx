@@ -9,7 +9,8 @@ export type ActionBarProps = Omit<ToolbarProps, 'className'> & {
   className?: string;
 };
 
-type SectionProps = HTMLAttributes<HTMLDivElement>;
+export type ActionBarSectionProps = HTMLAttributes<HTMLDivElement>;
+type SectionProps = ActionBarSectionProps;
 
 /** 进场/退场动画类（tw-animate-css），与原站「animates in/out based on isOpen」行为对齐 */
 const ENTER_MOTION = 'animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-200';
@@ -24,14 +25,17 @@ const EXIT_FALLBACK_MS = 300;
  * Root 扩展 ToolbarProps（aria-label 默认 "Actions"，isAttached 默认 true），
  * 退场动画结束后再卸载 DOM。
  */
-const ActionBarRoot = ({
-  isOpen,
-  isAttached = true,
-  'aria-label': ariaLabel = 'Actions',
-  className,
-  children,
-  ...rest
-}: ActionBarProps) => {
+const ActionBarRoot = forwardRef<HTMLDivElement, ActionBarProps>((
+  {
+    isOpen,
+    isAttached = true,
+    'aria-label': ariaLabel = 'Actions',
+    className,
+    children,
+    ...rest
+  },
+  ref,
+) => {
   const [isPresent, setIsPresent] = useState(isOpen);
 
   useEffect(() => {
@@ -51,6 +55,7 @@ const ActionBarRoot = ({
 
   return (
     <div
+      ref={ref}
       className="action-bar"
       data-state={isOpen ? 'open' : 'closed'}
       onAnimationEnd={handleAnimationEnd}
@@ -65,7 +70,7 @@ const ActionBarRoot = ({
       </Toolbar>
     </div>
   );
-};
+});
 
 ActionBarRoot.displayName = 'ActionBar';
 
