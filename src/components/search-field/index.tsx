@@ -26,6 +26,7 @@ import {
   type TextProps as AriaTextProps,
 } from 'react-aria-components';
 import clsx from 'clsx';
+import { assignRef } from '../_internal/assign-ref';
 
 export type SearchFieldProps = Omit<
   AriaSearchFieldProps,
@@ -89,14 +90,6 @@ type SearchFieldInputContextValue = {
 };
 
 const SearchFieldInputContext = createContext<SearchFieldInputContextValue | null>(null);
-
-const assignRef = <T,>(ref: ForwardedRef<T>, value: T | null) => {
-  if (typeof ref === 'function') {
-    ref(value);
-  } else if (ref !== null) {
-    ref.current = value;
-  }
-};
 
 const SearchIcon = ({ className, ...rest }: SearchFieldSearchIconProps) => (
   <svg

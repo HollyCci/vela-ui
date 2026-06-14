@@ -20,6 +20,7 @@ import {
   type TextProps as AriaTextProps,
 } from 'react-aria-components';
 import clsx from 'clsx';
+import { assignRef } from '../_internal/assign-ref';
 
 export type InputProps = Omit<InputHTMLAttributes<HTMLInputElement>, 'children'> & {
   variant?: 'default' | 'secondary';
@@ -67,14 +68,6 @@ type InputFieldContextValue = {
 };
 
 const InputFieldContext = createContext<InputFieldContextValue | null>(null);
-
-const assignRef = <T,>(ref: ForwardedRef<T>, value: T | null) => {
-  if (typeof ref === 'function') {
-    ref(value);
-  } else if (ref !== null) {
-    ref.current = value;
-  }
-};
 
 const Label = forwardRef<HTMLLabelElement, InputLabelProps>(({ className, ...rest }, ref) => (
   <AriaLabel ref={ref} className={clsx('label', className)} data-slot="label" {...rest} />

@@ -3,24 +3,12 @@
 import {
   forwardRef,
   useState,
-  type CSSProperties,
   type ChangeEvent,
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
 import clsx from 'clsx';
-
-const VISUALLY_HIDDEN: CSSProperties = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  margin: -1,
-  padding: 0,
-  border: 0,
-  clipPath: 'inset(50%)',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-};
+import { VISUALLY_HIDDEN } from '../_internal/visually-hidden';
 
 export type SwitchSize = 'sm' | 'md' | 'lg';
 

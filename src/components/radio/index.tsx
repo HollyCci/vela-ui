@@ -7,24 +7,12 @@ import {
   useRef,
   useState,
   type ChangeEvent,
-  type CSSProperties,
   type InputHTMLAttributes,
   type Ref,
   type ReactNode,
 } from 'react';
 import clsx from 'clsx';
-
-const VISUALLY_HIDDEN: CSSProperties = {
-  position: 'absolute',
-  width: 1,
-  height: 1,
-  margin: -1,
-  padding: 0,
-  border: 0,
-  clipPath: 'inset(50%)',
-  whiteSpace: 'nowrap',
-  overflow: 'hidden',
-};
+import { VISUALLY_HIDDEN } from '../_internal/visually-hidden';
 
 export type RadioProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
