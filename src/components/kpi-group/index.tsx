@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
 import { Group, type GroupProps } from 'react-aria-components';
 import clsx from 'clsx';

@@ -1,3 +1,5 @@
+'use client';
+
 import {
   Dropdown as HeroDropdown,
   type DropdownMenuProps as HeroDropdownMenuProps,

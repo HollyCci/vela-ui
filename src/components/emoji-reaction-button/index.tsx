@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
 import { ToggleButton, type ToggleButtonProps } from 'react-aria-components';
 import clsx from 'clsx';

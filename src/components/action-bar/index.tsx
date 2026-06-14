@@ -1,3 +1,5 @@
+'use client';
+
 import { useEffect, useState, forwardRef, type HTMLAttributes } from 'react';
 import { Toolbar, type ToolbarProps } from '@heroui/react';
 import clsx from 'clsx';

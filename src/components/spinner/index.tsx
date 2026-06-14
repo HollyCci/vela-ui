@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, useId, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 

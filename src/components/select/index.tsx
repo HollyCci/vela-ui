@@ -1,3 +1,5 @@
+'use client';
+
 import type { ComponentProps, CSSProperties, SVGProps } from 'react';
 import {
   ListBox,

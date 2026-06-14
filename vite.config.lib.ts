@@ -28,6 +28,30 @@ function copyStyles() {
   };
 }
 
+/**
+ * Rollup 默认剥除模块级 'use client' 指令。本插件在产出阶段，把源文件带该指令的
+ * chunk 回填首行 'use client'（per-component preserveModules 下每 chunk 对应一个源模块），
+ * 使发布产物保留 RSC 客户端边界。自包含，无需第三方插件。
+ */
+function preserveUseClient() {
+  return {
+    name: 'vela-preserve-use-client',
+    generateBundle(_options: unknown, bundle: Record<string, { type: string; code?: string; facadeModuleId?: string | null }>) {
+      for (const file of Object.values(bundle)) {
+        if (file.type !== 'chunk' || !file.facadeModuleId || file.code === undefined) continue;
+        try {
+          const src = readFileSync(file.facadeModuleId, 'utf8');
+          if (/^\s*['"]use client['"]/.test(src) && !/^['"]use client['"]/.test(file.code)) {
+            file.code = `'use client';\n${file.code}`;
+          }
+        } catch {
+          /* 源文件不可读则跳过 */
+        }
+      }
+    },
+  };
+}
+
 // 运行时由宿主提供 / 库自身依赖均外部化，不打进产物
 const external = [
   'react',
@@ -47,19 +71,33 @@ const external = [
 ];
 
 export default defineConfig({
-  plugins: [react(), copyStyles()],
+  plugins: [react(), preserveUseClient(), copyStyles()],
   build: {
-    lib: {
-      entry,
-      formats: ['es', 'cjs'],
-      fileName: (format) => (format === 'es' ? 'index.js' : 'index.cjs'),
-    },
+    lib: { entry },
     outDir: 'dist',
     sourcemap: true,
     cssCodeSplit: false,
     emptyOutDir: true,
     target: 'es2020',
     minify: false,
-    rollupOptions: { external },
+    rollupOptions: {
+      external,
+      // preserveModules：每组件独立产物 → per-file 'use client' 真生效 + 极致 tree-shake
+      output: [
+        {
+          format: 'es',
+          preserveModules: true,
+          preserveModulesRoot: 'src',
+          entryFileNames: '[name].js',
+        },
+        {
+          format: 'cjs',
+          preserveModules: true,
+          preserveModulesRoot: 'src',
+          entryFileNames: '[name].cjs',
+          exports: 'named',
+        },
+      ],
+    },
   },
 });

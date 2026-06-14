@@ -1,3 +1,5 @@
+'use client';
+
 import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
 import { Radio, RadioGroup, type RadioGroupProps, type RadioProps } from '@heroui/react';
 import clsx from 'clsx';
