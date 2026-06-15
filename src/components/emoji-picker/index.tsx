@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  useEffect,
   useMemo,
   useState,
   type ChangeEvent,
@@ -133,8 +134,19 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, selectedEmoji, f
 
   const handleCategoryChange = (keys: Set<Key>) => {
     const first = keys.values().next();
-    if (!first.done) setActiveCategory(first.value);
+    // 选分类时清空搜索，否则 visibleEmojis 优先走搜索结果会让点击分类"无反应"
+    if (!first.done) {
+      setActiveCategory(first.value);
+      setQuery('');
+    }
   };
+
+  // categories/recentEmojis 外部切换后，若当前 activeCategory 已不在集合中则回退到首个，避免空网格
+  useEffect(() => {
+    if (!allCategories.some((category) => category.id === activeCategory)) {
+      setActiveCategory(allCategories[0]?.id ?? '');
+    }
+  }, [allCategories, activeCategory]);
 
   const handleSearchChange = (event: ChangeEvent<HTMLInputElement>) => {
     setQuery(event.target.value);
@@ -267,7 +279,7 @@ const EmojiPicker = ({
           size={size}
           categories={categories}
           recentEmojis={recentEmojis}
-          onEmojiSelect={onEmojiSelect}
+          onEmojiSelect={handleEmojiSelect}
           selectedEmoji={currentEmoji}
         />
       </div>
