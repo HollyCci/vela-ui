@@ -18,7 +18,6 @@ import {
   ToggleButton as RACToggleButton,
   ToggleButtonGroup as RACToggleButtonGroup,
   type Key,
-  type Selection,
 } from 'react-aria-components';
 import clsx from 'clsx';
 
@@ -113,6 +112,7 @@ type PanelProps = {
   categories: EmojiCategory[];
   recentEmojis?: string[];
   onEmojiSelect?: (emoji: string) => void;
+  selectedEmoji?: string;
   footer?: ReactNode;
 };
 
@@ -120,7 +120,7 @@ type PanelProps = {
  * 选择面板：分类标签（RAC ToggleButtonGroup）+ 搜索框 + 表情网格（RAC ListBox grid）。
  * 切分类只换网格内容；搜索非空时跨全部分类过滤并忽略分类选择；点表情经 onSelectionChange 上报。
  */
-const Panel = ({ size, categories, recentEmojis, onEmojiSelect, footer }: PanelProps) => {
+const Panel = ({ size, categories, recentEmojis, onEmojiSelect, selectedEmoji, footer }: PanelProps) => {
   const allCategories = useMemo<EmojiCategory[]>(() => {
     if (recentEmojis && recentEmojis.length > 0) {
       return [{ id: RECENT_ID, icon: '🕘', label: '最近', emojis: recentEmojis }, ...categories];
@@ -140,10 +140,10 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, footer }: PanelP
     setQuery(event.target.value);
   };
 
-  const handleSelectionChange = (keys: Selection) => {
-    if (keys === 'all') return;
-    const first = keys.values().next();
-    if (!first.done) onEmojiSelect?.(String(first.value));
+  // 用 onAction 而非 onSelectionChange：onAction 每次激活 item 都触发（含重复点已选表情），
+  // 而 RAC 单选 ListBox 对"再次点击已选 key"不重发 onSelectionChange。选中高亮由受控 selectedKeys 承载。
+  const handleEmojiAction = (key: Key) => {
+    onEmojiSelect?.(String(key));
   };
 
   const isSearching = query.trim() !== '';
@@ -198,7 +198,8 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, footer }: PanelP
         layout="grid"
         selectionMode="single"
         disallowEmptySelection
-        onSelectionChange={handleSelectionChange}
+        selectedKeys={selectedEmoji ? [selectedEmoji] : []}
+        onAction={handleEmojiAction}
         className="emoji-picker__grid"
         renderEmptyState={renderEmptyState}
       >
@@ -267,6 +268,7 @@ const EmojiPicker = ({
           categories={categories}
           recentEmojis={recentEmojis}
           onEmojiSelect={onEmojiSelect}
+          selectedEmoji={currentEmoji}
         />
       </div>
     );
@@ -297,6 +299,7 @@ const EmojiPicker = ({
             categories={categories}
             recentEmojis={recentEmojis}
             onEmojiSelect={handleEmojiSelect}
+            selectedEmoji={currentEmoji}
           />
         </RACDialog>
       </RACPopover>

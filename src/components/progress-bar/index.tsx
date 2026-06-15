@@ -34,7 +34,11 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
     ref,
   ) => {
     const isIndeterminate = value === undefined;
-    const percent = isIndeterminate ? 0 : Math.min(100, Math.max(0, (value / maxValue) * 100));
+    const percent = isIndeterminate
+      ? 0
+      : maxValue > 0
+        ? Math.min(100, Math.max(0, (value / maxValue) * 100))
+        : 0;
     const output = valueLabel ?? `${Math.round(percent)}%`;
 
     return (

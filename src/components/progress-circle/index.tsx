@@ -22,7 +22,11 @@ const ProgressCircle = forwardRef<HTMLDivElement, ProgressCircleProps>(
     ref,
   ) => {
     const isIndeterminate = value === undefined;
-    const ratio = isIndeterminate ? 0.25 : Math.min(1, Math.max(0, value / maxValue));
+    const ratio = isIndeterminate
+      ? 0.25
+      : maxValue > 0
+        ? Math.min(1, Math.max(0, value / maxValue))
+        : 0;
     const dashOffset = CIRCUMFERENCE * (1 - ratio);
 
     return (

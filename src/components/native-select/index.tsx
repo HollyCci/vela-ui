@@ -50,14 +50,16 @@ type NativeSelectContextValue = {
   fullWidth: boolean;
   selectId: string;
   descriptionId: string;
+  resolvedDescriptionId: string;
   hasDescription: boolean;
-  registerDescription: () => () => void;
+  registerDescription: (resolvedId: string) => () => void;
 };
 
 const NativeSelectContext = createContext<NativeSelectContextValue>({
   fullWidth: false,
   selectId: '',
   descriptionId: '',
+  resolvedDescriptionId: '',
   hasDescription: false,
   registerDescription: () => () => undefined,
 });
@@ -116,7 +118,7 @@ const Description = forwardRef<HTMLParagraphElement, NativeSelectDescriptionProp
     const { descriptionId, registerDescription } = useContext(NativeSelectContext);
     const resolvedId = id ?? descriptionId;
 
-    useEffect(() => registerDescription(), [registerDescription]);
+    useEffect(() => registerDescription(resolvedId), [registerDescription, resolvedId]);
 
     return (
       <p
@@ -137,13 +139,14 @@ Description.displayName = 'NativeSelect.Description';
  */
 const Trigger = forwardRef<HTMLSelectElement, NativeSelectTriggerProps>(
   ({ className, id, wrapperClassName, children, ...rest }, ref) => {
-    const { fullWidth, selectId, descriptionId, hasDescription } =
+    const { fullWidth, selectId, resolvedDescriptionId, hasDescription } =
       useContext(NativeSelectContext);
     const childArray = Children.toArray(children);
     const indicator = childArray.find(isIndicatorElement);
     const options = childArray.filter((child) => !isIndicatorElement(child));
     const { 'aria-describedby': ariaDescribedBy, ...selectProps } = rest;
-    const describedBy = ariaDescribedBy ?? (hasDescription ? descriptionId : undefined);
+    const describedBy =
+      ariaDescribedBy ?? (hasDescription ? resolvedDescriptionId : undefined);
 
     return (
       <div
@@ -190,20 +193,34 @@ const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
   ({ variant = 'primary', fullWidth = false, className, ...rest }, ref) => {
     const selectId = useId();
     const descriptionId = useId();
-    const [descriptionCount, setDescriptionCount] = useState(0);
-    const registerDescription = useCallback(() => {
-      setDescriptionCount((count) => count + 1);
-      return () => setDescriptionCount((count) => Math.max(0, count - 1));
+    const [descriptionIds, setDescriptionIds] = useState<string[]>([]);
+    const registerDescription = useCallback((resolvedId: string) => {
+      setDescriptionIds((ids) => [...ids, resolvedId]);
+      return () =>
+        setDescriptionIds((ids) => {
+          const index = ids.indexOf(resolvedId);
+          if (index === -1) return ids;
+          return [...ids.slice(0, index), ...ids.slice(index + 1)];
+        });
     }, []);
+    const resolvedDescriptionId = descriptionIds[0] ?? descriptionId;
     const contextValue = useMemo<NativeSelectContextValue>(
       () => ({
         fullWidth,
         selectId,
         descriptionId,
-        hasDescription: descriptionCount > 0,
+        resolvedDescriptionId,
+        hasDescription: descriptionIds.length > 0,
         registerDescription,
       }),
-      [descriptionCount, descriptionId, fullWidth, registerDescription, selectId],
+      [
+        descriptionIds,
+        descriptionId,
+        resolvedDescriptionId,
+        fullWidth,
+        registerDescription,
+        selectId,
+      ],
     );
 
     return (

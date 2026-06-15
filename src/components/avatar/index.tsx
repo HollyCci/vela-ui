@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useState, type HTMLAttributes } from 'react';
+import { forwardRef, useEffect, useState, type HTMLAttributes } from 'react';
 import clsx from 'clsx';
 
 export type AvatarColor = 'default' | 'accent' | 'success' | 'warning' | 'danger';
@@ -19,6 +19,9 @@ export type AvatarProps = HTMLAttributes<HTMLSpanElement> & {
 const Avatar = forwardRef<HTMLSpanElement, AvatarProps>(
   ({ src, alt = '', fallback, color = 'default', size = 'md', isSoft = false, className, ...rest }, ref) => {
     const [hasError, setHasError] = useState(false);
+
+    useEffect(() => setHasError(false), [src]);
+
     const showImage = Boolean(src) && !hasError;
 
     const handleError = () => setHasError(true);

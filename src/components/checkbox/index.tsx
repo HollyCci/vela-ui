@@ -2,12 +2,15 @@
 
 import {
   forwardRef,
+  useEffect,
+  useRef,
   useState,
   type ChangeEvent,
   type InputHTMLAttributes,
   type ReactNode,
 } from 'react';
 import clsx from 'clsx';
+import { assignRef } from '../_internal/assign-ref';
 import { VISUALLY_HIDDEN } from '../_internal/visually-hidden';
 
 export type CheckboxProps = Omit<
@@ -45,6 +48,12 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     const [innerSelected, setInnerSelected] = useState(defaultSelected);
     const selected = isSelected ?? innerSelected;
 
+    const inputRef = useRef<HTMLInputElement>(null);
+
+    useEffect(() => {
+      if (inputRef.current) inputRef.current.indeterminate = !!isIndeterminate;
+    }, [isIndeterminate]);
+
     const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
       if (isSelected === undefined) setInnerSelected(event.target.checked);
       onSelectedChange?.(event.target.checked);
@@ -59,7 +68,10 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
         data-disabled={isDisabled || undefined}
       >
         <input
-          ref={ref}
+          ref={(node) => {
+            inputRef.current = node;
+            assignRef(ref, node);
+          }}
           type="checkbox"
           style={VISUALLY_HIDDEN}
           checked={selected}
