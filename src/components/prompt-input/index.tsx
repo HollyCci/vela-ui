@@ -451,6 +451,7 @@ const Action = ({ tooltip, size, variant = 'tertiary', isDisabled, ...rest }: Pr
   const button = (
     <Button
       data-slot="prompt-input-action"
+      aria-label={typeof tooltip === 'string' ? tooltip : undefined}
       isIconOnly
       size={size ?? buttonSize}
       variant={variant}

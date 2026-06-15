@@ -588,7 +588,8 @@ export type SidebarTriggerProps = Omit<OssButtonProps, 'className' | 'style'> & 
 
 /** 开合按钮：OSS Button（variant="ghost" size="sm"），点击切换侧栏 */
 const Trigger = ({ className, onPress, children, ...rest }: SidebarTriggerProps) => {
-  const { toggleSidebar } = useSidebarContext();
+  const { toggleSidebar, isOpen, isMobile, isMobileOpen } = useSidebarContext();
+  const expanded = isMobile ? isMobileOpen : isOpen;
 
   const handlePress: OssButtonProps['onPress'] = (event) => {
     onPress?.(event);
@@ -598,6 +599,8 @@ const Trigger = ({ className, onPress, children, ...rest }: SidebarTriggerProps)
   return (
     <Button
       data-slot="sidebar-trigger"
+      aria-label="Toggle sidebar"
+      aria-expanded={expanded}
       variant="ghost"
       size="sm"
       isIconOnly

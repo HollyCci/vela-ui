@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useId, type HTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
 
 export type MeterColor = 'default' | 'accent' | 'success' | 'warning' | 'danger';
@@ -37,6 +37,7 @@ const Meter = forwardRef<HTMLDivElement, MeterProps>(
     const range = maxValue - minValue;
     const percent = range > 0 ? Math.min(100, Math.max(0, ((value - minValue) / range) * 100)) : 0;
     const output = valueLabel ?? `${Math.round(percent)}%`;
+    const labelId = useId();
 
     return (
       <div
@@ -45,6 +46,7 @@ const Meter = forwardRef<HTMLDivElement, MeterProps>(
         aria-valuemin={minValue}
         aria-valuemax={maxValue}
         aria-valuenow={value}
+        aria-labelledby={label !== undefined ? labelId : undefined}
         data-disabled={isDisabled || undefined}
         className={clsx(
           'meter',
@@ -54,7 +56,11 @@ const Meter = forwardRef<HTMLDivElement, MeterProps>(
         )}
         {...rest}
       >
-        {label !== undefined && <span data-slot="label">{label}</span>}
+        {label !== undefined && (
+          <span id={labelId} data-slot="label">
+            {label}
+          </span>
+        )}
         {isShowValue && <span className="meter__output">{output}</span>}
         <div className="meter__track">
           <div className="meter__fill" style={{ width: `${percent}%` }} />

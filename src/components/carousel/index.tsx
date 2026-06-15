@@ -461,6 +461,7 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
           ref={ref}
           role="region"
           aria-roledescription="carousel"
+          aria-label="Carousel"
           tabIndex={0}
           data-slot="carousel"
           className={clsx('carousel', `carousel--${type}`, className)}
