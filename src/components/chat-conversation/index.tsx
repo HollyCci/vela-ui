@@ -149,11 +149,10 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
       if (node === null || !(node instanceof HTMLElement)) {
         return;
       }
-      // 流式追加常在一帧内触发多次 mutation，用 rAF 合帧：每帧最多跟随一次，避免抖动与重复布局
-      let rafId = 0;
-      const flush = () => {
-        rafId = 0;
-        // 用“增长前”的贴底快照决定是否跟随：DOM 已增高，此刻现算 computeAtBottom() 会误判为非贴底
+      const observer = new MutationObserver(() => {
+        // 用“增长前”的贴底快照决定是否跟随：DOM 已增高，此刻现算 computeAtBottom() 会误判为非贴底。
+        // MutationObserver 回调本身按微任务批处理——一次流式提交合并为一次回调，无需再额外节流；
+        // 同步执行也保证页面隐藏（requestAnimationFrame 被暂停）时仍能跟随，回到前台即处于底部。
         if (followOutput && wasAtBottomRef.current) {
           // 跟随必须用 instant：smooth 动画下 scrollTop 滞后于增长的 scrollHeight，
           // 紧随其后的 updateAtBottom() 会读到动画中途位置而把贴底快照误清为 false，
@@ -163,19 +162,9 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
         // instant 滚动同步生效，此刻评估到的就是贴底真值，wasAtBottomRef 维持 true；
         // 用户已上滚时则如实评估为非贴底，驱动 scroll-button 显隐。
         updateAtBottom();
-      };
-      const observer = new MutationObserver(() => {
-        if (rafId === 0) {
-          rafId = requestAnimationFrame(flush);
-        }
       });
       observer.observe(node, { childList: true, subtree: true, characterData: true });
-      return () => {
-        if (rafId !== 0) {
-          cancelAnimationFrame(rafId);
-        }
-        observer.disconnect();
-      };
+      return () => observer.disconnect();
     }, [followOutput, scrollToBottom, updateAtBottom]);
 
     const registerAnchor = useCallback((node: HTMLDivElement | null) => {
