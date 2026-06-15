@@ -46,6 +46,7 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
       description,
       children,
       className,
+      style,
       onChange,
       ...rest
     },
@@ -104,6 +105,7 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
     return (
       <label
         className={clsx('radio', className)}
+        style={style}
         data-selected={selected || undefined}
         data-disabled={isDisabled || undefined}
         aria-checked={selected || undefined}

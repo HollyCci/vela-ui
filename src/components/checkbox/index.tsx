@@ -41,6 +41,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
       description,
       children,
       className,
+      style,
       ...rest
     },
     ref,
@@ -62,6 +63,7 @@ const Checkbox = forwardRef<HTMLInputElement, CheckboxProps>(
     return (
       <label
         className={clsx('checkbox', variant === 'secondary' && 'checkbox--secondary', className)}
+        style={style}
         data-selected={selected || undefined}
         data-indeterminate={isIndeterminate || undefined}
         data-invalid={isInvalid || undefined}

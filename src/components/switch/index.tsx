@@ -34,6 +34,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
       isDisabled = false,
       children,
       className,
+      style,
       ...rest
     },
     ref,
@@ -49,6 +50,7 @@ const Switch = forwardRef<HTMLInputElement, SwitchProps>(
     return (
       <label
         className={clsx('switch', size !== 'md' && `switch--${size}`, className)}
+        style={style}
         data-selected={selected || undefined}
         data-disabled={isDisabled || undefined}
       >
