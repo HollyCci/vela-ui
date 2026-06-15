@@ -519,6 +519,7 @@ function DataGrid<TRow extends object>({
   const editInputValueRef = useRef('');
   const editInputRef = useRef<HTMLInputElement | null>(null);
   const skipNextBlurCommitRef = useRef(false);
+  const skipNextInlineBlurCommitRef = useRef(false);
   const [editingCell, setEditingCellState] = useState<{ rowKey: Key; columnId: string } | null>(
     null,
   );
@@ -1036,7 +1037,7 @@ function DataGrid<TRow extends object>({
       resizeObserver?.disconnect();
       node.removeEventListener('scroll', updateScrollMetrics);
     };
-  }, [isVirtualized, hasPinnedColumns, virtualMaxHeight]);
+  }, [isVirtualized, hasPinnedColumns, virtualMaxHeight, enableColumnResizing]);
 
   useEffect(() => {
     if (!isVirtualized) return;
@@ -1195,6 +1196,7 @@ function DataGrid<TRow extends object>({
             if (event.key === 'Enter') {
               event.preventDefault();
               commitCellValue(item, rowKey, column, 'enter', event.currentTarget.value);
+              skipNextInlineBlurCommitRef.current = true;
               event.currentTarget.blur();
               return;
             }
@@ -1212,11 +1214,14 @@ function DataGrid<TRow extends object>({
               className="data-grid__cell-editor-input data-grid__cell-editor-input--preview"
               defaultValue={inlineInputValue}
               onBlur={(event) => {
+                if (skipNextInlineBlurCommitRef.current) {
+                  skipNextInlineBlurCommitRef.current = false;
+                  return;
+                }
                 commitCellValue(item, rowKey, column, 'blur', event.currentTarget.value);
               }}
               onClick={(event) => event.stopPropagation()}
               onKeyDown={handleInlineEditorKey}
-              onKeyUp={handleInlineEditorKey}
             />
           );
           const cellNode = isEditing ? (
