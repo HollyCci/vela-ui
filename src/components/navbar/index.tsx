@@ -111,12 +111,23 @@ const NavbarRoot = forwardRef<HTMLElement, NavbarProps>(
     const [isHidden, setIsHidden] = useState(false);
     const lastScrollTopRef = useRef(0);
 
+    // 把滚动容器解析成真实元素并提升到 state：parentRef 指向的元素若在首个
+    // effect 之后才挂载，这里会在该 commit 同步更新，驱动订阅 effect 重新订阅。
+    const [scrollTarget, setScrollTarget] = useState<HTMLElement | null>(null);
+    useLayoutEffect(() => {
+      if (!hideOnScroll) {
+        setScrollTarget(null);
+        return;
+      }
+      setScrollTarget(parentRef?.current ?? null);
+    });
+
     useEffect(() => {
       if (!hideOnScroll) {
         setIsHidden(false);
         return undefined;
       }
-      const target: HTMLElement | Window = parentRef?.current ?? window;
+      const target: HTMLElement | Window = scrollTarget ?? window;
       const getScrollTop = () =>
         target instanceof Window ? target.scrollY : target.scrollTop;
 
@@ -131,7 +142,7 @@ const NavbarRoot = forwardRef<HTMLElement, NavbarProps>(
 
       target.addEventListener('scroll', handleScroll, { passive: true });
       return () => target.removeEventListener('scroll', handleScroll);
-    }, [hideOnScroll, parentRef]);
+    }, [hideOnScroll, scrollTarget]);
 
     // 菜单打开时锁定 body 滚动（参考实现默认行为，shouldBlockScroll=false 关闭）
     useEffect(() => {

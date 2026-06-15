@@ -86,6 +86,9 @@ const Ripple = ({
 }: PressableFeedbackRippleProps) => {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const duration = durationProp ?? 150;
+  // 运行中的定时器/动画读取最新塑形 prop，避免用启动时刻闭包值
+  const shapingRef = useRef({ duration, minimumPressDuration });
+  shapingRef.current = { duration, minimumPressDuration };
 
   useEffect(() => {
     const surface = surfaceRef.current;
@@ -126,12 +129,20 @@ const Ripple = ({
             `translate(${endX}px, ${endY}px) scale(${endScale})`,
           ],
         },
-        { pseudoElement: '::after', duration, easing: RIPPLE_EASING, fill: 'forwards' },
+        {
+          pseudoElement: '::after',
+          duration: shapingRef.current.duration,
+          easing: RIPPLE_EASING,
+          fill: 'forwards',
+        },
       );
     };
 
     const handleRelease = () => {
-      const remaining = Math.max(minimumPressDuration - (performance.now() - pressedAt), 0);
+      const remaining = Math.max(
+        shapingRef.current.minimumPressDuration - (performance.now() - pressedAt),
+        0,
+      );
       window.clearTimeout(releaseTimer);
       releaseTimer = window.setTimeout(() => surface.classList.remove('--press'), remaining);
     };
@@ -157,7 +168,7 @@ const Ripple = ({
       host.removeEventListener('pointerup', handleRelease);
       host.removeEventListener('pointercancel', handleRelease);
     };
-  }, [duration, minimumPressDuration, isDisabled]);
+  }, [isDisabled]);
 
   // 仅在显式传入时写 CSS 变量，静止态 DOM 与参考实现快照一致（无内联 style）
   const cssVars: Record<string, string | number> = {};
@@ -209,6 +220,9 @@ const HoldConfirm = ({
   const [isHolding, setIsHolding] = useState(false);
   const [isComplete, setIsComplete] = useState(false);
   const onCompleteRef = useRef(onComplete);
+  // 运行中的定时器读取最新塑形 prop，避免用启动时刻闭包值
+  const shapingRef = useRef({ duration, resetOnComplete });
+  shapingRef.current = { duration, resetOnComplete };
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -230,13 +244,13 @@ const HoldConfirm = ({
         setIsHolding(false);
         setIsComplete(true);
         onCompleteRef.current?.();
-      }, duration);
+      }, shapingRef.current.duration);
     };
 
     const handleRelease = () => {
       window.clearTimeout(timer);
       setIsHolding(false);
-      if (completed && resetOnComplete) {
+      if (completed && shapingRef.current.resetOnComplete) {
         completed = false;
         setIsComplete(false);
       }
@@ -254,7 +268,7 @@ const HoldConfirm = ({
       host.removeEventListener('pointerleave', handleRelease);
       host.removeEventListener('pointercancel', handleRelease);
     };
-  }, [duration, resetOnComplete, isDisabled]);
+  }, [isDisabled]);
 
   return (
     <div
@@ -302,6 +316,9 @@ const ProgressFeedback = ({
   const [status, setStatus] = useState<'idle' | 'progressing' | 'complete'>('idle');
   const onCompleteRef = useRef(onComplete);
   const onResetRef = useRef(onReset);
+  // 运行中的定时器读取最新塑形 prop，避免用启动时刻闭包值
+  const shapingRef = useRef({ duration, autoReset, resetDelay });
+  shapingRef.current = { duration, autoReset, resetDelay };
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -323,14 +340,14 @@ const ProgressFeedback = ({
       completeTimer = window.setTimeout(() => {
         setStatus('complete');
         onCompleteRef.current?.();
-        if (autoReset) {
+        if (shapingRef.current.autoReset) {
           resetTimer = window.setTimeout(() => {
             isBusy = false;
             setStatus('idle');
             onResetRef.current?.();
-          }, resetDelay);
+          }, shapingRef.current.resetDelay);
         }
-      }, duration);
+      }, shapingRef.current.duration);
     };
 
     host.addEventListener('click', handleClick);
@@ -340,7 +357,7 @@ const ProgressFeedback = ({
       window.clearTimeout(resetTimer);
       host.removeEventListener('click', handleClick);
     };
-  }, [duration, autoReset, resetDelay, isDisabled]);
+  }, [isDisabled]);
 
   return (
     <div

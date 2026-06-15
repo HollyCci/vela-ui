@@ -10,6 +10,7 @@ import {
   useImperativeHandle,
   useMemo,
   useRef,
+  useState,
   type CSSProperties,
   type HTMLAttributes,
   type MutableRefObject,
@@ -235,8 +236,12 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
       [],
     );
 
-    const defaultLayout =
-      autoSaveId !== undefined ? (readStoredLayout(autoSaveId) ?? undefined) : undefined;
+    // SSR 安全：首屏与服务端一致（undefined），挂载后再读 localStorage 应用存储布局，避免水合不一致 + 布局闪
+    const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined);
+    useEffect(() => {
+      if (autoSaveId === undefined) return;
+      setDefaultLayout(readStoredLayout(autoSaveId) ?? undefined);
+    }, [autoSaveId]);
 
     return (
       <ResizableContext.Provider value={contextValue}>

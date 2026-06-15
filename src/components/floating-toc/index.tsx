@@ -497,12 +497,14 @@ const FloatingTocRoot = ({
 
   useEffect(() => {
     if (items.length === 0 || typeof document === 'undefined') return undefined;
-    const root = targetId === undefined ? null : document.getElementById(targetId);
-    if (targetId !== undefined && root === null) return undefined;
 
     let frame = 0;
+    let pollFrame = 0;
+    let scrollTarget: HTMLElement | Window | null = null;
+
     const updateActiveFromScroll = () => {
       if (frame !== 0) return;
+      const root = targetId === undefined ? null : document.getElementById(targetId);
       frame = window.requestAnimationFrame(() => {
         frame = 0;
         const rootRect = root?.getBoundingClientRect();
@@ -526,14 +528,26 @@ const FloatingTocRoot = ({
       });
     };
 
-    updateActiveFromScroll();
-    const scrollTarget: HTMLElement | Window = root ?? window;
-    scrollTarget.addEventListener('scroll', updateActiveFromScroll, { passive: true });
-    window.addEventListener('resize', updateActiveFromScroll);
+    // 容器未挂载时不永久放弃:用 rAF 短轮询等待容器出现后再订阅
+    const subscribe = () => {
+      const root = targetId === undefined ? null : document.getElementById(targetId);
+      if (targetId !== undefined && root === null) {
+        pollFrame = window.requestAnimationFrame(subscribe);
+        return;
+      }
+      pollFrame = 0;
+      updateActiveFromScroll();
+      scrollTarget = root ?? window;
+      scrollTarget.addEventListener('scroll', updateActiveFromScroll, { passive: true });
+      window.addEventListener('resize', updateActiveFromScroll);
+    };
+
+    subscribe();
 
     return () => {
       if (frame !== 0) window.cancelAnimationFrame(frame);
-      scrollTarget.removeEventListener('scroll', updateActiveFromScroll);
+      if (pollFrame !== 0) window.cancelAnimationFrame(pollFrame);
+      scrollTarget?.removeEventListener('scroll', updateActiveFromScroll);
       window.removeEventListener('resize', updateActiveFromScroll);
     };
   }, [items, setActive, targetId]);

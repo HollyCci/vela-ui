@@ -162,9 +162,11 @@ class ToastStore {
     toastSeq += 1;
     const id = `toast-${toastSeq}`;
     const entry: ToastEntry = { ...options, id };
+    // 数据层同步提交：新数组引用立即生效，后续紧跟的 close(id) 才能命中该 entry，
+    // 不被 startViewTransition 的异步回调吞掉。View Transition 只负责包住由 emit
+    // 触发的重渲染（新节点进入 DOM），进出场动画仍交给 CSS view-transition 规则。
+    this.entries = [...this.entries, entry];
     withViewTransition(() => {
-      // 新数组引用，让 useSyncExternalStore 触发重渲染 → 新节点进入 DOM
-      this.entries = [...this.entries, entry];
       this.emit();
     });
     const timeout = options.timeout ?? 4000;
@@ -184,9 +186,9 @@ class ToastStore {
       this.timers.delete(id);
     }
     if (!this.entries.some((entry) => entry.id === id)) return;
+    // 同步从数据层移除，再用 View Transition 包住重渲染 → 捕获旧快照并播放 exit 动画
+    this.entries = this.entries.filter((entry) => entry.id !== id);
     withViewTransition(() => {
-      // 移除节点 → view transition 捕获旧快照并播放 exit 动画
-      this.entries = this.entries.filter((entry) => entry.id !== id);
       this.emit();
     });
   };

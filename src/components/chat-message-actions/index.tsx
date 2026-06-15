@@ -249,6 +249,7 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
   ) => {
     const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
     const resetTimerRef = useRef<number | null>(null);
+    const mountedRef = useRef(true);
 
     const clearResetTimer = useCallback(() => {
       if (resetTimerRef.current !== null) {
@@ -259,6 +260,7 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
 
     useEffect(
       () => () => {
+        mountedRef.current = false;
         clearResetTimer();
       },
       [clearResetTimer],
@@ -280,8 +282,14 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
       (event) => {
         onPress?.(event);
         void copyText(content)
-          .then(() => showStatus('copied'))
-          .catch(() => showStatus('failed'));
+          .then(() => {
+            if (!mountedRef.current) return;
+            showStatus('copied');
+          })
+          .catch(() => {
+            if (!mountedRef.current) return;
+            showStatus('failed');
+          });
       },
       [onPress, content, showStatus],
     );

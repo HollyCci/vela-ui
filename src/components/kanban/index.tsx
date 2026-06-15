@@ -294,7 +294,6 @@ function KanbanCardImpl<T extends object>({
   size,
   className,
   children,
-  onPointerDown,
   ...rest
 }: KanbanCardProps) {
   const ctx = useCardListContext<T>();
@@ -347,6 +346,7 @@ function KanbanCardImpl<T extends object>({
         aria-label={textValue}
         className={clsx('kanban__card', `kanban__card--${resolvedSize}`, className)}
         dragControls={dragControls}
+        dragListener={false}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         whileDrag={CARD_DRAGGING}
