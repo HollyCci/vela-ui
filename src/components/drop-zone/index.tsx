@@ -277,6 +277,22 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       [uploadFailureMessage],
     );
 
+    // interval 回调闭包按创建时刻捕获这些值；用 latestRef 持有最新值避免读到陈旧闭包
+    const latestRef = useRef({
+      commitQueue,
+      clearUploadTimer,
+      resolveUploadFailureMessage,
+      shouldFailUpload,
+      uploadInterval,
+    });
+    latestRef.current = {
+      commitQueue,
+      clearUploadTimer,
+      resolveUploadFailureMessage,
+      shouldFailUpload,
+      uploadInterval,
+    };
+
     const createQueueItem = useCallback(
       (
         fileLike: DropZoneUploadCandidate,
@@ -397,7 +413,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
         if (!simulateUpload || uploadTimersRef.current.has(id)) return;
 
         const timer = setInterval(() => {
-          commitQueue((previousQueue) =>
+          latestRef.current.commitQueue((previousQueue) =>
             previousQueue.map((item) => {
               if (item.id !== id || item.status !== 'uploading') return item;
 
@@ -408,14 +424,14 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
                 return { ...item, progress, updatedAt };
               }
 
-              clearUploadTimer(id);
+              latestRef.current.clearUploadTimer(id);
 
-              if (shouldFailUpload?.({ ...item, progress: 100, updatedAt }) === true) {
+              if (latestRef.current.shouldFailUpload?.({ ...item, progress: 100, updatedAt }) === true) {
                 return {
                   ...item,
                   status: 'failed',
                   progress: 100,
-                  error: resolveUploadFailureMessage(item),
+                  error: latestRef.current.resolveUploadFailureMessage(item),
                   canRetry: true,
                   color: getUploadFileIconColor(item.format, 'failed'),
                   updatedAt,
@@ -433,27 +449,28 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
               };
             }),
           );
-        }, Math.max(100, uploadInterval));
+        }, Math.max(100, latestRef.current.uploadInterval));
 
         uploadTimersRef.current.set(id, timer);
       },
-      [
-        clearUploadTimer,
-        commitQueue,
-        resolveUploadFailureMessage,
-        shouldFailUpload,
-        simulateUpload,
-        uploadInterval,
-      ],
+      [simulateUpload],
     );
 
     useEffect(() => {
+      const liveIds = new Set(queueItems.map((item) => item.id));
+
       queueItems.forEach((item) => {
         if (item.status === 'uploading') {
           startUploadTimer(item.id);
         } else {
           clearUploadTimer(item.id);
         }
+      });
+
+      // 受控队列下外部移除上传中文件时不会经过 commitQueue 的 diff,
+      // 这里对账存活 id 全集,凡已不在队列中的定时器一并清理,避免泄漏
+      uploadTimersRef.current.forEach((_timer, id) => {
+        if (!liveIds.has(id)) clearUploadTimer(id);
       });
     }, [clearUploadTimer, queueItems, startUploadTimer]);
 

@@ -5,7 +5,7 @@ import {
   forwardRef,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -344,25 +344,41 @@ const TextAreaSlot = ({
     [ref],
   );
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = innerRef.current;
-    if (el === null || disableAutosize) {
+    if (el === null) {
       return;
     }
-    el.style.height = 'auto';
-    // 行数检测供 inline 变体 data-expanded 用：内容高（去内边距）超过 1.5 行视为折行
-    const styles = window.getComputedStyle(el);
-    const padding = Number.parseFloat(styles.paddingTop) + Number.parseFloat(styles.paddingBottom);
-    const lineHeight =
-      Number.parseFloat(styles.lineHeight) || Number.parseFloat(styles.fontSize) * 1.5 || 20;
-    setExpanded(el.scrollHeight - padding >= lineHeight * 1.5);
-    if (typeof maxHeight === 'number') {
-      el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
-    } else {
-      // 字符串上限（如 '50vh'）交给 CSS max-height 截断，高度仍跟随内容
-      el.style.maxHeight = maxHeight;
-      el.style.height = `${el.scrollHeight}px`;
+    if (disableAutosize) {
+      // 关闭自适应时清掉此前写入的内联高度，避免 textarea 冻结在旧高
+      el.style.height = '';
+      el.style.maxHeight = '';
+      return;
     }
+    const measure = () => {
+      el.style.height = 'auto';
+      // 行数检测供 inline 变体 data-expanded 用：内容高（去内边距）超过 1.5 行视为折行
+      const styles = window.getComputedStyle(el);
+      const padding =
+        Number.parseFloat(styles.paddingTop) + Number.parseFloat(styles.paddingBottom);
+      const lineHeight =
+        Number.parseFloat(styles.lineHeight) || Number.parseFloat(styles.fontSize) * 1.5 || 20;
+      setExpanded(el.scrollHeight - padding >= lineHeight * 1.5);
+      if (typeof maxHeight === 'number') {
+        el.style.height = `${Math.min(el.scrollHeight, maxHeight)}px`;
+      } else {
+        // 字符串上限（如 '50vh'）交给 CSS max-height 截断，高度仍跟随内容
+        el.style.maxHeight = maxHeight;
+        el.style.height = `${el.scrollHeight}px`;
+      }
+    };
+    measure();
+    // 容器/textarea 宽度变化时重新测量（换行点改变，内容高随之改变）
+    const observer = new ResizeObserver(measure);
+    observer.observe(el);
+    return () => {
+      observer.disconnect();
+    };
   }, [value, disableAutosize, maxHeight, setExpanded]);
 
   const handleChange = useCallback(
