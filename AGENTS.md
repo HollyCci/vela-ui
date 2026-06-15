@@ -36,4 +36,4 @@ pnpm build
 - `src/components/` contains typed React component wrappers.
 - `src/showcase/` contains the documentation-style showcase app.
 - `src/styles/` contains tokens, base styles, and component CSS.
-- `public/demo/` and `public/reference/` contain static demo fixtures used by the showcase.
+- The showcase renders exclusively from local Vela React components in `src/showcase/`; it uses no `public/` static fixtures (the interactivity audit forbids `public/reference|demo|docs-content` from existing).

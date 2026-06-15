@@ -11,8 +11,5 @@
 /* @import '@heroui-pro/react/css'; */
 
 /* Vela 组件库自有样式层（发布产物 dist/styles.css 与此入口保持同源） */
+/* --font-inter 单一来源在 fonts.css（经 lib.css 引入），此处不再重复定义 */
 @import './lib.css';
-
-:root {
-  --font-inter: 'Inter', 'Inter Fallback';
-}
