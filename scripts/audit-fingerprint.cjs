@@ -11,7 +11,7 @@ const RELEASE_FORBIDDEN = [
   /原站/,
 ];
 
-const RELEASE_WARN = [
+const RELEASE_STRICT = [
   { name: 'fd-* document tokens/classes', re: /(?:--fd-|text-fd-|bg-fd-|border-fd-|fd-)/g },
   { name: 'next font module hashes', re: /-module__[A-Za-z0-9]+__/g },
 ];
@@ -59,9 +59,9 @@ function main() {
     for (const re of RELEASE_FORBIDDEN) {
       if (re.test(text)) failures.push(`${rel(file)} contains forbidden pattern ${re}`);
     }
-    for (const rule of RELEASE_WARN) {
+    for (const rule of RELEASE_STRICT) {
       const n = count(rule.re, text);
-      if (n > 0) warnings.push(`${rel(file)}: ${rule.name} (${n})`);
+      if (n > 0) failures.push(`${rel(file)} contains ${rule.name} (${n})`);
     }
   }
 

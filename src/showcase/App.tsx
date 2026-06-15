@@ -59,7 +59,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const SIDEBAR_ITEM_CLASS =
-  'text-fd-muted-foreground relative flex flex-row items-center gap-2 rounded-lg p-2 text-start [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-fd-accent/50 hover:text-fd-accent-foreground/80 data-[active=true]:bg-fd-primary/10 data-[active=true]:text-fd-primary transition-colors hover:transition-none data-[active=true]:hover:transition-colors';
+  'text-muted relative flex flex-row items-center gap-2 rounded-lg p-2 text-start [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent/10 hover:text-foreground data-[active=true]:bg-accent/10 data-[active=true]:text-accent transition-colors hover:transition-none data-[active=true]:hover:transition-colors';
 
 const SIDEBAR_PAD = { paddingInlineStart: 'calc(2 * var(--spacing))' } as const;
 
@@ -100,13 +100,13 @@ NewChip.displayName = 'NewChip';
 
 const DocsSidebar = ({ activeId, onSelect }: SidebarProps) => (
   <div
-    className="pointer-events-none sticky z-20 [grid-area:sidebar] *:pointer-events-auto max-md:hidden top-(--fd-docs-row-2) h-[calc(var(--fd-docs-height)-var(--fd-docs-row-2))]"
-    style={{ width: 'var(--fd-sidebar-width)' }}
+    className="pointer-events-none sticky z-20 [grid-area:sidebar] *:pointer-events-auto max-md:hidden top-(--sc-docs-row-2) h-[calc(var(--sc-docs-height)-var(--sc-docs-row-2))]"
+    style={{ width: 'var(--sc-sidebar-width)' }}
   >
     <aside
       id="nd-sidebar"
       data-collapsed="false"
-      className="absolute inset-y-0 start-0 flex w-full flex-col items-end text-sm duration-250 *:w-(--fd-sidebar-width)"
+      className="absolute inset-y-0 start-0 flex w-full flex-col items-end text-sm duration-250 *:w-(--sc-sidebar-width)"
     >
       <div className="overflow-hidden min-h-0 flex-1" style={{ position: 'relative' }}>
         <div className="size-full rounded-[inherit] *:flex! *:flex-col! *:gap-0.5! p-4 overscroll-contain mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]" style={{ overflow: 'hidden auto' }}>
@@ -150,15 +150,14 @@ const DocsHeader = () => (
   <header
     id="nd-subnav"
     data-transparent="false"
-    className="data-[transparent=false]:bg-fd-background/80 sticky z-10 flex flex-col backdrop-blur-sm transition-colors [grid-area:header]"
-    style={{ top: 'var(--fd-docs-row-1)' }}
+    className="data-[transparent=false]:bg-background/80 sticky z-10 flex flex-col backdrop-blur-sm transition-colors [grid-area:header]"
+    style={{ top: 'var(--sc-docs-row-1)' }}
   >
     <div className="flex h-14 items-center gap-2 border-b px-4 md:gap-3 md:px-6" data-header-body="">
       <div className="items-center flex flex-1">
         <div className="flex items-center gap-4">
           <a className="inline-flex items-center gap-2.5 font-semibold" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
             <LogoIcon />
-            <span className="sr-only">Vela UI</span>
           </a>
           <Chip className="hidden h-6 min-w-fit gap-0.5 bg-default px-2 py-1 text-muted min-[1070px]:flex" size="sm" variant="soft">
             1.0.0-beta.5
@@ -167,7 +166,7 @@ const DocsHeader = () => (
       </div>
       <button
         type="button"
-        className="bg-fd-secondary/50 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex items-center gap-2 border p-1.5 text-sm transition-colors my-auto w-full min-w-0 shrink max-md:hidden max-w-[11rem] rounded-xl ps-2.5 md:max-w-[12rem] lg:max-w-[15rem] xl:max-w-sm"
+        className="bg-default/50 text-muted hover:bg-accent/10 hover:text-foreground inline-flex items-center gap-2 border p-1.5 text-sm transition-colors my-auto w-full min-w-0 shrink max-md:hidden max-w-[11rem] rounded-xl ps-2.5 md:max-w-[12rem] lg:max-w-[15rem] xl:max-w-sm"
       >
         <SearchIcon />
         Search
@@ -184,20 +183,20 @@ const DocsHeader = () => (
     </div>
     <div className="flex flex-row items-end gap-6 h-10 overflow-x-auto border-b px-6" data-header-tabs="">
       <span
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
+        className="text-muted hover:text-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
       >
         Getting Started
       </span>
-      <span className="text-fd-primary border-fd-primary inline-flex items-center gap-2 text-nowrap border-b-2 pb-1.5 text-sm font-medium transition-colors">
+      <span className="text-accent border-accent inline-flex items-center gap-2 text-nowrap border-b-2 pb-1.5 text-sm font-medium transition-colors">
         Components
       </span>
       <span
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
+        className="text-muted hover:text-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
       >
         Templates
       </span>
       <span
-        className="text-fd-muted-foreground hover:text-fd-accent-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
+        className="text-muted hover:text-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
       >
         Releases
       </span>
@@ -430,18 +429,18 @@ const App = () => {
   return (
     <div
       id="nd-notebook-layout"
-      className="min-h-(--fd-docs-height) grid auto-cols-auto auto-rows-auto overflow-x-clip transition-[grid-template-columns] [--fd-docs-height:100dvh]"
+      className="min-h-(--sc-docs-height) grid auto-cols-auto auto-rows-auto overflow-x-clip transition-[grid-template-columns] [--sc-docs-height:100dvh]"
       style={{
-        ['--fd-docs-row-1' as string]: '0px',
-        ['--fd-docs-row-2' as string]: 'calc(var(--fd-docs-row-1) + var(--fd-header-height))',
-        ['--fd-docs-row-3' as string]: 'var(--fd-docs-row-2)',
-        ['--fd-header-height' as string]: '98px',
-        ['--fd-sidebar-width' as string]: '268px',
-        ['--fd-toc-width' as string]: '268px',
-        ['--fd-sidebar-col' as string]: 'var(--fd-sidebar-width)',
+        ['--sc-docs-row-1' as string]: '0px',
+        ['--sc-docs-row-2' as string]: 'calc(var(--sc-docs-row-1) + var(--sc-header-height))',
+        ['--sc-docs-row-3' as string]: 'var(--sc-docs-row-2)',
+        ['--sc-header-height' as string]: '98px',
+        ['--sc-sidebar-width' as string]: '268px',
+        ['--sc-toc-width' as string]: '268px',
+        ['--sc-sidebar-col' as string]: 'var(--sc-sidebar-width)',
         gridTemplate: `". header header header ."
         "sidebar sidebar toc-popover toc-popover ."
-        "sidebar sidebar main toc ." 1fr / minmax(min-content, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--fd-layout-width, 97rem) - var(--fd-sidebar-col) - var(--fd-toc-width))) var(--fd-toc-width) minmax(min-content, 1fr)`,
+        "sidebar sidebar main toc ." 1fr / minmax(min-content, 1fr) var(--sc-sidebar-col) minmax(0, calc(var(--sc-layout-width, 97rem) - var(--sc-sidebar-col) - var(--sc-toc-width))) var(--sc-toc-width) minmax(min-content, 1fr)`,
       }}
     >
       <DocsHeader />
@@ -477,10 +476,10 @@ const App = () => {
       </article>
       <div
         id="nd-toc"
-        className="top-(--fd-docs-row-3) sticky flex h-[calc(var(--fd-docs-height)-var(--fd-docs-row-3))] flex-col pb-2 pe-4 pt-12 [grid-area:toc] max-xl:hidden"
-        style={{ width: 'var(--fd-toc-width)' }}
+        className="top-(--sc-docs-row-3) sticky flex h-[calc(var(--sc-docs-height)-var(--sc-docs-row-3))] flex-col pb-2 pe-4 pt-12 [grid-area:toc] max-xl:hidden"
+        style={{ width: 'var(--sc-toc-width)' }}
       >
-        <h3 className="text-fd-muted-foreground inline-flex items-center gap-1.5 text-sm" id="toc-title">
+        <h3 className="text-muted inline-flex items-center gap-1.5 text-sm" id="toc-title">
           <TocIcon />
           On this page
         </h3>
@@ -491,7 +490,7 @@ const App = () => {
                 <a
                   key={category}
                   href={`#overview-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
+                  className="text-muted hover:text-foreground py-1.5 text-sm transition-colors"
                   style={{ paddingInlineStart: '12px' }}
                 >
                   {CATEGORY_LABELS[category] ?? category}
@@ -503,7 +502,7 @@ const App = () => {
               {reactDemo !== undefined && (
                 <a
                   href="#live-demo"
-                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
+                  className="text-muted hover:text-foreground py-1.5 text-sm transition-colors"
                   style={{ paddingInlineStart: '12px' }}
                 >
                   实时交互演示
@@ -513,7 +512,7 @@ const App = () => {
                 <a
                   key={s.anchor}
                   href={`#${s.anchor}`}
-                  className="text-fd-muted-foreground hover:text-fd-accent-foreground py-1.5 text-sm transition-colors"
+                  className="text-muted hover:text-foreground py-1.5 text-sm transition-colors"
                   style={{ paddingInlineStart: '12px' }}
                 >
                   {s.heading}
