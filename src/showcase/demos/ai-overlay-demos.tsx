@@ -354,12 +354,71 @@ const INITIAL_QUEUED_PROMPTS: DemoQueuedPrompt[] = [
   { id: 2, text: '给设置页补充暗色模式支持。' },
 ];
 
+const QUEUE_MORE_ACTION_LABELS: Record<string, string> = {
+  duplicate: '已复制队列项',
+  prioritize: '已提升队列优先级',
+};
+
+const MESSAGE_MORE_ACTION_LABELS: Record<string, string> = {
+  copyLink: '已复制消息链接',
+  forward: '已转发到协作群',
+  review: '已标记待复查',
+};
+
+const QueueItemMoreMenu = ({
+  prompt,
+  onAction,
+}: {
+  prompt: DemoQueuedPrompt;
+  onAction: (message: string) => void;
+}) => (
+  <Dropdown>
+    <Dropdown.Trigger>
+      <PromptInput.Queue.Item.More />
+    </Dropdown.Trigger>
+    <Dropdown.Popover placement="bottom end">
+      <Dropdown.Menu
+        aria-label={`${prompt.text} 更多操作`}
+        onAction={(key) => onAction(QUEUE_MORE_ACTION_LABELS[String(key)] ?? '已执行队列操作')}
+      >
+        <MenuItem id="duplicate">复制提示</MenuItem>
+        <MenuItem id="prioritize">优先处理</MenuItem>
+      </Dropdown.Menu>
+    </Dropdown.Popover>
+  </Dropdown>
+);
+
+const MessageMoreActionsMenu = ({
+  children,
+  onAction,
+}: {
+  children?: ReactNode;
+  onAction: (message: string) => void;
+}) => (
+  <Dropdown>
+    <Dropdown.Trigger>
+      <ChatMessageActions.Menu>{children}</ChatMessageActions.Menu>
+    </Dropdown.Trigger>
+    <Dropdown.Popover placement="bottom end">
+      <Dropdown.Menu
+        aria-label="更多消息操作"
+        onAction={(key) => onAction(MESSAGE_MORE_ACTION_LABELS[String(key)] ?? '已执行更多操作')}
+      >
+        <MenuItem id="copyLink">复制链接</MenuItem>
+        <MenuItem id="forward">转发协作群</MenuItem>
+        <MenuItem id="review">标记复查</MenuItem>
+      </Dropdown.Menu>
+    </Dropdown.Popover>
+  </Dropdown>
+);
+
 type DemoQueueRowProps = {
   prompt: DemoQueuedPrompt;
+  onMore: (message: string) => void;
   onRemove: (id: number) => void;
 };
 
-const DemoQueueRow = ({ prompt, onRemove }: DemoQueueRowProps) => {
+const DemoQueueRow = ({ prompt, onMore, onRemove }: DemoQueueRowProps) => {
   const handleRemove = useCallback(() => {
     onRemove(prompt.id);
   }, [onRemove, prompt.id]);
@@ -373,7 +432,7 @@ const DemoQueueRow = ({ prompt, onRemove }: DemoQueueRowProps) => {
       </PromptInput.Queue.Item.Body>
       <PromptInput.Queue.Item.Actions>
         <PromptInput.Queue.Item.Remove onPress={handleRemove} />
-        <PromptInput.Queue.Item.More />
+        <QueueItemMoreMenu prompt={prompt} onAction={onMore} />
       </PromptInput.Queue.Item.Actions>
     </PromptInput.Queue.Item>
   );
@@ -394,10 +453,14 @@ const DemoAttachment = ({ name, onRemove }: DemoAttachmentProps) => {
 
 const PromptInputDemo = () => {
   const [value, setValue] = useState('');
+  const [inlineValue, setInlineValue] = useState('');
   const [status, setStatus] = useState<PromptInputStatus>('ready');
   const [lastSent, setLastSent] = useState('尚未发送');
+  const [inlineLastSent, setInlineLastSent] = useState('尚未发送 inline 提示');
   const [attachments, setAttachments] = useState<string[]>([]);
+  const [inlineAttachments, setInlineAttachments] = useState<string[]>([]);
   const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
+  const [queueAction, setQueueAction] = useState('尚未操作队列');
   const timersRef = useRef<number[]>([]);
   const attachmentSeqRef = useRef(0);
 
@@ -441,16 +504,33 @@ const PromptInputDemo = () => {
     setAttachments((prev) => [...prev, `参考资料-${attachmentSeqRef.current}.pdf`]);
   }, []);
 
+  const handleInlineAttach = useCallback(() => {
+    attachmentSeqRef.current += 1;
+    setInlineAttachments((prev) => [...prev, `inline-资料-${attachmentSeqRef.current}.pdf`]);
+  }, []);
+
   const handleRemoveAttachment = useCallback((name: string) => {
     setAttachments((prev) => prev.filter((item) => item !== name));
   }, []);
 
+  const handleRemoveInlineAttachment = useCallback((name: string) => {
+    setInlineAttachments((prev) => prev.filter((item) => item !== name));
+  }, []);
+
+  const handleInlineSubmit = useCallback((submittedValue: string) => {
+    setInlineLastSent(`inline 已发送：${submittedValue}`);
+    setInlineValue('');
+    setInlineAttachments([]);
+  }, []);
+
   const handleReorderQueue = useCallback((next: DemoQueuedPrompt[]) => {
     setQueuedPrompts(next);
+    setQueueAction('队列顺序已更新');
   }, []);
 
   const handleRemoveQueued = useCallback((id: number) => {
     setQueuedPrompts((prev) => prev.filter((prompt) => prompt.id !== id));
+    setQueueAction('已移除队列项');
   }, []);
 
   return (
@@ -466,7 +546,12 @@ const PromptInputDemo = () => {
           <PromptInput.Queue>
             <PromptInput.Queue.List values={queuedPrompts} onReorder={handleReorderQueue}>
               {queuedPrompts.map((prompt) => (
-                <DemoQueueRow key={prompt.id} prompt={prompt} onRemove={handleRemoveQueued} />
+                <DemoQueueRow
+                  key={prompt.id}
+                  prompt={prompt}
+                  onMore={setQueueAction}
+                  onRemove={handleRemoveQueued}
+                />
               ))}
             </PromptInput.Queue.List>
           </PromptInput.Queue>
@@ -498,14 +583,27 @@ const PromptInputDemo = () => {
       <p>
         最近发送：{lastSent}（当前状态：{status}）
       </p>
-      <PromptInput variant="inline">
+      <p>队列操作：{queueAction}</p>
+      <PromptInput
+        value={inlineValue}
+        variant="inline"
+        onSubmit={handleInlineSubmit}
+        onValueChange={setInlineValue}
+      >
         <PromptInput.Shell>
           <PromptInput.Content>
+            {inlineAttachments.length > 0 && (
+              <PromptInput.Attachments>
+                {inlineAttachments.map((name) => (
+                  <DemoAttachment key={name} name={name} onRemove={handleRemoveInlineAttachment} />
+                ))}
+              </PromptInput.Attachments>
+            )}
             <PromptInput.TextArea placeholder="inline 变体：折行自动展开" />
           </PromptInput.Content>
           <PromptInput.Toolbar>
             <PromptInput.ToolbarStart>
-              <PromptInput.Action aria-label="添加附件" onPress={handleAttach}>
+              <PromptInput.Action aria-label="添加附件" onPress={handleInlineAttach}>
                 ＋
               </PromptInput.Action>
             </PromptInput.ToolbarStart>
@@ -515,6 +613,7 @@ const PromptInputDemo = () => {
           </PromptInput.Toolbar>
         </PromptInput.Shell>
       </PromptInput>
+      <p>{inlineLastSent}</p>
       <PromptInput variant="secondary" size="sm" isDisabled>
         <PromptInput.Shell>
           <PromptInput.Content>
@@ -966,10 +1065,6 @@ const ChatMessageActionsDemo = () => {
     setRegenerateCount((count) => count + 1);
     setLastAction('已重新生成');
   };
-  const handleOpenMore = () => {
-    setLastAction('已打开更多操作');
-  };
-
   return (
     <DemoSection label="消息操作条（复制成功态 / 赞踩互斥 toggle / 操作反馈）" isColumn>
       <ChatMessageActions>
@@ -977,7 +1072,7 @@ const ChatMessageActionsDemo = () => {
         <ChatMessageActions.ThumbsUp isSelected={rating === 'up'} onChange={handleThumbsUp} />
         <ChatMessageActions.ThumbsDown isSelected={rating === 'down'} onChange={handleThumbsDown} />
         <ChatMessageActions.Regenerate onPress={handleRegenerate} />
-        <ChatMessageActions.Menu onPress={handleOpenMore} />
+        <MessageMoreActionsMenu onAction={setLastAction} />
       </ChatMessageActions>
       <span style={{ fontSize: 12, color: 'var(--muted)' }}>
         当前评价：{rating === 'up' ? '已赞' : rating === 'down' ? '已踩' : '未评价'}；重新生成：
@@ -1919,9 +2014,9 @@ const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageAction
             </ChatMessageActions.Regenerate>
           </>
         )}
-        <ChatMessageActions.Menu onPress={() => setMenuCount((count) => count + 1)}>
+        <MessageMoreActionsMenu onAction={() => setMenuCount((count) => count + 1)}>
           {variant === 'custom-icons' ? '…' : undefined}
-        </ChatMessageActions.Menu>
+        </MessageMoreActionsMenu>
       </ChatMessageActions>
       <span style={{ fontSize: 12, color: 'var(--muted)' }}>
         评价：{rating ?? 'none'}；重新生成：{regenerateCount}；更多：{menuCount}
@@ -1951,9 +2046,9 @@ const ChatSourceVariantDemo = ({ variant }: { variant: ChatSourceVariant }) => {
       )}
       {variant === 'document' && (
         <ChatSource.Preview
-          href="https://example.com/quarterly-report.pdf"
-          title="季度学习报告.pdf"
-          description="包含班级完成率、薄弱题型与后续跟进建议。"
+          href="https://github.com/HollyCci/vela-ui/blob/main/README.md"
+          title="Vela UI README.md"
+          description="包含安装方式、样式引入与组件库消费说明。"
           onOpen={handleOpen}
         />
       )}
@@ -2161,6 +2256,7 @@ const PromptInputVariantDemo = ({
   const [runStateText, setRunStateText] = useState('');
   const [runStateSummary, setRunStateSummary] = useState('等待发送');
   const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
+  const [queueAction, setQueueAction] = useState('尚未操作队列');
   const [attachmentCount, setAttachmentCount] = useState(0);
   const runStateTimersRef = useRef<number[]>([]);
   const runStateLastPromptRef = useRef(PROMPT_RUN_STATE_DEFAULT_PROMPT);
@@ -2261,6 +2357,7 @@ const PromptInputVariantDemo = ({
                 <DemoQueueRow
                   key={prompt.id}
                   prompt={prompt}
+                  onMore={setQueueAction}
                   onRemove={(id) => setQueuedPrompts((prev) => prev.filter((item) => item.id !== id))}
                 />
               ))}
@@ -2278,6 +2375,7 @@ const PromptInputVariantDemo = ({
           </PromptInput.Shell>
         </PromptInput>
         {value.startsWith('已发送') && <span style={{ fontSize: 12, color: 'var(--muted)' }}>{value}</span>}
+        <span style={{ fontSize: 12, color: 'var(--muted)' }}>{queueAction}</span>
       </DemoSection>
     );
   }
@@ -2450,7 +2548,6 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
   const [actionMessage, setActionMessage] = useState('尚未执行动作');
   const [hasDeadline, setHasDeadline] = useState(false);
   const handleRegenerate = () => setActionMessage('已重新生成 Sheet 内消息');
-  const handleOpenMenu = () => setActionMessage('已打开更多操作菜单');
   const handleDeadline = () => setHasDeadline((value) => !value);
   const handleTaskSubmit = (submitted: string) => {
     setActionMessage(`已创建任务：${submitted.slice(0, 18)}`);
@@ -2705,8 +2802,8 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
                       actions={
                         <ChatMessageActions>
                           <ChatMessageActions.Copy content="已整理为 Slack 风格操作面板。" />
-                          <ChatMessageActions.Regenerate onClick={handleRegenerate} />
-                          <ChatMessageActions.Menu onClick={handleOpenMenu} />
+                          <ChatMessageActions.Regenerate onPress={handleRegenerate} />
+                          <MessageMoreActionsMenu onAction={setActionMessage} />
                         </ChatMessageActions>
                       }
                     >

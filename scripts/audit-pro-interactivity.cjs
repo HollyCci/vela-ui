@@ -526,6 +526,8 @@ const collectShowcaseVariantResolutionProblems = (source, file, lineLookup, prob
 };
 
 const collectCompoundActionHandlers = (source, file, lineLookup, problems) => {
+  const elementRanges = collectElementRanges(source);
+
   for (const component of compoundActionComponents) {
     const tagPattern = new RegExp(`<${escapeRegExp(component)}\\b`, 'g');
     let match;
@@ -535,10 +537,16 @@ const collectCompoundActionHandlers = (source, file, lineLookup, problems) => {
       if (tagEnd === -1) break;
 
       const attrs = source.slice(match.index, tagEnd + 1);
+      const closing = isSelfClosingTag(source, tagEnd)
+        ? null
+        : findMatchingClosingTag(source, component, tagEnd + 1);
+      const elementEnd = closing?.closeEnd ?? tagEnd + 1;
+
       if (
         buttonHandlerPattern.test(attrs) ||
         disabledButtonPattern.test(attrs) ||
-        /\bonPress\s*=/.test(attrs)
+        /\bonPress\s*=/.test(attrs) ||
+        isInsideInteractiveButtonWrapper(elementRanges, match.index, elementEnd)
       ) {
         tagPattern.lastIndex = tagEnd + 1;
         continue;

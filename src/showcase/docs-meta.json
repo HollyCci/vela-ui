@@ -857,7 +857,7 @@
   },
   "list-view": {
     "title": "List View",
-    "description": "A single-column interactive list with keyboard navigation, selection, and accessible item actions — built on RAC GridList.",
+    "description": "A single-column interactive list with keyboard navigation, selection, and accessible item actions.",
     "sections": [
       {
         "heading": "Usage",

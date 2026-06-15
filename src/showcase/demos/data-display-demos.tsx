@@ -3,6 +3,7 @@ import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Avatar from '../../components/avatar';
 import Badge from '../../components/badge';
+import BarChart from '../../components/bar-chart';
 import Button from '../../components/button';
 import Carousel, { type CarouselApi } from '../../components/carousel';
 import ChartTooltip from '../../components/chart-tooltip';
@@ -22,7 +23,9 @@ import ItemCardGroup from '../../components/item-card-group';
 import Kanban, { useKanban, useKanbanColumn } from '../../components/kanban';
 import Kpi from '../../components/kpi';
 import KpiGroup from '../../components/kpi-group';
+import LineChart from '../../components/line-chart';
 import ListView from '../../components/list-view';
+import PieChart from '../../components/pie-chart';
 import ProgressBar from '../../components/progress-bar';
 import Separator from '../../components/separator';
 import Switch from '../../components/switch';
@@ -1222,7 +1225,10 @@ const AgendaDemo = () => {
 const demoTextStyle = { fontSize: 13, color: 'var(--foreground)' } as const;
 const demoMutedStyle = { fontSize: 12, color: 'var(--muted)' } as const;
 
-const MiniBars = ({
+const toSparklineData = (values: number[]) =>
+  values.map((value, index) => ({ label: `${index + 1}`, value }));
+
+const SparklineBars = ({
   values,
   color = 'var(--accent)',
   height = 48,
@@ -1230,104 +1236,93 @@ const MiniBars = ({
   values: number[];
   color?: string;
   height?: number;
-}) => {
-  const max = Math.max(...values, 1);
+}) => (
+  <BarChart
+    aria-label="学习趋势柱状图"
+    data={toSparklineData(values)}
+    height={height}
+    margin={{ top: 4, right: 2, bottom: 0, left: 2 }}
+    barCategoryGap="24%"
+  >
+    <BarChart.XAxis dataKey="label" hide />
+    <BarChart.YAxis hide domain={[0, 'dataMax']} />
+    <BarChart.Tooltip cursor={false} content={<BarChart.TooltipContent />} />
+    <BarChart.Bar dataKey="value" name="学习量" fill={color} radius={[4, 4, 0, 0]} />
+  </BarChart>
+);
 
-  return (
-    <div
-      aria-hidden="true"
-      style={{
-        height,
-        display: 'flex',
-        alignItems: 'end',
-        gap: 4,
-      }}
-    >
-      {values.map((value, index) => (
-        <span
-          // eslint-disable-next-line react/no-array-index-key -- sparkline bars are positional
-          key={index}
-          style={{
-            flex: 1,
-            minWidth: 6,
-            height: `${Math.max((value / max) * 100, 8)}%`,
-            borderRadius: 4,
-            background: color,
-            opacity: 0.35 + (value / max) * 0.65,
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-const MiniLine = ({
+const SparklineLine = ({
   values,
   color = 'var(--accent)',
 }: {
   values: number[];
   color?: string;
-}) => {
-  const max = Math.max(...values, 1);
-  const min = Math.min(...values);
-  const range = Math.max(max - min, 1);
-  const points = values
-    .map((value, index) => {
-      const x = (index / Math.max(values.length - 1, 1)) * 120;
-      const y = 40 - ((value - min) / range) * 32 - 4;
-      return `${x},${y}`;
-    })
-    .join(' ');
+}) => (
+  <LineChart
+    aria-label="学习趋势折线图"
+    data={toSparklineData(values)}
+    height={52}
+    margin={{ top: 4, right: 2, bottom: 0, left: 2 }}
+  >
+    <LineChart.XAxis dataKey="label" hide />
+    <LineChart.YAxis hide domain={['dataMin', 'dataMax']} />
+    <LineChart.Tooltip cursor={false} content={<LineChart.TooltipContent hideLabel />} />
+    <LineChart.Line
+      type="monotone"
+      dataKey="value"
+      name="学习量"
+      stroke={color}
+      strokeWidth={3}
+      dot={{ r: 2.5, fill: color, strokeWidth: 0 }}
+      activeDot={{ r: 4, fill: color, strokeWidth: 0 }}
+    />
+  </LineChart>
+);
+
+const CompletionDonut = ({ value, label }: { value: number; label: string }) => {
+  const boundedValue = Math.max(0, Math.min(value, 100));
+  const data = [
+    { name: label, value: boundedValue, fill: 'var(--accent)' },
+    { name: '未完成', value: 100 - boundedValue, fill: 'var(--surface-secondary)' },
+  ];
 
   return (
-    <svg aria-hidden="true" viewBox="0 0 120 44" style={{ width: '100%', height: 52 }}>
-      <polyline
-        fill="none"
-        points={points}
-        stroke={color}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        strokeWidth="3"
-      />
-      {values.map((value, index) => {
-        const x = (index / Math.max(values.length - 1, 1)) * 120;
-        const y = 40 - ((value - min) / range) * 32 - 4;
-        return <circle key={`${value}-${index}`} cx={x} cy={y} fill={color} r="2.5" />;
-      })}
-    </svg>
+    <div aria-label={`${label} ${boundedValue}%`} style={{ position: 'relative', width: 96, height: 96 }}>
+      <PieChart data={data} height={96} width={96}>
+        <PieChart.Pie
+          data={data}
+          dataKey="value"
+          nameKey="name"
+          innerRadius={31}
+          outerRadius={48}
+          startAngle={90}
+          endAngle={-270}
+          stroke="var(--surface)"
+          isAnimationActive={false}
+        >
+          {data.map((entry) => (
+            <PieChart.Cell key={entry.name} fill={entry.fill} />
+          ))}
+        </PieChart.Pie>
+        <PieChart.Tooltip cursor={false} content={<PieChart.TooltipContent />} />
+      </PieChart>
+      <span
+        style={{
+          position: 'absolute',
+          inset: 0,
+          display: 'grid',
+          placeItems: 'center',
+          color: 'var(--foreground)',
+          fontSize: 14,
+          fontWeight: 700,
+          pointerEvents: 'none',
+        }}
+      >
+        {boundedValue}%
+      </span>
+    </div>
   );
 };
-
-const MiniDonut = ({ value, label }: { value: number; label: string }) => (
-  <div
-    aria-label={`${label} ${value}%`}
-    role="img"
-    style={{
-      width: 96,
-      height: 96,
-      borderRadius: '50%',
-      display: 'grid',
-      placeItems: 'center',
-      background: `conic-gradient(var(--accent) 0 ${value}%, var(--surface-secondary) ${value}% 100%)`,
-    }}
-  >
-    <span
-      style={{
-        width: 62,
-        height: 62,
-        borderRadius: '50%',
-        display: 'grid',
-        placeItems: 'center',
-        background: 'var(--surface)',
-        color: 'var(--foreground)',
-        fontSize: 14,
-        fontWeight: 700,
-      }}
-    >
-      {value}%
-    </span>
-  </div>
-);
 
 const CourseCover = ({ title }: { title: string }) => (
   <div
@@ -1504,7 +1499,7 @@ type CarouselVariant =
 
 const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
-  const [apiMessage, setApiMessage] = useState('API 尚未调用');
+  const [apiMessage, setApiMessage] = useState('尚未跳转');
   const [isPlaying, setIsPlaying] = useState(variant === 'autoplay');
 
   const isMultiple = variant === 'multiple-slides';
@@ -1513,7 +1508,7 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
 
   const handleApiJump = () => {
     api?.scrollTo(2);
-    setApiMessage('已通过 Embla API 跳到第 3 张');
+    setApiMessage('已跳到第 3 张');
   };
 
   return (
@@ -1564,7 +1559,7 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
       {variant === 'api-access' && (
         <>
           <Button size="sm" variant="secondary" onClick={handleApiJump}>
-            调用 setApi 跳转
+            跳到第 3 张
           </Button>
           <span style={demoTextStyle}>{apiMessage}</span>
         </>
@@ -2987,7 +2982,7 @@ const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
           </Kpi.Trend>
           {variant === 'with-chart-inline' && (
             <Kpi.Chart style={{ width: 96 }}>
-              <MiniLine values={[20, 32, 28, 44, 52, 48]} />
+              <SparklineLine values={[20, 32, 28, 44, 52, 48]} />
             </Kpi.Chart>
           )}
         </Kpi.Content>
@@ -2998,7 +2993,7 @@ const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
         )}
         {variant === 'with-chart-bottom' && (
           <Kpi.Chart>
-            <MiniBars values={[18, 28, 42, 35, 52, 46, 60]} />
+            <SparklineBars values={[18, 28, 42, 35, 52, 46, 60]} />
           </Kpi.Chart>
         )}
         {variant === 'with-footer' && (
@@ -3160,7 +3155,7 @@ const WidgetVariantDemo = ({ variant }: { variant: WidgetVariantKey }) => {
               </Widget.Legend>
             </Widget.Header>
             <Widget.Content>
-              <MiniBars values={[18, 28, 42, 35, 52, 46, 60]} />
+              <SparklineBars values={[18, 28, 42, 35, 52, 46, 60]} />
             </Widget.Content>
           </Widget>
         </div>
@@ -3224,14 +3219,14 @@ const WidgetVariantDemo = ({ variant }: { variant: WidgetVariantKey }) => {
               </Kpi>
             </KpiGroup>
           ) : variant === 'with-line-chart' ? (
-            <MiniLine values={[18, 22, 31, 28, 44, 52, 58]} />
+            <SparklineLine values={[18, 22, 31, 28, 44, 52, 58]} />
           ) : variant === 'with-pie-chart' ? (
             <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <MiniDonut label="课程完成率" value={72} />
+              <CompletionDonut label="课程完成率" value={72} />
               <span style={demoMutedStyle}>72% 学员完成本周目标</span>
             </div>
           ) : (
-            <MiniBars values={variant === 'usage-summary' ? [32, 46, 38, 58, 42, 64, 70] : [18, 28, 42, 35, 52, 46, 60]} />
+            <SparklineBars values={variant === 'usage-summary' ? [32, 46, 38, 58, 42, 64, 70] : [18, 28, 42, 35, 52, 46, 60]} />
           )}
         </Widget.Content>
         <Widget.Footer>

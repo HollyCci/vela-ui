@@ -891,9 +891,8 @@ const AllDayEvent = ({ event, colStart, colSpan, row, className }: AgendaAllDayE
   );
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       data-slot="agenda-all-day-event"
       data-status={event.status ?? 'confirmed'}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
@@ -905,7 +904,7 @@ const AllDayEvent = ({ event, colStart, colSpan, row, className }: AgendaAllDayE
       }}
     >
       {event.title}
-    </div>
+    </button>
   );
 };
 AllDayEvent.displayName = 'Agenda.AllDayEvent';
@@ -1520,9 +1519,8 @@ const MonthSpanningEvent = ({
   );
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       data-slot="agenda-month-spanning-event"
       data-status={event.status ?? 'confirmed'}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
@@ -1538,7 +1536,7 @@ const MonthSpanningEvent = ({
       }}
     >
       {event.title}
-    </div>
+    </button>
   );
 };
 MonthSpanningEvent.displayName = 'Agenda.MonthSpanningEvent';
@@ -1562,9 +1560,8 @@ const MonthEvent = ({ event, className }: AgendaMonthEventProps) => {
   );
 
   return (
-    <div
-      role="button"
-      tabIndex={0}
+    <button
+      type="button"
       data-slot="agenda-month-event"
       data-event-id={event.id}
       data-status={event.status ?? 'confirmed'}
@@ -1574,7 +1571,7 @@ const MonthEvent = ({ event, className }: AgendaMonthEventProps) => {
       style={eventColorStyle(event.color)}
     >
       {event.isAllDay ? event.title : `${timeFormat.format(event.start)} ${event.title}`}
-    </div>
+    </button>
   );
 };
 MonthEvent.displayName = 'Agenda.MonthEvent';

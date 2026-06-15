@@ -238,7 +238,7 @@ const EmojiReactionButtonDemo = () => {
 
 const TooltipDemo = () => (
   <>
-    <DemoSection label="悬停 / 聚焦显示提示（content 便捷用法）">
+    <DemoSection label="多方向提示">
       <Tooltip content="顶部提示" placement="top" delay={0} closeDelay={0}>
         <Button variant="secondary">上</Button>
       </Tooltip>
@@ -504,7 +504,7 @@ const StepperDemo = () => {
           当前第 {currentStep + 1} 步：{STEPPER_STEPS[currentStep].title}
         </span>
       </DemoSection>
-      <DemoSection label="垂直 / 小尺寸 / 展示型（无 onStepChange 不可点击）">
+      <DemoSection label="垂直 / 小尺寸 / 状态展示">
         <Stepper orientation="vertical" size="sm" currentStep={1}>
           {STEPPER_STEPS.map((step) => (
             <Stepper.Step key={step.title}>
@@ -534,7 +534,7 @@ const LinkDemo = () => {
         <Link href="/docs/components/link" onClick={handleInternalLink}>
           普通链接
         </Link>
-        <Link href="https://example.com" isExternal>
+        <Link href="https://github.com/HollyCci/vela-ui" isExternal>
           外部链接
         </Link>
         <Link isDisabled tabIndex={-1}>

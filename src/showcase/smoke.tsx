@@ -1,13 +1,11 @@
-import { Button, Card, Chip, Input } from '@heroui/react';
+import Button from '../components/button';
+import Card from '../components/card';
+import Chip from '../components/chip';
+import Input from '../components/input';
 
-/**
- * 工具链冒烟验证：直接使用 @heroui/react（OSS）真实组件，
- * 确认 React 19 + Tailwind v4 + @heroui/styles 链路正常出样式。
- * Pro 组件登录拉取后再替换为完整展示站。
- */
 const Smoke = () => (
   <div className="flex min-h-screen flex-col items-center justify-center gap-8 p-10">
-    <h1 className="text-2xl font-semibold">工具链迁移冒烟测试 · HeroUI OSS</h1>
+    <h1 className="text-2xl font-semibold">Vela UI Preview</h1>
 
     <div className="flex flex-wrap items-center gap-3">
       <Button variant="primary">Primary</Button>
@@ -26,12 +24,12 @@ const Smoke = () => (
 
     <Card className="w-full max-w-sm">
       <Card.Header>
-        <Card.Title>Card Title</Card.Title>
-        <Card.Description>真实 OSS 组件渲染，验证样式层生效。</Card.Description>
+        <Card.Title>Course workspace</Card.Title>
+        <Card.Description>快速记录一条课程运营事项。</Card.Description>
       </Card.Header>
       <Card.Content className="flex flex-col gap-3">
         <Input placeholder="输入点什么…" />
-        <Button variant="primary" fullWidth>
+        <Button variant="primary" isFullWidth>
           提交
         </Button>
       </Card.Content>

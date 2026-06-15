@@ -1,4 +1,8 @@
 import { useState, type MouseEvent, type ReactNode } from 'react';
+import Button from '../components/button';
+import Chip from '../components/chip';
+import Segment from '../components/segment';
+import Tooltip from '../components/tooltip';
 import './showcase.css';
 import docsMetaJson from './docs-meta.json';
 import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, resolveDemo, sectionTitle, titleOf } from './registry';
@@ -84,14 +88,13 @@ const SidebarItem = ({
 SidebarItem.displayName = 'SidebarItem';
 
 const NewChip = () => (
-  <span
-    className="chip chip--default chip--primary h-5 rounded-full bg-pink-400/8 px-1.5 text-[10px] font-semibold text-pink-400/90 order-last"
-    data-slot="chip"
+  <Chip
+    className="order-last h-5 rounded-full bg-pink-400/8 px-1.5 text-[10px] font-semibold text-pink-400/90"
+    color="default"
+    size="sm"
   >
-    <span className="chip__label" data-slot="chip-label">
-      New
-    </span>
-  </span>
+    New
+  </Chip>
 );
 NewChip.displayName = 'NewChip';
 
@@ -157,14 +160,9 @@ const DocsHeader = () => (
             <LogoIcon />
             <span className="sr-only">Vela UI</span>
           </a>
-          <span
-            className="chip chip--default chip--secondary bg-default text-muted hidden h-6 min-w-fit gap-0.5 px-2 py-1 min-[1070px]:flex"
-            data-slot="chip"
-          >
-            <span className="chip__label" data-slot="chip-label">
-              1.0.0-beta.5
-            </span>
-          </span>
+          <Chip className="hidden h-6 min-w-fit gap-0.5 bg-default px-2 py-1 text-muted min-[1070px]:flex" size="sm" variant="soft">
+            1.0.0-beta.5
+          </Chip>
         </div>
       </div>
       <button
@@ -179,11 +177,9 @@ const DocsHeader = () => (
         </div>
       </button>
       <div className="flex flex-1 items-center justify-end gap-1.5">
-        <span className="chip chip--default chip--secondary bg-default text-muted hidden h-6 gap-0.5 px-2 py-1 md:flex" data-slot="chip">
-          <span className="chip__label" data-slot="chip-label">
-            Vela UI
-          </span>
-        </span>
+        <Chip className="hidden h-6 gap-0.5 bg-default px-2 py-1 text-muted md:flex" size="sm" variant="soft">
+          Vela UI
+        </Chip>
       </div>
     </div>
     <div className="flex flex-row items-end gap-6 h-10 overflow-x-auto border-b px-6" data-header-tabs="">
@@ -253,9 +249,6 @@ const ComponentPreview = ({ component, slug, demo }: ComponentPreviewProps) => {
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
   const height = HEIGHT_OVERRIDES[component] ?? 360;
 
-  const handleDevice = (e: MouseEvent<HTMLButtonElement>) => {
-    setDevice(e.currentTarget.dataset.device as Device);
-  };
   const handleTheme = () => setTheme((value) => (value === 'light' ? 'dark' : 'light'));
 
   return (
@@ -272,42 +265,34 @@ const ComponentPreview = ({ component, slug, demo }: ComponentPreviewProps) => {
           <ChevronRightSmIcon />
         </a>
         <div className="flex items-center gap-1">
-          <div className="tooltip__trigger" data-slot="tooltip-trigger" role="button" tabIndex={0}>
-            <button
-              type="button"
+          <Tooltip content={theme === 'light' ? '切换到深色预览' : '切换到浅色预览'} delay={0} closeDelay={0}>
+            <Button
               aria-label="Toggle theme"
-              className="text-muted hover:text-foreground hover:bg-default flex size-7 cursor-pointer items-center justify-center rounded-lg transition-colors"
-              onClick={handleTheme}
+              className="size-7 text-muted hover:text-foreground"
               data-theme-selected={theme}
+              isIconOnly
+              size="sm"
+              variant="ghost"
+              onClick={handleTheme}
             >
               <ThemeToggleIcon />
-            </button>
-          </div>
+            </Button>
+          </Tooltip>
           <div className="bg-separator mx-1 hidden h-5 w-px md:block" />
-          <div
-            data-slot="segment"
-            className="segment segment--sm hidden md:flex"
-            role="radiogroup"
+          <Segment
             aria-orientation="horizontal"
-            data-orientation="horizontal"
+            aria-label="Preview device"
+            className="hidden md:flex"
+            selectedKey={device}
+            size="sm"
+            onSelectionChange={(key) => setDevice(key as Device)}
           >
             {(['mobile', 'tablet', 'desktop'] as Device[]).map((d) => (
-              <button
-                key={d}
-                data-slot="segment-item"
-                className="segment__item segment__item--sm"
-                type="button"
-                role="radio"
-                aria-checked={device === d}
-                data-selected={device === d || undefined}
-                data-device={d}
-                onClick={handleDevice}
-              >
-                {device === d && <div data-slot="segment-indicator" className="segment__indicator" />}
+              <Segment.Item key={d} id={d}>
                 {d === 'mobile' ? 'Mobile' : d === 'tablet' ? 'Tablet' : 'Desktop'}
-              </button>
+              </Segment.Item>
             ))}
-          </div>
+          </Segment>
         </div>
       </div>
       <div className="relative overflow-visible" style={{ minHeight: height }}>

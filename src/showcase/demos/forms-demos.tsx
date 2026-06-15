@@ -981,7 +981,7 @@ const DropZoneDisabledVariantDemo = () => (
         <DropZone.Description>禁用状态会同时阻止拖放与文件选择</DropZone.Description>
         <DropZone.Trigger>选择文件</DropZone.Trigger>
       </DropZone.Area>
-      <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={() => undefined} />
+      <DropZone.Input accept=".pdf,.doc,.docx" multiple />
     </DropZone>
   </DemoSection>
 );
