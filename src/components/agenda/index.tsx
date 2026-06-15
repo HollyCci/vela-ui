@@ -261,7 +261,7 @@ export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
   const [view, setView] = useControllableState(controlledView, defaultView, onViewChange);
   const [date, setDateRaw] = useControllableState(controlledDate, fallbackDate, onDateChange);
   const [selectedEventId, setSelectedEventId] = useControllableState<string | null>(
-    controlledSelected ?? undefined,
+    controlledSelected,
     null,
     onEventSelect,
   );
@@ -1028,8 +1028,12 @@ const Event = ({ event, className }: AgendaEventProps) => {
   const day = startOfDay(displayStart);
   const startMin = minutesFromMidnight(displayStart, day);
   const endMin = minutesFromMidnight(displayEnd, day);
-  const top = ((startMin - startHour * 60) / slotDuration) * 60;
-  const height = Math.max(20, ((endMin - startMin) / slotDuration) * 60);
+  // 定位以「槽数」表达，乘以真实槽高 var(--agenda-slot-height)（移动端 48px），
+  // 与网格行高 / CurrentTime 指示器 / 拖拽数学同源，避免硬编码 60px 导致错位
+  const topSlots = (startMin - startHour * 60) / slotDuration;
+  const heightSlots = (endMin - startMin) / slotDuration;
+  const top = `calc(var(--agenda-slot-height) * ${topSlots})`;
+  const height = `max(20px, calc(var(--agenda-slot-height) * ${heightSlots}))`;
   const canMove = !event.isReadOnly && onEventMove !== undefined;
   const canResize = !event.isReadOnly && onEventResize !== undefined;
   const canInteract = canMove || canResize;
@@ -1127,7 +1131,12 @@ const Event = ({ event, className }: AgendaEventProps) => {
         };
       }
 
-      const latestStartMinute = endHour * 60 - interaction.durationMinutes;
+      // 事件时长超过可视窗口时 endHour*60-duration 会小于 startHour*60，
+      // 下限钳到 startHour*60 防止 clamp 出现 min>max
+      const latestStartMinute = Math.max(
+        startHour * 60,
+        endHour * 60 - interaction.durationMinutes,
+      );
       const startMinute = clamp(
         position.minute - interaction.grabOffsetMinutes,
         startHour * 60,
