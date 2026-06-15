@@ -6,18 +6,22 @@ import { readFileSync, writeFileSync, mkdirSync, cpSync } from 'node:fs';
 const entry = fileURLToPath(new URL('./src/index.ts', import.meta.url));
 
 /**
- * 把自包含的 heroui-full.css + data-grid 分片 + 字体声明合成单一 dist/styles.css，
+ * 把自有样式分片 + 字体声明合成单一 dist/styles.css，
  * 并随包发布字体文件（fonts.css 用 ./fonts/*.woff2 相对路径）。
- * 不过 Tailwind —— heroui-full.css 已是预编译产物，消费方无需安装 Tailwind。
+ * 不过 Tailwind —— 组件 CSS 已是预编译产物，消费方无需安装 Tailwind。
  */
 function copyStyles() {
   return {
     name: 'vela-copy-styles',
     closeBundle() {
       mkdirSync('dist/fonts', { recursive: true });
+      const blocks = JSON.parse(readFileSync('src/styles/_index.json', 'utf8')) as Array<{ file: string }>;
       const css = [
-        'src/styles/heroui-full.css',
-        'src/styles/components/data-grid.css',
+        'src/styles/properties.css',
+        'src/styles/tokens.css',
+        'src/styles/base.css',
+        'src/styles/keyframes-shared.css',
+        ...blocks.map((block) => `src/styles/${block.file}`),
         'src/styles/fonts.css',
       ]
         .map((p) => readFileSync(p, 'utf8'))
@@ -89,13 +93,6 @@ export default defineConfig({
           preserveModules: true,
           preserveModulesRoot: 'src',
           entryFileNames: '[name].js',
-        },
-        {
-          format: 'cjs',
-          preserveModules: true,
-          preserveModulesRoot: 'src',
-          entryFileNames: '[name].cjs',
-          exports: 'named',
         },
       ],
     },

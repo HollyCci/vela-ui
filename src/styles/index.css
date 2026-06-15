@@ -10,15 +10,8 @@
 /* 登录并 `npx heroui-pro install` 后取消注释，接入 Pro 组件样式 */
 /* @import '@heroui-pro/react/css'; */
 
-/*
- * 复刻层（离线 Pro 替身）：原站完整编译 bundle，
- * 覆盖 Pro 组件 BEM 类、文档站 fd-* 层与最终 token 值（置于 @heroui/styles 之后，cascade 以原站值为准）。
- * Pro 正版接入后删除本行，由上面的 @heroui-pro/react/css 接管。
- */
-@import './heroui-full.css';
-@import './components/data-grid.css';
-
-@import './fonts.css';
+/* Vela 组件库自有样式层（发布产物 dist/styles.css 与此入口保持同源） */
+@import './lib.css';
 
 :root {
   --font-inter: 'Inter', 'Inter Fallback';
