@@ -175,6 +175,7 @@ const renderMarks = (
 
     return (
       <Mark
+        // eslint-disable-next-line react/no-array-index-key -- marks 静态有序，value+序号稳定
         key={`${mark.value}-${index}`}
         value={mark.value}
         className={mark.className}

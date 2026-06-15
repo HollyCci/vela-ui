@@ -8,7 +8,7 @@ import PressableFeedback from '../pressable-feedback';
 export type RadioButtonGroupLayout = 'flex' | 'grid';
 export type RadioButtonGroupItemPressFeedback = 'ripple' | 'none';
 type RadioButtonGroupItemRenderProps = Parameters<
-  Extract<RadioProps['children'], (...args: any[]) => unknown>
+  Extract<RadioProps['children'], (...args: never[]) => unknown>
 >[0];
 
 export type RadioButtonGroupProps = Omit<RadioGroupProps, 'className' | 'style'> & {

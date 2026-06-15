@@ -174,7 +174,6 @@ const GuideLines = ({ level }: { level: number }) => {
     <>
       {Array.from({ length: Math.max(level - 1, 0) }, (_, lineIndex) => (
         <div
-          // eslint-disable-next-line react/no-array-index-key -- 参考线按层级序号定位，顺序稳定
           key={lineIndex}
           aria-hidden="true"
           data-slot="file-tree-guide-line"

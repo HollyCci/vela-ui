@@ -1075,6 +1075,8 @@ function DataGrid<TRow extends object>({
   useEffect(() => {
     if (!isVirtualized) return;
     onVirtualRangeChangeRef.current?.(virtualRange);
+    // 刻意依赖 virtualRange 的各原始字段而非对象本身：避免每次渲染对象身份变化导致重复回调
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     isVirtualized,
     virtualRange.startIndex,

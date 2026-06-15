@@ -13,7 +13,7 @@ import PressableFeedback from '../pressable-feedback';
 export type CheckboxButtonGroupLayout = 'flex' | 'grid';
 export type CheckboxButtonGroupItemPressFeedback = 'ripple' | 'none';
 type CheckboxButtonGroupItemRenderProps = Parameters<
-  Extract<CheckboxProps['children'], (...args: any[]) => unknown>
+  Extract<CheckboxProps['children'], (...args: never[]) => unknown>
 >[0];
 
 export type CheckboxButtonGroupProps = Omit<CheckboxGroupProps, 'className' | 'style'> & {

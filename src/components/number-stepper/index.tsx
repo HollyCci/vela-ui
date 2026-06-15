@@ -68,7 +68,7 @@ type NumberStepperContextValue = {
 
 type NumberFieldRenderChildren = Extract<
   NumberFieldProps['children'],
-  (props: any) => ReactNode
+  (...args: never[]) => ReactNode
 >;
 type NumberFieldRenderProps = Parameters<NumberFieldRenderChildren>[0];
 

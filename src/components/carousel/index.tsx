@@ -297,7 +297,6 @@ const Dots = forwardRef<HTMLDivElement, CarouselDotsProps>(
           renderDot !== undefined ? (
             renderDot({ index: dotIndex, isSelected: dotIndex === selectedIndex })
           ) : (
-            // eslint-disable-next-line react/no-array-index-key -- dot 与幻灯片索引一一对应
             <Dot key={dotIndex} index={dotIndex} isSelected={dotIndex === selectedIndex} />
           ),
         )}

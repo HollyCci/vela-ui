@@ -114,6 +114,9 @@ const NavbarRoot = forwardRef<HTMLElement, NavbarProps>(
     // 把滚动容器解析成真实元素并提升到 state：parentRef 指向的元素若在首个
     // effect 之后才挂载，这里会在该 commit 同步更新，驱动订阅 effect 重新订阅。
     const [scrollTarget, setScrollTarget] = useState<HTMLElement | null>(null);
+    // 刻意无依赖数组：每次渲染重解析 parentRef.current → scrollTarget，以捕获在本组件
+    // 之后才挂载的滚动容器；setScrollTarget 传入同值时 React 自动 bail-out，不会无限更新。
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     useLayoutEffect(() => {
       if (!hideOnScroll) {
         setScrollTarget(null);

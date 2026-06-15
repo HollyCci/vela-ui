@@ -525,6 +525,7 @@ const Markdown = forwardRef<HTMLDivElement, MarkdownProps>(
       <div ref={ref} data-slot="markdown" className={clsx('markdown', className)} {...rest}>
         {blocks.map((block, index) => (
           <div
+            // eslint-disable-next-line react/no-array-index-key -- 解析块按位置渲染，index 稳定
             key={`${seed}-${index}`}
             data-slot="markdown-block"
             className="markdown__block"
