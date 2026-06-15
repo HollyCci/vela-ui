@@ -186,6 +186,8 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
   ) => {
     const orderRef = useRef<string[]>([]);
     const groupHandleRef = useRef<GroupImperativeHandle | null>(null);
+    // 指向引擎渲染的 Group 容器 DOM；用于按文档顺序派生面板顺序（与挂载序脱钩）
+    const containerRef = useRef<HTMLDivElement | null>(null);
 
     const registry = useMemo<PanelOrderRegistry>(
       () => ({
@@ -200,17 +202,49 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
       [],
     );
 
+    // 权威面板顺序：从 Group 容器 DOM 按文档顺序读取面板 id（引擎把 id 落到 data-panel 节点的 id 属性，
+    // 且面板是 Group 的直接子节点），动态增删/重排后仍与可视 DOM 一致。
+    // DOM 未就绪（SSR / 首帧挂载前)时回退到挂载序登记表。
+    const resolveOrder = useCallback((): string[] => {
+      const container = containerRef.current;
+      if (container === null) return orderRef.current;
+      const registered = orderRef.current;
+      const domOrder: string[] = [];
+      const seen = new Set<string>();
+      container.querySelectorAll<HTMLElement>(':scope > [data-panel]').forEach((node) => {
+        const panelId = node.id;
+        // 仅纳入已登记的面板 id，过滤引擎可能渲染的非受控/无 id 节点，保证与转换两端一致
+        if (panelId !== '' && registered.includes(panelId)) {
+          domOrder.push(panelId);
+          seen.add(panelId);
+        }
+      });
+      // 兜底：极少数登记但尚未出现在 DOM 查询结果中的 id 追加在尾部，避免漏项
+      for (const id of registered) if (!seen.has(id)) domOrder.push(id);
+      return domOrder;
+    }, []);
+
+    // 合并转发 ref 与内部容器 ref：既满足对外 ref，又能在换算时读取容器 DOM
+    const setContainerRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        containerRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref !== null && ref !== undefined) ref.current = node;
+      },
+      [ref],
+    );
+
     const contextValue = useMemo<ResizableContextValue>(
       () => ({ orientation, registry }),
       [orientation, registry],
     );
 
-    // 拖拽过程（每次指针移动）触发：换算成百分比数组回调
+    // 拖拽过程（每次指针移动）触发：换算成百分比数组回调（按 DOM 文档顺序）
     const handleLayoutChange = useCallback(
       (layout: Layout) => {
-        onLayout?.(layoutToArray(layout, orderRef.current));
+        onLayout?.(layoutToArray(layout, resolveOrder()));
       },
-      [onLayout],
+      [onLayout, resolveOrder],
     );
 
     // 拖拽/键盘结束后触发：持久化最终布局（指针移动期间不写）
@@ -227,13 +261,13 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
       (): ResizableImperativeHandle => ({
         getLayout: () => {
           const layout = groupHandleRef.current?.getLayout() ?? {};
-          return layoutToArray(layout, orderRef.current);
+          return layoutToArray(layout, resolveOrder());
         },
         setLayout: (sizes) => {
-          groupHandleRef.current?.setLayout(arrayToLayout(sizes, orderRef.current));
+          groupHandleRef.current?.setLayout(arrayToLayout(sizes, resolveOrder()));
         },
       }),
-      [],
+      [resolveOrder],
     );
 
     // SSR 安全：首屏与服务端一致（undefined），挂载后再读 localStorage 应用存储布局，避免水合不一致 + 布局闪
@@ -246,7 +280,7 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
     return (
       <ResizableContext.Provider value={contextValue}>
         <Group
-          elementRef={ref ?? undefined}
+          elementRef={setContainerRef}
           groupRef={groupHandleRef}
           orientation={orientation}
           disabled={disabled}

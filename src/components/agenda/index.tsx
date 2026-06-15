@@ -6,12 +6,14 @@ import {
   useCallback,
   useContext,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
   type MouseEvent as ReactMouseEvent,
+  type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
@@ -433,7 +435,15 @@ export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
   };
 }
 
-type AgendaContextValue = UseAgendaResult & { locale: string };
+type AgendaContextValue = UseAgendaResult & {
+  locale: string;
+  /**
+   * a11y 焦点意图标志：月视图 cell 触发切到日视图前置 true，
+   * AgendaRoot 在 view 变为 'day' 时据此把焦点移到日视图容器（而非 body），随后清零。
+   * 仅对「用户从月视图触发」的切换生效，外部/程序化 setView 不抢焦点。
+   */
+  pendingViewFocusRef: MutableRefObject<boolean>;
+};
 
 const AgendaContext = createContext<AgendaContextValue | null>(null);
 
@@ -489,6 +499,39 @@ const AgendaRoot = forwardRef<HTMLDivElement, AgendaProps>((props, ref) => {
     if (typeof navigator !== 'undefined') setLocale(navigator.language);
   }, []);
 
+  // a11y：月→日视图切换后避免焦点落到 body。
+  // rootRef 始终指向本实例根容器（同时透传外部 ref，不改 DOM）；pendingViewFocusRef
+  // 由月视图 cell 的点击 handler 在 setView('day') 前置位，下方 effect 据此聚焦日视图容器。
+  const rootRef = useRef<HTMLDivElement | null>(null);
+  const pendingViewFocusRef = useRef(false);
+  const setRootRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      rootRef.current = node;
+      if (typeof ref === 'function') ref(node);
+      else if (ref) (ref as MutableRefObject<HTMLDivElement | null>).current = node;
+    },
+    [ref],
+  );
+
+  // 仅当「用户从月视图触发」切到日视图时移焦（标志 gate）：
+  // 在本实例 rootRef 作用域内查日视图滚动容器，查到则补不可见 tabIndex={-1} 并 focus，
+  // 查不到则 focus rootRef 自身；scoped 到 rootRef，避免多实例全局抢焦点。
+  useLayoutEffect(() => {
+    if (view !== 'day') return;
+    if (!pendingViewFocusRef.current) return;
+    pendingViewFocusRef.current = false;
+    const root = rootRef.current;
+    if (!root) return;
+    const target =
+      root.querySelector<HTMLElement>('[data-slot="agenda-time-grid"]') ??
+      root.querySelector<HTMLElement>('[data-slot="agenda-body"]') ??
+      root;
+    if (target !== root && target.getAttribute('tabindex') === null) {
+      target.setAttribute('tabindex', '-1');
+    }
+    target.focus();
+  }, [view]);
+
   const contextValue = useMemo<AgendaContextValue>(
     () => ({
       view,
@@ -517,6 +560,7 @@ const AgendaRoot = forwardRef<HTMLDivElement, AgendaProps>((props, ref) => {
       onEventResize,
       onEventSelect,
       locale,
+      pendingViewFocusRef,
     }),
     [
       view,
@@ -545,13 +589,14 @@ const AgendaRoot = forwardRef<HTMLDivElement, AgendaProps>((props, ref) => {
       onEventResize,
       onEventSelect,
       locale,
+      pendingViewFocusRef,
     ],
   );
 
   return (
     <AgendaContext.Provider value={contextValue}>
       <div
-        ref={ref}
+        ref={setRootRef}
         data-slot="agenda"
         data-view={view}
         tabIndex={-1}
@@ -1457,7 +1502,8 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
     { date, maxEvents = 2, moreLabel, spanningRowCount = 0, className, children, style, ...rest },
     ref,
   ) => {
-    const { date: focusedDate, setDate, setView, locale } = useAgendaContext();
+    const { date: focusedDate, setDate, setView, locale, pendingViewFocusRef } =
+      useAgendaContext();
     const today = startOfDay(new Date());
     const isOutsideMonth = date.getMonth() !== focusedDate.getMonth();
     const firstOfMonth = date.getDate() === 1;
@@ -1472,14 +1518,18 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
     const labelFor = moreLabel ?? ((count: number) => `${count} more`);
 
     const handleDateClick = useCallback(() => {
+      // a11y：标记本次为「用户从月视图触发」的视图切换，
+      // 卸载 MonthGrid 后由 AgendaRoot 把焦点移到日视图容器（而非 body）。
+      pendingViewFocusRef.current = true;
       setDate(date);
       setView('day');
-    }, [date, setDate, setView]);
+    }, [date, setDate, setView, pendingViewFocusRef]);
 
     const handleMoreClick = useCallback(() => {
+      pendingViewFocusRef.current = true;
       setDate(date);
       setView('day');
-    }, [date, setDate, setView]);
+    }, [date, setDate, setView, pendingViewFocusRef]);
 
     return (
       <div

@@ -109,4 +109,48 @@ describe('Sidebar', () => {
     const current = document.querySelector('[data-slot="sidebar-menu-item"][data-current="true"]');
     expect(current).not.toBeNull();
   });
+
+  // 回归（deferred a11y）：移动端抽屉打开后焦点移入对话框，关闭后还回触发按钮
+  it('mobile drawer moves focus inside on open and restores it on close', async () => {
+    // 模拟移动端视口：matchMedia(max-width:768) 命中
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      })),
+    );
+    const user = userEvent.setup();
+    render(
+      <Sidebar.Provider>
+        <Sidebar.Mobile>
+          <button type="button">抽屉内按钮</button>
+        </Sidebar.Mobile>
+        <Sidebar.Main>
+          <Sidebar.Trigger />
+        </Sidebar.Main>
+      </Sidebar.Provider>,
+    );
+
+    const trigger = document.querySelector('[data-slot="sidebar-trigger"]') as HTMLElement;
+    trigger.focus();
+    await user.click(trigger); // 移动端 → 打开 sheet
+
+    const dialog = document.querySelector('[data-slot="sidebar-mobile-dialog"]') as HTMLElement;
+    expect(dialog).not.toBeNull();
+    // 焦点已移入抽屉、离开触发按钮（jsdom 无布局，可聚焦项被可见性过滤掉时回退聚焦 dialog 容器本身；
+    // 真实浏览器里会落到抽屉内首个可聚焦元素——此处只稳健断言"焦点在抽屉内、不再停留在 trigger"）
+    expect(dialog.contains(document.activeElement)).toBe(true);
+    expect(trigger).not.toHaveFocus();
+
+    // Escape 关闭 → 焦点还回触发按钮
+    await user.keyboard('{Escape}');
+    expect(trigger).toHaveFocus();
+  });
 });
