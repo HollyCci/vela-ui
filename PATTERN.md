@@ -15,7 +15,7 @@
 | 图表 | `recharts` | —（已对） |
 | 交互原语（select/menu/tree/gridlist/slider…） | `@heroui/react` + `react-aria-components` | —（基座正确） |
 
-**验收标准 = 与 heroui.pro 线上真组件并排对照真实手感**（拖拽物理/缓动/键盘/边界/动画），
+**验收标准 = 与参考组件并排对照真实手感**（拖拽物理/缓动/键盘/边界/动画），
 不是「aria 翻转了 / 没有 button 嵌套」这种 wiring 级检查，也不是对照抓取的静态快照（那是死 DOM）。
 
 ## 流程

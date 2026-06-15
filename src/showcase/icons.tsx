@@ -1,4 +1,4 @@
-/** 文档站外壳用到的图标（路径数据逐一取自原站 DOM） */
+/** 文档站外壳用到的图标（路径数据逐一取自参考 DOM） */
 
 export const LogoIcon = () => (
   <svg aria-hidden="true" fill="none" height="26" viewBox="0 0 150 33" width="118" xmlns="http://www.w3.org/2000/svg">

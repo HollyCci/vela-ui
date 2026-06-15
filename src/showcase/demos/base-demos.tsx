@@ -233,7 +233,7 @@ const XmarkIcon = () => (
 );
 XmarkIcon.displayName = 'XmarkIcon';
 
-/** 原站 anatomy 同构：OSS Chip/Button/Separator/Tooltip 填充 ActionBar 各分区 */
+/** 参考实现 anatomy 同构：OSS Chip/Button/Separator/Tooltip 填充 ActionBar 各分区 */
 const ActionBarDemo = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('尚未执行批量操作');

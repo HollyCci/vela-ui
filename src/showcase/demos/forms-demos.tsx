@@ -742,7 +742,7 @@ const useDropZoneUploadFiles = () => {
       if (files.length > 0) setUploadFiles(files);
     });
   };
-  // 文件选择器：DropZone.Input 的 onSelect（原站 API 签名 FileList）
+  // 文件选择器：DropZone.Input 的 onSelect（参考 API 签名 FileList）
   const handleSelect = (files: FileList) => {
     const batchId = Date.now().toString(36);
     setUploadFiles(
@@ -2442,7 +2442,7 @@ const BookIcon = () => (
   </svg>
 );
 
-/** 原站 custom-indicator 基准快照中的对勾圆图标 */
+/** 参考实现 custom-indicator 基准快照中的对勾圆图标 */
 const CheckCircleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16" aria-hidden="true">
     <path

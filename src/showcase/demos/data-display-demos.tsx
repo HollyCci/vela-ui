@@ -256,7 +256,7 @@ const summarizeNames = (names: string[]) => {
   return `${names.slice(0, 2).join('、')} 等 ${names.length} 个文件`;
 };
 
-/** 原站「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
+/** 参考「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
 const ListViewDemo = () => {
   const [files, setFiles] = useState(LIST_VIEW_FILES);
   const [selected, setSelected] = useState<DemoSelection>(new Set());

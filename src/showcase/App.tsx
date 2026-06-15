@@ -29,7 +29,7 @@ const docsMeta = docsMetaJson as DocsMeta;
 const ALL_COMPONENTS_ID = 'all-components';
 const REPOSITORY_URL = 'https://github.com/HollyCci/vela-ui';
 
-/** 原站 AI 分类下标记 New 的组件 */
+/** 参考实现 AI 分类下标记 New 的组件 */
 const NEW_COMPONENTS = new Set([
   'chain-of-thought',
   'chat-attachment',
@@ -214,7 +214,7 @@ const DEVICE_WIDTH: Record<Device, string> = {
   desktop: '100%',
 };
 
-/** 全屏/高内容组件需要更高的预览帧（原站默认 360px 起步） */
+/** 全屏/高内容组件需要更高的预览帧（参考实现默认 360px 起步） */
 const HEIGHT_OVERRIDES: Record<string, number> = {
   agenda: 760,
   'app-layout': 760,
