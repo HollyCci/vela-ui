@@ -93,6 +93,8 @@ export default defineConfig({
           preserveModules: true,
           preserveModulesRoot: 'src',
           entryFileNames: '[name].js',
+          // 保留位置映射但不内联 .tsx 源码，避免随受限包发出全部源码
+          sourcemapExcludeSources: true,
         },
       ],
     },
