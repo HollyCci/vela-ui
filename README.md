@@ -58,15 +58,15 @@ pnpm type-check   # TypeScript 检查
 
 `pnpm build` 输出到 `dist/`：
 
-- `index.js` / `index.cjs` — 库入口（ESM / CJS）
-- `components/<name>/index.{js,cjs}` — 每组件独立模块（按需打包）
+- `index.js` — 库入口（ESM-only）
+- `components/<name>/index.js` — 每组件独立模块（按需打包）
 - `index.d.ts` + `components/<name>/index.d.ts` — 类型声明
-- `styles.css` — 合并样式（HeroUI 全量 + data-grid + 字体声明）
+- `styles.css` — 由令牌、基础样式、组件分片与字体声明合成的库样式
 - `fonts/*.woff2` — 字体资源
 
 ## 工程约定
 
-- 组件以 HeroUI / React Aria Components 为基座封装，DOM 与类名对齐设计规范；样式真相源为 `src/styles/heroui-full.css`。
+- 组件以 HeroUI / React Aria Components 为基座封装，DOM 与类名对齐设计规范；样式真相源为 `src/styles/lib.css` 与 `src/styles/components/*.css`。
 - 提交信息遵循 `docs/git-commit-spec.md`：`<type>(<scope>): <中文主题>`。
 
 ## 项目结构

@@ -96,7 +96,7 @@ Toast.displayName = 'Toast';
  * 真站 toast 的进出场动画由浏览器 View Transitions 驱动：
  *  - .toast--bottom/.toast--top 在 CSS 里声明了 `view-transition-class`
  *    （toast-bottom / toast-top）。
- *  - heroui-full.css 中的 `::view-transition-new/old(.toast-bottom):only-child`
+ *  - 样式分片中的 `::view-transition-new/old(.toast-bottom):only-child`
  *    把 toast-slide-*-in/out keyframe 挂到对应快照上。
  *  - 每条 toast 还需要一个**唯一**的 `view-transition-name`（真站由 JS 内联设置），
  *    浏览器才能在一次过渡里把同一条 toast 的旧/新快照配对、为新增/移除分别播放
