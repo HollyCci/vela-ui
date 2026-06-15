@@ -268,7 +268,11 @@ export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
 
   const setDate = useCallback((next: Date) => setDateRaw(startOfDay(next)), [setDateRaw]);
 
-  const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+  // 首屏服务端/客户端一致：初值固定 'en-US'，挂载后再切到真实 locale，避免水合 mismatch
+  const [locale, setLocale] = useState('en-US');
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') setLocale(navigator.language);
+  }, []);
 
   const title = useMemo(
     () => new Intl.DateTimeFormat(locale, { year: 'numeric', month: 'long' }).format(date),
@@ -472,7 +476,11 @@ const AgendaRoot = forwardRef<HTMLDivElement, AgendaProps>((props, ref) => {
     ...rest
   } = props;
 
-  const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
+  // 首屏服务端/客户端一致：初值固定 'en-US'，挂载后再切到真实 locale 并经 context 下发
+  const [locale, setLocale] = useState('en-US');
+  useEffect(() => {
+    if (typeof navigator !== 'undefined') setLocale(navigator.language);
+  }, []);
 
   const contextValue = useMemo<AgendaContextValue>(
     () => ({
@@ -1310,8 +1318,11 @@ const CurrentTimeIndicator = forwardRef<HTMLDivElement, AgendaSectionProps>(
   ({ className, ...rest }, ref) => {
     const { startHour, endHour, slotDuration, visibleDays, locale } = useAgendaContext();
     const [now, setNow] = useState(() => new Date());
+    // 首屏服务端/客户端一致：挂载前不渲染（指示器位置/时间文本依赖当前时刻，SSR 无法稳定）
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
+      setMounted(true);
       const timer = setInterval(() => setNow(new Date()), 60_000);
       return () => clearInterval(timer);
     }, []);
@@ -1328,7 +1339,7 @@ const CurrentTimeIndicator = forwardRef<HTMLDivElement, AgendaSectionProps>(
       [locale],
     );
 
-    if (!visible || todayCol === -1) return null;
+    if (!mounted || !visible || todayCol === -1) return null;
 
     return (
       <div
@@ -1439,11 +1450,10 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
     { date, maxEvents = 2, moreLabel, spanningRowCount = 0, className, children, style, ...rest },
     ref,
   ) => {
-    const { date: focusedDate, setDate, setView } = useAgendaContext();
+    const { date: focusedDate, setDate, setView, locale } = useAgendaContext();
     const today = startOfDay(new Date());
     const isOutsideMonth = date.getMonth() !== focusedDate.getMonth();
     const firstOfMonth = date.getDate() === 1;
-    const locale = typeof navigator !== 'undefined' ? navigator.language : 'en-US';
     const monthDayFormat = useMemo(
       () => new Intl.DateTimeFormat(locale, { month: 'short', day: 'numeric' }),
       [locale],
