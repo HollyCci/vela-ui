@@ -111,6 +111,10 @@ type DataGridRootStyle = CSSProperties & {
   '--data-grid-scroll-left'?: string;
   '--data-grid-scroll-max-left'?: string;
 };
+type DataGridDragOverlayStyle = CSSProperties & {
+  '--data-grid-drag-x'?: string;
+  '--data-grid-drag-y'?: string;
+};
 type DataGridPinnedMeta = {
   side: DataGridPinnedSide;
   offset: string;
@@ -491,6 +495,7 @@ function DataGrid<TRow extends object>({
   const [internalSortDescriptor, setInternalSortDescriptor] =
     useState<SortDescriptor | undefined>(defaultSortDescriptor);
   const [draggedKey, setDraggedKey] = useState<Key | null>(null);
+  const [dragOverlayPoint, setDragOverlayPoint] = useState<{ x: number; y: number } | null>(null);
   const [dropTarget, setDropTarget] = useState<{
     key: Key;
     position: DataGridRowReorderPosition;
@@ -872,6 +877,7 @@ function DataGrid<TRow extends object>({
 
   const handleRowDragMove = (point: DataGridDragPoint) => {
     if (!withRowReordering || draggedKeyRef.current === null) return;
+    setDragOverlayPoint({ x: point.clientX, y: point.clientY });
     setActiveDropTarget(resolveDropTarget(point));
   };
 
@@ -880,6 +886,7 @@ function DataGrid<TRow extends object>({
     draggedKeyRef.current = null;
     dropTargetRef.current = null;
     setDraggedKey(null);
+    setDragOverlayPoint(null);
     setDropTarget(null);
   };
 
@@ -950,10 +957,11 @@ function DataGrid<TRow extends object>({
     };
   };
 
-  const startRowDrag = (key: Key) => {
+  const startRowDrag = (key: Key, point: DataGridDragPoint) => {
     if (!withRowReordering || draggedKeyRef.current !== null) return;
     draggedKeyRef.current = key;
     setDraggedKey(key);
+    setDragOverlayPoint({ x: point.clientX, y: point.clientY });
     setActiveDropTarget(null);
     installRowDragListeners();
   };
@@ -962,13 +970,13 @@ function DataGrid<TRow extends object>({
     if (!withRowReordering) return;
     event.preventDefault();
     event.currentTarget.setPointerCapture(event.pointerId);
-    startRowDrag(key);
+    startRowDrag(key, event);
   };
 
   const handleRowMouseDown = (key: Key, event: ReactMouseEvent<HTMLElement>) => {
     if (!withRowReordering || event.button !== 0) return;
     event.preventDefault();
-    startRowDrag(key);
+    startRowDrag(key, event);
   };
 
   const handleRowPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
@@ -1307,6 +1315,21 @@ function DataGrid<TRow extends object>({
       </Table.Row>
     ) : null;
 
+  const draggedRow =
+    draggedKey === null ? undefined : sortedData.find((item) => getRowId(item) === draggedKey);
+  const dragLabelColumn = columns.find((column) => column.isRowHeader) ?? columns[0];
+  const dragOverlayLabel =
+    draggedRow !== undefined && dragLabelColumn !== undefined
+      ? formatCellValue(draggedRow, dragLabelColumn)
+      : '正在移动行';
+  const dragOverlayStyle: DataGridDragOverlayStyle | undefined =
+    dragOverlayPoint === null
+      ? undefined
+      : {
+          '--data-grid-drag-x': `${dragOverlayPoint.x}px`,
+          '--data-grid-drag-y': `${dragOverlayPoint.y}px`,
+        };
+
   const tableContent = (
     <Table.Content
       aria-label={ariaLabel}
@@ -1422,6 +1445,17 @@ function DataGrid<TRow extends object>({
         </Table.ResizableContainer>
       ) : (
         <Table.ScrollContainer {...scrollContainerProps}>{tableContent}</Table.ScrollContainer>
+      )}
+      {dragOverlayPoint !== null && draggedKey !== null && (
+        <div
+          aria-hidden="true"
+          className="data-grid__drag-overlay"
+          data-drop-position={dropTarget?.position}
+          style={dragOverlayStyle}
+        >
+          <DragHandleIcon />
+          <span className="data-grid__drag-overlay-label">{dragOverlayLabel}</span>
+        </div>
       )}
     </Table.Root>
   );
