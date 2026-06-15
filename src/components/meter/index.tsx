@@ -46,6 +46,7 @@ const Meter = forwardRef<HTMLDivElement, MeterProps>(
         aria-valuemin={minValue}
         aria-valuemax={maxValue}
         aria-valuenow={value}
+        aria-valuetext={valueLabel != null ? String(valueLabel) : undefined}
         aria-labelledby={label !== undefined ? labelId : undefined}
         data-disabled={isDisabled || undefined}
         className={clsx(

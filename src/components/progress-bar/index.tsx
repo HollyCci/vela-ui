@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import { forwardRef, useId, type HTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
 
 export type ProgressBarColor = 'default' | 'accent' | 'success' | 'warning' | 'danger';
@@ -33,6 +33,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
     },
     ref,
   ) => {
+    const labelId = useId();
     const isIndeterminate = value === undefined;
     const percent = isIndeterminate
       ? 0
@@ -48,6 +49,7 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         aria-valuemin={0}
         aria-valuemax={maxValue}
         aria-valuenow={isIndeterminate ? undefined : value}
+        aria-labelledby={label !== undefined ? labelId : undefined}
         data-disabled={isDisabled || undefined}
         className={clsx(
           'progress-bar',
@@ -57,7 +59,11 @@ const ProgressBar = forwardRef<HTMLDivElement, ProgressBarProps>(
         )}
         {...rest}
       >
-        {label !== undefined && <span data-slot="label">{label}</span>}
+        {label !== undefined && (
+          <span id={labelId} data-slot="label">
+            {label}
+          </span>
+        )}
         {isShowValue && !isIndeterminate && <span className="progress-bar__output">{output}</span>}
         <div className="progress-bar__track">
           <div

@@ -202,7 +202,7 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, selectedEmoji, f
         placeholder="搜索表情…"
         value={query}
         onChange={handleSearchChange}
-        className="w-full rounded-medium bg-default px-2 py-1 text-sm outline-none"
+        className="emoji-picker__search w-full rounded-medium bg-default px-2 py-1 text-sm outline-none"
       />
       <RACListBox
         data-slot="emoji-picker-grid"

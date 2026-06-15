@@ -255,6 +255,13 @@ export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
     selectedEventId: controlledSelected,
   } = options;
 
+  // 除零/Infinity 守卫：slotDuration<=0 或 startHour===endHour（窗口为 0）会让
+  // 时间网格 top/height、CurrentTime 指示器、拖拽换算出现 Infinity/NaN。
+  // 在入口钳正除数与可视窗口，下游（context）统一消费 safe 值。
+  const safeSlotDuration = Math.max(1, slotDuration);
+  const safeStartHour = clamp(Math.min(startHour, endHour), 0, 24);
+  const safeEndHour = clamp(Math.max(safeStartHour + 1, endHour), safeStartHour + 1, 24);
+
   // 非受控初值在挂载后固定，避免每次渲染 today 变化
   const [fallbackDate] = useState(() => startOfDay(defaultDate ?? new Date()));
 
@@ -404,9 +411,9 @@ export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
     setDate,
     title,
     rangeStart,
-    startHour,
-    endHour,
-    slotDuration,
+    startHour: safeStartHour,
+    endHour: safeEndHour,
+    slotDuration: safeSlotDuration,
     visibleDays,
     visibleWeeks,
     selectedEventId,

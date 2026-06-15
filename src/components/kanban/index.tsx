@@ -353,7 +353,7 @@ function KanbanCardImpl<T extends object>({
         transition={CARD_TRANSITION}
         {...rest}
       >
-        <div role="gridcell" style={{ display: 'contents' }}>
+        <div style={{ display: 'contents' }}>
           {children}
         </div>
       </Reorder.Item>

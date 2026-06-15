@@ -108,7 +108,6 @@ const Radio = forwardRef<HTMLInputElement, RadioProps>(
         style={style}
         data-selected={selected || undefined}
         data-disabled={isDisabled || undefined}
-        aria-checked={selected || undefined}
         aria-invalid={isInvalid || undefined}
       >
         <input

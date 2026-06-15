@@ -1,4 +1,11 @@
-import { forwardRef, type AnchorHTMLAttributes, type HTMLAttributes } from 'react';
+import {
+  Children,
+  cloneElement,
+  forwardRef,
+  isValidElement,
+  type AnchorHTMLAttributes,
+  type HTMLAttributes,
+} from 'react';
 import clsx from 'clsx';
 
 export type BreadcrumbsProps = HTMLAttributes<HTMLOListElement>;
@@ -7,6 +14,8 @@ export type BreadcrumbItemProps = Omit<HTMLAttributes<HTMLLIElement>, 'children'
   label: string;
   href?: string;
   isCurrent?: boolean;
+  /** Internal: set by Breadcrumbs based on position; the last item omits the separator. */
+  isLast?: boolean;
   linkProps?: AnchorHTMLAttributes<HTMLAnchorElement>;
 };
 
@@ -24,7 +33,7 @@ const SeparatorIcon = () => (
 );
 
 const Item = forwardRef<HTMLLIElement, BreadcrumbItemProps>(
-  ({ label, href, isCurrent = false, linkProps, className, ...rest }, ref) => (
+  ({ label, href, isCurrent = false, isLast = false, linkProps, className, ...rest }, ref) => (
     <li ref={ref} className={clsx('breadcrumbs__item', className)} {...rest}>
       <a
         className="breadcrumbs__link"
@@ -35,25 +44,33 @@ const Item = forwardRef<HTMLLIElement, BreadcrumbItemProps>(
       >
         {label}
       </a>
-      {!isCurrent && <SeparatorIcon />}
+      {!isLast && <SeparatorIcon />}
     </li>
   ),
 );
 Item.displayName = 'Breadcrumbs.Item';
 
 const BreadcrumbsRoot = forwardRef<HTMLOListElement, BreadcrumbsProps>(
-  ({ className, children, ...rest }, ref) => (
-    <nav aria-label="面包屑">
-      <ol
-        ref={ref}
-        className={clsx('breadcrumbs', className)}
-        style={{ listStyle: 'none', margin: 0, padding: 0 }}
-        {...rest}
-      >
-        {children}
-      </ol>
-    </nav>
-  ),
+  ({ className, children, ...rest }, ref) => {
+    const items = Children.toArray(children);
+    const lastIndex = items.length - 1;
+    return (
+      <nav aria-label="面包屑">
+        <ol
+          ref={ref}
+          className={clsx('breadcrumbs', className)}
+          style={{ listStyle: 'none', margin: 0, padding: 0 }}
+          {...rest}
+        >
+          {items.map((child, index) =>
+            isValidElement<BreadcrumbItemProps>(child)
+              ? cloneElement(child, { isLast: index === lastIndex })
+              : child,
+          )}
+        </ol>
+      </nav>
+    );
+  },
 );
 BreadcrumbsRoot.displayName = 'Breadcrumbs';
 

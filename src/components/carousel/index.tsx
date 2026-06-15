@@ -12,6 +12,7 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
 } from 'react';
 import {
@@ -286,7 +287,7 @@ const Dots = forwardRef<HTMLDivElement, CarouselDotsProps>(
     return (
       <div
         ref={ref}
-        role="tablist"
+        role="group"
         aria-label="Slide indicators"
         data-slot="carousel-dots"
         className={clsx('carousel__dots', className)}
@@ -316,7 +317,7 @@ const Thumbnails = forwardRef<HTMLDivElement, CarouselThumbnailsProps>(
         ref={ref}
         orientation="horizontal"
         hideScrollBar
-        role="tablist"
+        role="group"
         aria-label="Slide thumbnails"
         data-slot="carousel-thumbnails"
         className={clsx(
@@ -419,6 +420,38 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
     const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
     const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
 
+    const isVertical = opts?.axis === 'y';
+    const isRtl = opts?.direction === 'rtl';
+    const handleKeyDown = useCallback(
+      (event: ReactKeyboardEvent<HTMLDivElement>) => {
+        // 仅响应根容器自身的方向键，避免吞掉内部可聚焦控件（按钮/圆点)的键盘行为
+        if (event.target !== event.currentTarget) return;
+        const prevKey = isVertical ? 'ArrowUp' : isRtl ? 'ArrowRight' : 'ArrowLeft';
+        const nextKey = isVertical ? 'ArrowDown' : isRtl ? 'ArrowLeft' : 'ArrowRight';
+        switch (event.key) {
+          case prevKey:
+            event.preventDefault();
+            scrollPrev();
+            break;
+          case nextKey:
+            event.preventDefault();
+            scrollNext();
+            break;
+          case 'Home':
+            event.preventDefault();
+            scrollTo(0);
+            break;
+          case 'End':
+            event.preventDefault();
+            scrollTo(Math.max(0, scrollSnaps.length - 1));
+            break;
+          default:
+            break;
+        }
+      },
+      [isVertical, isRtl, scrollPrev, scrollNext, scrollTo, scrollSnaps.length],
+    );
+
     const contextValue = useMemo<CarouselContextValue>(
       () => ({
         layoutType: type,
@@ -463,6 +496,7 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
           aria-roledescription="carousel"
           aria-label="Carousel"
           tabIndex={0}
+          onKeyDown={handleKeyDown}
           data-slot="carousel"
           className={clsx('carousel', `carousel--${type}`, className)}
           {...rest}

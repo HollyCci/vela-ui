@@ -1,4 +1,11 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
+import {
+  forwardRef,
+  useId,
+  type HTMLAttributes,
+  type KeyboardEvent,
+  type MouseEvent,
+  type ReactNode,
+} from 'react';
 import clsx from 'clsx';
 
 export type TagSize = 'sm' | 'md' | 'lg';
@@ -22,41 +29,62 @@ const Tag = forwardRef<HTMLDivElement, TagProps>(
       onRemove,
       className,
       children,
+      onClick,
+      onKeyDown,
       ...rest
     },
     ref,
-  ) => (
-    <div
-      ref={ref}
-      className={clsx('tag', `tag--${size}`, `tag--${variant}`, className)}
-      data-selected={isSelected || undefined}
-      data-disabled={isDisabled || undefined}
-      tabIndex={isDisabled ? undefined : 0}
-      {...rest}
-    >
-      {children}
-      {onRemove !== undefined && (
-        <button
-          type="button"
-          className="tag__remove-button"
-          aria-label="移除"
-          onClick={onRemove}
-          disabled={isDisabled}
-        >
-          <svg
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            aria-hidden="true"
+  ) => {
+    const isInteractive = onClick !== undefined && !isDisabled;
+
+    const handleKeyDown = (event: KeyboardEvent<HTMLDivElement>) => {
+      onKeyDown?.(event);
+      if (!isInteractive || event.defaultPrevented) return;
+      if (event.key === 'Enter' || event.key === ' ') {
+        // Space would otherwise scroll the page; mirror native button activation.
+        if (event.key === ' ') event.preventDefault();
+        onClick?.(event as unknown as MouseEvent<HTMLDivElement>);
+      }
+    };
+
+    return (
+      <div
+        ref={ref}
+        className={clsx('tag', `tag--${size}`, `tag--${variant}`, className)}
+        data-selected={isSelected || undefined}
+        data-disabled={isDisabled || undefined}
+        role={isInteractive ? 'button' : undefined}
+        tabIndex={isInteractive ? 0 : undefined}
+        aria-pressed={isInteractive ? isSelected : undefined}
+        aria-disabled={isDisabled || undefined}
+        onClick={isDisabled ? undefined : onClick}
+        onKeyDown={handleKeyDown}
+        {...rest}
+      >
+        {children}
+        {onRemove !== undefined && (
+          <button
+            type="button"
+            className="tag__remove-button"
+            aria-label="移除"
+            onClick={onRemove}
+            disabled={isDisabled}
           >
-            <path d="M6 6l12 12M18 6L6 18" />
-          </svg>
-        </button>
-      )}
-    </div>
-  ),
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              aria-hidden="true"
+            >
+              <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+          </button>
+        )}
+      </div>
+    );
+  },
 );
 
 Tag.displayName = 'Tag';
@@ -68,10 +96,18 @@ export type TagGroupProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 export const TagGroup = forwardRef<HTMLDivElement, TagGroupProps>(
-  ({ label, description, errorMessage, className, children, ...rest }, ref) => (
-    <div ref={ref} className={clsx('tag-group', className)} role="group" {...rest}>
+  ({ label, description, errorMessage, className, children, ...rest }, ref) => {
+    const labelId = useId();
+    return (
+    <div
+      ref={ref}
+      className={clsx('tag-group', className)}
+      role="group"
+      aria-labelledby={label !== undefined ? labelId : undefined}
+      {...rest}
+    >
       {label !== undefined && (
-        <span className="label" data-slot="label">
+        <span id={labelId} className="label" data-slot="label">
           {label}
         </span>
       )}
@@ -87,7 +123,8 @@ export const TagGroup = forwardRef<HTMLDivElement, TagGroupProps>(
         </span>
       )}
     </div>
-  ),
+    );
+  },
 );
 
 TagGroup.displayName = 'TagGroup';

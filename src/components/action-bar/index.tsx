@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, forwardRef, type HTMLAttributes } from 'react';
+import { useEffect, useState, forwardRef, type AnimationEvent, type HTMLAttributes } from 'react';
 import { Toolbar, type ToolbarProps } from '@heroui/react';
 import clsx from 'clsx';
 
@@ -49,7 +49,10 @@ const ActionBarRoot = forwardRef<HTMLDivElement, ActionBarProps>((
     return () => clearTimeout(timer);
   }, [isOpen]);
 
-  const handleAnimationEnd = () => {
+  const handleAnimationEnd = (e: AnimationEvent<HTMLDivElement>) => {
+    // 仅响应外层自身的退场动画结束；忽略内层 Toolbar 等子元素冒泡上来的 animationend，
+    // 否则子动画先结束会在退场期把组件过早卸载。
+    if (e.target !== e.currentTarget) return;
     if (!isOpen) setIsPresent(false);
   };
 

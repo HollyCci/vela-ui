@@ -201,13 +201,17 @@ const ItemCardRoot = forwardRef<HTMLDivElement, ItemCardProps>(
       setPressed(false);
     };
 
+    const resolvedRole = role ?? (isInteractionEnabled ? 'button' : undefined);
+
     return (
       <div
         ref={ref}
         {...rest}
-        role={role ?? (isInteractionEnabled ? 'button' : undefined)}
+        role={resolvedRole}
         tabIndex={tabIndex ?? (isInteractionEnabled ? 0 : undefined)}
-        aria-pressed={ariaPressed ?? (isSelectable ? selected : undefined)}
+        aria-pressed={
+          resolvedRole !== undefined ? (ariaPressed ?? (isSelectable ? selected : undefined)) : undefined
+        }
         data-slot="item-card"
         data-react-aria-pressable={isInteractionEnabled ? 'true' : undefined}
         data-pressable={isInteractionEnabled || undefined}
