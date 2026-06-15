@@ -692,8 +692,10 @@ export function useKanbanColumn<T extends object>(
   const onDragEnd = useCallback(
     (item: T, info: PanInfo, event: PointerEvent) => {
       const point = info.point;
-      const x = point?.x ?? event.clientX;
-      const y = point?.y ?? event.clientY;
+      // info.point 为 page 坐标（含文档滚动），getBoundingClientRect 为 viewport 坐标，
+      // 命中前先把 page 坐标转 viewport（减去 window.scrollX/scrollY）；fallback 同用 pageX/pageY 保持坐标系一致。
+      const x = (point?.x ?? event.pageX) - window.scrollX;
+      const y = (point?.y ?? event.pageY) - window.scrollY;
       // 命中检测优先用每列卡片列表的几何范围（即便落点落在两卡片间隙也能命中），
       // 退化时再用 elementsFromPoint 沿堆叠链找列表元素。
       const lists = Array.from(
