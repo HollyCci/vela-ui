@@ -5,6 +5,7 @@ import {
   forwardRef,
   useCallback,
   useContext,
+  useEffect,
   useImperativeHandle,
   useLayoutEffect,
   useMemo,
@@ -77,6 +78,11 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
     const anchorRef = useRef<HTMLDivElement | null>(null);
     const [isAtBottom, setIsAtBottom] = useState(true);
     const didInitialScroll = useRef(false);
+    // 增高前的贴底快照：每次评估贴底时同步写入，供 MutationObserver 在 DOM 增长后读取“增长前”的真值
+    const wasAtBottomRef = useRef(true);
+    // 始终指向最新的 onAtBottomChange，避免回调身份变化重建 effect
+    const onAtBottomChangeRef = useRef(onAtBottomChange);
+    onAtBottomChangeRef.current = onAtBottomChange;
 
     // 合并外部 ref 与内部视口 ref
     useImperativeHandle(forwardedRef, () => viewportRef.current as HTMLDivElement, []);
@@ -105,17 +111,26 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
 
     const updateAtBottom = useCallback(() => {
       const next = computeAtBottom();
-      setIsAtBottom((prev) => {
-        if (prev !== next) {
-          onAtBottomChange?.(next);
-        }
-        return next;
-      });
-    }, [computeAtBottom, onAtBottomChange]);
+      // 同步保存“增长前”的贴底快照，供 MutationObserver 在内容追加后判断是否跟随
+      wasAtBottomRef.current = next;
+      // updater 保持纯：只 return next，副作用（onAtBottomChange）由下方 useEffect 触发
+      setIsAtBottom(next);
+    }, [computeAtBottom]);
 
     const handleScroll = useCallback(() => {
       updateAtBottom();
     }, [updateAtBottom]);
+
+    // 贴底状态变化回调：只在 isAtBottom 真正变化时触发（跳过首挂载），等价于原 prev !== next 语义；
+    // 副作用从 setState updater 中移出，保证 updater 纯、StrictMode/并发下不重复调用消费者回调
+    const didMountAtBottomEffect = useRef(false);
+    useEffect(() => {
+      if (!didMountAtBottomEffect.current) {
+        didMountAtBottomEffect.current = true;
+        return;
+      }
+      onAtBottomChangeRef.current?.(isAtBottom);
+    }, [isAtBottom]);
 
     // 首次挂载：跳到底部并初始化贴底状态
     useLayoutEffect(() => {
@@ -135,7 +150,8 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
         return;
       }
       const observer = new MutationObserver(() => {
-        if (followOutput && computeAtBottom()) {
+        // 用“增长前”的贴底快照决定是否跟随：DOM 已增高，此刻现算 computeAtBottom() 会误判为非贴底
+        if (followOutput && wasAtBottomRef.current) {
           scrollToBottom('smooth');
         }
         updateAtBottom();
