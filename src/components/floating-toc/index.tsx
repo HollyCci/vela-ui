@@ -47,9 +47,9 @@ export type FloatingTocProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** hover 后延迟打开毫秒数（原站默认 200） */
+  /** hover 后延迟打开毫秒数（参考实现默认 200） */
   openDelay?: number;
-  /** 指针/焦点离开后延迟关闭毫秒数（原站默认 300） */
+  /** 指针/焦点离开后延迟关闭毫秒数（参考实现默认 300） */
   closeDelay?: number;
   /** 用于 active scroll tracking 与 itemKey 自动跳转的目录数据 */
   items?: FloatingTocItemData[];
@@ -274,7 +274,7 @@ const Content = forwardRef<HTMLElement, FloatingTocContentProps>(
     } = useFloatingTocContext('FloatingToc.Content');
     const popoverRef = useRef<HTMLElement | null>(null);
 
-    // 面板弹向 TOC 停靠侧的对侧（原站：placement 未指定时由根 placement 推导）
+    // 面板弹向 TOC 停靠侧的对侧（参考实现：placement 未指定时由根 placement 推导）
     const resolvedPlacement = placement ?? (rootPlacement === 'right' ? 'left' : 'right');
 
     const handleRef = useCallback(
@@ -371,7 +371,7 @@ const Item = forwardRef<HTMLButtonElement, FloatingTocItemProps>(
 );
 Item.displayName = 'FloatingToc.Item';
 
-/** 根组件：不渲染 DOM，仅管理 open 状态、延迟与 context（原站快照中触发器直接位于页面流内） */
+/** 根组件：不渲染 DOM，仅管理 open 状态、延迟与 context（参考实现快照中触发器直接位于页面流内） */
 const FloatingTocRoot = ({
   placement = 'right',
   triggerMode = 'hover',

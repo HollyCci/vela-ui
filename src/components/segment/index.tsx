@@ -26,7 +26,7 @@ export type SegmentProps = Omit<
   ToggleButtonGroupProps,
   'selectionMode' | 'selectedKeys' | 'defaultSelectedKeys' | 'onSelectionChange' | 'className' | 'style'
 > & {
-  /** 视觉变体（原站 API） */
+  /** 视觉变体（参考 API） */
   variant?: SegmentVariant;
   size?: SegmentSize;
   /** 是否渲染分隔线；用于 without-separators 变体 */
@@ -62,7 +62,7 @@ const SegmentContext = createContext<SegmentContextValue>({
 });
 
 /**
- * 选中指示器：原站 CSS 已定义 `transition: translate,width,height`，
+ * 选中指示器：参考实现 CSS 已定义 `transition: translate,width,height`，
  * 这里在挂载时以上一个选中项的位置作为起点（FLIP），下一帧归零形成滑动动画。
  */
 const Indicator = () => {
@@ -144,7 +144,7 @@ const Item = ({ className, children, ...rest }: SegmentItemProps) => {
 Item.displayName = 'Segment.Item';
 
 /**
- * 包装 RAC ToggleButtonGroup 的单选分段控件（原站 API）：
+ * 包装 RAC ToggleButtonGroup 的单选分段控件（参考 API）：
  * 单选 + 不可清空，键盘导航与 radiogroup 语义由 RAC 提供。
  */
 const SegmentRoot = forwardRef<HTMLDivElement, SegmentProps>(

@@ -6,14 +6,14 @@ export type NumberValueProps = Omit<HTMLAttributes<HTMLSpanElement>, 'children' 
   /** Intl.NumberFormat 配置，如 { style: 'percent' } */
   formatOptions?: Intl.NumberFormatOptions;
   locale?: string;
-  /** 数值前缀槽位（原站 number-value__prefix），如标签/图标 */
+  /** 数值前缀槽位（参考实现 number-value__prefix），如标签/图标 */
   prefix?: ReactNode;
-  /** 数值后缀槽位（原站 number-value__suffix），如单位/说明 */
+  /** 数值后缀槽位（参考实现 number-value__suffix），如单位/说明 */
   suffix?: ReactNode;
 };
 
 /**
- * 与原站 DOM 一致：外层 span[data-slot=number-value]，格式化结果包裹在
+ * 与基准 DOM 一致：外层 span[data-slot=number-value]，格式化结果包裹在
  * span.number-value__value[data-slot=number-value-value]；可选 prefix/suffix 槽位。
  */
 const NumberValue = forwardRef<HTMLSpanElement, NumberValueProps>(

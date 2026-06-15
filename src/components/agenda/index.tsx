@@ -23,7 +23,7 @@ import Segment from '../segment';
 export type AgendaView = 'day' | 'week' | 'month';
 
 /**
- * 事件数据。原站用 @internationalized/date 的 CalendarDateTime；本仓库未直接依赖该包，
+ * 事件数据。参考实现用 @internationalized/date 的 CalendarDateTime；本仓库未直接依赖该包，
  * 故 start/end 收窄为原生 Date（同样携带年月日时分），导航/视图切换交互不受影响。
  */
 export type AgendaEvent = {
@@ -63,7 +63,7 @@ export type AgendaMonthRowLayout = {
 };
 
 export type UseAgendaOptions = {
-  /** 事件数组（原站 API，必填） */
+  /** 事件数组（参考 API，必填） */
   events: AgendaEvent[];
   defaultView?: AgendaView;
   view?: AgendaView;
@@ -170,7 +170,7 @@ function isSameDay(a: Date, b: Date): boolean {
   );
 }
 
-/** 以周一为起点（原站快照周首列为周一） */
+/** 以周一为起点（参考实现快照周首列为周一） */
 function startOfWeek(date: Date): Date {
   const day = startOfDay(date);
   const weekday = (day.getDay() + 6) % 7; // 周一=0
@@ -231,7 +231,7 @@ function useControllableState<T>(
 }
 
 /**
- * Agenda 状态/派生数据 hook（原站 API）。视图与焦点日期均支持受控/非受控；
+ * Agenda 状态/派生数据 hook（参考 API）。视图与焦点日期均支持受控/非受控；
  * 导航（前后/今天）与视图切换在此实现，事件数据可为内置静态。
  */
 export function useAgenda(options: UseAgendaOptions): UseAgendaResult {
@@ -589,7 +589,7 @@ export type AgendaViewSelectorProps = {
 
 const VIEW_LABELS: Record<AgendaView, string> = { day: 'Day', week: 'Week', month: 'Month' };
 
-/** 视图切换分段控件（基于本仓库 Segment 组件，原站基于 HeroUI Segment） */
+/** 视图切换分段控件（基于本仓库 Segment 组件，参考实现基于 HeroUI Segment） */
 const ViewSelector = ({ size = 'sm', className }: AgendaViewSelectorProps) => {
   const { view, setView } = useAgendaContext();
 
@@ -643,7 +643,7 @@ const ChevronRightIcon = () => (
 ChevronRightIcon.displayName = 'Agenda.ChevronRightIcon';
 
 export type AgendaNavButtonProps = {
-  /** 导航方向（原站 API） */
+  /** 导航方向（参考 API） */
   slot: 'previous' | 'next';
   className?: string;
 };
@@ -771,7 +771,7 @@ const ChevronDownIcon = () => (
 ChevronDownIcon.displayName = 'Agenda.ChevronDownIcon';
 
 export type AgendaAllDaySectionProps = Omit<AgendaSectionProps, 'children'> & {
-  /** 折叠时每天的事件计数标签（原站 API，默认 "N events"） */
+  /** 折叠时每天的事件计数标签（参考 API，默认 "N events"） */
   collapsedLabel?: (count: number) => string;
   children?: ReactNode;
 };
@@ -858,7 +858,7 @@ const AllDayLabel = forwardRef<HTMLSpanElement, AgendaAllDayLabelProps>(
 );
 AllDayLabel.displayName = 'Agenda.AllDayLabel';
 
-/** 事件强调色 + 浅色背景的内联变量（与原站事件卡片一致） */
+/** 事件强调色 + 浅色背景的内联变量（与参考实现事件卡片一致） */
 function eventColorStyle(color?: string): CSSProperties {
   if (color === undefined) return {};
   return {
@@ -933,7 +933,7 @@ const TimeGrid = forwardRef<HTMLDivElement, AgendaSectionProps>(
 );
 TimeGrid.displayName = 'Agenda.TimeGrid';
 
-/** 左侧小时标签列；首行（起始小时）按原站留空 */
+/** 左侧小时标签列；首行（起始小时）按参考实现留空 */
 const TimeLabels = () => {
   const { startHour, endHour, locale } = useAgendaContext();
   const hourFormat = useMemo(
@@ -1415,9 +1415,9 @@ MonthRow.displayName = 'Agenda.MonthRow';
 
 export type AgendaMonthCellProps = Omit<AgendaSectionProps, 'children'> & {
   date: Date;
-  /** 溢出前最多展示的事件数（原站 API，默认 2） */
+  /** 溢出前最多展示的事件数（参考 API，默认 2） */
   maxEvents?: number;
-  /** 溢出链接文案（原站 API，默认 "N more"） */
+  /** 溢出链接文案（参考 API，默认 "N more"） */
   moreLabel?: (count: number) => string;
   /** 本列上方跨天条占用的行数 */
   spanningRowCount?: number;

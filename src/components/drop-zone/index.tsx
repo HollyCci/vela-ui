@@ -178,7 +178,7 @@ export const useDropZoneQueue = (): DropZoneUploadQueueApi => {
 export type DropZoneRenderFunction = (props: HTMLAttributes<HTMLDivElement>) => ReactElement;
 
 export type DropZoneProps = HTMLAttributes<HTMLDivElement> & {
-  /** 自定义渲染函数，替换默认的 div 根元素（原站 API：DOMRenderFunction） */
+  /** 自定义渲染函数，替换默认的 div 根元素（参考 API：DOMRenderFunction） */
   render?: DropZoneRenderFunction;
   /** 禁用整个上传区，同时禁用拖放区域、触发按钮与隐藏文件输入 */
   isDisabled?: boolean;
@@ -536,7 +536,7 @@ const Area = ({ className, isDisabled, onDrop, ...rest }: DropZoneAreaProps) => 
 };
 Area.displayName = 'DropZone.Area';
 
-/** 原站默认云上传图标（与基准快照 SVG path 一致） */
+/** 参考实现默认云上传图标（与基准快照 SVG path 一致） */
 const CloudUploadIcon = () => (
   <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
     <g clipPath="url(#a)">
@@ -637,7 +637,7 @@ export type DropZoneInputProps = Omit<
   InputHTMLAttributes<HTMLInputElement>,
   'type' | 'onSelect' | 'className' | 'style'
 > & {
-  /** 通过文件选择器选中文件时回调（原站 API 签名：FileList） */
+  /** 通过文件选择器选中文件时回调（参考 API 签名：FileList） */
   onSelect?: (files: FileList) => void;
   className?: string;
   style?: CSSProperties;
@@ -809,7 +809,7 @@ export type DropZoneFileProgressProps = Omit<ProgressBarProps, 'className' | 'st
   style?: CSSProperties;
 };
 
-/** 上传进度条，包装 OSS ProgressBar（原站 API：size 默认 'sm'，色板默认 accent） */
+/** 上传进度条，包装 OSS ProgressBar（参考 API：size 默认 'sm'，色板默认 accent） */
 const FileProgress = ({ className, ...rest }: DropZoneFileProgressProps) => (
   <ProgressBar
     size="sm"
@@ -854,7 +854,7 @@ const FileRetryTrigger = ({ className, ...rest }: DropZoneFileRetryTriggerProps)
 );
 FileRetryTrigger.displayName = 'DropZone.FileRetryTrigger';
 
-/** 原站默认垃圾桶图标（与基准快照 SVG path 一致） */
+/** 参考实现默认垃圾桶图标（与基准快照 SVG path 一致） */
 const TrashIcon = () => (
   <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
     <path

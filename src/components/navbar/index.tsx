@@ -31,7 +31,7 @@ export type NavbarProps = HTMLAttributes<HTMLElement> & {
   position?: NavbarPosition;
   size?: NavbarSize;
   maxWidth?: NavbarMaxWidth;
-  /** 写入 --navbar-height 内联变量（原站默认 4rem） */
+  /** 写入 --navbar-height 内联变量（参考实现默认 4rem） */
   height?: string;
   /** 下滑隐藏、上滑显示 */
   hideOnScroll?: boolean;
@@ -67,7 +67,7 @@ const NavbarContext = createContext<NavbarContextValue>({
   setMenuOpen: noop,
 });
 
-/** 原站 API：在 Navbar 子树内读写菜单状态与滚动隐藏状态 */
+/** 参考 API：在 Navbar 子树内读写菜单状态与滚动隐藏状态 */
 export const useNavbar = () => {
   const { height, isHidden, isMenuOpen, setMenuOpen, navigate } = useContext(NavbarContext);
   return { height, isHidden, isMenuOpen, setMenuOpen, navigate };
@@ -133,7 +133,7 @@ const NavbarRoot = forwardRef<HTMLElement, NavbarProps>(
       return () => target.removeEventListener('scroll', handleScroll);
     }, [hideOnScroll, parentRef]);
 
-    // 菜单打开时锁定 body 滚动（原站默认行为，shouldBlockScroll=false 关闭）
+    // 菜单打开时锁定 body 滚动（参考实现默认行为，shouldBlockScroll=false 关闭）
     useEffect(() => {
       if (!shouldBlockScroll || !menuOpen) return undefined;
       const previousOverflow = document.body.style.overflow;
@@ -156,7 +156,7 @@ const NavbarRoot = forwardRef<HTMLElement, NavbarProps>(
       [size, maxWidth, height, isHidden, menuOpen, setMenuOpen, navigate],
     );
 
-    // 原站用 spring transform 隐藏；这里以内联 transform + transition 等效实现
+    // 参考实现用 spring transform 隐藏；这里以内联 transform + transition 等效实现
     const rootStyle: CSSProperties = {
       '--navbar-height': height,
       ...(hideOnScroll
@@ -401,7 +401,7 @@ export type NavbarMenuToggleProps = Omit<
   ToggleButtonProps,
   'className' | 'style' | 'children' | 'isSelected' | 'defaultSelected' | 'onChange'
 > & {
-  /** 读屏标签（原站默认 "Toggle navigation menu"） */
+  /** 读屏标签（参考实现默认 "Toggle navigation menu"） */
   srLabel?: string;
   /** 自定义图标；缺省为内置汉堡/关闭动画图标 */
   children?: ReactNode;

@@ -59,7 +59,7 @@ type SidebarContextValue = {
 
 const SidebarContext = createContext<SidebarContextValue | null>(null);
 
-/** 原站 useSidebar：在 Provider 子树内做编程式控制（开合、移动端 sheet、读取 side/variant/collapsible） */
+/** 参考实现 useSidebar：在 Provider 子树内做编程式控制（开合、移动端 sheet、读取 side/variant/collapsible） */
 export const useSidebar = () => {
   const ctx = useContext(SidebarContext);
   if (ctx === null) {
@@ -135,7 +135,7 @@ const Provider = forwardRef<HTMLDivElement, SidebarProviderProps>(
       (next: boolean) => {
         if (!isControlled) setInternalOpen(next);
         onOpenChange?.(next);
-        // 非受控时写入 cookie，供 SSR 读取 defaultOpen 还原（原站行为）
+        // 非受控时写入 cookie，供 SSR 读取 defaultOpen 还原（参考实现行为）
         if (!isControlled && typeof document !== 'undefined') {
           document.cookie = `${SIDEBAR_COOKIE}=${next}; path=/; max-age=${60 * 60 * 24 * 7}`;
         }
@@ -233,7 +233,7 @@ const SidebarRoot = forwardRef<HTMLElement, SidebarRootProps>(({ className, chil
     </aside>
   );
 
-  // offcanvas 模式用 wrapper 作为收起时宽度过渡到 0 的占位 spacer（原站 .sidebar__offcanvas-wrapper）
+  // offcanvas 模式用 wrapper 作为收起时宽度过渡到 0 的占位 spacer（参考实现 .sidebar__offcanvas-wrapper）
   if (collapsible === 'offcanvas') {
     return (
       <div className="sidebar__offcanvas-wrapper" data-side={side} data-state={state}>
@@ -266,7 +266,7 @@ export type SidebarContentProps = Omit<ScrollShadowProps, 'className' | 'style'>
   style?: CSSProperties;
 };
 
-/** 中部可滚动区，包裹 OSS ScrollShadow 并隐藏滚动条（原站行为） */
+/** 中部可滚动区，包裹 OSS ScrollShadow 并隐藏滚动条（参考实现行为） */
 const Content = forwardRef<HTMLDivElement, SidebarContentProps>(({ className, ...rest }, ref) => (
   <ScrollShadow
     ref={ref}
@@ -325,7 +325,7 @@ export type SidebarMenuProps<T extends object = object> = Omit<
   | 'onSelectionChange'
   | 'disabledBehavior'
 > & {
-  /** 子菜单引导线：true 常显 / "hover" 悬停显 / false 不显（原站默认 true） */
+  /** 子菜单引导线：true 常显 / "hover" 悬停显 / false 不显（参考实现默认 true） */
   showGuideLines?: SidebarGuideLines;
   /** 覆盖 group 级的 closeMobileOnAction */
   closeMobileOnAction?: boolean;
@@ -520,7 +520,7 @@ export type SidebarMenuTriggerProps = Omit<RACButtonProps, 'className' | 'style'
 
 /**
  * 展开/收起触发器：RAC Button slot="chevron"，TreeItemContent 会自动接管点击展开逻辑，
- * 并在无子项时隐藏（原站 CSS 据 [data-has-child-items] 控制）。缺省渲染默认 chevron。
+ * 并在无子项时隐藏（参考实现 CSS 据 [data-has-child-items] 控制）。缺省渲染默认 chevron。
  */
 const MenuTrigger = ({ className, children, ...rest }: SidebarMenuTriggerProps) => (
   <RACButton
@@ -557,7 +557,7 @@ export type SidebarRailProps = Omit<HTMLAttributes<HTMLButtonElement>, 'classNam
   style?: CSSProperties;
 };
 
-/** 侧栏边缘条：点击切换开合，显示方向 resize 光标（原站行为） */
+/** 侧栏边缘条：点击切换开合，显示方向 resize 光标（参考实现行为） */
 const Rail = forwardRef<HTMLButtonElement, SidebarRailProps>(({ className, onClick, ...rest }, ref) => {
   const { toggleSidebar } = useSidebarContext();
 
@@ -641,7 +641,7 @@ export type SidebarTooltipProps = {
 };
 
 /**
- * Tooltip：仅在侧栏收起时显示（原站行为）。展开时直接渲染 children，
+ * Tooltip：仅在侧栏收起时显示（参考实现行为）。展开时直接渲染 children，
  * 收起时包一层 OSS Tooltip（其 Trigger 即 children，触发器不另套 button）。
  */
 const SidebarTooltip = ({ content, placement = 'right', delay, closeDelay, children }: SidebarTooltipProps) => {
@@ -660,7 +660,7 @@ SidebarTooltip.displayName = 'Sidebar.Tooltip';
 export type SidebarMobileBackdrop = 'blur' | 'opaque' | 'transparent';
 
 export type SidebarMobileProps = {
-  /** 移动端 sheet 遮罩样式（原站默认 blur） */
+  /** 移动端 sheet 遮罩样式（参考实现默认 blur） */
   backdrop?: SidebarMobileBackdrop;
   children?: ReactNode;
 };

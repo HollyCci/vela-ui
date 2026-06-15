@@ -114,7 +114,7 @@ export type CommandGroupProps<T extends object = object> = Omit<
   MenuSectionProps<T>,
   'className' | 'style' | 'children'
 > & {
-  /** 分组标题，渲染为 command__group-heading（对齐原站 Anatomy 的 heading prop） */
+  /** 分组标题，渲染为 command__group-heading（对齐参考实现 Anatomy 的 heading prop） */
   heading?: ReactNode;
   /** 分组内的命令项；heading 由本组件单独渲染为 Header 槽 */
   children?: ReactNode;
@@ -144,7 +144,7 @@ const CommandSizeContext = createContext<CommandSize>('md');
 const CommandRoot = ({ children }: CommandProps) => <>{children}</>;
 CommandRoot.displayName = 'Command';
 
-/** 全屏遮罩（RAC ModalOverlay）：isEntering/isExiting 由底座输出 data-entering/data-exiting，对齐原站动画 */
+/** 全屏遮罩（RAC ModalOverlay）：isEntering/isExiting 由底座输出 data-entering/data-exiting，对齐参考实现动画 */
 const Backdrop = ({ variant = 'opaque', className, style, ...rest }: CommandBackdropProps) => (
   <ModalOverlay
     isDismissable
@@ -371,7 +371,7 @@ const Collection = <TItem extends CommandCollectionItem = CommandCollectionItem>
 Collection.displayName = 'Command.Collection';
 
 /**
- * 命令面板（原站 API）：Backdrop/Container/Dialog 为 RAC ModalOverlay/Modal/Dialog；
+ * 命令面板（参考 API）：Backdrop/Container/Dialog 为 RAC ModalOverlay/Modal/Dialog；
  * Dialog 内嵌 RAC Autocomplete + useFilter，把 InputGroup（SearchField）与 List（Menu）联动，
  * 实现「打字 → 实时过滤 → 方向键高亮 → Enter/点击触发 onAction」完整链路。
  */

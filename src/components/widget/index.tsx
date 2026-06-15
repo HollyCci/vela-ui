@@ -10,7 +10,7 @@ import {
 import { dom } from '@heroui/react';
 import clsx from 'clsx';
 
-/** OSS dom.div：原站 root 的 render 多态 prop（自定义根元素渲染）即来自它 */
+/** OSS dom.div：参考实现 root 的 render 多态 prop（自定义根元素渲染）即来自它 */
 type DomDivProps = ComponentProps<typeof dom.div>;
 
 export type WidgetProps = Omit<DomDivProps, 'className' | 'style'> & {
@@ -22,7 +22,7 @@ type SectionProps = HTMLAttributes<HTMLDivElement>;
 type TextProps = HTMLAttributes<HTMLSpanElement>;
 
 export type WidgetLegendItemProps = HTMLAttributes<HTMLElement> & {
-  /** 圆点颜色（原站 API，必填），如 "var(--chart-3)" */
+  /** 圆点颜色（参考 API，必填），如 "var(--chart-3)" */
   color: string;
   /** 渲染为真实 button，适合可点击筛选/高亮图例 */
   isPressable?: boolean;

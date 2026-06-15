@@ -50,17 +50,17 @@ export type FileTreeProps<T extends object = object> = Omit<
   TreeProps<T>,
   'className' | 'style'
 > & {
-  /** 尺寸变体，控制行高/字号/缩进宽度（原站 API） */
+  /** 尺寸变体，控制行高/字号/缩进宽度（参考 API） */
   size?: FileTreeSize;
-  /** 禁用展开收起动画（原站 API；CSS 通过 [data-reduce-motion=true] 关闭 indicator 过渡） */
+  /** 禁用展开收起动画（参考 API；CSS 通过 [data-reduce-motion=true] 关闭 indicator 过渡） */
   reduceMotion?: boolean;
-  /** 缩进参考线：true 常显 / false 隐藏 / 'hover' 悬停树时显示（原站 API） */
+  /** 缩进参考线：true 常显 / false 隐藏 / 'hover' 悬停树时显示（参考 API） */
   showGuideLines?: FileTreeShowGuideLines;
   className?: string;
   style?: CSSProperties;
 };
 
-/** Item 的 icon 渲染函数入参（原站 API） */
+/** Item 的 icon 渲染函数入参（参考 API） */
 export type FileTreeItemRenderProps = {
   isExpanded: boolean;
   hasChildItems: boolean;
@@ -73,11 +73,11 @@ export type FileTreeItemProps = Omit<
 > & {
   /** 嵌套子行（叶子行可省略） */
   children?: ReactNode;
-  /** 行文本内容（原站 API，必填） */
+  /** 行文本内容（参考 API，必填） */
   title: ReactNode;
-  /** 标签前图标，可为渲染函数（原站 API） */
+  /** 标签前图标，可为渲染函数（参考 API） */
   icon?: ReactNode | ((props: FileTreeItemRenderProps) => ReactNode);
-  /** 拖拽手柄图标，false 隐藏（原站 API，默认 GripVertical） */
+  /** 拖拽手柄图标，false 隐藏（参考 API，默认 GripVertical） */
   dragIcon?: ReactNode | false;
   /** typeahead 文本；缺省时从字符串 title 推导 */
   textValue?: string;
@@ -166,7 +166,7 @@ const GripVerticalIcon = () => (
 );
 GripVerticalIcon.displayName = 'FileTree.GripVerticalIcon';
 
-/** 每个父级层级一条竖向参考线，left 由 CSS 变量按层级计算（与原站内联样式一致） */
+/** 每个父级层级一条竖向参考线，left 由 CSS 变量按层级计算（与参考实现内联样式一致） */
 const GuideLines = ({ level }: { level: number }) => {
   const { showGuideLines } = useContext(FileTreeContext);
 
@@ -209,7 +209,7 @@ const Item = ({
 }: FileTreeItemProps) => {
   const { size } = useContext(FileTreeContext);
 
-  // 原站 Anatomy 允许把自定义 <FileTree.Indicator> 作为 Item 子元素传入：
+  // 参考实现 Anatomy 允许把自定义 <FileTree.Indicator> 作为 Item 子元素传入：
   // 提取后渲染进 chevron 按钮，其余子元素作为嵌套行交给 RAC
   const childArray = Children.toArray(children);
   const indicatorChild = childArray.find(
@@ -217,7 +217,7 @@ const Item = ({
   );
   const nestedChildren = childArray.filter((child) => child !== indicatorChild);
 
-  // 原站在 item 上内联 --tree-item-level，CSS 据此计算 item-content 缩进
+  // 参考实现在 item 上内联 --tree-item-level，CSS 据此计算 item-content 缩进
   const itemStyle = useCallback(
     ({ level }: TreeItemRenderProps & { defaultStyle: CSSProperties }): CSSProperties => ({
       ['--tree-item-level' as string]: level,
@@ -257,7 +257,7 @@ const Item = ({
         <Button slot="chevron" className="file-tree__chevron">
           {indicatorChild ?? <Indicator />}
         </Button>
-        {/* 与原站快照一致：传了 icon 或是文件夹行时渲染图标占位 */}
+        {/* 与参考实现快照一致：传了 icon 或是文件夹行时渲染图标占位 */}
         {(icon !== undefined || renderProps.hasChildItems) && (
           <span className="file-tree__icon" data-slot="file-tree-icon">
             {iconNode}
@@ -296,7 +296,7 @@ const SectionHeader = ({ className, ...rest }: FileTreeHeaderProps) => (
 SectionHeader.displayName = 'FileTree.Header';
 
 /**
- * 子树展开/收起的高度过渡参数：opacity+height(0↔auto)，与原站 motion section 手感一致。
+ * 子树展开/收起的高度过渡参数：opacity+height(0↔auto)，与参考实现 motion section 手感一致。
  * overflow 在动画期间为 hidden（裁剪溢出内容），稳态展开后由 motion 还原为 visible。
  */
 const SECTION_INITIAL = { height: 0, opacity: 0 } as const;
@@ -306,7 +306,7 @@ const SECTION_TRANSITION = { duration: 0.2, ease: [0.4, 0, 0.2, 1] } as const;
 
 /**
  * RAC Tree 默认把所有可见行拍平成 treegrid 的兄弟节点（无嵌套容器，展开瞬时）。
- * 原站则把每个展开分支的子级行包进一个 motion section（data-tree-motion-section）做高度过渡。
+ * 参考实现则把每个展开分支的子级行包进一个 motion section（data-tree-motion-section）做高度过渡。
  * 此渲染器消费拍平后的 collection，按 node.level
  * 重建嵌套：每遇到更深一层就开一个 <motion.div data-tree-motion-section>，配合 AnimatePresence
  * 让分支按 RAC 的展开态进出场。行本身仍由 node.render(node) 渲染，故 role/aria/data-* 全部不变。
@@ -422,7 +422,7 @@ const motionCollectionRenderer: CollectionRenderer = {
 };
 
 /**
- * 基于 RAC Tree 的文件树（原站底座）：渲染 role="treegrid"，展开收起、单选/多选、
+ * 基于 RAC Tree 的文件树（参考实现底座）：渲染 role="treegrid"，展开收起、单选/多选、
  * 键盘导航（方向键/typeahead）、拖拽均由 RAC 提供。
  * 展开/收起的高度过渡由自定义 CollectionRoot 注入的 motion section 承担（reduceMotion 或
  * 拖拽场景回退到 RAC 默认拍平渲染，避免影响 DnD 的 drop indicator）。
@@ -459,7 +459,7 @@ function FileTreeRoot<T extends object>({
 }
 FileTreeRoot.displayName = 'FileTree';
 
-/** useFileTree 的节点约束（原站 API：必须有 id，children 可选） */
+/** useFileTree 的节点约束（参考 API：必须有 id，children 可选） */
 export type FileTreeNode = {
   id: Key;
   children?: FileTreeNode[];
@@ -480,7 +480,7 @@ export type UseFileTreeResult<T extends FileTreeNode> = {
   leaves: T[];
 };
 
-/** 树形数据工具 hook（原站 API） */
+/** 树形数据工具 hook（参考 API） */
 export function useFileTree<T extends FileTreeNode>({
   items,
   isLeaf,
@@ -546,7 +546,7 @@ export type UseFileTreeDragOptions<T extends object> = {
   tree: FileTreeData<T>;
   /** 自定义拖拽数据，默认每个 key 序列化为 text/plain */
   getItems?: DragAndDropOptions['getItems'];
-  /** 移动成功后的回调（原站 API） */
+  /** 移动成功后的回调（参考 API） */
   onMove?: (keys: Set<Key>, target: { key: Key; dropPosition: DropPosition }) => void;
 };
 
@@ -554,7 +554,7 @@ export type UseFileTreeDragResult = {
   dragAndDropHooks: ReturnType<typeof useDragAndDrop>['dragAndDropHooks'];
 };
 
-/** 为 FileTree 接好 RAC useDragAndDrop 的拖拽 hook（原站 API） */
+/** 为 FileTree 接好 RAC useDragAndDrop 的拖拽 hook（参考 API） */
 export function useFileTreeDrag<T extends object>({
   tree,
   getItems,

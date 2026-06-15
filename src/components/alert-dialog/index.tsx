@@ -96,9 +96,9 @@ const CloseTrigger = ({ className, style, ...rest }: AlertDialogCloseTriggerProp
 CloseTrigger.displayName = 'AlertDialog.CloseTrigger';
 
 /**
- * 基于 @heroui/react AlertDialog 的警示对话框（原站 API）：
+ * 基于 @heroui/react AlertDialog 的警示对话框（参考 API）：
  * trigger 打开、焦点圈定、Esc/遮罩关闭策略均由底座（RAC DialogTrigger/ModalOverlay/Modal/Dialog）提供，
- * BEM 类名（alert-dialog__backdrop/container/dialog/...）由底座 variants 输出，天然对齐原站 CSS。
+ * BEM 类名（alert-dialog__backdrop/container/dialog/...）由底座 variants 输出，天然对齐参考实现 CSS。
  */
 const AlertDialog = Object.assign(AlertDialogRoot, {
   Trigger,

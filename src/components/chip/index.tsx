@@ -11,7 +11,7 @@ export type ChipProps = HTMLAttributes<HTMLSpanElement> & {
   size?: ChipSize;
 };
 
-/** 与原站一致：chip chip--<color> chip--<size> chip--<variant>，文本包在 chip__label */
+/** 与参考实现一致：chip chip--<color> chip--<size> chip--<variant>，文本包在 chip__label */
 const Chip = forwardRef<HTMLSpanElement, ChipProps>(
   ({ color = 'default', variant = 'primary', size = 'md', className, children, ...rest }, ref) => (
     <span

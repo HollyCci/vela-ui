@@ -24,7 +24,7 @@ export type AppLayoutSidebarCollapsible = 'icon' | 'offcanvas' | 'none';
 export type AppLayoutScrollMode = 'page' | 'content';
 export type AppLayoutAsideMobile = 'hidden' | 'sheet';
 
-/** 同时供 MenuToggle / AsideTrigger 的内部 Tooltip 透传（原站 AppLayoutTooltipProps） */
+/** 同时供 MenuToggle / AsideTrigger 的内部 Tooltip 透传（参考实现 AppLayoutTooltipProps） */
 export type AppLayoutTooltipProps = {
   placement?: 'top' | 'bottom' | 'left' | 'right';
   delay?: number;
@@ -68,7 +68,7 @@ export type AppLayoutProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 
   navigate?: (href: string) => void;
   /** 关闭嵌套侧栏展开动画（用户系统偏好仍尊重） */
   reduceMotion?: boolean;
-  /** 切换侧栏的快捷键（原站默认 "mod+b"，false/null 关闭） */
+  /** 切换侧栏的快捷键（参考实现默认 "mod+b"，false/null 关闭） */
   toggleShortcut?: string | false | null;
   /** 切换 aside 的快捷键（默认关闭） */
   asideToggleShortcut?: string | false | null;
@@ -106,7 +106,7 @@ type AppLayoutContextValue = {
 
 const AppLayoutContext = createContext<AppLayoutContextValue | null>(null);
 
-/** 原站 API：在 AppLayout children 内读写 aside 状态；不在 AppLayout 内时返回 null */
+/** 参考 API：在 AppLayout children 内读写 aside 状态；不在 AppLayout 内时返回 null */
 export const useAppLayout = (): {
   isAsideOpen: boolean;
   setAsideOpen: (open: boolean) => void;
@@ -253,7 +253,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
     const hasSidebar = sidebar !== undefined && sidebar !== null;
     const hasAside = aside !== undefined && aside !== null;
 
-    // icon-rail 不兼容自由缩放，回退到静态布局（原站约束）
+    // icon-rail 不兼容自由缩放，回退到静态布局（参考实现约束）
     const resolvedSidebarResizable =
       hasSidebar && sidebarResizable && (sidebarCollapsible === 'offcanvas' || sidebarCollapsible === 'none');
     const resolvedAsideResizable = hasAside && asideResizable;
@@ -282,7 +282,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       return () => handlers.forEach((h) => window.removeEventListener('keydown', h));
     }, [toggleShortcut, asideToggleShortcut, toggleSidebar, toggleAside]);
 
-    // 非受控时持久化 sidebar_state / aside_state cookie（原站行为）
+    // 非受控时持久化 sidebar_state / aside_state cookie（参考实现行为）
     useEffect(() => {
       if (sidebarOpen !== undefined) return;
       document.cookie = `sidebar_state=${isSidebarOpen}; path=/; max-age=31536000`;

@@ -159,7 +159,7 @@ const Ripple = ({
     };
   }, [duration, minimumPressDuration, isDisabled]);
 
-  // 仅在显式传入时写 CSS 变量，静止态 DOM 与原站快照一致（无内联 style）
+  // 仅在显式传入时写 CSS 变量，静止态 DOM 与参考实现快照一致（无内联 style）
   const cssVars: Record<string, string | number> = {};
   if (durationProp !== undefined) {
     cssVars['--pressable-feedback-ripple-duration'] = `${durationProp}ms`;

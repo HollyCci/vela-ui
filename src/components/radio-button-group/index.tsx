@@ -12,7 +12,7 @@ type RadioButtonGroupItemRenderProps = Parameters<
 >[0];
 
 export type RadioButtonGroupProps = Omit<RadioGroupProps, 'className' | 'style'> & {
-  /** 布局模式（原站 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
+  /** 布局模式（参考 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
   layout?: RadioButtonGroupLayout;
   className?: string;
   style?: CSSProperties;
@@ -76,7 +76,7 @@ const Item = ({
 Item.displayName = 'RadioButtonGroup.Item';
 
 /**
- * 右上角选择指示器（原站 API）：
+ * 右上角选择指示器（参考 API）：
  * 无 children 渲染默认 OSS Radio.Control + Indicator（圆点）；
  * 有 children 渲染 data-custom 的普通 span，仅选中时可见由 CSS
  * `[data-selected=true]>.radio-button-group__indicator[data-custom=true]` 控制。
@@ -130,9 +130,9 @@ const ItemIcon = forwardRef<HTMLDivElement, RadioButtonGroupItemIconProps>(
 ItemIcon.displayName = 'RadioButtonGroup.ItemIcon';
 
 /**
- * 包装 OSS RadioGroup 的卡片单选组（原站 API）：
+ * 包装 OSS RadioGroup 的卡片单选组（参考 API）：
  * 受控 value/onChange、isDisabled、键盘/方向键交互由底座提供。
- * 原站快照默认 demo 根类为 radio-group--secondary，故默认 variant=secondary（可透传覆盖）。
+ * 参考实现快照默认 demo 根类为 radio-group--secondary，故默认 variant=secondary（可透传覆盖）。
  */
 const RadioButtonGroupRoot = forwardRef<HTMLDivElement, RadioButtonGroupProps>(
   ({ layout = 'flex', className, ...rest }, ref) => (

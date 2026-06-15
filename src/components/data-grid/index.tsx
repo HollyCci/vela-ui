@@ -32,7 +32,7 @@ export type DataGridVariant = 'primary' | 'secondary';
 export type DataGridAlign = 'start' | 'center' | 'end';
 export type DataGridPinnedSide = 'left' | 'right';
 
-/** 排序状态信息，传给 header 渲染函数（原站 API） */
+/** 排序状态信息，传给 header 渲染函数（参考 API） */
 export type DataGridSortInfo = {
   sortDirection?: SortDirection;
 };
@@ -129,7 +129,7 @@ const DRAG_HANDLE_COLUMN_ID = '__data-grid_drag_handle_column__';
 const SELECTION_COLUMN_ID = '__data-grid_selection_column__';
 
 export type DataGridColumn<TRow> = {
-  /** 唯一列标识，同时作为排序 key（原站 API，必填） */
+  /** 唯一列标识，同时作为排序 key（参考 API，必填） */
   id: string;
   /** 列头内容：字符串/节点/渲染函数（收到 { sortDirection }） */
   header: ReactNode | ((info: DataGridSortInfo) => ReactNode);
@@ -175,13 +175,13 @@ export type DataGridProps<TRow extends object> = Omit<
   TableRootProps,
   'className' | 'style' | 'variant' | 'children'
 > & {
-  /** 行数据数组（原站 API） */
+  /** 行数据数组（参考 API） */
   data: TRow[];
-  /** 列定义（原站 API） */
+  /** 列定义（参考 API） */
   columns: DataGridColumn<TRow>[];
-  /** 提取行唯一 key（原站 API） */
+  /** 提取行唯一 key（参考 API） */
   getRowId: (item: TRow) => Key;
-  /** 无障碍标签（原站要求必填） */
+  /** 无障碍标签（参考实现要求必填） */
   'aria-label'?: string;
   /** 视觉变体，透传给底座 Table */
   variant?: DataGridVariant;
@@ -260,7 +260,7 @@ export type DataGridProps<TRow extends object> = Omit<
   style?: CSSProperties;
 };
 
-/** 升序图标，data-direction=descending 时 CSS 旋转 180°（与原站快照一致） */
+/** 升序图标，data-direction=descending 时 CSS 旋转 180°（与参考实现快照一致） */
 const SortIcon = ({ direction }: { direction: SortDirection }) => (
   <svg
     className="data-grid__sort-icon"
@@ -338,7 +338,7 @@ const sumCssLengths = (lengths: string[]) => {
 const getPinnedStyle = (meta: DataGridPinnedMeta | undefined): DataGridPinnedStyle | undefined =>
   meta === undefined ? undefined : { '--data-grid-pinned-offset': meta.offset };
 
-/** 选择 checkbox（原站在选择列/行内用 slot="selection" 的 OSS Checkbox） */
+/** 选择 checkbox（参考实现在选择列/行内用 slot="selection" 的 OSS Checkbox） */
 const DataGridSelectionCheckbox = () => (
   <Checkbox slot="selection">
     <Checkbox.Control>

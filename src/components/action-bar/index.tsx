@@ -5,16 +5,16 @@ import { Toolbar, type ToolbarProps } from '@heroui/react';
 import clsx from 'clsx';
 
 export type ActionBarProps = Omit<ToolbarProps, 'className'> & {
-  /** 控制显隐，带进出场动画（原站 API 为必填） */
+  /** 控制显隐，带进出场动画（参考 API 为必填） */
   isOpen: boolean;
-  /** 追加到 toolbar wrapper 上的类名（与原站 API 一致） */
+  /** 追加到 toolbar wrapper 上的类名（与参考 API 一致） */
   className?: string;
 };
 
 export type ActionBarSectionProps = HTMLAttributes<HTMLDivElement>;
 type SectionProps = ActionBarSectionProps;
 
-/** 进场/退场动画类（tw-animate-css），与原站「animates in/out based on isOpen」行为对齐 */
+/** 进场/退场动画类（tw-animate-css），与参考实现「animates in/out based on isOpen」行为对齐 */
 const ENTER_MOTION = 'animate-in fade-in-0 zoom-in-95 slide-in-from-bottom-4 duration-200';
 const EXIT_MOTION =
   'animate-out fade-out-0 zoom-out-95 slide-out-to-bottom-4 duration-200 fill-mode-forwards';

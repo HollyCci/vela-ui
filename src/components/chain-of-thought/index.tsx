@@ -18,7 +18,7 @@ import {
 import clsx from 'clsx';
 
 export type ChainOfThoughtProps = Omit<DisclosureProps, 'className' | 'style'> & {
-  /** 流式推理中：trigger 文本套 shimmer，根类切换为 --streaming（原站 API，默认 false） */
+  /** 流式推理中：trigger 文本套 shimmer，根类切换为 --streaming（参考 API，默认 false） */
   isStreaming?: boolean;
   className?: string;
   style?: CSSProperties;
@@ -37,7 +37,7 @@ export type ChainOfThoughtContentProps = Omit<DisclosureContentProps, 'className
 export type ChainOfThoughtStepsProps = HTMLAttributes<HTMLDivElement>;
 
 export type ChainOfThoughtStepProps = HTMLAttributes<HTMLDivElement> & {
-  /** 可选步骤标签：提供时渲染步骤头（指示点 + 标签），缺省时只有正文（原站 API） */
+  /** 可选步骤标签：提供时渲染步骤头（指示点 + 标签），缺省时只有正文（参考 API） */
   label?: ReactNode;
 };
 
@@ -48,7 +48,7 @@ type ChainOfThoughtContextValue = {
 const ChainOfThoughtContext = createContext<ChainOfThoughtContextValue>({ isStreaming: false });
 
 /**
- * 包装 OSS Button slot="trigger"（原站 trigger 即 ghost/sm 按钮，外层 Disclosure.Heading 提供 h3 语义）；
+ * 包装 OSS Button slot="trigger"（参考实现 trigger 即 ghost/sm 按钮，外层 Disclosure.Heading 提供 h3 语义）；
  * 流式态把 children 包进 text-shimmer，末尾固定渲染 Disclosure 默认 chevron 指示器。
  */
 const Trigger = ({ className, children, ...rest }: ChainOfThoughtTriggerProps) => {
@@ -130,7 +130,7 @@ const Step = forwardRef<HTMLDivElement, ChainOfThoughtStepProps>(
 Step.displayName = 'ChainOfThought.Step';
 
 /**
- * 包装 OSS Disclosure 的可折叠思维链（原站 API）：
+ * 包装 OSS Disclosure 的可折叠思维链（参考 API）：
  * 展开/收起、受控 isExpanded/onExpandedChange、键盘与 aria 语义均由底座提供；
  * 非流式时根类为 --complete（与基准快照一致，CSS 仅对 --streaming 定义样式）。
  */

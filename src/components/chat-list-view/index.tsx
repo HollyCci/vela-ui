@@ -20,7 +20,7 @@ export type ChatListViewProps<T extends object = object> = Omit<
   GridListProps<T>,
   'className' | 'style'
 > & {
-  /** 密度变体：comfortable 显示预览/元信息，compact 隐藏（原站 --compact 仅留标题） */
+  /** 密度变体：comfortable 显示预览/元信息，compact 隐藏（参考实现 --compact 仅留标题） */
   density?: ChatListViewDensity;
   className?: string;
   style?: CSSProperties;
@@ -86,7 +86,7 @@ const ItemContent = forwardRef<HTMLDivElement, ChatListViewItemContentProps>(({ 
 ));
 ItemContent.displayName = 'ChatListView.ItemContent';
 
-/** 默认会话图标（原站快照内联 SVG），未传 children 时回退渲染 */
+/** 默认会话图标（参考实现快照内联 SVG），未传 children 时回退渲染 */
 const DEFAULT_ICON: ReactNode = (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
     <path

@@ -35,16 +35,16 @@ export type EmojiCategory = {
 
 export type EmojiPickerProps = {
   size?: EmojiPickerSize;
-  /** 分类数据，缺省用内置小型数据集（原站 API：Custom Categories） */
+  /** 分类数据，缺省用内置小型数据集（参考 API：Custom Categories） */
   categories?: EmojiCategory[];
-  /** 最近使用，非空时置顶为 "recent" 分类（原站 API） */
+  /** 最近使用，非空时置顶为 "recent" 分类（参考 API） */
   recentEmojis?: string[];
-  /** 选中一个表情时回调（原站 onEmojiSelect） */
+  /** 选中一个表情时回调（参考实现 onEmojiSelect） */
   onEmojiSelect?: (emoji: string) => void;
   /** 受控当前选中表情，显示在 trigger 的 Value 中 */
   value?: string;
   defaultValue?: string;
-  /** 内联渲染：不套 trigger/popover，直接展示选择面板（原站 Inline 变体） */
+  /** 内联渲染：不套 trigger/popover，直接展示选择面板（参考实现 Inline 变体） */
   isInline?: boolean;
   isDisabled?: boolean;
   /** trigger 的无障碍标签 */
@@ -223,9 +223,9 @@ const renderEmptyState = () => (
 );
 
 /**
- * 表情选择器（原站 API）：分类切换 / 搜索实时过滤 / 点击触发 onEmojiSelect。
+ * 表情选择器（参考 API）：分类切换 / 搜索实时过滤 / 点击触发 onEmojiSelect。
  * 默认弹层模式（RAC DialogTrigger + Popover，按钮打开、Esc/遮罩关闭、焦点圈定），
- * isInline 时直接内联渲染面板（原站 Inline 变体）。分类标签用 RAC ToggleButtonGroup。
+ * isInline 时直接内联渲染面板（参考实现 Inline 变体）。分类标签用 RAC ToggleButtonGroup。
  */
 const EmojiPicker = ({
   size = 'md',

@@ -55,7 +55,7 @@ type RatingContextValue = {
 
 const RatingContext = createContext<RatingContextValue>({ size: 'md', value: 0 });
 
-/** 原站默认星形图标（与基准快照 SVG path 一致） */
+/** 参考实现默认星形图标（与基准快照 SVG path 一致） */
 const StarIcon = () => (
   <svg aria-hidden="true" fill="currentColor" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
     <path d="M6.886.773C7.29-.231 8.71-.231 9.114.773l1.472 3.667l3.943.268c1.08.073 1.518 1.424.688 2.118L12.185 9.36l.964 3.832c.264 1.05-.886 1.884-1.802 1.31L8 12.4l-3.347 2.101c-.916.575-2.066-.26-1.802-1.309l.964-3.832L.783 6.826c-.83-.694-.391-2.045.688-2.118l3.943-.268z" />
@@ -114,7 +114,7 @@ const Item = ({ value, children, className, ...rest }: RatingItemProps) => {
 Item.displayName = 'Rating.Item';
 
 /**
- * 包装 RAC RadioGroup（水平朝向）的评分组件（原站 API）：
+ * 包装 RAC RadioGroup（水平朝向）的评分组件（参考 API）：
  * 数值 API 与 RAC 的字符串单选互转——分值向下取整映射到选中项，
  * 小数部分由 data-active 与半星覆盖层呈现；键盘方向键调分由 RAC 提供。
  */

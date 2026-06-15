@@ -149,7 +149,7 @@ const toCssSize = (value: SheetSnapPoint | undefined) =>
 
 /**
  * Trigger：直接渲染 OSS Button 作为 RAC DialogTrigger（Sheet Root）的触发器。
- * 原站快照触发器即 `button button--md`，不经 HeroUI Drawer.Trigger 包裹——后者会再套一层 <button>，
+ * 参考实现快照触发器即 `button button--md`，不经 HeroUI Drawer.Trigger 包裹——后者会再套一层 <button>，
  * 传入 <Button> 子节点会形成 button 嵌套 button 的非法 DOM。
  */
 const Trigger = ({ className, ...rest }: SheetTriggerProps) => (
@@ -411,7 +411,7 @@ const CloseTrigger = ({ className, ...rest }: SheetCloseTriggerProps) => (
 CloseTrigger.displayName = 'Sheet.CloseTrigger';
 
 /**
- * 基于 @heroui/react Drawer（RAC DialogTrigger/ModalOverlay/Modal/Dialog）的底部滑出面板（原站 API）：
+ * 基于 @heroui/react Drawer（RAC DialogTrigger/ModalOverlay/Modal/Dialog）的底部滑出面板（参考 API）：
  * 按钮打开 → Esc/遮罩/关闭按钮关闭 → 焦点圈定由底座提供；拖拽关闭（drag-to-dismiss）由本层
  * framer-motion 在 Sheet.Dialog 上接入：手柄向关闭方向拖动，超过位移/速度阈值即关闭，否则弹回。
  * placement（底/顶/左/右）与 isDetached 经 context 下发到 Content/Dialog 叠加 `sheet__*` 修饰类。
@@ -426,7 +426,7 @@ const SheetRoot = ({ placement = 'bottom', isDetached = false, children, ...rest
 SheetRoot.displayName = 'Sheet';
 
 /**
- * 嵌套 sheet（原站 Sheet.NestedRoot）：放在另一个 Sheet 内部，复用同样的 placement/detached 下发逻辑。
+ * 嵌套 sheet（参考实现 Sheet.NestedRoot）：放在另一个 Sheet 内部，复用同样的 placement/detached 下发逻辑。
  * 底座无独立嵌套 root，这里以新的 DialogTrigger 形成第二层模态，父层 sheet 仍保持打开。
  */
 const NestedRoot = ({ placement = 'bottom', isDetached = false, children, ...rest }: SheetProps) => (

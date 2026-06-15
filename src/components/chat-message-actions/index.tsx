@@ -190,7 +190,7 @@ const getCopyLabel = (status: CopyStatus, label: string) => {
 
 /**
  * 通用动作按钮：OSS Button（icon-only / sm / ghost），输出 button[data-slot=chat-message-action]。
- * 原站 ChatMessageActions.Action「Extends HeroUI Button props」，故透传全部 Button props。
+ * 参考实现 ChatMessageActions.Action「Extends HeroUI Button props」，故透传全部 Button props。
  */
 export type ChatMessageActionsActionProps = Omit<ButtonProps, 'className' | 'style'> & {
   className?: string;
@@ -218,7 +218,7 @@ Action.displayName = 'ChatMessageActions.Action';
  * 图标外层 motion span 与快照一致（data-slot=chat-message-actions-copy-icon-motion）。
  */
 export type ChatMessageActionsCopyProps = Omit<ButtonProps, 'className' | 'style' | 'children'> & {
-  /** 点击时写入剪贴板的文本（原站 API） */
+  /** 点击时写入剪贴板的文本（参考 API） */
   content: string;
   /** 自定义复制图标；缺省用预设 CopyIcon */
   icon?: ReactNode;
@@ -382,7 +382,7 @@ const Menu = forwardRef<HTMLButtonElement, ChatMessageActionsActionProps>(
 );
 Menu.displayName = 'ChatMessageActions.Menu';
 
-/** 根动作行：div.chat-message-actions（原站 API：仅原生 div props） */
+/** 根动作行：div.chat-message-actions（参考 API：仅原生 div props） */
 export type ChatMessageActionsProps = HTMLAttributes<HTMLDivElement>;
 
 const ChatMessageActionsRoot = forwardRef<HTMLDivElement, ChatMessageActionsProps>(

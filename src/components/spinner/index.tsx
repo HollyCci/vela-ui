@@ -11,7 +11,7 @@ export type SpinnerProps = HTMLAttributes<HTMLSpanElement> & {
   size?: SpinnerSize;
 };
 
-/** SVG 结构与原站 spinner-icon 完全一致（双渐变弧线） */
+/** SVG 结构与参考实现 spinner-icon 完全一致（双渐变弧线） */
 const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
   ({ color = 'accent', size = 'md', className, ...rest }, ref) => {
     const id = useId();

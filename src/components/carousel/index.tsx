@@ -32,19 +32,19 @@ export type CarouselAutoplayOptions = {
   delay?: number;
 };
 
-/** 原站 setApi / useCarousel 暴露的就是真实 Embla API 实例 */
+/** 参考实现 setApi / useCarousel 暴露的就是真实 Embla API 实例 */
 export type CarouselApi = EmblaCarouselType;
 
 export type CarouselProps = HTMLAttributes<HTMLDivElement> & {
-  /** 导航按钮布局类型（原站 API，默认 in-place） */
+  /** 导航按钮布局类型（参考 API，默认 in-place） */
   type?: CarouselLayoutType;
   /** 传给底座 Embla 的选项（loop / startIndex / align / dragFree / axis 等） */
   opts?: EmblaOptionsType;
-  /** Embla 插件（如 embla-carousel-autoplay），原站 API */
+  /** Embla 插件（如 embla-carousel-autoplay），参考 API */
   plugins?: EmblaPluginType[];
   /** 组件级自动轮播 helper；没有 embla-carousel-autoplay 依赖时可直接使用 */
   autoplay?: boolean | CarouselAutoplayOptions;
-  /** 拿到底座 Embla API 实例（原站 setApi） */
+  /** 拿到底座 Embla API 实例（参考实现 setApi） */
   setApi?: (api: EmblaCarouselType) => void;
 };
 
@@ -52,7 +52,7 @@ export type CarouselContentProps = HTMLAttributes<HTMLDivElement>;
 export type CarouselItemProps = HTMLAttributes<HTMLDivElement>;
 
 export type CarouselNavButtonProps = Omit<UIButtonProps, 'className' | 'style'> & {
-  /** 替换默认 chevron 的自定义图标（原站 API） */
+  /** 替换默认 chevron 的自定义图标（参考 API） */
   icon?: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -67,14 +67,14 @@ export type CarouselDotProps = Omit<RACButtonProps, 'className' | 'style' | 'chi
 };
 
 export type CarouselDotsProps = HTMLAttributes<HTMLDivElement> & {
-  /** 自定义 dot 渲染（原站 API） */
+  /** 自定义 dot 渲染（参考 API） */
   renderDot?: (props: { index: number; isSelected: boolean }) => ReactNode;
 };
 
 export type CarouselThumbnailsProps = Omit<ScrollShadowProps, 'orientation'>;
 
 export type CarouselThumbnailProps = Omit<RACButtonProps, 'className' | 'style' | 'children'> & {
-  /** 该缩略图跳转的幻灯片索引（原站 API，必填，0 起） */
+  /** 该缩略图跳转的幻灯片索引（参考 API，必填，0 起） */
   index: number;
   /** 缩略图图片地址；也可改用 children 自定义内容 */
   src?: string;
@@ -107,7 +107,7 @@ const useCarouselContext = (): CarouselContextValue => {
   return context;
 };
 
-/** 原站 useCarousel hook：在任意后代组件中访问轮播上下文（api 为真实 Embla 实例） */
+/** 参考实现 useCarousel hook：在任意后代组件中访问轮播上下文（api 为真实 Embla 实例） */
 export function useCarousel(): {
   api: EmblaCarouselType | undefined;
   selectedIndex: number;
@@ -276,7 +276,7 @@ const Dot = ({ index, isSelected, className, onPress, children, ...rest }: Carou
 };
 Dot.displayName = 'Carousel.Dot';
 
-/** 分页圆点：每个 snap 一个；只有一个 snap 时隐藏（原站行为） */
+/** 分页圆点：每个 snap 一个；只有一个 snap 时隐藏（参考实现行为） */
 const Dots = forwardRef<HTMLDivElement, CarouselDotsProps>(
   ({ renderDot, className, ...rest }, ref) => {
     const { scrollSnapCount, selectedIndex } = useCarouselContext();
@@ -306,7 +306,7 @@ const Dots = forwardRef<HTMLDivElement, CarouselDotsProps>(
 );
 Dots.displayName = 'Carousel.Dots';
 
-/** 缩略图容器：复用 OSS ScrollShadow（横向、隐藏滚动条、渐隐边缘），与原站 DOM 一致 */
+/** 缩略图容器：复用 OSS ScrollShadow（横向、隐藏滚动条、渐隐边缘），与基准 DOM 一致 */
 const Thumbnails = forwardRef<HTMLDivElement, CarouselThumbnailsProps>(
   ({ className, ...rest }, ref) => {
     const { layoutType } = useCarouselContext();
@@ -366,9 +366,9 @@ Thumbnail.displayName = 'Carousel.Thumbnail';
 
 /**
  * 轮播根组件：底座为真实 Embla（embla-carousel-react）。
- * 指针拖拽/惯性/吸附/loop/autoplay 插件均由 Embla 提供；本层只渲染原站 BEM 结构并把
+ * 指针拖拽/惯性/吸附/loop/autoplay 插件均由 Embla 提供；本层只渲染参考实现 BEM 结构并把
  * Embla 的选中/边界状态经 context 下发给按钮/圆点/缩略图。
- * 与原站 DOM 一致：Content 与前后按钮渲染进 viewport-wrapper，Dots/Thumbnails 在其后。
+ * 与基准 DOM 一致：Content 与前后按钮渲染进 viewport-wrapper，Dots/Thumbnails 在其后。
  */
 const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
   ({ type = 'in-place', opts, plugins, autoplay = false, setApi, className, children, ...rest }, ref) => {
@@ -446,7 +446,7 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
       ],
     );
 
-    // 与原站 DOM 一致：Content 与前后按钮进 viewport-wrapper（按钮相对它绝对定位），其余在外
+    // 与基准 DOM 一致：Content 与前后按钮进 viewport-wrapper（按钮相对它绝对定位），其余在外
     const childArray = Children.toArray(children);
     const wrapperChildren = childArray.filter(
       (child) =>

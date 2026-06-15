@@ -20,7 +20,7 @@ import {
   type TooltipPayloadEntry,
 } from 'recharts';
 
-/** 原站数据项：含 category 键与数值系列字段 */
+/** 参考数据项：含 category 键与数值系列字段 */
 export type RadarChartDatum = Record<string, number | string>;
 
 export type RadarChartProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
@@ -53,7 +53,7 @@ const RadarChartRoot = forwardRef<HTMLDivElement, RadarChartProps>(
 );
 RadarChartRoot.displayName = 'RadarChart';
 
-/** PolarGrid 透传，默认 polygon 网格（原站为多边形同心网格） */
+/** PolarGrid 透传，默认 polygon 网格（参考实现为多边形同心网格） */
 const Grid = (props: ComponentProps<typeof PolarGrid>) => <PolarGrid {...props} />;
 Grid.displayName = 'RadarChart.Grid';
 
@@ -92,7 +92,7 @@ function resolveColor(entry: TooltipPayloadEntry): string | undefined {
   return (entry as { fill?: string }).fill;
 }
 
-/** 直接渲染原站 .chart-tooltip BEM 结构的 recharts content；作为 RadarChart.Tooltip 的 content 传入 */
+/** 直接渲染参考实现 .chart-tooltip BEM 结构的 recharts content；作为 RadarChart.Tooltip 的 content 传入 */
 function TooltipContent({
   active,
   payload,

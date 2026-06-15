@@ -23,7 +23,7 @@ import clsx from 'clsx';
 
 export type CellSelectVariant = 'default' | 'secondary';
 
-/** 原站 API：variant 是 cell-select 自己的视觉变体，OSS Select 的 variant 不透传（root 保持 select--primary） */
+/** 参考 API：variant 是 cell-select 自己的视觉变体，OSS Select 的 variant 不透传（root 保持 select--primary） */
 export type CellSelectProps<
   T extends object = object,
   M extends 'single' | 'multiple' = 'single',
@@ -71,7 +71,7 @@ export type CellSelectItemIndicatorProps = ComponentProps<typeof ListBox.ItemInd
 const CellSelectContext = createContext<CellSelectVariant>('default');
 
 /**
- * 原站默认指示器（ChevronsExpandVertical，16x16）；快照中 clipPath id 即为 "a"。
+ * 参考实现默认指示器（ChevronsExpandVertical，16x16）；快照中 clipPath id 即为 "a"。
  * 必须透传 props：OSS Select.Indicator 通过 cloneElement 注入 className/data-slot/data-open。
  */
 const ChevronsExpandVerticalIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -134,7 +134,7 @@ const Value = ({ className, ...rest }: CellSelectValueProps) => (
 Value.displayName = 'CellSelect.Value';
 
 /**
- * 包装 OSS Select.Indicator：无 children 时渲染原站默认 ChevronsExpandVertical 图标（原站 API）。
+ * 包装 OSS Select.Indicator：无 children 时渲染参考实现默认 ChevronsExpandVertical 图标（参考 API）。
  * OSS 通过 cloneElement 把 className/data-slot="select-indicator"/data-open 合并到子 svg 上。
  */
 const Indicator = ({ className, children, ...rest }: CellSelectIndicatorProps) => (
@@ -144,7 +144,7 @@ const Indicator = ({ className, children, ...rest }: CellSelectIndicatorProps) =
 );
 Indicator.displayName = 'CellSelect.Indicator';
 
-/** 原站默认 placement 为 'bottom end'（OSS 默认是 'bottom'） */
+/** 参考实现默认 placement 为 'bottom end'（OSS 默认是 'bottom'） */
 const Popover = ({ className, placement = 'bottom end', ...rest }: CellSelectPopoverProps) => (
   <Select.Popover
     placement={placement}
@@ -182,7 +182,7 @@ const ItemIndicator = ({ className, ...rest }: CellSelectItemIndicatorProps) => 
 ItemIndicator.displayName = 'CellSelect.ItemIndicator';
 
 /**
- * 包装 OSS Select 的设置单元格下拉（原站 API "wraps Select"）：真实弹出列表、键盘导航、
+ * 包装 OSS Select 的设置单元格下拉（参考 API "wraps Select"）：真实弹出列表、键盘导航、
  * 受控 value/onChange、isDisabled（data-disabled 落到 root/trigger）均由底座提供。
  */
 function CellSelectRoot<

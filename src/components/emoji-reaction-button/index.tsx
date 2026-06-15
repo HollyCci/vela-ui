@@ -43,7 +43,7 @@ const Count = forwardRef<HTMLSpanElement, EmojiReactionButtonCountProps>(
 Count.displayName = 'EmojiReactionButton.Count';
 
 /**
- * 包装 RAC ToggleButton 的表情回应按钮（原站 API）：
+ * 包装 RAC ToggleButton 的表情回应按钮（参考 API）：
  * 选中/悬停/按压/聚焦等 data 属性由 RAC 输出；
  * 只读时强制受控为当前选中态并屏蔽 onChange，确保任何途径都不会切换。
  */

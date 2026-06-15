@@ -30,7 +30,7 @@ export type KanbanSize = 'sm' | 'md' | 'lg';
 export type Key = string | number;
 
 export type KanbanProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
-  /** 尺寸变体：控制列宽/列间距与卡片内边距字号（原站 API） */
+  /** 尺寸变体：控制列宽/列间距与卡片内边距字号（参考 API） */
   size?: KanbanSize;
   className?: string;
   style?: CSSProperties;
@@ -86,7 +86,7 @@ export type KanbanCardProps = Omit<
 };
 
 export type KanbanDropIndicatorProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
-  /** 占位高度（px），原站经 --kanban-drop-height 写入 */
+  /** 占位高度（px），参考实现经 --kanban-drop-height 写入 */
   height?: number;
   className?: string;
   style?: CSSProperties;
@@ -364,7 +364,7 @@ KanbanCardImpl.displayName = 'Kanban.Card';
 
 const KanbanCard = KanbanCardImpl as typeof KanbanCardImpl & { displayName?: string };
 
-/** 卡片内容包裹（原站 motion 容器位置），尺寸由 size 决定 */
+/** 卡片内容包裹（参考实现 motion 容器位置），尺寸由 size 决定 */
 export type KanbanCardContentProps = SectionProps & { size?: KanbanSize };
 
 const CardContent = forwardRef<HTMLDivElement, KanbanCardContentProps>(
@@ -443,7 +443,7 @@ const DragHandle = forwardRef<HTMLButtonElement, Parameters<typeof Button>[0]>(
 );
 DragHandle.displayName = 'Kanban.DragHandle';
 
-/** 拖拽落点指示线，height 经 --kanban-drop-height 控制占位高度（与原站一致） */
+/** 拖拽落点指示线，height 经 --kanban-drop-height 控制占位高度（与参考实现一致） */
 const KanbanDropIndicator = ({ height, className, style, ...rest }: KanbanDropIndicatorProps) => {
   const mergedStyle: CSSProperties | undefined =
     height !== undefined
@@ -480,7 +480,7 @@ const ScrollShadowWrapper = forwardRef<
 ScrollShadowWrapper.displayName = 'Kanban.ScrollShadow';
 
 /* -------------------------------------------------------------------------------------------------
- * useKanban / useKanbanColumn —— 看板数据与拖拽 hooks（原站 API，签名保持）
+ * useKanban / useKanbanColumn —— 看板数据与拖拽 hooks（参考 API，签名保持）
  * 数据层改为内部 useState 维护全量卡片（不再依赖 RAC useListData），但对外暴露
  * 与原先一致的 list/moveItem/...，保证 demo 读 kanban.list.items 等用法不变。
  * -----------------------------------------------------------------------------------------------*/
@@ -500,7 +500,7 @@ export type KanbanListData<T> = {
 };
 
 export type UseKanbanOptions<T> = {
-  /** 初始全量卡片（原站 API） */
+  /** 初始全量卡片（参考 API） */
   initialItems: T[];
   /** 读取卡片所属列标识 */
   getColumn: (item: T) => string;
@@ -525,7 +525,7 @@ export type UseKanbanReturn<T> = {
   dragType: string;
 };
 
-/** 管理整个看板的共享列表数据（原站 API） */
+/** 管理整个看板的共享列表数据（参考 API） */
 export function useKanban<T extends object>({
   initialItems,
   getColumn,
@@ -668,7 +668,7 @@ export type UseKanbanColumnReturn<T> = {
   dragAndDropHooks: KanbanColumnDnd<T>;
 };
 
-/** 为单列提供过滤后的卡片与 Reorder 适配器：列内重排 + 跨列投放（原站 API 签名保持） */
+/** 为单列提供过滤后的卡片与 Reorder 适配器：列内重排 + 跨列投放（参考 API 签名保持） */
 export function useKanbanColumn<T extends object>(
   kanban: UseKanbanReturn<T>,
   column: string,

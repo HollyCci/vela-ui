@@ -54,7 +54,7 @@ export type InlineSelectItemProps = Omit<ListBoxItemProps, 'className' | 'style'
 export type InlineSelectItemIndicatorProps = ComponentProps<typeof ListBox.ItemIndicator>;
 
 /**
- * 原站默认指示器（ChevronsExpandVertical，16x16）；快照中 clipPath id 即为 "a"。
+ * 参考实现默认指示器（ChevronsExpandVertical，16x16）；快照中 clipPath id 即为 "a"。
  * 必须透传 props：OSS Select.Indicator 通过 cloneElement 注入 className/data-slot/data-open。
  */
 const ChevronsExpandVerticalIcon = (props: SVGProps<SVGSVGElement>) => (
@@ -102,7 +102,7 @@ const Value = ({ className, ...rest }: InlineSelectValueProps) => (
 Value.displayName = 'InlineSelect.Value';
 
 /**
- * 包装 OSS Select.Indicator：无 children 时渲染原站默认 ChevronsExpandVertical 图标（原站 API）。
+ * 包装 OSS Select.Indicator：无 children 时渲染参考实现默认 ChevronsExpandVertical 图标（参考 API）。
  * OSS 通过 cloneElement 把 className/data-slot="select-indicator"/data-open 合并到子 svg 上，
  * 故 data-slot 不可覆盖，与快照一致。
  */
@@ -113,7 +113,7 @@ const Indicator = ({ className, children, ...rest }: InlineSelectIndicatorProps)
 );
 Indicator.displayName = 'InlineSelect.Indicator';
 
-/** 原站默认 placement 为 'bottom end'（OSS 默认是 'bottom'） */
+/** 参考实现默认 placement 为 'bottom end'（OSS 默认是 'bottom'） */
 const Popover = ({ className, placement = 'bottom end', ...rest }: InlineSelectPopoverProps) => (
   <Select.Popover
     placement={placement}
@@ -151,7 +151,7 @@ const ItemIndicator = ({ className, ...rest }: InlineSelectItemIndicatorProps) =
 ItemIndicator.displayName = 'InlineSelect.ItemIndicator';
 
 /**
- * 包装 OSS Select 的行内下拉（原站 API）：真实弹出列表、键盘导航、typeahead、
+ * 包装 OSS Select 的行内下拉（参考 API）：真实弹出列表、键盘导航、typeahead、
  * 受控 value/onChange、selectionMode="multiple" 多选均由底座（RAC Select）提供。
  */
 function InlineSelectRoot<

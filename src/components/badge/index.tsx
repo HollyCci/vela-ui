@@ -14,7 +14,7 @@ export type BadgeProps = HTMLAttributes<HTMLSpanElement> & {
   placement?: BadgePlacement;
 };
 
-/** 类名顺序与原站一致：badge badge--<color> [badge--<placement>] badge--<size> badge--<variant> */
+/** 类名顺序与参考实现一致：badge badge--<color> [badge--<placement>] badge--<size> badge--<variant> */
 const Badge = forwardRef<HTMLSpanElement, BadgeProps>(
   ({ color = 'default', variant = 'primary', size = 'md', placement, className, children, ...rest }, ref) => {
     return (

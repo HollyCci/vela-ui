@@ -44,7 +44,7 @@ export type ResizableProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 
   autoSaveId?: string;
   /** 每次布局变化（含拖拽过程）触发，回传各面板百分比（按 DOM 顺序） */
   onLayout?: (sizes: number[]) => void;
-  /** 命令式控制布局（原站 handleRef） */
+  /** 命令式控制布局（参考实现 handleRef） */
   handleRef?: Ref<ResizableImperativeHandle>;
   /** 禁用整组拖拽 */
   disabled?: boolean;
@@ -61,13 +61,13 @@ export type ResizablePanelProps = Omit<
 > & {
   /** 面板 id（透传给真引擎，落到 data-panel/id，并作为布局 map 的 key；缺省由引擎 useId 生成） */
   id?: string;
-  /** 初始尺寸（百分比，原站 API） */
+  /** 初始尺寸（百分比，参考 API） */
   defaultSize?: number;
   /** 最小尺寸（百分比） */
   minSize?: number;
   /** 最大尺寸（百分比） */
   maxSize?: number;
-  /** 拖到最小尺寸以下时折叠到 collapsedSize（原站 API） */
+  /** 拖到最小尺寸以下时折叠到 collapsedSize（参考 API） */
   collapsible?: boolean;
   /** 折叠后的尺寸（百分比） */
   collapsedSize?: number;
@@ -75,7 +75,7 @@ export type ResizablePanelProps = Omit<
   disabled?: boolean;
   onCollapse?: () => void;
   onExpand?: () => void;
-  /** 尺寸变化回调，回传当前百分比（对齐原站签名） */
+  /** 尺寸变化回调，回传当前百分比（对齐参考实现签名） */
   onResize?: (size: number) => void;
   /** 命令式面板句柄（collapse/expand/resize/getSize/isCollapsed，透传真引擎） */
   panelRef?: Ref<PanelImperativeHandle | null>;
@@ -289,7 +289,7 @@ const Panel = ({
     return () => registry.unregister(id);
   }, [registry, id]);
 
-  // 真引擎 onResize 回传 {asPercentage,inPixels}，并带折叠语义；映射到原站 onResize/onCollapse/onExpand
+  // 真引擎 onResize 回传 {asPercentage,inPixels}，并带折叠语义；映射到参考实现 onResize/onCollapse/onExpand
   const prevCollapsedRef = useRef<boolean | null>(null);
   const handleResize = useCallback(
     (panelSize: PanelSize) => {
@@ -350,7 +350,7 @@ const DragDotsIcon = () => (
 );
 DragDotsIcon.displayName = 'Resizable.DragDotsIcon';
 
-/** 拖拽抓手：pill 为药丸，drag 为带握点图标的圆角块（原站 API） */
+/** 拖拽抓手：pill 为药丸，drag 为带握点图标的圆角块（参考 API） */
 const Indicator = ({ type = 'pill', children, className }: ResizableIndicatorProps) => (
   <span
     aria-hidden="true"

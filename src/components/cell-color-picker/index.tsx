@@ -41,7 +41,7 @@ export type CellColor = Color;
 export const parseCellColor = parseColor;
 
 /**
- * 原站 API：根无独立 DOM 元素（OSS 在内部渲染 .color-picker div，data-slot 固定为
+ * 参考 API：根无独立 DOM 元素（OSS 在内部渲染 .color-picker div，data-slot 固定为
  * "color-picker"，与快照一致），故不提供 style 透传；variant 落在 Trigger 修饰类上。
  */
 export type CellColorPickerProps = Omit<ColorPickerProps, 'className' | 'variant'> & {
@@ -141,7 +141,7 @@ export type CellColorPickerSwatchPickerIndicatorProps =
 const CellColorPickerContext = createContext<CellColorPickerVariant>('default');
 
 /**
- * 可见的整行单元格按钮（原站 API "Wraps RAC Button"，不走 OSS ColorPicker.Trigger，
+ * 可见的整行单元格按钮（参考 API "Wraps RAC Button"，不走 OSS ColorPicker.Trigger，
  * 快照中无 color-picker__trigger 类）；isDisabled、aria-expanded、按压/聚焦 data 属性由 RAC 提供。
  */
 const Trigger = ({ className, ...rest }: CellColorPickerTriggerProps) => {
@@ -198,7 +198,7 @@ const Swatch = ({ className, ...rest }: CellColorPickerSwatchProps) => (
 );
 Swatch.displayName = 'CellColorPicker.Swatch';
 
-/** 原站默认 placement 为 'bottom end'（OSS 默认是 'bottom left'） */
+/** 参考实现默认 placement 为 'bottom end'（OSS 默认是 'bottom left'） */
 const Popover = ({ className, placement = 'bottom end', ...rest }: CellColorPickerPopoverProps) => (
   <ColorPicker.Popover
     placement={placement}
@@ -306,7 +306,7 @@ const SwatchPicker = Object.assign(SwatchPickerRoot, {
 });
 
 /**
- * 包装 OSS ColorPicker 的单元格取色器（原站 API "wraps ColorPicker"）：点击触发弹出
+ * 包装 OSS ColorPicker 的单元格取色器（参考 API "wraps ColorPicker"）：点击触发弹出
  * 取色面板、受控 value/onChange（Color 或 hex 字符串）均由底座（RAC ColorPicker +
  * DialogTrigger）提供。
  */

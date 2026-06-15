@@ -23,9 +23,9 @@ export type ListViewProps<T extends object = object> = Omit<
   GridListProps<T>,
   'className' | 'style'
 > & {
-  /** 视觉变体：primary 灰底卡片包裹，secondary 透明分隔线（原站 API） */
+  /** 视觉变体：primary 灰底卡片包裹，secondary 透明分隔线（参考 API） */
   variant?: ListViewVariant;
-  /** 大数据集行虚拟化（原站 API，基于 RAC Virtualizer + ListLayout） */
+  /** 大数据集行虚拟化（参考 API，基于 RAC Virtualizer + ListLayout） */
   virtualized?: boolean;
   /** 虚拟化估算行高 */
   rowHeight?: number;
@@ -46,7 +46,7 @@ const ListViewVariantContext = createContext<ListViewVariant>('primary');
 
 /**
  * 基于 RAC GridList 的交互列表：键盘导航、typeahead、单选/多选、禁用项均由 RAC 提供，
- * 选择启用（toggle 行为）时自动渲染 slot="selection" 的 OSS Checkbox，与原站行为一致。
+ * 选择启用（toggle 行为）时自动渲染 slot="selection" 的 OSS Checkbox，与参考实现行为一致。
  */
 function ListViewRoot<T extends object>({
   variant = 'primary',

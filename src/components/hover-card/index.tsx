@@ -31,9 +31,9 @@ export type HoverCardProps = {
   open?: boolean;
   defaultOpen?: boolean;
   onOpenChange?: (open: boolean) => void;
-  /** hover 后延迟打开毫秒数（原站默认 700） */
+  /** hover 后延迟打开毫秒数（参考实现默认 700） */
   openDelay?: number;
-  /** 指针/焦点离开后延迟关闭毫秒数（原站默认 300） */
+  /** 指针/焦点离开后延迟关闭毫秒数（参考实现默认 300） */
   closeDelay?: number;
   children?: ReactNode;
 };

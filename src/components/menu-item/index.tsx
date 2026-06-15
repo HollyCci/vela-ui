@@ -48,9 +48,9 @@ const SubmenuIndicator = (props: MenuItemSubmenuIndicatorProps) => (
 SubmenuIndicator.displayName = 'MenuItem.SubmenuIndicator';
 
 /**
- * 基于 @heroui/react MenuItem（RAC MenuItem）的菜单项（原站 API）：
+ * 基于 @heroui/react MenuItem（RAC MenuItem）的菜单项（参考 API）：
  * 键盘导航、hover/press/disabled、单选/多选选中态均由底座提供；
- * variant="danger" 输出 menu-item--danger，类名天然对齐原站 CSS。
+ * variant="danger" 输出 menu-item--danger，类名天然对齐参考实现 CSS。
  */
 const MenuItem = Object.assign(MenuItemRoot, { Indicator, Label, Description, SubmenuIndicator });
 

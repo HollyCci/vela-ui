@@ -20,7 +20,7 @@ import clsx from 'clsx';
 
 export type CellSliderVariant = 'default' | 'secondary';
 
-/** 原站 API：恒为水平方向（orientation 移除）；variant 是 cell-slider 自己的视觉变体，落在 Track 修饰类上 */
+/** 参考 API：恒为水平方向（orientation 移除）；variant 是 cell-slider 自己的视觉变体，落在 Track 修饰类上 */
 export type CellSliderProps = Omit<
   SliderProps,
   'className' | 'style' | 'variant' | 'orientation'
@@ -87,7 +87,7 @@ const Thumb = ({ className, ...rest }: CellSliderThumbProps) => (
 );
 Thumb.displayName = 'CellSlider.Thumb';
 
-/** 原站 Label 是普通 span（绝对定位在左侧），不走 OSS Slider 的 label 槽 */
+/** 参考实现 Label 是普通 span（绝对定位在左侧），不走 OSS Slider 的 label 槽 */
 const Label = forwardRef<HTMLSpanElement, CellSliderLabelProps>(({ className, ...rest }, ref) => (
   <span
     ref={ref}
@@ -109,7 +109,7 @@ const Output = ({ className, ...rest }: CellSliderOutputProps) => (
 Output.displayName = 'CellSlider.Output';
 
 /**
- * 包装 OSS Slider 的单元格滑杆（原站 API "wraps Slider"）：拖动、键盘调值、
+ * 包装 OSS Slider 的单元格滑杆（参考 API "wraps Slider"）：拖动、键盘调值、
  * 受控 value/onChange、minValue/maxValue/step、isDisabled（data-disabled 级联到各槽）
  * 均由底座提供。
  */

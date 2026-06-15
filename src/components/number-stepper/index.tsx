@@ -22,7 +22,7 @@ export type NumberStepperSize = 'sm' | 'md' | 'lg';
 
 export type NumberStepperProps = Omit<NumberFieldProps, 'className' | 'style' | 'children'> & {
   size?: NumberStepperSize;
-  /** 数字格式化选项，同时作用于 RAC NumberField 与 Number Flow 显示（原站 API：Number Flow 的 Format） */
+  /** 数字格式化选项，同时作用于 RAC NumberField 与 Number Flow 显示（参考 API：Number Flow 的 Format） */
   formatOptions?: Format;
   label?: ReactNode;
   description?: ReactNode;
@@ -41,7 +41,7 @@ export type NumberStepperValueProps = Omit<NumberFlowProps, 'value' | 'children'
   value?: number;
   /** 覆盖格式化选项 */
   format?: Format;
-  /** 自定义内容或渲染函数（原站 API） */
+  /** 自定义内容或渲染函数（参考 API） */
   children?: ReactNode | ((props: { value: number; formatOptions?: Format }) => ReactNode);
 };
 
@@ -74,7 +74,7 @@ type NumberFieldRenderProps = Parameters<NumberFieldRenderChildren>[0];
 
 const NumberStepperContext = createContext<NumberStepperContextValue>({ size: 'md' });
 
-/** 原站默认 ± 图标（与基准快照 SVG path 一致） */
+/** 参考实现默认 ± 图标（与基准快照 SVG path 一致） */
 const MinusIcon = () => (
   <svg fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -114,7 +114,7 @@ const Description = ({ className, ...rest }: NumberStepperDescriptionProps) => (
 );
 Description.displayName = 'NumberStepper.Description';
 
-/** 包装 RAC Group；末尾自动渲染无障碍隐藏输入框（与原站 DOM 一致） */
+/** 包装 RAC Group；末尾自动渲染无障碍隐藏输入框（与基准 DOM 一致） */
 const StepperGroup = ({ className, children, ...rest }: NumberStepperGroupProps) => {
   const { size } = useContext(NumberStepperContext);
   const state = useContext(NumberFieldStateContext);
@@ -220,7 +220,7 @@ const IncrementButton = ({ icon, className, children, ...rest }: NumberStepperBu
 IncrementButton.displayName = 'NumberStepper.IncrementButton';
 
 /**
- * 包装 RAC NumberField 的步进数字输入（原站 API）：
+ * 包装 RAC NumberField 的步进数字输入（参考 API）：
  * min/max/step/受控等行为由 RAC 提供，按住按钮连续步进、键盘上下方向键调值开箱即用。
  */
 const NumberStepperRoot = ({

@@ -20,7 +20,7 @@ import clsx from 'clsx';
 
 type ScrollBehaviorMode = 'auto' | 'smooth';
 
-/** 新消息进场：从下方 8px、透明淡入到原位（原站对话流新消息进场手感） */
+/** 新消息进场：从下方 8px、透明淡入到原位（参考实现对话流新消息进场手感） */
 const MESSAGE_INITIAL = { opacity: 0, y: 8 } as const;
 const MESSAGE_ANIMATE = { opacity: 1, y: 0 } as const;
 const MESSAGE_TRANSITION: Transition = { duration: 0.25, ease: [0.16, 1, 0.3, 1] };
@@ -48,7 +48,7 @@ function useChatConversationContext(component: string): ChatConversationContextV
 }
 
 export type ChatConversationProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
-  /** 内容变化时是否自动跟随到底（仅当用户已贴底时生效，原站 stick-to-bottom 行为，默认 true） */
+  /** 内容变化时是否自动跟随到底（仅当用户已贴底时生效，参考实现 stick-to-bottom 行为，默认 true） */
   followOutput?: boolean;
   /** 判定“贴底”的像素阈值（默认 24） */
   threshold?: number;
@@ -204,7 +204,7 @@ export type ChatConversationMessagesProps = Omit<
 /**
  * 消息列表容器：内部包一层 AnimatePresence，使其直接子 <ChatConversation.Message> 在挂载时
  * 触发进场过渡（initial=false：首屏已存在的消息不播放，仅后续追加的新消息进场）。
- * 不渲染 DOM 包裹层以外的结构，data-slot 与原站 content 保持解耦。
+ * 不渲染 DOM 包裹层以外的结构，data-slot 与参考实现 content 保持解耦。
  */
 const Messages = forwardRef<HTMLDivElement, ChatConversationMessagesProps>(
   ({ className, children, ...rest }, ref) => (
@@ -328,7 +328,7 @@ const ChevronDownIcon = () => (
 ChevronDownIcon.displayName = 'ChatConversation.ChevronDownIcon';
 
 export type ChatConversationScrollButtonProps = Omit<ButtonProps, 'className' | 'style'> & {
-  /** 提供时按钮包进 OSS Tooltip（原站快照行为，默认 "Scroll to bottom"） */
+  /** 提供时按钮包进 OSS Tooltip（参考实现快照行为，默认 "Scroll to bottom"） */
   tooltip?: ReactNode;
   /** 滚动行为（默认 smooth） */
   scrollBehavior?: ScrollBehaviorMode;

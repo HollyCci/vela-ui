@@ -7,7 +7,7 @@ import clsx from 'clsx';
 export type KpiGroupOrientation = 'horizontal' | 'vertical';
 
 export type KpiGroupProps = Omit<GroupProps, 'className' | 'style'> & {
-  /** 布局方向（原站 API）：horizontal 等宽横排，vertical 纵向堆叠 */
+  /** 布局方向（参考 API）：horizontal 等宽横排，vertical 纵向堆叠 */
   orientation?: KpiGroupOrientation;
   className?: string;
   style?: CSSProperties;
@@ -16,8 +16,8 @@ export type KpiGroupProps = Omit<GroupProps, 'className' | 'style'> & {
 export type KpiGroupSeparatorProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
- * 基于 RAC Group 的 KPI 卡片布局容器（默认渲染 role="group"，与原站快照一致）。
- * 分隔线不自动插入，按原站 Anatomy 由使用方显式放置 <KpiGroup.Separator />。
+ * 基于 RAC Group 的 KPI 卡片布局容器（默认渲染 role="group"，与参考实现快照一致）。
+ * 分隔线不自动插入，按参考实现 Anatomy 由使用方显式放置 <KpiGroup.Separator />。
  */
 const KpiGroupRoot = forwardRef<HTMLDivElement, KpiGroupProps>(
   ({ orientation = 'horizontal', className, ...rest }, ref) => (

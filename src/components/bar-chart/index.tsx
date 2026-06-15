@@ -108,7 +108,7 @@ export type BarChartTooltipContentProps = {
   className?: string;
 };
 
-/** 预置的 recharts tooltip content 渲染器，输出原站 chart-tooltip BEM 结构 */
+/** 预置的 recharts tooltip content 渲染器，输出参考实现 chart-tooltip BEM 结构 */
 function TooltipContent({
   active,
   payload,

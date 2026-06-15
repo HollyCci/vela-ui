@@ -18,16 +18,16 @@ export type CodeBlockProps = HTMLAttributes<HTMLDivElement>;
 export type CodeBlockHeaderProps = HTMLAttributes<HTMLDivElement>;
 
 export type CodeBlockCodeProps = HTMLAttributes<HTMLDivElement> & {
-  /** 要渲染的代码（原站 API） */
+  /** 要渲染的代码（参考 API） */
   code: string;
-  /** Shiki 语言 id（原站 API，默认 'plaintext'）；本仓不内置 Shiki，按基准快照渲染纯 pre>code */
+  /** Shiki 语言 id（参考 API，默认 'plaintext'）；本仓不内置 Shiki，按基准快照渲染纯 pre>code */
   language?: string;
-  /** Shiki 主题（原站 API，默认 'github-light'）；同上仅保留 API，暗色由 CSS 主题选择器接管 */
+  /** Shiki 主题（参考 API，默认 'github-light'）；同上仅保留 API，暗色由 CSS 主题选择器接管 */
   theme?: string;
 };
 
 export type CodeBlockCopyButtonProps = Omit<ButtonProps, 'className' | 'style' | 'children'> & {
-  /** 点击时写入剪贴板的代码（原站 API） */
+  /** 点击时写入剪贴板的代码（参考 API） */
   code: string;
   className?: string;
   style?: CSSProperties;
@@ -369,7 +369,7 @@ const CopyButton = ({
 };
 CopyButton.displayName = 'CodeBlock.CopyButton';
 
-/** 代码块根容器（原站 API：仅原生 div props），语言标签/复制按钮由 Header 槽位组合 */
+/** 代码块根容器（参考 API：仅原生 div props），语言标签/复制按钮由 Header 槽位组合 */
 const CodeBlockRoot = forwardRef<HTMLDivElement, CodeBlockProps>(({ className, ...rest }, ref) => (
   <div ref={ref} data-slot="code-block" className={clsx('code-block', className)} {...rest} />
 ));

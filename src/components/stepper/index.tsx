@@ -65,7 +65,7 @@ const StepperContext = createContext<StepperContextValue>({
   onStepSelect: noop,
 });
 
-/** 步骤下标由 Root 按 children 顺序注入（原站 li 上的 data-index） */
+/** 步骤下标由 Root 按 children 顺序注入（参考实现 li 上的 data-index） */
 const StepIndexContext = createContext(0);
 
 export type StepperStepContextValue = {
@@ -80,10 +80,10 @@ const StepContext = createContext<StepperStepContextValue>({
   isLast: false,
 });
 
-/** 原站 API：在 Stepper.Step 的任意后代中读取步骤状态 */
+/** 参考 API：在 Stepper.Step 的任意后代中读取步骤状态 */
 export const useStepperStep = (): StepperStepContextValue => useContext(StepContext);
 
-/** 默认完成态对勾（属性与原站快照逐字一致，尺寸/动画由 CSS 接管） */
+/** 默认完成态对勾（属性与参考实现快照逐字一致，尺寸/动画由 CSS 接管） */
 const DefaultCheckmark = () => (
   <svg
     data-slot="stepper-default-checkmark"
@@ -234,7 +234,7 @@ const Step = forwardRef<HTMLLIElement, StepperStepProps>(
       [index, status, isLast],
     );
 
-    // 原站 DOM 里 Separator 是 step-button 的兄弟节点：把子级中的 Separator 拆出按钮，
+    // 基准 DOM 里 Separator 是 step-button 的兄弟节点：把子级中的 Separator 拆出按钮，
     // 未显式提供时自动补一条（末步由 Separator 自身判定不渲染）
     const childArray = Children.toArray(children);
     const separatorChildren = childArray.filter(

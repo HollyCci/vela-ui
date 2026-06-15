@@ -35,20 +35,20 @@ export type PromptInputVariant = 'primary' | 'secondary' | 'inline';
 export type PromptInputStatus = 'ready' | 'submitted' | 'streaming' | 'error';
 
 export type PromptInputProps = Omit<HTMLAttributes<HTMLDivElement>, 'onSubmit'> & {
-  /** 受控输入值；缺省时内部维护（原站 API） */
+  /** 受控输入值；缺省时内部维护（参考 API） */
   value?: string;
-  /** 非受控初始值（原站 API） */
+  /** 非受控初始值（参考 API） */
   defaultValue?: string;
   onValueChange?: (value: string) => void;
   /** Enter 或发送按钮触发（仅 ready/error 且非空文本时调用） */
   onSubmit?: (value: string) => void;
-  /** submitted/streaming 可停状态下发送按钮触发（原站 API） */
+  /** submitted/streaming 可停状态下发送按钮触发（参考 API） */
   onStop?: () => void;
   status?: PromptInputStatus;
   isDisabled?: boolean;
-  /** submitted/streaming 期间禁用文本框（原站 API，默认 true） */
+  /** submitted/streaming 期间禁用文本框（参考 API，默认 true） */
   lockInputOnRun?: boolean;
-  /** 自适应高度上限（原站 API，默认 240） */
+  /** 自适应高度上限（参考 API，默认 240） */
   maxHeight?: number | string;
   size?: PromptInputSize;
   variant?: PromptInputVariant;
@@ -58,14 +58,14 @@ export type PromptInputTextAreaProps = Omit<
   HeroTextAreaProps,
   'className' | 'style' | 'value' | 'defaultValue'
 > & {
-  /** 关闭自动高度调整（原站 API，默认 false） */
+  /** 关闭自动高度调整（参考 API，默认 false） */
   disableAutosize?: boolean;
   className?: string;
   style?: CSSProperties;
 };
 
 export type PromptInputActionProps = Omit<ButtonProps, 'className' | 'style'> & {
-  /** 提供时按钮包进 OSS Tooltip（原站 API） */
+  /** 提供时按钮包进 OSS Tooltip（参考 API） */
   tooltip?: ReactNode;
   className?: string;
   style?: CSSProperties;
@@ -80,15 +80,15 @@ export type PromptInputSectionProps = HTMLAttributes<HTMLDivElement>;
 export type PromptInputFooterProps = HTMLAttributes<HTMLParagraphElement>;
 
 export type PromptInputQueueProps = HTMLAttributes<HTMLDivElement> & {
-  /** 队列行尾操作按钮何时可见（原站 API，默认 hover） */
+  /** 队列行尾操作按钮何时可见（参考 API，默认 hover） */
   actionsVisibility?: 'always' | 'hover';
 };
 
 export type PromptInputQueueListProps<T> = Omit<ScrollShadowProps, 'className' | 'style'> & {
-  /** 受控队列值；与 onReorder 同传时启用 Motion 拖拽排序（原站 API） */
+  /** 受控队列值；与 onReorder 同传时启用 Motion 拖拽排序（参考 API） */
   values?: T[];
   onReorder?: (values: T[]) => void;
-  /** Motion Reorder.Group 拖拽轴向（原站 API，默认 y） */
+  /** Motion Reorder.Group 拖拽轴向（参考 API，默认 y） */
   axis?: 'x' | 'y';
   className?: string;
   style?: CSSProperties;
@@ -116,7 +116,7 @@ export type PromptInputQueueItemProps<T> = Omit<
   LiHTMLAttributes<HTMLLIElement>,
   PromptInputQueueItemConflictingProps
 > & {
-  /** values 中的对应项；启用拖拽排序时必传（原站 API，作为 Reorder.Item 的 value） */
+  /** values 中的对应项；启用拖拽排序时必传（参考 API，作为 Reorder.Item 的 value） */
   value?: T;
 };
 
@@ -130,9 +130,9 @@ export type PromptInputQueueItemTextProps = HTMLAttributes<HTMLParagraphElement>
 export type PromptInputQueueItemIconProps = HTMLAttributes<HTMLSpanElement>;
 
 export type PromptInputQueueItemAttachmentsOverflowProps = HTMLAttributes<HTMLSpanElement> & {
-  /** 超出可见预览的附件数（原站 API） */
+  /** 超出可见预览的附件数（参考 API） */
   hiddenCount?: number;
-  /** 溢出文案中的名词（原站 API，默认 'files'） */
+  /** 溢出文案中的名词（参考 API，默认 'files'） */
   noun?: string;
 };
 
@@ -186,7 +186,7 @@ const QueueItemContext = createContext<QueueItemContextValue>({
 const TEXTAREA_RESET_CLASSES =
   'border-0 bg-transparent shadow-none outline-none ring-0 hover:border-transparent hover:bg-transparent focus:border-transparent focus:bg-transparent focus:shadow-none focus:ring-0 focus-visible:ring-0 data-[focused=true]:border-transparent data-[hovered=true]:border-transparent data-[focused=true]:bg-transparent data-[hovered=true]:bg-transparent data-[focused=true]:shadow-none data-[focused=true]:ring-0';
 
-/** 原站发送图标（与基准快照 SVG path 一致） */
+/** 参考实现发送图标（与基准快照 SVG path 一致） */
 const SendIcon = () => (
   <svg className="size-4" fill="none" height="16" viewBox="0 0 16 16" width="16" xmlns="http://www.w3.org/2000/svg">
     <path
@@ -473,7 +473,7 @@ const Action = ({ tooltip, size, variant = 'tertiary', isDisabled, ...rest }: Pr
 Action.displayName = 'PromptInput.Action';
 
 /**
- * 发送按钮状态机（原站 API）：ready→发送箭头、submitted→Spinner、streaming→停止、error→错误图标；
+ * 发送按钮状态机（参考 API）：ready→发送箭头、submitted→Spinner、streaming→停止、error→错误图标；
  * 可停状态按下调 onStop，其余调 onSubmit；ready/error 且文本为空时禁用。
  */
 const Send = ({
@@ -563,7 +563,7 @@ const QueueRoot = forwardRef<HTMLDivElement, PromptInputQueueProps>(
 );
 QueueRoot.displayName = 'PromptInput.Queue';
 
-/** 队列项增删过渡：高度+透明度收合（layout 负责重排位移），与原站 Motion 队列手感一致 */
+/** 队列项增删过渡：高度+透明度收合（layout 负责重排位移），与参考实现 Motion 队列手感一致 */
 const QUEUE_ITEM_INITIAL = { opacity: 0, height: 0 } as const;
 const QUEUE_ITEM_ANIMATE = { opacity: 1, height: 'auto' } as const;
 const QUEUE_ITEM_EXIT = { opacity: 0, height: 0 } as const;
@@ -572,7 +572,7 @@ const QUEUE_ITEM_TRANSITION = { duration: 0.18, ease: [0.4, 0, 0.2, 1] } as cons
 /**
  * 包装 OSS ScrollShadow（默认 vertical/fade 与快照一致）；
  * values + onReorder 同传时内层 <ul> 升级为 Motion Reorder.Group（拖拽排序，
- * 输出与原站一致的 overflow-anchor/transform 内联样式），否则为普通 <ul>。
+ * 输出与参考实现一致的 overflow-anchor/transform 内联样式），否则为普通 <ul>。
  * 两种情况子项都包在 AnimatePresence 中，增删走 layout + exit 过渡。
  */
 const QueueList = <T,>({
@@ -848,7 +848,7 @@ const QueueItemAction = ({ className, ...rest }: PromptInputQueueButtonProps) =>
 QueueItemAction.displayName = 'PromptInput.Queue.Item.Action';
 
 /**
- * AI 提示输入根（原站 API）：值受控/非受控、status 状态机、isDisabled、
+ * AI 提示输入根（参考 API）：值受控/非受控、status 状态机、isDisabled、
  * inline 变体按行数切 data-expanded；shell/queue 等结构由子组件按 Anatomy 组合。
  */
 const PromptInputRoot = ({

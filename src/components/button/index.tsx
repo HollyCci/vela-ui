@@ -21,7 +21,7 @@ export type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   suffix?: ReactNode;
 };
 
-/** 与原站 DOM 一致：始终带尺寸修饰符，并带 react-aria 的 data 标记 */
+/** 与基准 DOM 一致：始终带尺寸修饰符，并带 react-aria 的 data 标记 */
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   (
     {

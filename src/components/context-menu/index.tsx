@@ -124,7 +124,7 @@ const VIRTUAL_ANCHOR_STYLE: CSSProperties = {
 };
 
 /**
- * 上下文菜单根（原站 API）：管理开合与光标坐标。受控（open/onOpenChange）与非受控（defaultOpen）都支持，
+ * 上下文菜单根（参考 API）：管理开合与光标坐标。受控（open/onOpenChange）与非受控（defaultOpen）都支持，
  * 真正的右键拦截/定位在 Trigger，浮层在 Popover。
  */
 const ContextMenuRoot = ({
@@ -343,7 +343,7 @@ Trigger.displayName = 'ContextMenu.Trigger';
 
 /**
  * 浮层（受控 RAC Popover）：triggerRef 指向光标锚点 div，isOpen/onOpenChange 受控；
- * Esc 与点击外部关闭、data-entering/data-exiting/data-placement 由底座输出，对齐原站动画。
+ * Esc 与点击外部关闭、data-entering/data-exiting/data-placement 由底座输出，对齐参考实现动画。
  */
 const ContextMenuPopover = ({
   offset = 2,
@@ -397,7 +397,7 @@ const ContextMenuMenu = <T extends object = object>({
 };
 ContextMenuMenu.displayName = 'ContextMenu.Menu';
 
-/** 菜单项（OSS MenuItem）：variant="danger" 输出 menu-item--danger，危险项天然对齐原站 CSS */
+/** 菜单项（OSS MenuItem）：variant="danger" 输出 menu-item--danger，危险项天然对齐参考实现 CSS */
 const Item = (props: ContextMenuItemProps) => <HeroMenuItem {...props} />;
 Item.displayName = 'ContextMenu.Item';
 
@@ -446,7 +446,7 @@ const ContextMenuSeparator = ({ className, ...rest }: ContextMenuSeparatorProps)
 ContextMenuSeparator.displayName = 'ContextMenu.Separator';
 
 /**
- * 右键上下文菜单（原站 API）：在 Trigger 区域 onContextMenu 阻止默认、于鼠标坐标处打开受控 RAC Popover，
+ * 右键上下文菜单（参考 API）：在 Trigger 区域 onContextMenu 阻止默认、于鼠标坐标处打开受控 RAC Popover，
  * 浮层内为 OSS Menu（键盘导航/分组/分隔线/危险项 variant=danger），Esc 与点击外部关闭。
  * 子菜单经 ContextMenu.SubmenuTrigger + ContextMenu.SubmenuPopover 组合。
  */

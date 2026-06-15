@@ -73,7 +73,7 @@ export type TabsPanelProps = RacTabPanelProps;
 export type TabsPanelsProps = RacTabPanelsProps<object>;
 
 /**
- * 选中指示器：原站 CSS 已定义 `transition: translate,width,height`（与 segment 同款）。
+ * 选中指示器：参考实现 CSS 已定义 `transition: translate,width,height`（与 segment 同款）。
  * 这里在挂载到新选中 tab 时以上一个选中项的位置作为起点（FLIP），下一帧归零形成滑动动画，
  * 否则指示器会直接「瞬移」到新 tab 而非滑过去。
  */

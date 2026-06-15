@@ -4,7 +4,7 @@ import clsx from 'clsx';
 export type KbdProps = HTMLAttributes<HTMLElement> & {
   /** 修饰键缩写，如 ⌘ ⇧ */
   abbr?: ReactNode;
-  /** abbr 的完整名称（原站为 abbr 标签的 title，如 Command） */
+  /** abbr 的完整名称（参考实现为 abbr 标签的 title，如 Command） */
   abbrTitle?: string;
   isLight?: boolean;
 };
