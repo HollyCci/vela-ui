@@ -2,6 +2,7 @@
 
 import {
   useEffect,
+  useMemo,
   useRef,
   useState,
   type CSSProperties,
@@ -21,6 +22,9 @@ import type {
   SortDirection,
 } from 'react-aria-components';
 import clsx from 'clsx';
+
+/** 仅告警一次：固定行高虚拟化与可变高展开行混用会滚动错位（避免每次渲染刷屏，亦无 process/env 依赖） */
+let warnedVirtualExpandConflict = false;
 
 type ColumnWidth = TableColumnProps['width'];
 
@@ -518,6 +522,7 @@ function DataGrid<TRow extends object>({
   const editingCellRef = useRef<{ rowKey: Key; columnId: string } | null>(null);
   const editInputValueRef = useRef('');
   const editInputRef = useRef<HTMLInputElement | null>(null);
+  const editTriggerRef = useRef<HTMLElement | null>(null);
   const skipNextBlurCommitRef = useRef(false);
   const skipNextInlineBlurCommitRef = useRef(false);
   const [editingCell, setEditingCellState] = useState<{ rowKey: Key; columnId: string } | null>(
@@ -626,8 +631,32 @@ function DataGrid<TRow extends object>({
     }, 0);
   };
 
-  const startCellEdit = (item: TRow, rowKey: Key, column: DataGridColumn<TRow>) => {
+  const restoreTriggerFocus = () => {
+    const trigger = editTriggerRef.current;
+    editTriggerRef.current = null;
+    if (trigger === null) return;
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => {
+        trigger.focus();
+      });
+    } else {
+      trigger.focus();
+    }
+  };
+
+  const startCellEdit = (
+    item: TRow,
+    rowKey: Key,
+    column: DataGridColumn<TRow>,
+    trigger?: HTMLElement | null,
+  ) => {
     if (!isColumnEditable(item, column)) return;
+    const active = typeof document !== 'undefined' ? document.activeElement : null;
+    editTriggerRef.current =
+      (trigger?.closest<HTMLElement>('[data-slot="data-grid-editable-cell-trigger"]') ?? trigger) ??
+      (active instanceof HTMLElement
+        ? (active.closest<HTMLElement>('[data-slot="data-grid-editable-cell-trigger"]') ?? active)
+        : null);
     setEditError(undefined);
     setEditInputValue(formatCellValue(item, column));
     setEditingCell({ rowKey, columnId: column.id });
@@ -639,6 +668,7 @@ function DataGrid<TRow extends object>({
     skipNextBlurCommitRef.current = true;
     setEditingCell(null);
     setEditError(undefined);
+    restoreTriggerFocus();
   };
 
   const commitCellValue = (
@@ -697,21 +727,24 @@ function DataGrid<TRow extends object>({
 
     setEditingCell(null);
     setEditError(undefined);
+    restoreTriggerFocus();
   };
 
-  const sortedData =
-    isControlledSort || activeSort === undefined
-      ? data
-      : [...data].sort((a, b) => {
-          const column = columns.find((col) => col.id === activeSort.column);
-          if (!column) {
-            return 0;
-          }
-          const result = column.sortFn
-            ? column.sortFn(a, b)
-            : compareValues(readValue(a, column), readValue(b, column));
-          return activeSort.direction === 'descending' ? -result : result;
-        });
+  const sortedData = useMemo(() => {
+    if (isControlledSort || activeSort === undefined) {
+      return data;
+    }
+    const sortColumn = columns.find((col) => col.id === activeSort.column);
+    if (!sortColumn) {
+      return data;
+    }
+    return [...data].sort((a, b) => {
+      const result = sortColumn.sortFn
+        ? sortColumn.sortFn(a, b)
+        : compareValues(readValue(a, sortColumn), readValue(b, sortColumn));
+      return activeSort.direction === 'descending' ? -result : result;
+    });
+  }, [isControlledSort, activeSort, data, columns]);
   const sortedKeys = sortedData.map(getRowId);
   const activeExpandedKeys = isControlledExpanded
     ? toKeySet(expandedKeys, sortedKeys)
@@ -1051,6 +1084,15 @@ function DataGrid<TRow extends object>({
     virtualRange.total,
   ]);
 
+  useEffect(() => {
+    if (!warnedVirtualExpandConflict && isVirtualized && withExpandableRows) {
+      warnedVirtualExpandConflict = true;
+      console.warn(
+        'DataGrid: 虚拟化按固定行高 (virtualRowHeight) 计算占位高度，与 renderExpandedContent 渲染的可变高展开行混用会导致滚动位置与占位 spacer 错位。建议二选一：关闭 virtualized，或不使用可展开行（或为展开内容固定高度）。',
+      );
+    }
+  }, [isVirtualized, withExpandableRows]);
+
   const renderDataGridRows = (item: TRow): ReactNode[] => {
     const rowKey = getRowId(item);
     const isDragging = draggedKey === rowKey;
@@ -1117,7 +1159,7 @@ function DataGrid<TRow extends object>({
           const handleCellClick = (event: ReactMouseEvent<HTMLElement>) => {
             if (!isEditable || isEditing) return;
             event.stopPropagation();
-            startCellEdit(item, rowKey, column);
+            startCellEdit(item, rowKey, column, event.currentTarget);
           };
 
           const handleCellKeyDown = (event: ReactKeyboardEvent<HTMLElement>) => {
@@ -1125,7 +1167,7 @@ function DataGrid<TRow extends object>({
             if (event.key !== 'Enter' && event.key !== 'F2') return;
             event.preventDefault();
             event.stopPropagation();
-            startCellEdit(item, rowKey, column);
+            startCellEdit(item, rowKey, column, event.currentTarget);
           };
 
           const handleEditorKeyDown = (event: ReactKeyboardEvent<HTMLInputElement>) => {
@@ -1195,21 +1237,33 @@ function DataGrid<TRow extends object>({
 
             if (event.key === 'Enter') {
               event.preventDefault();
-              commitCellValue(item, rowKey, column, 'enter', event.currentTarget.value);
+              const inlineInput = event.currentTarget;
+              commitCellValue(item, rowKey, column, 'enter', inlineInput.value);
               skipNextInlineBlurCommitRef.current = true;
-              event.currentTarget.blur();
+              inlineInput.blur();
+              if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => {
+                  inlineInput.focus();
+                });
+              }
               return;
             }
 
             if (event.key === 'Escape') {
               event.preventDefault();
-              event.currentTarget.value = inlineInputValue;
-              event.currentTarget.blur();
+              const inlineInput = event.currentTarget;
+              inlineInput.value = inlineInputValue;
+              inlineInput.blur();
+              if (typeof requestAnimationFrame === 'function') {
+                requestAnimationFrame(() => {
+                  inlineInput.focus();
+                });
+              }
             }
           };
           const inlineEditorNode = (
             <input
-              key={`${String(rowKey)}:${column.id}:${inlineInputValue}`}
+              key={`${String(rowKey)}:${column.id}`}
               aria-label={`编辑 ${getColumnLabel(column)}`}
               className="data-grid__cell-editor-input data-grid__cell-editor-input--preview"
               defaultValue={inlineInputValue}
