@@ -24,7 +24,7 @@ const Spinner = forwardRef<HTMLSpanElement, SpinnerProps>(
         className={clsx('spinner', `spinner--${color}`, `spinner--${size}`, className)}
         {...rest}
       >
-        <svg data-slot="spinner-icon" viewBox="0 0 24 24" aria-hidden="true" aria-label="Loading" role="presentation">
+        <svg data-slot="spinner-icon" viewBox="0 0 24 24" aria-hidden="true" role="presentation">
           <defs>
             <linearGradient id={def1} x1="50%" x2="50%" y1="5.271%" y2="91.793%">
               <stop offset="0%" stopColor="currentColor" />
