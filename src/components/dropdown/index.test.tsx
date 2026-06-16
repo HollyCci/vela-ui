@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Dropdown from './index';
 import MenuItem from '../menu-item';
 
@@ -55,5 +56,15 @@ describe('Dropdown', () => {
   it('trigger carries dropdown__trigger BEM class', () => {
     renderDropdown();
     expect(screen.getByRole('button', { name: '操作菜单' })).toHaveClass('dropdown__trigger');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 触发器是带可访问名的 button；Menu 带 aria-label，menuitem 有文本。
+    // 打开后浮层经 portal 渲染，对 document.body 跑 axe 覆盖触发器 + 菜单。
+    const user = userEvent.setup();
+    renderDropdown();
+    await user.click(screen.getByRole('button', { name: '操作菜单' }));
+    await screen.findByRole('menu');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

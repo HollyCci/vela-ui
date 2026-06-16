@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ItemCardGroup from './index';
 import ItemCard from '../item-card';
 
@@ -102,5 +103,24 @@ describe('ItemCardGroup', () => {
     const cards = document.querySelectorAll('[data-slot="item-card"]');
     expect(cards[0]).not.toHaveAttribute('data-selected');
     expect(cards[1]).toHaveAttribute('data-selected', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // role=group 配可访问名（aria-label），每张可选卡片的名字取自标题文本
+    const { container } = render(
+      <ItemCardGroup aria-label="Top courses" onSelectionChange={() => {}}>
+        <ItemCardGroup.Header>
+          <ItemCardGroup.Title>Top courses</ItemCardGroup.Title>
+          <ItemCardGroup.Description>By enrollment</ItemCardGroup.Description>
+        </ItemCardGroup.Header>
+        <ItemCard id="a">
+          <ItemCard.Title>React fundamentals</ItemCard.Title>
+        </ItemCard>
+        <ItemCard id="b">
+          <ItemCard.Title>TypeScript deep dive</ItemCard.Title>
+        </ItemCard>
+      </ItemCardGroup>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

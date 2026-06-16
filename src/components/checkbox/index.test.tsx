@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Checkbox from './index';
 
 describe('Checkbox', () => {
@@ -99,5 +100,10 @@ describe('Checkbox', () => {
     const input = screen.getByRole('checkbox');
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input.closest('label')).toHaveAttribute('data-invalid', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Checkbox>同意服务条款</Checkbox>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

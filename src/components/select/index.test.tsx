@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Select from './index';
 
 const OPTIONS = [
@@ -83,5 +84,10 @@ describe('Select', () => {
     const indicator = container.querySelector('svg.select__indicator');
     expect(indicator).toBeInTheDocument();
     expect(indicator).toHaveAttribute('data-slot', 'select-indicator');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderSelect();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

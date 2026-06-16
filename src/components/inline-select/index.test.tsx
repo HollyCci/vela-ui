@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import InlineSelect from './index';
 
 const OPTIONS = [
@@ -90,5 +91,10 @@ describe('InlineSelect', () => {
     expect(button).toBeDisabled();
     await user.click(button);
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderInline();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Slider from './index';
 
 // HeroUI/RAC Slider observes track size; jsdom has no layout/ResizeObserver.
@@ -59,6 +60,13 @@ describe('Slider', () => {
     render(<Slider aria-label="x" defaultValue={20} isDisabled />);
     const thumb = screen.getByRole('slider');
     expect(thumb).toBeDisabled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Slider label="音量" defaultValue={40} minValue={0} maxValue={100} />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   it('increases value with ArrowRight key (keyboard, layout-independent)', () => {

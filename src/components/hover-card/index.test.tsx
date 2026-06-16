@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import HoverCard from './index';
 
 const renderCard = (
@@ -95,5 +96,26 @@ describe('HoverCard', () => {
       </HoverCard>,
     );
     expect(screen.getByText('纯文本')).toHaveAttribute('tabindex', '-1');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 真实用法：触发器包一个原生可聚焦且带可访问名的 button（不产生重复 tab 停留点）。
+    // open 受控直接挂载浮层内容；浮层经 RAC Popover portal，对 document.body 跑 axe。
+    render(
+      <HoverCard open openDelay={0} closeDelay={0}>
+        <HoverCard.Trigger>
+          <button type="button">王老师</button>
+        </HoverCard.Trigger>
+        <HoverCard.Content placement="bottom">
+          <div>资深英语辅导老师，累计辅导 320 课时。</div>
+        </HoverCard.Content>
+      </HoverCard>,
+    );
+    await screen.findByText('资深英语辅导老师，累计辅导 320 课时。');
+    // 关闭页面级 region 规则：hover-card 浮层经 RAC Popover portal 直挂 body，孤立测试无 landmark 容器，
+    // 这是页面结构最佳实践（消费方页面的事），非组件自身 ARIA/角色/可访问名缺陷。
+    expect(
+      await axe(document.body, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Drawer from './index';
 
 const renderDrawer = (props: Partial<React.ComponentProps<typeof Drawer>> = {}) =>
@@ -62,5 +63,13 @@ describe('Drawer', () => {
     renderDrawer({ placement: 'top' });
     const dialog = await screen.findByRole('dialog');
     expect(dialog).toHaveClass('drawer__dialog--top');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 打开态：dialog 由 Heading 提供可访问名，自动关闭按钮带 aria-label="关闭"。
+    // 浮层经 portal 渲染，对 document.body 跑 axe 覆盖抽屉内容。
+    renderDrawer();
+    await screen.findByRole('dialog');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

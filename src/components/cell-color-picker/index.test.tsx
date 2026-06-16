@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import CellColorPicker, { parseCellColor } from './index';
 
 const renderPicker = (props: Record<string, unknown> = {}) =>
@@ -88,5 +89,10 @@ describe('CellColorPicker', () => {
     );
     const button = container.querySelector('[data-slot="cell-color-picker-trigger"]');
     expect(button).toBeDisabled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderPicker({ defaultValue: '#3B82F6' });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

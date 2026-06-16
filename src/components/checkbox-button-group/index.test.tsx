@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import CheckboxButtonGroup from './index';
 
 const renderGroup = (props: Record<string, unknown> = {}) =>
@@ -80,5 +81,10 @@ describe('CheckboxButtonGroup', () => {
     expect(checkboxes[0]).toBeDisabled();
     await user.click(checkboxes[0]);
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderGroup();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

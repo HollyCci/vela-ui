@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ItemCard from './index';
 
 describe('ItemCard', () => {
@@ -107,5 +108,19 @@ describe('ItemCard', () => {
     await user.click(screen.getByTestId('inner-btn'));
     expect(onInner).toHaveBeenCalledTimes(1);
     expect(onPress).not.toHaveBeenCalled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 可按下的卡片渲染为 role=button，其可访问名取自标题文本内容
+    const { container } = render(
+      <ItemCard onPress={() => {}}>
+        <ItemCard.Icon>★</ItemCard.Icon>
+        <ItemCard.Content>
+          <ItemCard.Title>Advanced React patterns</ItemCard.Title>
+          <ItemCard.Description>12 lessons · 3h 20m</ItemCard.Description>
+        </ItemCard.Content>
+      </ItemCard>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

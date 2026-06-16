@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Breadcrumbs from './index';
 
 describe('Breadcrumbs', () => {
@@ -58,5 +59,16 @@ describe('Breadcrumbs', () => {
       </Breadcrumbs>,
     );
     expect(screen.getByText('外链')).toHaveAttribute('target', '_blank');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Breadcrumbs>
+        <Breadcrumbs.Item label="首页" href="/" />
+        <Breadcrumbs.Item label="设置" href="/settings" />
+        <Breadcrumbs.Item label="个人资料" isCurrent />
+      </Breadcrumbs>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

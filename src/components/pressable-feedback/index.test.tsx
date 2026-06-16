@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import PressableFeedback from './index';
 
 beforeEach(() => {
@@ -83,5 +84,19 @@ describe('PressableFeedback', () => {
     expect(
       progress.style.getPropertyValue('--pressable-feedback-progress-feedback-duration'),
     ).toBe('1200ms');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 按钮的可访问名由消费方提供（aria-label）；反馈层均 aria-hidden，含完整合法结构
+    const { container } = render(
+      <PressableFeedback aria-label="点赞">
+        <PressableFeedback.Highlight />
+        <PressableFeedback.Ripple />
+        <PressableFeedback.HoldConfirm />
+        <PressableFeedback.ProgressFeedback />
+        Tap
+      </PressableFeedback>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

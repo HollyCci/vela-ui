@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Carousel from './index';
 
 // Embla 不调用 matchMedia / ResizeObserver / IntersectionObserver 的真实实现，
@@ -101,5 +102,11 @@ describe('Carousel', () => {
     const root = document.querySelector('[data-slot="carousel"]') as HTMLElement;
     expect(root).toHaveClass('carousel--modal');
     expect(within(root).getByText('Only')).toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    // region 配可访问名（默认 aria-label="Carousel"），prev/next 图标按钮带 aria-label
+    const { container } = renderCarousel();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

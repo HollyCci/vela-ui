@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Alert from './index';
 
 describe('Alert', () => {
@@ -47,5 +48,12 @@ describe('Alert', () => {
   it('uses the default color when none is passed', () => {
     render(<Alert title="Default" />);
     expect(screen.getByRole('alert')).toHaveClass('alert--default');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Alert color="success" title="Saved" description="Your changes were saved." />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

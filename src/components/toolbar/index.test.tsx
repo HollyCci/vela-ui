@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Toolbar from './index';
 
 describe('Toolbar', () => {
@@ -30,5 +31,19 @@ describe('Toolbar', () => {
     const bar = screen.getByRole('toolbar');
     expect(bar).toHaveAttribute('aria-orientation', 'vertical');
     expect(bar).toHaveClass('toolbar--vertical', 'toolbar--attached');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Toolbar aria-label="Text formatting">
+        <button type="button" aria-label="Bold">
+          B
+        </button>
+        <button type="button" aria-label="Italic">
+          I
+        </button>
+      </Toolbar>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Card from './index';
 
 describe('Card', () => {
@@ -38,5 +39,21 @@ describe('Card', () => {
     const root = container.querySelector('.card');
     expect(root).toHaveAttribute('data-testid', 'c');
     expect(root).toHaveAttribute('aria-label', 'my card');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Card>
+        <Card.Header>
+          <Card.Title>Monthly report</Card.Title>
+          <Card.Description>Summary of this month</Card.Description>
+        </Card.Header>
+        <Card.Content>Revenue is up 12%.</Card.Content>
+        <Card.Footer>
+          <button type="button">View details</button>
+        </Card.Footer>
+      </Card>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

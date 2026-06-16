@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Widget from './index';
 
 describe('Widget', () => {
@@ -59,5 +60,26 @@ describe('Widget', () => {
     expect(btn).toHaveAttribute('type', 'button');
     await user.click(btn);
     expect(onClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Widget>
+        <Widget.Header>
+          <Widget.Title>Revenue</Widget.Title>
+          <Widget.Description>Last 30 days</Widget.Description>
+        </Widget.Header>
+        <Widget.Content>$48,200</Widget.Content>
+        <Widget.Footer>
+          <Widget.Legend>
+            <Widget.LegendItem color="var(--chart-1)">Series A</Widget.LegendItem>
+            <Widget.LegendItem color="var(--chart-2)" isPressable onClick={() => {}}>
+              Series B
+            </Widget.LegendItem>
+          </Widget.Legend>
+        </Widget.Footer>
+      </Widget>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

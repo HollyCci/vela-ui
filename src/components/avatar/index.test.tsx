@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Avatar from './index';
 
 describe('Avatar', () => {
@@ -48,5 +49,17 @@ describe('Avatar', () => {
     expect(img).not.toBeNull();
     expect(img).toHaveAttribute('src', 'https://example.com/fixed.png');
     expect(container.querySelector('[data-slot="avatar-fallback"]')).toBeNull();
+  });
+
+  it('has no axe a11y violations (image avatar with alt)', async () => {
+    const { container } = render(
+      <Avatar src="https://example.com/ann.png" alt="Ann Lee" />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe a11y violations (fallback avatar)', async () => {
+    const { container } = render(<Avatar fallback="AL" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

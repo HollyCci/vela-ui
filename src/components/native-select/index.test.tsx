@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import NativeSelect from './index';
 
 describe('NativeSelect', () => {
@@ -125,5 +126,20 @@ describe('NativeSelect', () => {
 
     await user.selectOptions(screen.getByRole('combobox', { name: 'fruit' }), 'b');
     expect(onChange).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no axe a11y violations', async () => {
+    // Label sets htmlFor to the generated select id, giving the combobox an accessible name.
+    const { container } = render(
+      <NativeSelect>
+        <NativeSelect.Label>Campus</NativeSelect.Label>
+        <NativeSelect.Trigger defaultValue="bj">
+          <NativeSelect.Option value="bj">Beijing</NativeSelect.Option>
+          <NativeSelect.Option value="sh">Shanghai</NativeSelect.Option>
+        </NativeSelect.Trigger>
+        <NativeSelect.Description>Pick your campus</NativeSelect.Description>
+      </NativeSelect>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Pagination from './index';
 
 describe('Pagination', () => {
@@ -69,5 +70,10 @@ describe('Pagination', () => {
     render(<Pagination count={3} page={1} size="sm" summary="共 3 条" />);
     expect(screen.getByText('共 3 条')).toBeInTheDocument();
     expect(screen.getByRole('navigation', { name: '分页' })).toHaveClass('pagination--sm');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Pagination count={20} page={10} summary="共 200 条" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

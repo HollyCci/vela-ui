@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Kbd from './index';
 
 describe('Kbd', () => {
@@ -32,5 +33,14 @@ describe('Kbd', () => {
   it('applies the light modifier', () => {
     const { container } = render(<Kbd isLight>K</Kbd>);
     expect(container.querySelector('kbd')).toHaveClass('kbd--light');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Kbd abbr="⌘" abbrTitle="Command">
+        K
+      </Kbd>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

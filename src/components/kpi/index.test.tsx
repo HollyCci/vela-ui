@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Kpi from './index';
 
 describe('Kpi', () => {
@@ -50,5 +51,23 @@ describe('Kpi', () => {
     render(<Kpi.Separator />);
     const sep = screen.getByRole('separator');
     expect(sep).toHaveClass('kpi__separator', 'separator', 'separator--horizontal');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Kpi>
+        <Kpi.Header>
+          <Kpi.Icon status="success">i</Kpi.Icon>
+          <Kpi.Title>Weekly learners</Kpi.Title>
+        </Kpi.Header>
+        <Kpi.Content>
+          <Kpi.Value>1,286</Kpi.Value>
+          <Kpi.Trend>+5%</Kpi.Trend>
+        </Kpi.Content>
+        <Kpi.Separator />
+        <Kpi.Footer>vs. last week</Kpi.Footer>
+      </Kpi>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

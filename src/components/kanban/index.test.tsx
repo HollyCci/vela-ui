@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Kanban, { useKanban, useKanbanColumn } from './index';
 
 // Kanban 卡片用 motion Reorder（拖拽）；jsdom 无布局，跨列命中/拖拽不可测。
@@ -92,6 +93,15 @@ describe('Kanban', () => {
     const list = document.querySelector('[data-slot="kanban-card-list"]');
     expect(list).toHaveAttribute('data-empty', 'true');
     expect(screen.getByText('Drop here')).toBeInTheDocument();
+  });
+
+  // a11y：列含表头 + 带 aria-label 的卡片列表 + 卡片（textValue 提供可访问名）。
+  // 预期违规（待主控修组件源码，非本测试用法问题）：CardList 容器设了 role="list"，
+  // 但其子 Card 渲染为普通 div（未设 role="listitem"），触发 axe aria-required-children
+  // （"Certain ARIA roles must contain particular children"）。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<StaticBoard />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
 

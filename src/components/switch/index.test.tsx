@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Switch from './index';
 
 describe('Switch', () => {
@@ -70,5 +71,10 @@ describe('Switch', () => {
     const input = screen.getByRole('switch') as HTMLInputElement;
     expect(input).toBeDisabled();
     expect(input.closest('label')).toHaveAttribute('data-disabled', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Switch>开启邮件通知</Switch>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

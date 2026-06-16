@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import CellSlider from './index';
 
 const renderSlider = (props: Record<string, unknown> = {}) =>
@@ -84,5 +85,10 @@ describe('CellSlider', () => {
   it('disabled slider marks the thumb input disabled', () => {
     renderSlider({ defaultValue: 30, isDisabled: true });
     expect(screen.getByRole('slider', { name: 'volume' })).toBeDisabled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderSlider({ defaultValue: 75 });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Input from './index';
 
 describe('Input', () => {
@@ -60,5 +61,12 @@ describe('Input', () => {
       'input-field',
     );
     expect(screen.getByText('提示')).toHaveAttribute('data-slot', 'description');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Input label="邮箱" description="必填项" placeholder="name@example.com" />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

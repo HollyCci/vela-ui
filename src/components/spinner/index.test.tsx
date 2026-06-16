@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Spinner from './index';
 
 describe('Spinner', () => {
@@ -29,5 +30,16 @@ describe('Spinner', () => {
     // 4 gradients total (2 per spinner), all ids distinct
     expect(ids).toHaveLength(4);
     expect(new Set(ids).size).toBe(4);
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 真实用法：spinner 作为加载指示，外层提供可访问的状态文本
+    const { container } = render(
+      <div role="status">
+        <Spinner />
+        <span>Loading…</span>
+      </div>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Popover from './index';
 
 describe('Popover', () => {
@@ -62,5 +63,25 @@ describe('Popover', () => {
     const dialog = body.closest('.popover__dialog');
     expect(dialog).not.toBeNull();
     expect(dialog).toHaveClass('custom-dialog');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 触发器是带可访问名的 button；打开后 Dialog 由 Heading 提供可访问名。
+    // 浮层经 portal 渲染，对 document.body 跑 axe 覆盖触发器 + 浮层内容。
+    const user = userEvent.setup();
+    render(
+      <Popover>
+        <Popover.Trigger>查看说明</Popover.Trigger>
+        <Popover.Content placement="bottom">
+          <Popover.Dialog>
+            <Popover.Heading>排班规则</Popover.Heading>
+            <p>每天最多 8 节。</p>
+          </Popover.Dialog>
+        </Popover.Content>
+      </Popover>,
+    );
+    await user.click(screen.getByRole('button', { name: '查看说明' }));
+    await screen.findByText('排班规则');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

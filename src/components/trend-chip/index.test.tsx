@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import TrendChip from './index';
 
 describe('TrendChip', () => {
@@ -32,5 +33,10 @@ describe('TrendChip', () => {
     const { container } = render(<TrendChip trend="up" value="5" size="lg" />);
     const chip = container.querySelector('[data-slot="chip"]');
     expect(chip).toHaveClass('chip--lg', 'trend-chip--lg');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<TrendChip trend="up" value="12%" suffix="vs LW" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

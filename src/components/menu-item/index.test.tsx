@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Dropdown from '../dropdown';
 import MenuItem from './index';
 
@@ -59,5 +60,13 @@ describe('MenuItem', () => {
     const user = await openMenu(onAction);
     await user.click(screen.getByText('普通项'));
     expect(onAction).toHaveBeenCalledWith('normal');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // MenuItem 必须挂在 RAC Menu 集合内：用 openMenu 在带 aria-label 的 Dropdown.Menu 中渲染并打开。
+    // 含普通/危险/禁用三态 + label/description；浮层经 portal，对 document.body 跑 axe。
+    await openMenu();
+    await screen.findByRole('menu');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Sidebar from './index';
 
 // Provider 在 effect 里调用 window.matchMedia；Sidebar.Content 包了 HeroUI ScrollShadow，
@@ -152,5 +153,10 @@ describe('Sidebar', () => {
     // Escape 关闭 → 焦点还回触发按钮
     await user.keyboard('{Escape}');
     expect(trigger).toHaveFocus();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderSidebar();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

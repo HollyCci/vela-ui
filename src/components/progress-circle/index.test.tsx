@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import ProgressCircle from './index';
 
 const CIRCUMFERENCE = 2 * Math.PI * 10;
@@ -55,5 +56,11 @@ describe('ProgressCircle', () => {
     const el = screen.getByRole('progressbar');
     expect(el).toHaveClass('progress-circle--success');
     expect(el).toHaveClass('progress-circle--sm');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // progressbar 的可访问名由消费方提供：该组件无 label 槽，故经 {...rest} 传 aria-label
+    const { container } = render(<ProgressCircle value={60} aria-label="加载进度" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

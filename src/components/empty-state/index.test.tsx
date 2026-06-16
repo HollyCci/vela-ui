@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import EmptyState from './index';
 
 describe('EmptyState', () => {
@@ -43,5 +44,21 @@ describe('EmptyState', () => {
     const media = document.querySelector('.empty-state__media') as HTMLElement;
     expect(media).toHaveAttribute('data-variant', 'icon');
     expect(media).toHaveAttribute('aria-hidden', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <EmptyState>
+        <EmptyState.Header>
+          <EmptyState.Media variant="icon">icon</EmptyState.Media>
+          <EmptyState.Title>No results found</EmptyState.Title>
+          <EmptyState.Description>Try adjusting your filters.</EmptyState.Description>
+        </EmptyState.Header>
+        <EmptyState.Content>
+          <button type="button">Clear filters</button>
+        </EmptyState.Content>
+      </EmptyState>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

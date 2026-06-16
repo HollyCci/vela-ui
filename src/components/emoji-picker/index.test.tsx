@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import EmojiPicker from './index';
 
 // RAC ListBox(layout="grid") 内部会摸 getBoundingClientRect / ResizeObserver 做布局，
@@ -104,5 +105,12 @@ describe('EmojiPicker', () => {
   it('isDisabled 时 trigger 按钮被禁用', () => {
     render(<EmojiPicker aria-label="选择表情" isDisabled />);
     expect(screen.getByRole('button', { name: '选择表情' })).toBeDisabled();
+  });
+
+  // inline 面板含完整合法结构：分类 ToggleButtonGroup（aria-label）、搜索框（aria-label）、
+  // 网格 ListBox（aria-label）；每个交互件都带可访问名，应当无 axe 违规。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<EmojiPicker isInline aria-label="选择表情" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

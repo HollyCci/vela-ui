@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import CellSwitch from './index';
 
 const renderSwitch = (props: Record<string, unknown> = {}) =>
@@ -68,5 +69,10 @@ describe('CellSwitch', () => {
     expect(sw).toBeDisabled();
     await user.click(sw);
     expect(onChange).not.toHaveBeenCalled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderSwitch();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

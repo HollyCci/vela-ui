@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Radio from './index';
 
 describe('Radio', () => {
@@ -79,5 +80,20 @@ describe('Radio', () => {
     expect(input).toBeDisabled();
     expect(input).toHaveAttribute('aria-invalid', 'true');
     expect(input.closest('label')).toHaveAttribute('data-disabled', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <fieldset>
+        <legend>选择难度</legend>
+        <Radio name="difficulty" value="easy">
+          简单
+        </Radio>
+        <Radio name="difficulty" value="hard" description="挑战模式">
+          困难
+        </Radio>
+      </fieldset>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

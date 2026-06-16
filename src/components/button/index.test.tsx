@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Button from './index';
 
 describe('Button', () => {
@@ -18,5 +19,10 @@ describe('Button', () => {
     render(<Button onClick={() => (clicks += 1)}>Go</Button>);
     await user.click(screen.getByRole('button', { name: 'Go' }));
     expect(clicks).toBe(1);
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Button>Save changes</Button>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

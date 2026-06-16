@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import ProgressBar from './index';
 
 describe('ProgressBar', () => {
@@ -57,5 +58,11 @@ describe('ProgressBar', () => {
     expect(bar).toHaveClass('progress-bar--lg');
     expect(bar).toHaveAttribute('data-disabled', 'true');
     expect(container.querySelector('[data-slot="label"]')).toHaveTextContent('上传');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // progressbar 的可访问名由消费方提供：这里用 label（写入 aria-labelledby）
+    const { container } = render(<ProgressBar value={60} label="上传进度" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

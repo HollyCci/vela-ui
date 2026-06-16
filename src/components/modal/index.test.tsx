@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Modal from './index';
 
 const renderModal = (props: Partial<React.ComponentProps<typeof Modal>> = {}) =>
@@ -64,5 +65,13 @@ describe('Modal', () => {
     const container = dialog.closest('[data-slot="modal-container"]');
     expect(container).not.toBeNull();
     expect(container).toHaveClass('modal__container--full');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 打开态：dialog 由 Heading 提供可访问名，自动关闭按钮带 aria-label="关闭"。
+    // portal 渲染到 document.body 之外，故对 document.body 跑 axe 以覆盖浮层内容。
+    renderModal();
+    await screen.findByRole('dialog');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

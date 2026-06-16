@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, fireEvent, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import DropZone, { useDropZoneQueue, type DropZoneUploadQueueItem } from './index';
 
 const makeFile = (name: string, type = 'application/pdf', bytes = 1024) =>
@@ -242,6 +243,25 @@ describe('DropZone', () => {
     const badge = container.querySelector('[data-slot="drop-zone-file-format-icon-badge"]');
     expect(badge).toHaveTextContent('PDF');
     expect(badge).toHaveAttribute('data-color', 'orange');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // RAC DropZone area is labelled by DropZone.Label (slot="label"); the visually-hidden
+    // file input has no implicit label, so a consumer must supply aria-label (jsdom can't
+    // see it's CSS-hidden, so axe would otherwise flag the missing field name).
+    const { container } = render(
+      <DropZone simulateUpload={false}>
+        <DropZone.Area>
+          <DropZone.Icon />
+          <DropZone.Label>Drop files here</DropZone.Label>
+          <DropZone.Description>PDF up to 20MB</DropZone.Description>
+          <DropZone.Trigger />
+          <DropZone.Input aria-label="Upload files" />
+        </DropZone.Area>
+        <DropZone.FileQueue empty={<span>No files</span>} />
+      </DropZone>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 
   describe('simulated upload (fake timers)', () => {

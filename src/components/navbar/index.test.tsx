@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Navbar from './index';
 
 describe('Navbar', () => {
@@ -111,5 +112,23 @@ describe('Navbar', () => {
     // MenuItem 点击会请求关闭菜单并经 navigate 跳转
     expect(onMenuOpenChange).toHaveBeenCalledWith(false);
     expect(navigate).toHaveBeenCalledWith('/a');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Navbar position="static" aria-label="主导航">
+        <Navbar.Header>
+          <Navbar.Brand>品牌</Navbar.Brand>
+          <Navbar.Content>
+            <Navbar.Item href="/docs">文档</Navbar.Item>
+            <Navbar.Item href="/now" isCurrent>
+              当前
+            </Navbar.Item>
+          </Navbar.Content>
+          <Navbar.MenuToggle />
+        </Navbar.Header>
+      </Navbar>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

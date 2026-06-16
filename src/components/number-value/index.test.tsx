@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import NumberValue from './index';
 
 describe('NumberValue', () => {
@@ -33,5 +34,12 @@ describe('NumberValue', () => {
     const { container } = render(<NumberValue value={1} locale="en-US" />);
     expect(container.querySelector('[data-slot="number-value-prefix"]')).toBeNull();
     expect(container.querySelector('[data-slot="number-value-suffix"]')).toBeNull();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <NumberValue value={1234.5} locale="en-US" prefix="$" suffix="USD" />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

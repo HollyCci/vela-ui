@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Meter from './index';
 
 describe('Meter', () => {
@@ -53,5 +54,11 @@ describe('Meter', () => {
     expect(meter).toHaveClass('meter--warning');
     expect(meter).toHaveClass('meter--lg');
     expect(container.querySelector('.meter__output')).toHaveTextContent('低');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // meter 的可访问名由消费方提供：这里用 label（写入 aria-labelledby）
+    const { container } = render(<Meter value={40} label="磁盘占用" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

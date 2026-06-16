@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Textarea from './index';
 
 describe('Textarea', () => {
@@ -59,5 +60,10 @@ describe('Textarea', () => {
       'textarea-field',
     );
     expect(screen.getByText('提示')).toHaveAttribute('data-slot', 'description');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Textarea label="简介" description="最多 200 字" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

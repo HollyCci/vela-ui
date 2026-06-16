@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import SearchField from './index';
 
 describe('SearchField', () => {
@@ -73,5 +74,12 @@ describe('SearchField', () => {
       'search-field-input',
     );
     expect(screen.getByText('提示')).toHaveAttribute('data-slot', 'description');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <SearchField label="搜索课程" placeholder="输入关键字" defaultValue="拓词" />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

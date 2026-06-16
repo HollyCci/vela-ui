@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Tooltip from './index';
 
 // NOTE: Tooltip.Trigger wraps children in a single focusable element (data-slot=tooltip-trigger).
@@ -59,5 +60,22 @@ describe('Tooltip', () => {
     const trigger = screen.getByText('hover-me');
     expect(trigger).toHaveClass('tooltip__trigger');
     expect(trigger).toHaveAttribute('data-slot', 'tooltip-trigger');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 打开态（isOpen）：trigger 文本可达，role=tooltip 浮层经 portal 渲染。
+    // 对 document.body 跑 axe 覆盖触发器 + tooltip 浮层。
+    render(
+      <Tooltip isOpen>
+        <Tooltip.Trigger>清除选择</Tooltip.Trigger>
+        <Tooltip.Content>清除当前选择的全部项目</Tooltip.Content>
+      </Tooltip>,
+    );
+    await screen.findByRole('tooltip');
+    // 关闭页面级 region 规则：tooltip 浮层经 portal 直挂 body，孤立测试无 landmark 容器，
+    // 这是页面结构最佳实践（消费方页面的事），非组件自身 ARIA/角色/可访问名缺陷。
+    expect(
+      await axe(document.body, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
   });
 });

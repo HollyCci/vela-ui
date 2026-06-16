@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, within, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import CellSelect from './index';
 
 const OPTIONS = [
@@ -97,5 +98,10 @@ describe('CellSelect', () => {
     expect(button).toBeDisabled();
     await user.click(button);
     expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderCell();
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import NumberField from './index';
 
 describe('NumberField', () => {
@@ -78,5 +79,12 @@ describe('NumberField', () => {
     const input = container.querySelector('.number-field__input');
     expect(input).toHaveAttribute('data-slot', 'number-field-input');
     expect((input as HTMLInputElement).value).toBe('3');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <NumberField label="数量" defaultValue={5} minValue={0} maxValue={10} />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

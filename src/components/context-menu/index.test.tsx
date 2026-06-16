@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ContextMenu from './index';
 
 const renderMenu = (
@@ -117,5 +118,24 @@ describe('ContextMenu', () => {
     expect(disabled).toHaveAttribute('aria-disabled', 'true');
     await user.click(screen.getByText('前进'));
     expect(onAction).not.toHaveBeenCalled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    // open 受控直接挂载浮层：Menu 带 aria-label="操作"，menuitem 有文本（含禁用项）。
+    // 浮层经 RAC Popover portal，对 document.body 跑 axe 覆盖触发区 + 菜单。
+    renderMenu({ open: true });
+    await screen.findByRole('menu');
+    // 关闭页面级 region 规则：context-menu 触发区文本未被 landmark 包裹，孤立测试缺页面容器，
+    // 这是页面结构最佳实践（消费方页面的事），非组件自身缺陷。
+    //
+    // 预期此断言【失败】(aria-dialog-name)：ContextMenu.Popover 渲染裸 RAC <Popover>，
+    // 内含可聚焦的 Menu，RAC 自动给浮层加 role="dialog" 但无 aria-label/aria-labelledby/title，
+    // axe 命中 "ARIA dialog nodes should have an accessible name"。
+    // 这是组件源码的真实可访问名缺陷（showcase demo 与本测试用法一致，均未给 Popover 名）——
+    // 按铁律不改组件源码，保留断言让其失败、由主控集中在 context-menu/index.tsx 修复
+    //（给 ContextMenuPopover 的 RAC Popover 补 aria-label，或与内层 Menu 的标签关联）。
+    expect(
+      await axe(document.body, { rules: { region: { enabled: false } } }),
+    ).toHaveNoViolations();
   });
 });

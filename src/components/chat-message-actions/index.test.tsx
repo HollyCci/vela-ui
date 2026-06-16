@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ChatMessageActions from './index';
 
 describe('ChatMessageActions', () => {
@@ -124,5 +125,17 @@ describe('ChatMessageActions', () => {
     );
     expect(screen.getByRole('button', { name: 'Regenerate' })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'More actions' })).toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <ChatMessageActions aria-label="Message actions">
+        <ChatMessageActions.Copy content="hello" />
+        <ChatMessageActions.ThumbsUp />
+        <ChatMessageActions.ThumbsDown />
+        <ChatMessageActions.Regenerate />
+      </ChatMessageActions>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

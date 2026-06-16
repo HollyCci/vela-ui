@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import EmojiReactionButton from './index';
 
 afterEach(() => {
@@ -78,5 +79,16 @@ describe('EmojiReactionButton', () => {
     await user.click(btn);
     expect(onChange).toHaveBeenCalledWith(true);
     expect(btn).toHaveAttribute('data-selected', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 按钮的可访问名由消费方提供（aria-label）；含 emoji + 计数完整结构
+    const { container } = render(
+      <EmojiReactionButton aria-label="点赞 3">
+        <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
+      </EmojiReactionButton>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

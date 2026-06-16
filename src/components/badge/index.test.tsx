@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Badge, { BadgeAnchor } from './index';
 
 describe('Badge', () => {
@@ -48,5 +49,15 @@ describe('Badge', () => {
     const anchor = screen.getByText('child').closest('[data-slot="badge-anchor"]');
     expect(anchor).not.toBeNull();
     expect(anchor).toHaveClass('badge-anchor');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <BadgeAnchor>
+        <button type="button">Inbox</button>
+        <Badge color="danger">3</Badge>
+      </BadgeAnchor>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

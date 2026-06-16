@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Stepper from './index';
 
 const STEPS = ['账户', '资料', '完成'];
@@ -74,5 +75,10 @@ describe('Stepper', () => {
     // step 2 inactive -> 序号 3
     const indicators = document.querySelectorAll('[data-slot="stepper-indicator"]');
     expect(indicators[2]).toHaveTextContent('3');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderStepper({ currentStep: 1 });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

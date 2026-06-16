@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { createRef } from 'react';
+import { axe } from 'vitest-axe';
 import Resizable, { type ResizableImperativeHandle } from './index';
 
 // react-resizable-panels 依赖 ResizeObserver 测量；jsdom 未实现，mock 之。
@@ -102,5 +103,21 @@ describe('Resizable', () => {
     const layout = handleRef.current?.getLayout();
     expect(Array.isArray(layout)).toBe(true);
     expect(layout?.length).toBe(2);
+  });
+
+  // a11y：分隔条带 aria-label("Resize handle")，两侧面板有可见内容，axe 应无违规。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Resizable orientation="horizontal">
+        <Resizable.Panel id="a" defaultSize={50}>
+          Left panel
+        </Resizable.Panel>
+        <Resizable.Handle id="h" withIndicator />
+        <Resizable.Panel id="b" defaultSize={50}>
+          Right panel
+        </Resizable.Panel>
+      </Resizable>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

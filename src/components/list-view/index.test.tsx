@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ListView from './index';
 
 const FILES = [
@@ -82,5 +83,11 @@ describe('ListView', () => {
       .getAllByRole('row')
       .find((row) => within(row).queryByText('Q4 report.xlsx'));
     expect(disabledRow).toHaveAttribute('aria-disabled', 'true');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // grid 配可访问名（aria-label="Files"，来自 renderList），多选启用自动渲染选择 checkbox
+    const { container } = renderList({ selectionMode: 'multiple' });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Segment from './index';
 
 const RANGES = [
@@ -74,5 +75,10 @@ describe('Segment', () => {
   it('showSeparators=false flips the data attribute', () => {
     renderSegment({ defaultSelectedKey: 'day', showSeparators: false });
     expect(document.querySelector('[data-slot="segment"]')).toHaveAttribute('data-separators', 'false');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = renderSegment({ defaultSelectedKey: 'day' });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

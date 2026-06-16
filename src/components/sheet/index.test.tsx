@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Sheet from './index';
 
 // Sheet = OSS Drawer(RAC DialogTrigger/Modal) + motion 拖拽关闭。
@@ -92,5 +93,15 @@ describe('Sheet', () => {
     render(<SheetExample isOpen onOpenChange={onOpenChange} />);
     await user.click(screen.getByRole('button', { name: 'Done' }));
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
+  });
+
+  // a11y：打开态扫描整个 document.body（覆盖 portal 内的 dialog/heading/close 等浮层内容）。
+  // dialog 由 Heading 提供可访问名（RAC 自动 aria-labelledby），axe 应无违规。
+  it('has no axe a11y violations (open state, portal content)', async () => {
+    render(<SheetExample isOpen onOpenChange={() => {}} />);
+    await waitFor(() => {
+      expect(screen.getByText('Body content')).toBeInTheDocument();
+    });
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

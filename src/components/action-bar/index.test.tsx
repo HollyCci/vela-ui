@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import ActionBar from './index';
 
 describe('ActionBar', () => {
@@ -105,5 +106,21 @@ describe('ActionBar', () => {
     expect(document.querySelector('.action-bar__content')).toBeInTheDocument();
     expect(document.querySelector('.action-bar__suffix')).toBeInTheDocument();
     expect(document.querySelector('.action-bar__label')).toHaveTextContent('Selected');
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 打开态渲染 toolbar（默认 aria-label="Actions"），内部按钮带可访问名
+    const { container } = render(
+      <ActionBar isOpen>
+        <ActionBar.Prefix>
+          <ActionBar.Label>3 selected</ActionBar.Label>
+        </ActionBar.Prefix>
+        <ActionBar.Content>
+          <button type="button">Archive</button>
+          <button type="button">Delete</button>
+        </ActionBar.Content>
+      </ActionBar>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

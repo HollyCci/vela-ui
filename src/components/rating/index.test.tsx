@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Rating from './index';
 
 function renderRating(props: React.ComponentProps<typeof Rating> = {}) {
@@ -96,5 +97,11 @@ describe('Rating', () => {
     renderRating();
     expect(screen.getByRole('radio', { name: '1 star' })).toBeInTheDocument();
     expect(screen.getByRole('radio', { name: '5 stars' })).toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 完整合法结构：radiogroup（aria-label=评分）+ 5 个带 aria-label 的 radio 项
+    const { container } = renderRating({ defaultValue: 3 });
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

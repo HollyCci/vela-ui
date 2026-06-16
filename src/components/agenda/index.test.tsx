@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Agenda, { useAgenda, type AgendaEvent } from './index';
 
 // jsdom 无布局/无 ResizeObserver；agenda 的拖拽/CurrentTimeIndicator 依赖布局，
@@ -152,5 +153,11 @@ describe('Agenda', () => {
     // Segment 渲染 Month 选项；点击切到 month 视图
     await user.click(screen.getByText('Month'));
     expect(root).toHaveAttribute('data-view', 'month');
+  });
+
+  // a11y：完整周历（Header 含带 aria-label 的导航/视图选择器 + TimeGrid + 事件），axe 应无违规。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<UncontrolledAgenda />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

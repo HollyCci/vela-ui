@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen, act, waitFor, within } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Toast, { Toaster, toast, useToast } from './index';
 import { renderHook } from '@testing-library/react';
 
@@ -45,6 +46,14 @@ describe('Toast (presentational)', () => {
   it('isFrontmost=false 时不带 data-frontmost', () => {
     render(<Toast title="t" isFrontmost={false} />);
     expect(screen.getByRole('alert')).not.toHaveAttribute('data-frontmost');
+  });
+
+  // 完整一条 toast：role=alert + 标题/描述文本 + 带 aria-label 的关闭按钮，应无 axe 违规。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <Toast title="已保存" description="你的更改已生效" onClose={() => {}} />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
 

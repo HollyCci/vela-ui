@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Chip from './index';
 
 describe('Chip', () => {
@@ -25,5 +26,10 @@ describe('Chip', () => {
     );
     const chip = container.querySelector('[data-slot="chip"]');
     expect(chip).toHaveClass('chip--success', 'chip--sm', 'chip--tertiary');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Chip color="success">Active</Chip>);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

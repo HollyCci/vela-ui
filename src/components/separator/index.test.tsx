@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Separator from './index';
 
 describe('Separator', () => {
@@ -23,5 +24,16 @@ describe('Separator', () => {
   it('applies the color modifier', () => {
     render(<Separator color="tertiary" />);
     expect(screen.getByRole('separator')).toHaveClass('separator--tertiary');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <div>
+        <p>Section one</p>
+        <Separator />
+        <p>Section two</p>
+      </div>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

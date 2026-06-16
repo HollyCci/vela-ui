@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import NumberStepper from './index';
 
 // @number-flow/react 注册自定义元素并使用 ResizeObserver / 动画，jsdom 无布局。
@@ -114,5 +115,20 @@ describe('NumberStepper', () => {
       </NumberStepper>,
     );
     expect(screen.getByRole('spinbutton')).toBeDisabled();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <NumberStepper
+        label="每日单词"
+        description="0-20 之间"
+        defaultValue={5}
+        minValue={0}
+        maxValue={20}
+      >
+        <Parts />
+      </NumberStepper>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

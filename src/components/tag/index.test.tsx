@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { useState } from 'react';
 import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Tag, { TagGroup } from './index';
 
 describe('Tag', () => {
@@ -147,5 +148,16 @@ describe('TagGroup', () => {
     expect(within(group).getByText('出错了')).toHaveAttribute('data-slot', 'error-message');
     expect(within(group).getByText('A')).toBeInTheDocument();
     expect(within(group).getByText('B')).toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <TagGroup label="技能标签" description="点击移除标签">
+        <Tag>展示标签</Tag>
+        <Tag onClick={() => {}}>可交互标签</Tag>
+        <Tag onRemove={() => {}}>可移除标签</Tag>
+      </TagGroup>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

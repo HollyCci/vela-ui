@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import FloatingToc from './index';
 
 const ITEMS = [
@@ -88,5 +89,20 @@ describe('FloatingToc', () => {
     );
     await user.click(screen.getByRole('button', { name: 'Table of contents' }));
     expect(onOpenChange).toHaveBeenCalledWith(true);
+  });
+
+  it('has no axe a11y violations (trigger + open content)', async () => {
+    render(
+      <FloatingToc items={ITEMS} triggerMode="press" open onOpenChange={() => undefined}>
+        <FloatingToc.Trigger />
+        <FloatingToc.Content>
+          {ITEMS.map((it) => (
+            <FloatingToc.Item key={it.key} itemKey={it.key} />
+          ))}
+        </FloatingToc.Content>
+      </FloatingToc>,
+    );
+    // Content 经 RAC Popover 走 portal，断言整个 document.body 以覆盖浮层内容
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

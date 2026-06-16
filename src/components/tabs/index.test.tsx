@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import Tabs from './index';
 
 const ITEMS = [
@@ -63,5 +64,10 @@ describe('Tabs', () => {
     expect(screen.getByText('甲面板')).toBeInTheDocument();
     // 非选中面板默认不渲染内容
     expect(screen.queryByText('乙面板')).toBeNull();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Tabs items={ITEMS} aria-label="项目" />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

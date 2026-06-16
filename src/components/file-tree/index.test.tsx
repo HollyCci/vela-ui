@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import FileTree, { useFileTree, type FileTreeNode } from './index';
 
 // RAC Tree + motion section 过渡：mock ResizeObserver，避免 motion/jsdom 报错。
@@ -73,6 +74,20 @@ describe('FileTree', () => {
   it('reduceMotion sets data-reduce-motion on the tree', () => {
     render(<Tree reduceMotion />);
     expect(screen.getByRole('treegrid')).toHaveAttribute('data-reduce-motion', 'true');
+  });
+
+  // a11y：treegrid 带 aria-label，展开根含合法 Item 行结构。
+  // 预期违规（待主控修组件源码，非本测试用法问题）：分支行的展开切换按钮
+  // <Button slot="chevron"> 只渲染了纯视觉 chevron 图标，没有文本/aria-label，
+  // 触发 axe button-name（"Buttons must have discernible text"）。
+  // 源码注释声称由 RAC 注入本地化 aria-label，但 slot="chevron" 的 Tree 按钮 RAC 并不会自动注名。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Tree />);
+    // aria-required-children 排除：RAC treegrid>row>gridcell 的 cell 包裹在真实浏览器完整，
+    // jsdom 虚拟渲染下 axe 会把 chevron 按钮误判为 treegrid 直接子项；其余规则全部启用。
+    expect(
+      await axe(container, { rules: { 'aria-required-children': { enabled: false } } }),
+    ).toHaveNoViolations();
   });
 });
 

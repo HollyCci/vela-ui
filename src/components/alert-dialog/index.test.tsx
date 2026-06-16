@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import AlertDialog from './index';
 
 const renderAlert = (props: Partial<React.ComponentProps<typeof AlertDialog>> = {}) =>
@@ -60,5 +61,15 @@ describe('AlertDialog', () => {
     await user.click(screen.getByRole('button', { name: '删除记录' }));
     await screen.findByRole('alertdialog');
     expect(screen.getByRole('button', { name: '关闭' })).toBeInTheDocument();
+  });
+
+  it('has no axe a11y violations', async () => {
+    // 打开态：alertdialog 由 Heading 提供可访问名，关闭按钮带 aria-label="关闭"，触发器是带名 button。
+    // 浮层经 portal 渲染，对 document.body 跑 axe 覆盖触发器 + 对话框。
+    const user = userEvent.setup();
+    renderAlert();
+    await user.click(screen.getByRole('button', { name: '删除记录' }));
+    await screen.findByRole('alertdialog');
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });

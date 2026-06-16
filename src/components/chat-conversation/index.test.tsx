@@ -1,5 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import ChatConversation from './index';
 
 // jsdom 无真实滚动：scrollTo/scrollIntoView 未实现，getBoundingClientRect/scrollHeight 全 0，
@@ -82,5 +83,21 @@ describe('ChatConversation', () => {
       /必须在 <ChatConversation> 内使用/,
     );
     spy.mockRestore();
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <ChatConversation aria-label="Conversation">
+        <ChatConversation.Content>
+          <ChatConversation.Messages>
+            <ChatConversation.Message key="m1">Hello</ChatConversation.Message>
+            <ChatConversation.Message key="m2">World</ChatConversation.Message>
+          </ChatConversation.Messages>
+          <ChatConversation.ScrollAnchor />
+        </ChatConversation.Content>
+        <ChatConversation.ScrollButton />
+      </ChatConversation>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

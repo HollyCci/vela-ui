@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import PromptInput from './index';
 
 // TextArea 用 ResizeObserver 做自适应高度；getComputedStyle 在 jsdom 返回空值，
@@ -136,5 +137,22 @@ describe('PromptInput', () => {
     expect(send).toHaveAttribute('data-status', 'streaming');
     await user.click(send);
     expect(onStop).toHaveBeenCalledTimes(1);
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <PromptInput status="ready">
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+          <PromptInput.Toolbar>
+            <PromptInput.Action aria-label="Attach file" />
+            <PromptInput.ToolbarEnd>
+              <PromptInput.Send />
+            </PromptInput.ToolbarEnd>
+          </PromptInput.Toolbar>
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

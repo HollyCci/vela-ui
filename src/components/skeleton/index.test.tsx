@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render } from '@testing-library/react';
+import { axe } from 'vitest-axe';
 import Skeleton from './index';
 
 describe('Skeleton', () => {
@@ -21,5 +22,10 @@ describe('Skeleton', () => {
     const el = container.querySelector('.skeleton');
     expect(el).toHaveClass('w-10');
     expect(el).toHaveAttribute('data-testid', 'sk');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(<Skeleton />);
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

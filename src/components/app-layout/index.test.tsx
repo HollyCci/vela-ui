@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import AppLayout from './index';
 
 // AppLayout 的 resizable 路径会用到 Resizable（react-resizable-panels），
@@ -101,5 +102,15 @@ describe('AppLayout', () => {
     const main = document.querySelector('[data-slot="app-layout-main"]');
     expect(main).toHaveAttribute('data-scroll-mode', 'content');
     expect(main).toHaveAttribute('aria-label', 'Scrollable main content');
+  });
+
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <AppLayout navbar={<div>导航</div>} sidebar={<div>侧栏</div>}>
+        <AppLayout.MenuToggle />
+        <p>主内容</p>
+      </AppLayout>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });

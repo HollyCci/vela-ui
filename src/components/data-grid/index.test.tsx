@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
+import { axe } from 'vitest-axe';
 import DataGrid, { type DataGridColumn, type DataGridSortDescriptor } from './index';
 
 // jsdom 没有真实布局：ResizeObserver 缺失会让滚动指标 effect 报错。
@@ -375,5 +376,21 @@ describe('DataGrid', () => {
         expect(selection.size).toBe(1);
       }
     });
+  });
+
+  // a11y：完整 grid（aria-label + 列头 + 行 + 多选 checkbox 列），axe 扫描应无违规。
+  it('has no axe a11y violations', async () => {
+    const { container } = render(
+      <DataGrid
+        aria-label="课程列表"
+        columns={SORT_COLUMNS}
+        data={COURSES}
+        getRowId={courseRowId}
+        selectionMode="multiple"
+        showSelectionCheckboxes
+        onSelectionChange={() => {}}
+      />,
+    );
+    expect(await axe(container)).toHaveNoViolations();
   });
 });
