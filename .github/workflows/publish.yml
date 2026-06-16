@@ -1,0 +1,34 @@
+name: Publish to GitHub Packages
+
+# 创建 GitHub Release 时触发：用仓库内置 GITHUB_TOKEN 发布到 GitHub Packages（无需手动 PAT）。
+# 发布前 npm 的 prepublishOnly 会先 build + smoke 把关。请确保 Release 的 tag 版本与 package.json 的 version 一致。
+on:
+  release:
+    types: [published]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19
+          registry-url: https://npm.pkg.github.com
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Publish (prepublishOnly runs build + smoke)
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

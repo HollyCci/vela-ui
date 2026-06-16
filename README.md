@@ -4,8 +4,16 @@ Vela UI 是一套面向产品界面的 React 组件库，以 [HeroUI](https://ww
 
 ## 安装
 
+本包发布在 **GitHub Packages**（私有 registry），消费方先在项目根 `.npmrc` 里把 `@hollycci` scope 指向 GitHub Packages 并配置鉴权 token（需 `read:packages` 权限的 GitHub PAT）：
+
+```ini
+# .npmrc
+@hollycci:registry=https://npm.pkg.github.com
+//npm.pkg.github.com/:_authToken=${GITHUB_TOKEN}
+```
+
 ```bash
-pnpm add vela-ui
+pnpm add @hollycci/vela-ui
 # peer 依赖（由宿主应用提供，确保单实例）
 pnpm add react react-dom @heroui/react react-aria-components@1.17.0
 ```
@@ -15,8 +23,8 @@ pnpm add react react-dom @heroui/react react-aria-components@1.17.0
 ## 使用
 
 ```tsx
-import { Button, Card, DataGrid } from 'vela-ui';
-import 'vela-ui/styles.css'; // 一次性引入，含 Vela 预编译样式与字体
+import { Button, Card, DataGrid } from '@hollycci/vela-ui';
+import '@hollycci/vela-ui/styles.css'; // 一次性引入，含 Vela 预编译样式与字体
 
 export function Example() {
   return (
@@ -32,7 +40,7 @@ export function Example() {
 }
 ```
 
-- **样式**：`vela-ui/styles.css` 是自包含的预编译产物，**消费方无需安装 Tailwind**。
+- **样式**：`@hollycci/vela-ui/styles.css` 是自包含的预编译产物，**消费方无需安装 Tailwind**。
 - **Tree-shaking**：ESM-only 发布，每个组件独立产物（`preserveModules`）+ `sideEffects: ["**/*.css"]`，未使用的组件不会进入打包结果。
 - **RSC / Next.js App Router**：交互组件已标注 `'use client'`（74/98），纯展示组件保持 Server Component 兼容，可直接在 server 组件树中引入。
 - **类型**：每个组件及其子组件 Props 类型均随包导出。
