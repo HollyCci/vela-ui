@@ -457,7 +457,7 @@ const App = () => {
             <section className="flex flex-col gap-2">
               <h1 className="text-[1.75em] font-semibold flex items-center gap-2">{title}</h1>
               {meta?.description !== undefined && <p className="text-muted">{meta.description}</p>}
-              {meta === undefined && <p className="text-muted">底层基础组件 — React 复刻实现演示。</p>}
+              {meta === undefined && <p className="text-muted">底层基础组件 — React 实现演示。</p>}
             </section>
             {liveDemo}
             {sections.map((s) => {

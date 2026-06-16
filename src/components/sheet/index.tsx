@@ -115,14 +115,14 @@ const SheetContext = createContext<SheetContextValue>({ placement: 'bottom', isD
 /** Dialog 把 framer-motion 的 dragControls 经 context 下发给 Handle：抓手 pointerdown 即 start 拖拽 */
 const SheetDragContext = createContext<DragControls | null>(null);
 
-/** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐真站手感 */
+/** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐目标交互手感 */
 const DISMISS_FRACTION = 0.3;
 const SNAP_FRACTION = 0.18;
 const MIN_SNAP_DISTANCE = 48;
 const MAX_SNAP_DISTANCE = 120;
 const VELOCITY_THRESHOLD = 500;
 
-/** 弹回/收起的弹簧动画，cubic 近似真站 `cubic-bezier(0.32, 0.72, 0, 1)` 的速度曲线 */
+/** 弹回/收起的弹簧动画，cubic 近似 `cubic-bezier(0.32, 0.72, 0, 1)` 的速度曲线 */
 const SNAP_TRANSITION: Transition = {
   type: 'spring',
   stiffness: 520,
@@ -198,7 +198,7 @@ Content.displayName = 'Sheet.Content';
  * framer-motion 的拖拽关闭引擎。motion.div drag 沿 placement 轴拖动，超过位移/速度阈值则调用 RAC
  * overlayState.close()（即 onOpenChange(false)）随 Content 退场动画一起滑出；不够则 dragSnapToOrigin 弹回。
  * 拦截 motion.div 上的 pointerdown 冒泡，避免触发 Drawer.Dialog 自带的指针拖拽（双引擎冲突）。
- * 拖拽中输出 data-dragging=""，与真站运行时 data 属性一致。
+ * 拖拽中输出 data-dragging=""，与运行时 data 属性约定一致。
  */
 const Dialog = ({
   className,
@@ -311,7 +311,7 @@ const Dialog = ({
         dragListener={false}
         dragSnapToOrigin
         dragElastic={{
-          // 关闭方向自由拖动（1）；反方向加橡皮筋阻尼（0.12），与真站 clamp 后的边界手感一致
+          // 关闭方向自由拖动（1）；反方向加橡皮筋阻尼（0.12），与 clamp 后的边界手感一致
           top: vertical ? (sign > 0 ? 0.12 : 1) : 0,
           bottom: vertical ? (sign > 0 ? 1 : 0.12) : 0,
           left: vertical ? 0 : sign > 0 ? 0.12 : 1,

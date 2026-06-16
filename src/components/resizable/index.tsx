@@ -424,7 +424,7 @@ const Handle = ({
   const onDraggingRef = useRef(onDragging);
   onDraggingRef.current = onDragging;
 
-  // 真引擎在拖拽时把 data-separator 置为 "active"，桥接成真站 BEM CSS 期望的
+  // 真引擎在拖拽时把 data-separator 置为 "active"，桥接成 BEM CSS 期望的
   // data-resize-handle-state="drag" / data-resize-handle-active / data-pressed，并驱动 onDragging
   useEffect(() => {
     const node = elementRef.current;

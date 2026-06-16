@@ -74,7 +74,7 @@ pnpm type-check   # TypeScript 检查
 
 ## 工程约定
 
-- 组件以 HeroUI / React Aria Components 为基座封装，DOM 与类名对齐设计规范；样式真相源为 `src/styles/lib.css` 与 `src/styles/components/*.css`。
+- 组件以 HeroUI / React Aria Components 为基座封装；样式真相源为 `src/styles/lib.css` 与 `src/styles/components/*.css`。
 - 提交信息遵循 `docs/git-commit-spec.md`：`<type>(<scope>): <中文主题>`。
 
 ## 项目结构
@@ -87,4 +87,4 @@ pnpm type-check   # TypeScript 检查
 
 ## 合规
 
-Vela UI 是独立项目，与任何第三方 UI 库或品牌无隶属、背书或赞助关系。产品名称、商标与标识归各自所有者。在商用前请核对全部依赖、资源与生成物以符合你的授权要求。
+Vela UI 与任何第三方 UI 库或品牌无隶属或背书关系，相关商标归各自所有者。商用前请自行核对所含依赖与资源的授权。

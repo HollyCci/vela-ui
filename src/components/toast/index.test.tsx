@@ -7,7 +7,7 @@ import { renderHook } from '@testing-library/react';
 // store 是模块级单例：测试间需清场，否则上一条 toast 残留会污染下一个用例。
 // 这里用一条已知 close 的方式收尾（每个用例自行关闭自己加的 toast）。
 // startViewTransition：jsdom 不实现，组件会优雅降级为直接 setState（无动画）。
-// 为覆盖"真站走 view transition"那条分支，部分用例显式 stub 成同步执行 callback。
+// 为覆盖"走 view transition"那条分支，部分用例显式 stub 成同步执行 callback。
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -59,7 +59,7 @@ describe('Toast (presentational)', () => {
 
 describe('Toast 编排器 (store / toast() / Toaster)', () => {
   beforeEach(() => {
-    // 真站路径：startViewTransition 存在 → 同步执行 callback 的 mock。
+    // view transition 路径：startViewTransition 存在 → 同步执行 callback 的 mock。
     // 断言 store 在 view-transition 包裹下仍正确插入/移除节点。
     const startViewTransition = vi.fn((cb: () => void) => {
       cb();

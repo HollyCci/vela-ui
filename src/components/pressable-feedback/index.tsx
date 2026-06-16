@@ -385,7 +385,7 @@ ProgressFeedback.displayName = 'PressableFeedback.ProgressFeedback';
 
 /**
  * 基于 RAC Button 的按压容器：data-hovered / data-pressed / data-focus-visible
- * 与 disabled 属性由 RAC 输出，反馈层与焦点环、禁用态全部由复刻 CSS 接管。
+ * 与 disabled 属性由 RAC 输出，反馈层与焦点环、禁用态全部由组件样式接管。
  * 反馈层也可脱离本容器、直接放进任意 position:relative 的宿主元素内使用。
  */
 const PressableFeedbackRoot = forwardRef<HTMLButtonElement, PressableFeedbackProps>(

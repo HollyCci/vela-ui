@@ -48,7 +48,7 @@ const Content = ({ className, style, ...rest }: TooltipContentProps) => (
 );
 Content.displayName = 'Tooltip.Content';
 
-/** OSS 输出 svg[data-slot=overlay-arrow]，朝向旋转由复刻 CSS 按 data-placement 完成 */
+/** OSS 输出 svg[data-slot=overlay-arrow]，朝向旋转由组件样式按 data-placement 完成 */
 const Arrow = ({ className, style, ...rest }: TooltipArrowProps) => (
   <HeroTooltipArrow className={className} style={style} {...rest} />
 );

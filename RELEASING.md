@@ -34,4 +34,4 @@
 - **仓库保持 private** → 包自动私有；消费方需带 `read:packages` 权限的 PAT（见 README 安装段）。
 - Release 的 tag 版本必须与 `package.json` 的 `version` 一致，否则发出来的包版本对不上。
 - 真 token 永不入库：发布鉴权在 CI 用 `secrets.GITHUB_TOKEN`，本地手动发用 `~/.npmrc`。
-- 本包 1:1 复刻 heroui.pro、`license: UNLICENSED`，**仅限私有/内部使用，勿公开发布**。
+- 本包 `license: UNLICENSED`（保留所有权利、无默认开源授权）。商用或再分发前，请自行核对所含依赖、字体与样式资源的授权合规。

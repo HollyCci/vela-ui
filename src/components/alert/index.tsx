@@ -13,7 +13,7 @@ export type AlertProps = HTMLAttributes<HTMLDivElement> & {
 
 /**
  * 默认状态图标（占位用标准 Heroicons solid 路径，颜色继承 .alert--<color> 的 currentColor）。
- * 注：若需与 heroui.pro 完全一致，按 status 替换为原站对应 glyph 即可，结构无需改。
+ * 注：如需换用其它图标集，按 status 映射替换对应 glyph 即可，结构无需改。
  */
 const DEFAULT_ICON_PATHS: Record<AlertColor, ReactNode> = {
   default: (
