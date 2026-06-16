@@ -13,5 +13,14 @@ export default defineConfig({
     include: ['src/components/**/*.test.{ts,tsx}'],
     restoreMocks: true,
     clearMocks: true,
+    coverage: {
+      provider: 'v8',
+      reporter: ['text-summary', 'html', 'json-summary'],
+      include: ['src/components/**/*.{ts,tsx}'],
+      exclude: ['src/components/**/*.test.{ts,tsx}', 'src/components/index.ts', 'src/components/_internal/**'],
+      reportsDirectory: './coverage',
+      // 保守阈值（略低于当前 stmt75/br62/fn70/ln78），作为防回退安全网，不求苛刻
+      thresholds: { statements: 70, branches: 55, functions: 62, lines: 72 },
+    },
   },
 });
