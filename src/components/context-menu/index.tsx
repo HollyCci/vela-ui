@@ -357,6 +357,7 @@ const ContextMenuPopover = ({
 
   return (
     <Popover
+      aria-label="Context menu"
       isOpen={isOpen}
       onOpenChange={setOpen}
       triggerRef={anchorRef}

@@ -252,7 +252,7 @@ function CardListImpl<T extends object>({
     'data-empty': isEmpty ? 'true' : undefined,
     'data-kanban-column': dragAndDropHooks?.column,
     'aria-label': ariaLabel,
-    role: 'list' as const,
+    role: 'group' as const,
     className: clsx('kanban__card-list', `kanban__card-list--${size}`, className),
     ...rest,
   };

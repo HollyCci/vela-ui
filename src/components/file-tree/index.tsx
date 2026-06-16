@@ -253,7 +253,7 @@ const Item = ({
               </Checkbox>
             </span>
           )}
-        <Button slot="chevron" className="file-tree__chevron">
+        <Button slot="chevron" aria-label="Toggle" className="file-tree__chevron">
           {indicatorChild ?? <Indicator />}
         </Button>
         {/* 与参考实现快照一致：传了 icon 或是文件夹行时渲染图标占位 */}
