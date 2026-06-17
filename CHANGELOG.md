@@ -5,6 +5,13 @@
 
 ## [Unreleased]
 
+### Changed
+
+- **依赖升级**：将 `@heroui/react` 升级至 `3.2.0`，`react-aria-components` 升级至 `1.18.0`。
+- **组件适配**：适配 Switch/Checkbox/Radio 的 explicit `*.Content` 组合模式变更，重构 `CellSwitch` 与 `DataGrid` 行选择复选框。
+- **类型修复**：修复 `CellSwitch`、`CheckboxButtonGroup`、`RadioButtonGroup` 的编译类型错误。
+- **测试调整**：调整 `Tooltip` 单元测试以兼容 JSDOM 环境下的焦点触发机制。
+
 ## [0.1.0] - 2026-06-16
 
 ### Added

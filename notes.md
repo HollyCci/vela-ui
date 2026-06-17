@@ -18,7 +18,7 @@
 ```
 
 ```bash
-pnpm add @hollycci/vela-ui react react-dom @heroui/react react-aria-components@1.17.0
+pnpm add @hollycci/vela-ui react react-dom @heroui/react react-aria-components@1.18.0
 import '@hollycci/vela-ui/styles.css'
 ```
 
