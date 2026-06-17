@@ -19,7 +19,7 @@ export type CellSwitchProps = Omit<SwitchProps, 'className' | 'style'> & {
   style?: CSSProperties;
 };
 
-export type CellSwitchTriggerProps = HTMLAttributes<HTMLDivElement>;
+export type CellSwitchTriggerProps = HTMLAttributes<HTMLLabelElement>;
 
 export type CellSwitchLabelProps = HTMLAttributes<HTMLSpanElement>;
 
@@ -29,12 +29,12 @@ export type CellSwitchControlProps = SwitchControlProps;
 const CellSwitchContext = createContext<CellSwitchVariant>('default');
 
 /** 可见的整行单元格容器；快照中 default 变体也带 --default 修饰类 */
-const Trigger = forwardRef<HTMLDivElement, CellSwitchTriggerProps>(
+const Trigger = forwardRef<HTMLLabelElement, CellSwitchTriggerProps>(
   ({ className, ...rest }, ref) => {
     const variant = useContext(CellSwitchContext);
 
     return (
-      <div
+      <Switch.Content
         ref={ref}
         data-slot="cell-switch-trigger"
         className={clsx('cell-switch__trigger', `cell-switch__trigger--${variant}`, className)}
@@ -80,7 +80,7 @@ Control.displayName = 'CellSwitch.Control';
  * 受控（isSelected/onChange）、键盘与 data-hovered/pressed/focus-visible/disabled
  * 状态属性均由底座提供，CSS 依赖这些 data 属性着色。
  */
-const CellSwitchRoot = forwardRef<HTMLLabelElement, CellSwitchProps>(
+const CellSwitchRoot = forwardRef<HTMLDivElement, CellSwitchProps>(
   ({ variant = 'default', className, children, ...rest }, ref) => (
     <CellSwitchContext.Provider value={variant}>
       <Switch

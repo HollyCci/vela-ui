@@ -32,7 +32,7 @@ export type CheckboxButtonGroupItemProps = Omit<CheckboxProps, 'className' | 'st
 
 export type CheckboxButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 
-export type CheckboxButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>;
+export type CheckboxButtonGroupItemContentProps = HTMLAttributes<HTMLLabelElement>;
 
 export type CheckboxButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
 

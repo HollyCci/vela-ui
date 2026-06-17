@@ -349,9 +349,11 @@ const getPinnedStyle = (meta: DataGridPinnedMeta | undefined): DataGridPinnedSty
 /** 选择 checkbox（参考实现在选择列/行内用 slot="selection" 的 OSS Checkbox） */
 const DataGridSelectionCheckbox = () => (
   <Checkbox slot="selection">
-    <Checkbox.Control>
-      <Checkbox.Indicator />
-    </Checkbox.Control>
+    <Checkbox.Content>
+      <Checkbox.Control>
+        <Checkbox.Indicator />
+      </Checkbox.Control>
+    </Checkbox.Content>
   </Checkbox>
 );
 DataGridSelectionCheckbox.displayName = 'DataGrid.SelectionCheckbox';

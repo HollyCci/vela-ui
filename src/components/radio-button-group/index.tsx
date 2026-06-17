@@ -27,7 +27,7 @@ export type RadioButtonGroupItemProps = Omit<RadioProps, 'className' | 'style'> 
 
 export type RadioButtonGroupIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 
-export type RadioButtonGroupItemContentProps = HTMLAttributes<HTMLDivElement>;
+export type RadioButtonGroupItemContentProps = HTMLAttributes<HTMLLabelElement>;
 
 export type RadioButtonGroupItemIconProps = HTMLAttributes<HTMLDivElement>;
 
