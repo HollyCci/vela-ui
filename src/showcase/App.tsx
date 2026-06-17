@@ -5,7 +5,7 @@ import Segment from '../components/segment';
 import Tooltip from '../components/tooltip';
 import './showcase.css';
 import docsMetaJson from './docs-meta.json';
-import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, demoRegistry, resolveDemo, sectionTitle, titleOf } from './registry';
+import { BASE_CATEGORY, PRO_CATEGORIES, demoIndex, resolveDemo, sectionTitle, titleOf } from './registry';
 import {
   AnchorLinkIcon,
   ChevronRightSmIcon,
@@ -59,7 +59,7 @@ const CATEGORY_LABELS: Record<string, string> = {
 };
 
 const SIDEBAR_ITEM_CLASS =
-  'text-muted relative flex flex-row items-center gap-2 rounded-lg p-2 text-start [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-accent/10 hover:text-foreground data-[active=true]:bg-accent/10 data-[active=true]:text-accent transition-colors hover:transition-none data-[active=true]:hover:transition-colors';
+  'text-fd-muted-foreground relative flex w-full flex-row items-center gap-2 rounded-lg p-2 text-start [&_svg]:size-4 [&_svg]:shrink-0 hover:bg-fd-accent/50 hover:text-fd-accent-foreground/80 data-[active=true]:bg-fd-card data-[active=true]:text-fd-primary transition-colors hover:transition-none data-[active=true]:hover:transition-colors';
 
 const SIDEBAR_PAD = { paddingInlineStart: 'calc(2 * var(--spacing))' } as const;
 
@@ -100,16 +100,16 @@ NewChip.displayName = 'NewChip';
 
 const DocsSidebar = ({ activeId, onSelect }: SidebarProps) => (
   <div
-    className="pointer-events-none sticky z-20 [grid-area:sidebar] *:pointer-events-auto max-md:hidden top-(--sc-docs-row-2) h-[calc(var(--sc-docs-height)-var(--sc-docs-row-2))]"
-    style={{ width: 'var(--sc-sidebar-width)' }}
+    className="pointer-events-none sticky z-20 [grid-area:sidebar] *:pointer-events-auto max-md:hidden top-(--fd-docs-row-2) h-[calc(var(--fd-docs-height)-var(--fd-docs-row-2))]"
+    style={{ justifySelf: 'end', width: 'var(--fd-sidebar-width)' }}
   >
     <aside
       id="nd-sidebar"
       data-collapsed="false"
-      className="absolute inset-y-0 start-0 flex w-full flex-col items-end text-sm duration-250 *:w-(--sc-sidebar-width)"
+      className="absolute inset-y-0 start-0 flex w-full flex-col items-end text-sm duration-250 *:w-(--fd-sidebar-width)"
     >
       <div className="overflow-hidden min-h-0 flex-1" style={{ position: 'relative' }}>
-        <div className="size-full rounded-[inherit] *:flex! *:flex-col! *:gap-0.5! p-4 overscroll-contain mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]" style={{ overflow: 'hidden auto' }}>
+        <div className="sc-sidebar-scroll size-full rounded-[inherit] *:flex! *:flex-col! *:gap-0.5! pb-4 pe-1 ps-4 pt-4 overscroll-contain mask-[linear-gradient(to_bottom,transparent,white_12px,white_calc(100%-12px),transparent)]" style={{ overflow: 'hidden auto' }}>
           <div style={{ minWidth: '100%', display: 'table' }}>
             <p className="[&_svg]:size-4 [&_svg]:shrink-0" style={SIDEBAR_PAD}>
               Overview
@@ -150,10 +150,10 @@ const DocsHeader = () => (
   <header
     id="nd-subnav"
     data-transparent="false"
-    className="data-[transparent=false]:bg-background/80 sticky z-10 flex flex-col backdrop-blur-sm transition-colors [grid-area:header]"
-    style={{ top: 'var(--sc-docs-row-1)' }}
+    className="data-[transparent=false]:bg-fd-background/80 sticky z-10 flex flex-col backdrop-blur-sm transition-colors [grid-area:header]"
+    style={{ top: 'var(--fd-docs-row-1)' }}
   >
-    <div className="flex h-14 items-center gap-2 border-b px-4 md:gap-3 md:px-6" data-header-body="">
+    <div className="flex h-14 items-center gap-2 border-b px-4 md:gap-3 md:px-6 xl:px-12" data-header-body="">
       <div className="items-center flex flex-1">
         <div className="flex items-center gap-4">
           <a className="inline-flex items-center gap-2.5 font-semibold" href={REPOSITORY_URL} target="_blank" rel="noreferrer">
@@ -166,7 +166,7 @@ const DocsHeader = () => (
       </div>
       <button
         type="button"
-        className="bg-default/50 text-muted hover:bg-accent/10 hover:text-foreground inline-flex items-center gap-2 border p-1.5 text-sm transition-colors my-auto w-full min-w-0 shrink max-md:hidden max-w-[11rem] rounded-xl ps-2.5 md:max-w-[12rem] lg:max-w-[15rem] xl:max-w-sm"
+        className="bg-fd-secondary/50 text-fd-muted-foreground hover:bg-fd-accent hover:text-fd-accent-foreground inline-flex items-center gap-2 border p-1.5 text-sm transition-colors my-auto w-full min-w-0 shrink max-md:hidden max-w-[11rem] rounded-xl ps-2.5 md:max-w-[12rem] lg:max-w-[15rem] xl:max-w-sm"
       >
         <SearchIcon />
         Search
@@ -176,12 +176,21 @@ const DocsHeader = () => (
         </div>
       </button>
       <div className="flex flex-1 items-center justify-end gap-1.5">
+        <span className="hidden h-8 items-center gap-1.5 rounded-full bg-fd-secondary/50 px-3 text-sm text-fd-muted-foreground md:inline-flex">
+          Theme
+        </span>
+        <span className="hidden h-8 items-center rounded-full bg-fd-secondary/50 px-3 text-sm text-fd-muted-foreground lg:inline-flex">
+          29.6k
+        </span>
         <Chip className="hidden h-6 gap-0.5 bg-default px-2 py-1 text-muted md:flex" size="sm" variant="soft">
           Vela UI
         </Chip>
+        <span className="inline-flex h-8 items-center rounded-full bg-accent px-3 text-sm font-medium text-accent-foreground">
+          Get Pro
+        </span>
       </div>
     </div>
-    <div className="flex flex-row items-end gap-6 h-10 overflow-x-auto border-b px-6" data-header-tabs="">
+    <div className="flex flex-row items-end gap-6 h-11 overflow-x-auto border-b px-6" data-header-tabs="">
       <span
         className="text-muted hover:text-foreground inline-flex items-center gap-2 text-nowrap border-b-2 border-transparent pb-1.5 text-sm font-medium transition-colors"
       >
@@ -200,6 +209,14 @@ const DocsHeader = () => (
       >
         Releases
       </span>
+      <div className="ms-auto hidden items-center gap-1 self-center rounded-full bg-fd-secondary/50 p-1 text-sm md:flex">
+        <span className="inline-flex h-7 items-center rounded-full bg-fd-card px-3 font-medium text-fd-primary shadow-sm">
+          Web
+        </span>
+        <span className="inline-flex h-7 items-center rounded-full px-3 text-fd-muted-foreground">
+          Native
+        </span>
+      </div>
     </div>
   </header>
 );
@@ -331,6 +348,45 @@ const SectionHeading = ({ anchor, children }: SectionHeadingProps) => (
 );
 SectionHeading.displayName = 'SectionHeading';
 
+const USAGE_COPY: Record<string, ReactNode> = {
+  'data-grid': (
+    <p>
+      The <code>DataGrid</code> component takes a flat <code>data</code> array, a <code>columns</code> definition,
+      and a <code>getRowId</code> function. It renders a fully accessible table with built-in support for sorting,
+      selection, column resizing, and more.
+    </p>
+  ),
+};
+
+type DocsTitleProps = {
+  title: string;
+  description?: string;
+};
+
+const DocsTitle = ({ title, description }: DocsTitleProps) => (
+  <section className="flex flex-col gap-4">
+    <div className="flex items-start justify-between gap-4">
+      <h1 className="text-[1.75em] font-semibold flex items-center gap-2">{title}</h1>
+      <button
+        type="button"
+        className="hidden h-8 items-center gap-2 rounded-xl bg-fd-secondary/50 px-3 text-sm font-medium text-fd-primary transition-colors hover:bg-fd-accent md:inline-flex"
+      >
+        Copy Markdown
+      </button>
+    </div>
+    {description !== undefined && <p className="text-muted">{description}</p>}
+    <div>
+      <span className="inline-flex h-7 items-center gap-1.5 rounded-lg bg-fd-secondary/50 px-2 text-sm font-medium text-fd-primary">
+        <span className="inline-flex size-4 items-center justify-center rounded bg-pink-400 text-[10px] font-bold text-white">
+          S
+        </span>
+        Storybook
+      </span>
+    </div>
+  </section>
+);
+DocsTitle.displayName = 'DocsTitle';
+
 type AllComponentsOverviewProps = {
   activeId: string;
   onSelect: (e: MouseEvent<HTMLButtonElement>) => void;
@@ -406,41 +462,24 @@ const App = () => {
       anchor: slug === activeId ? 'usage' : slug.slice(activeId.length + 1),
       demo: slug,
     }));
-  const reactDemo = demoRegistry[activeId];
   const title = meta?.title ?? titleOf(activeId);
-
-  // 实时可交互演示：真实 React 组件，置于标题正下方作为页面主演示
-  const liveDemo =
-    reactDemo !== undefined ? (
-      <section className="sc-live-demo flex flex-col gap-3" id="live-demo">
-        <h2 className="flex scroll-m-28 flex-row items-center gap-2 text-xl font-semibold">
-          实时交互演示
-          <span
-            className="chip chip--default chip--primary h-5 rounded-full bg-accent/10 px-2 text-[11px] font-medium text-accent"
-            data-slot="chip"
-          >
-            真实组件 · 可点击 / 拖拽
-          </span>
-        </h2>
-        <div className="sc-react-demo">{reactDemo}</div>
-      </section>
-    ) : null;
 
   return (
     <div
       id="nd-notebook-layout"
-      className="min-h-(--sc-docs-height) grid auto-cols-auto auto-rows-auto overflow-x-clip transition-[grid-template-columns] [--sc-docs-height:100dvh]"
+      className="min-h-(--fd-docs-height) grid auto-cols-auto auto-rows-auto overflow-x-clip transition-[grid-template-columns] [--fd-docs-height:100dvh]"
       style={{
-        ['--sc-docs-row-1' as string]: '0px',
-        ['--sc-docs-row-2' as string]: 'calc(var(--sc-docs-row-1) + var(--sc-header-height))',
-        ['--sc-docs-row-3' as string]: 'var(--sc-docs-row-2)',
-        ['--sc-header-height' as string]: '98px',
-        ['--sc-sidebar-width' as string]: '268px',
-        ['--sc-toc-width' as string]: '268px',
-        ['--sc-sidebar-col' as string]: 'var(--sc-sidebar-width)',
+        ['--fd-docs-row-1' as string]: '0px',
+        ['--fd-docs-row-2' as string]: 'calc(var(--fd-docs-row-1) + var(--fd-header-height))',
+        ['--fd-docs-row-3' as string]: 'var(--fd-docs-row-2)',
+        ['--fd-header-height' as string]: '100px',
+        ['--fd-sidebar-width' as string]: '220px',
+        ['--fd-toc-width' as string]: '268px',
+        ['--fd-sidebar-col' as string]: 'var(--fd-sidebar-width)',
+        ['--sc-layout-width' as string]: '87.5rem',
         gridTemplate: `". header header header ."
         "sidebar sidebar toc-popover toc-popover ."
-        "sidebar sidebar main toc ." 1fr / minmax(min-content, 1fr) var(--sc-sidebar-col) minmax(0, calc(var(--sc-layout-width, 97rem) - var(--sc-sidebar-col) - var(--sc-toc-width))) var(--sc-toc-width) minmax(min-content, 1fr)`,
+        "sidebar sidebar main toc ." 1fr / minmax(min-content, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--sc-layout-width, 97rem) - var(--fd-sidebar-col) - var(--fd-toc-width))) var(--fd-toc-width) minmax(min-content, 1fr)`,
       }}
     >
       <DocsHeader />
@@ -448,18 +487,13 @@ const App = () => {
       <article
         id="nd-page"
         data-full="false"
-        className="flex flex-col gap-4 px-4 py-6 [grid-area:main] *:max-w-[900px] md:px-6 md:pt-8 xl:px-8 xl:pt-14"
+        className="flex flex-col gap-4 px-4 py-6 [grid-area:main] *:max-w-[900px] md:px-6 md:pt-8 xl:px-12 xl:pt-8"
       >
         {isAllComponents ? (
           <AllComponentsOverview activeId={activeId} onSelect={handleItemClick} />
         ) : (
           <>
-            <section className="flex flex-col gap-2">
-              <h1 className="text-[1.75em] font-semibold flex items-center gap-2">{title}</h1>
-              {meta?.description !== undefined && <p className="text-muted">{meta.description}</p>}
-              {meta === undefined && <p className="text-muted">底层基础组件 — React 实现演示。</p>}
-            </section>
-            {liveDemo}
+            <DocsTitle title={title} description={meta?.description ?? '底层基础组件 — React 实现演示。'} />
             {sections.map((s) => {
               const sectionDemo = resolveDemo(activeId, s.demo);
               if (sectionDemo === undefined) return null;
@@ -467,6 +501,9 @@ const App = () => {
               return (
                 <div key={s.anchor} className="contents">
                   <SectionHeading anchor={s.anchor}>{s.heading}</SectionHeading>
+                  {s.anchor === 'usage' && USAGE_COPY[activeId] !== undefined && (
+                    <div className="prose prose-sm max-w-[900px] text-fd-foreground/90">{USAGE_COPY[activeId]}</div>
+                  )}
                   <ComponentPreview component={activeId} slug={s.demo} demo={sectionDemo} />
                 </div>
               );
@@ -476,8 +513,8 @@ const App = () => {
       </article>
       <div
         id="nd-toc"
-        className="top-(--sc-docs-row-3) sticky flex h-[calc(var(--sc-docs-height)-var(--sc-docs-row-3))] flex-col pb-2 pe-4 pt-12 [grid-area:toc] max-xl:hidden"
-        style={{ width: 'var(--sc-toc-width)' }}
+        className="top-(--fd-docs-row-3) sticky flex h-[calc(var(--fd-docs-height)-var(--fd-docs-row-3))] flex-col pb-2 pe-4 ps-4 pt-6 [grid-area:toc] max-xl:hidden"
+        style={{ width: '240px' }}
       >
         <h3 className="text-muted inline-flex items-center gap-1.5 text-sm" id="toc-title">
           <TocIcon />
@@ -499,15 +536,6 @@ const App = () => {
             </div>
           ) : (
             <div className="flex flex-col">
-              {reactDemo !== undefined && (
-                <a
-                  href="#live-demo"
-                  className="text-muted hover:text-foreground py-1.5 text-sm transition-colors"
-                  style={{ paddingInlineStart: '12px' }}
-                >
-                  实时交互演示
-                </a>
-              )}
               {sections.map((s) => (
                 <a
                   key={s.anchor}

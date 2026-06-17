@@ -1371,6 +1371,129 @@ const STUDENT_COLUMNS: DataGridColumn<StudentRow>[] = [
   { id: 'score', header: '掌握度', accessorKey: 'score', allowsSorting: true, align: 'end' },
 ];
 
+type TransactionStatus = 'Succeeded' | 'Processing' | 'Refunded' | 'Failed';
+
+type TransactionRow = {
+  id: string;
+  customer: string;
+  email: string;
+  transactionId: string;
+  status: TransactionStatus;
+  amount: string;
+  balance: string;
+};
+
+const TRANSACTION_ROWS: TransactionRow[] = [
+  {
+    id: 'emma',
+    customer: 'Emma Wilson',
+    email: 'emma@example.com',
+    transactionId: 'pay_1N3xDR',
+    status: 'Succeeded',
+    amount: '$2,450.00',
+    balance: '$730.00',
+  },
+  {
+    id: 'isabella',
+    customer: 'Isabella Nguyen',
+    email: 'isabella@example.com',
+    transactionId: 'pay_1N3x9H',
+    status: 'Succeeded',
+    amount: '$299.00',
+    balance: '$89.00',
+  },
+  {
+    id: 'jackson',
+    customer: 'Jackson Lee',
+    email: 'jackson@example.com',
+    transactionId: 'pay_1N3x8L',
+    status: 'Processing',
+    amount: '$39.00',
+    balance: '$12.00',
+  },
+  {
+    id: 'liam',
+    customer: 'Liam Johnson',
+    email: 'liam@example.com',
+    transactionId: 'pay_1N3xC0',
+    status: 'Refunded',
+    amount: '$150.00',
+    balance: '$45.00',
+  },
+  {
+    id: 'olivia',
+    customer: 'Olivia Martin',
+    email: 'olivia@example.com',
+    transactionId: 'pay_1N3x7K',
+    status: 'Succeeded',
+    amount: '$1,999.00',
+    balance: '$599.00',
+  },
+  {
+    id: 'sofia',
+    customer: 'Sofia Davis',
+    email: 'sofia@example.com',
+    transactionId: 'pay_1N3xHP',
+    status: 'Failed',
+    amount: '$450.00',
+    balance: '$135.00',
+  },
+  {
+    id: 'william',
+    customer: 'William Kim',
+    email: 'will@example.com',
+    transactionId: 'pay_1N3xAN',
+    status: 'Failed',
+    amount: '$99.00',
+    balance: '$30.00',
+  },
+];
+
+const transactionRowId = (row: TransactionRow) => row.id;
+
+const TransactionStatusBadge = ({ status }: { status: TransactionStatus }) => (
+  <span className={`sc-transaction-status sc-transaction-status--${status.toLowerCase()}`}>
+    <span aria-hidden="true" />
+    {status}
+  </span>
+);
+
+const TRANSACTION_COLUMNS: DataGridColumn<TransactionRow>[] = [
+  {
+    id: 'customer',
+    header: 'Customer',
+    isRowHeader: true,
+    allowsSorting: true,
+    width: 220,
+    cell: (row) => (
+      <span className="sc-transaction-customer">
+        <strong>{row.customer}</strong>
+        <span>{row.email}</span>
+      </span>
+    ),
+  },
+  { id: 'transactionId', header: 'Transaction ID', accessorKey: 'transactionId', width: 150 },
+  {
+    id: 'status',
+    header: 'Status',
+    width: 132,
+    cell: (row) => <TransactionStatusBadge status={row.status} />,
+  },
+  { id: 'amount', header: 'Amount', accessorKey: 'amount', width: 130, align: 'end', allowsSorting: true },
+  { id: 'balance', header: 'Balance', accessorKey: 'balance', width: 110, align: 'end' },
+  {
+    id: 'actions',
+    header: '',
+    width: 52,
+    align: 'center',
+    cell: () => (
+      <Button aria-label="Open row menu" className="sc-row-menu-button" isIconOnly size="sm" variant="ghost">
+        <span aria-hidden="true">⋮</span>
+      </Button>
+    ),
+  },
+];
+
 const COURSE_COLUMNS: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
   { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true },
   { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
@@ -1574,21 +1697,20 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
 };
 
 const DataGridDefaultVariantDemo = () => {
-  const [rowAction, setRowAction] = useState('双击行或按 Enter 打开学员详情');
-
   return (
-    <DemoSection isColumn label="default sorting + row actions">
+    <DemoSection isColumn>
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="学员列表"
-          columns={STUDENT_COLUMNS}
-          data={STUDENT_ROWS}
-          defaultSortDescriptor={{ column: 'score', direction: 'descending' }}
-          getRowId={studentRowId}
-          onRowAction={(key) => setRowAction(`已打开学员 ${String(key)}`)}
+          aria-label="Transactions"
+          columns={TRANSACTION_COLUMNS}
+          data={TRANSACTION_ROWS}
+          defaultSelectedKeys={new Set(['emma'])}
+          defaultSortDescriptor={{ column: 'customer', direction: 'ascending' }}
+          getRowId={transactionRowId}
+          selectionMode="multiple"
+          showSelectionCheckboxes
         />
       </div>
-      <span style={demoTextStyle}>{rowAction}</span>
     </DemoSection>
   );
 };

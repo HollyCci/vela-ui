@@ -1,6 +1,142 @@
 /* 展示站辅助样式：页面结构贴近 Pro docs，组件演示只渲染本仓 Vela React 实现 */
+:root,
+.light,
+[data-theme='light'] {
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-muted: #f5f5f5;
+  --color-fd-muted-foreground: #737373;
+  --color-fd-card: #fefefe;
+  --color-fd-card-foreground: #0a0a0a;
+  --color-fd-border: #9993;
+  --color-fd-primary: #171717;
+  --color-fd-primary-foreground: #fafafa;
+  --color-fd-secondary: #f5f5f5;
+  --color-fd-secondary-foreground: #171717;
+  --color-fd-accent: #f9f9f9;
+  --color-fd-accent-foreground: #171717;
+}
+
+[data-theme='dark'] {
+  --color-fd-background: var(--background);
+  --color-fd-foreground: var(--foreground);
+  --color-fd-muted: #171717;
+  --color-fd-muted-foreground: #a3a3a3;
+  --color-fd-card: #09090b;
+  --color-fd-card-foreground: #fafafa;
+  --color-fd-border: #ffffff26;
+  --color-fd-primary: #fafafa;
+  --color-fd-primary-foreground: #171717;
+  --color-fd-secondary: #171717;
+  --color-fd-secondary-foreground: #fafafa;
+  --color-fd-accent: #262626;
+  --color-fd-accent-foreground: #fafafa;
+}
+
+.text-fd-muted-foreground,
+[class~='text-fd-muted-foreground'] {
+  color: var(--color-fd-muted-foreground);
+}
+
+.text-fd-accent-foreground,
+[class~='text-fd-accent-foreground'] {
+  color: var(--color-fd-accent-foreground);
+}
+
+.text-fd-primary,
+[class~='text-fd-primary'] {
+  color: var(--color-fd-primary);
+}
+
+.text-fd-primary-foreground,
+[class~='text-fd-primary-foreground'] {
+  color: var(--color-fd-primary-foreground);
+}
+
+.text-fd-foreground\/90,
+[class~='text-fd-foreground/90'] {
+  color: color-mix(in srgb, var(--color-fd-foreground) 90%, transparent);
+}
+
+.bg-fd-primary,
+[class~='bg-fd-primary'] {
+  background-color: var(--color-fd-primary);
+}
+
+.bg-fd-card,
+[class~='bg-fd-card'] {
+  background-color: var(--color-fd-card);
+}
+
+.bg-fd-secondary\/50,
+[class~='bg-fd-secondary/50'] {
+  background-color: color-mix(in srgb, var(--color-fd-secondary) 50%, transparent);
+}
+
+.bg-fd-background\/80,
+[class~='bg-fd-background/80'] {
+  background-color: color-mix(in srgb, var(--color-fd-background) 80%, transparent);
+}
+
+[data-transparent='false'][class~='data-[transparent=false]:bg-fd-background/80'] {
+  background-color: color-mix(in srgb, var(--color-fd-background) 80%, transparent);
+}
+
+[class~='hover:bg-fd-accent']:hover {
+  background-color: var(--color-fd-accent);
+}
+
+[class~='hover:bg-fd-accent/50']:hover {
+  background-color: color-mix(in srgb, var(--color-fd-accent) 50%, transparent);
+}
+
+[class~='hover:text-fd-accent-foreground']:hover {
+  color: var(--color-fd-accent-foreground);
+}
+
+[class~='hover:text-fd-accent-foreground/80']:hover {
+  color: color-mix(in srgb, var(--color-fd-accent-foreground) 80%, transparent);
+}
+
+[data-active='true'][class~='data-[active=true]:bg-fd-card'] {
+  background-color: var(--color-fd-card);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--color-fd-border) 60%, transparent),
+    0 1px 2px rgb(0 0 0 / 0.04);
+}
+
+[data-active='true'][class~='data-[active=true]:text-fd-primary'] {
+  color: var(--color-fd-primary);
+}
+
+.prose {
+  color: color-mix(in srgb, var(--color-fd-foreground) 90%, transparent);
+  line-height: 1.75;
+}
+
+.prose p {
+  margin: 0;
+}
+
+.prose code {
+  border: 1px solid var(--color-fd-border);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--color-fd-secondary) 80%, transparent);
+  padding: 1px 4px;
+  color: var(--color-fd-card-foreground);
+  font-size: .875em;
+}
+
 .contents {
   display: contents;
+}
+
+.sc-sidebar-scroll {
+  scrollbar-width: none;
+}
+
+.sc-sidebar-scroll::-webkit-scrollbar {
+  display: none;
 }
 
 .sc-fallback {
@@ -28,6 +164,17 @@
   background: var(--background);
   color: var(--foreground);
   overflow: auto;
+}
+
+.sc-live-preview[data-slug='data-grid-default'] {
+  padding-block-start: 20px;
+}
+
+.component-preview-container .action-bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 24px;
+  z-index: 8;
 }
 
 .sc-live-preview[data-theme='dark'] {
@@ -125,4 +272,69 @@
     var(--default);
   color: var(--muted);
   font-size: 12px;
+}
+
+.sc-transaction-customer {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  line-height: 1.15;
+}
+
+.sc-transaction-customer strong {
+  color: var(--foreground);
+  font-size: 13px;
+  font-weight: 650;
+}
+
+.sc-transaction-customer span {
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.sc-transaction-status {
+  display: inline-flex;
+  height: 22px;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  padding-inline: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.sc-transaction-status > span {
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.sc-transaction-status--succeeded {
+  background: color-mix(in srgb, var(--success) 16%, transparent);
+  color: color-mix(in srgb, var(--success) 72%, #0a0a0a);
+}
+
+.sc-transaction-status--processing {
+  background: color-mix(in srgb, var(--warning) 18%, transparent);
+  color: #8a5a00;
+}
+
+.sc-transaction-status--refunded {
+  background: color-mix(in srgb, var(--foreground) 8%, transparent);
+  color: var(--foreground);
+}
+
+.sc-transaction-status--failed {
+  background: color-mix(in srgb, var(--danger) 16%, transparent);
+  color: var(--danger);
+}
+
+.sc-row-menu-button {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: color-mix(in srgb, var(--default) 64%, transparent);
 }

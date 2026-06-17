@@ -16,7 +16,7 @@ const LIB_HEADER = `/**
 const FOUNDATION_IMPORTS = [
   "@import './properties.css';",
   "@import './tokens.css';",
-  "@import './base.css';",
+  "@import './base.css' layer(base);",
   "@import './keyframes-shared.css';",
 ];
 

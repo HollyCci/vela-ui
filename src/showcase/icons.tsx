@@ -1,11 +1,12 @@
 /** 文档站外壳用到的图标（路径数据逐一取自参考 DOM） */
 
 export const LogoIcon = () => (
-  <span className="inline-flex items-center gap-2 text-foreground">
-    <span aria-hidden="true" className="flex size-5 items-center justify-center rounded-md bg-accent text-xs font-semibold text-accent-foreground">
-      V
+  <span className="inline-flex items-center gap-2 text-fd-primary">
+    <span aria-hidden="true" className="flex size-5 items-center justify-center rounded-md bg-fd-primary text-xs font-bold text-fd-primary-foreground">
+      v
     </span>
-    <span className="text-sm font-semibold tracking-tight">Vela UI</span>
+    <span className="text-2xl font-bold tracking-tight leading-none">vela</span>
+    <span className="rounded-md bg-accent px-1 text-[10px] font-semibold leading-4 text-accent-foreground">Pro</span>
   </span>
 );
 
