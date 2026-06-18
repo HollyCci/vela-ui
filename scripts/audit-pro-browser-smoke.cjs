@@ -102,7 +102,11 @@ const startServer = async () => {
 };
 
 const expectVisible = async (locator, label) => {
-  await locator.waitFor({ state: 'visible', timeout: 6000 });
+  try {
+    await locator.waitFor({ state: 'visible', timeout: 6000 });
+  } catch (error) {
+    throw new Error(`${label}: ${error.message}`);
+  }
   const box = await locator.boundingBox();
   if (!box || box.width < 4 || box.height < 4) {
     throw new Error(`${label} is visible but has no usable layout box`);
@@ -211,9 +215,7 @@ const dragLocatorToLocator = async (page, source, target, label) => {
 
 const pressLocatorFor = async (page, locator, ms, label) => {
   await expectVisible(locator, label);
-  const box = await locator.boundingBox();
-  if (!box) throw new Error(`${label} has no bounding box`);
-  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await locator.hover({ timeout: 8000 });
   await page.mouse.down();
   await sleep(ms);
   await page.mouse.up();
@@ -1291,22 +1293,49 @@ const runTargetedSmoke = async (page) => {
     const preview = scoped(page, 'command-default');
     await preview.getByRole('button', { name: /打开命令面板/ }).click();
     await expectVisible(page.locator('[data-slot="command-list"]').first(), 'command list');
-    await page.getByRole('searchbox', { name: /Search commands|搜索命令/i }).fill('设置');
+    const searchbox = page.getByRole('searchbox', { name: /Search commands|搜索命令/i });
+    await searchbox.fill('设置');
+    await expectVisible(page.locator('[data-slot="command-item"]').filter({ hasText: '打开设置' }).first(), 'command filtered item');
+    await page.getByRole('button', { name: '清空搜索' }).click();
+    if ((await searchbox.inputValue()) !== '') {
+      throw new Error('command: clear button did not reset search input');
+    }
+    await expectVisible(page.locator('[data-slot="command-item"]').filter({ hasText: '打开工作台' }).first(), 'command list restored after clear');
+    await searchbox.fill('设置');
     await page.locator('[data-slot="command-item"]').filter({ hasText: '打开设置' }).first().click();
     await expectText(preview.locator('span'), '已执行：open-settings', 'command action state');
-    checks.push('command dialog filters and executes a command action');
+    checks.push('command dialog filters, clears search through the clear slot, restores results, and executes a command action');
   }
 
   await clickComponent(page, 'context-menu');
   {
     const preview = scoped(page, 'context-menu-default');
-    const target = preview.getByText('在此处右键').first();
-    await expectVisible(target, 'context-menu trigger target');
-    await target.click({ button: 'right' });
-    await expectVisible(page.locator('[data-slot="context-menu-menu"]').first(), 'context-menu menu');
-    await page.locator('[data-slot="context-menu-menu"] [role="menuitem"]').filter({ hasText: '重新加载' }).first().click();
+    const trigger = preview.locator('[data-slot="context-menu-trigger"]').first();
+    await expectVisible(trigger, 'context-menu trigger target');
+    await trigger.press('Shift+F10');
+    await expectVisible(page.locator('[data-slot="context-menu-menu"]:visible').first(), 'context-menu menu');
+    await page.locator('[data-slot="context-menu-menu"]:visible [role="menuitem"]').filter({ hasText: '重新加载' }).first().click();
     await expectText(preview.locator('span'), '已选择：reload', 'context-menu action state');
-    checks.push('context-menu opens on right click and dispatches item action');
+    await sleep(200);
+
+    const longPressPreview = scoped(page, 'context-menu-long-press');
+    const longPressTrigger = longPressPreview.locator('[data-slot="context-menu-trigger"]').first();
+    await pressLocatorFor(page, longPressTrigger, 900, 'context-menu long press trigger');
+    await expectVisible(page.locator('[data-slot="context-menu-menu"]:visible').first(), 'context-menu long press menu');
+    await page.keyboard.press('Escape');
+    await sleep(200);
+
+    const submenuPreview = scoped(page, 'context-menu-with-submenus');
+    const submenuTrigger = submenuPreview.locator('[data-slot="context-menu-trigger"]').first();
+    await submenuTrigger.click({ button: 'right' });
+    const submenuItem = page.locator('[data-slot="context-menu-menu"]:visible [role="menuitem"]').filter({ hasText: '打开方式' }).first();
+    await expectVisible(submenuItem, 'context-menu submenu trigger item');
+    await submenuItem.hover();
+    await page.keyboard.press('ArrowRight');
+    await expectVisible(page.locator('[data-slot="context-menu-menu"]:visible [role="menuitem"]').filter({ hasText: '浏览器' }).first(), 'context-menu submenu item');
+    await page.locator('[data-slot="context-menu-menu"]:visible [role="menuitem"]').filter({ hasText: '浏览器' }).first().click();
+    await expectText(submenuPreview.locator('span'), '已选择：browser', 'context-menu submenu action state');
+    checks.push('context-menu opens from keyboard and long press, dispatches actions, and exposes submenu selection');
   }
 
   await clickComponent(page, 'navbar');

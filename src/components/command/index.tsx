@@ -233,9 +233,17 @@ const CommandInput = ({ className, style, ...rest }: CommandInputProps) => (
 );
 CommandInput.displayName = 'Command.InputGroup.Input';
 
-/** slot=null 避免被 SearchField 的 clear 槽接管 press；点击仅清空输入由 SearchField 自带的 reset 处理 */
-const ClearButton = ({ className, style, ...rest }: CommandClearButtonProps) => (
+/** 接入 RAC SearchField clear 槽：点击自动清空输入，并随 data-empty 隐藏。 */
+const ClearButton = ({
+  className,
+  style,
+  'aria-label': ariaLabel = '清空搜索',
+  ...rest
+}: CommandClearButtonProps) => (
   <CloseButton
+    slot="clear"
+    aria-label={ariaLabel}
+    data-slot="command-input-group-clear-button"
     className={clsx('command__input-group-clear-button', className)}
     style={style}
     {...rest}

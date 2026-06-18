@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
 import Command from './index';
 
@@ -74,6 +75,17 @@ describe('Command', () => {
     );
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(screen.queryByRole('menu')).not.toBeInTheDocument();
+  });
+
+  it('ClearButton 接入 SearchField clear 槽并清空搜索框', async () => {
+    const user = userEvent.setup();
+    renderCommand();
+    const input = await screen.findByRole('searchbox', { name: 'Search commands' });
+    await user.type(input, '设置');
+    expect(input).toHaveValue('设置');
+
+    await user.click(screen.getByRole('button', { name: '清空搜索' }));
+    expect(input).toHaveValue('');
   });
 
   it('has no axe a11y violations', async () => {

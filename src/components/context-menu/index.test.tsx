@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor, act } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
 import ContextMenu from './index';
@@ -55,6 +55,35 @@ describe('ContextMenu', () => {
     expect(menu).toBeInTheDocument();
     expect(screen.getByText('后退')).toBeInTheDocument();
     expect(screen.getAllByRole('menuitem')).toHaveLength(3);
+  });
+
+  it('opens from the keyboard context-menu shortcut', async () => {
+    renderMenu();
+    const trigger = screen.getByText('在此处右键').closest('[data-slot="context-menu-trigger"]');
+    expect(trigger).not.toBeNull();
+
+    fireEvent.keyDown(trigger!, { key: 'F10', shiftKey: true });
+    expect(await screen.findByRole('menu')).toBeInTheDocument();
+  });
+
+  it('opens after a default long press', async () => {
+    vi.useFakeTimers();
+    renderMenu();
+    const trigger = screen.getByText('在此处右键').closest('[data-slot="context-menu-trigger"]');
+    expect(trigger).not.toBeNull();
+
+    fireEvent.pointerDown(trigger!, {
+      button: 0,
+      clientX: 20,
+      clientY: 20,
+      isPrimary: true,
+    });
+    act(() => {
+      vi.advanceTimersByTime(550);
+    });
+
+    expect(screen.getByRole('menu')).toBeInTheDocument();
+    vi.useRealTimers();
   });
 
   it('contextmenu event default is prevented (suppresses native menu)', () => {

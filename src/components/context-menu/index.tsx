@@ -10,6 +10,7 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type ReactNode,
   type RefObject,
@@ -47,7 +48,7 @@ export type ContextMenuProps = {
 
 export type ContextMenuTriggerProps = Omit<HTMLAttributes<HTMLDivElement>, 'className'> & {
   className?: string;
-  /** 触摸/鼠标长按打开菜单的延迟；不传则不启用长按 */
+  /** 触摸/鼠标长按打开菜单的延迟；传 -1 可关闭长按 */
   longPressDelay?: number;
 };
 
@@ -239,7 +240,10 @@ const Trigger = ({
   onPointerLeave,
   onPointerMove,
   onPointerUp,
-  longPressDelay,
+  onKeyDown,
+  role = 'button',
+  tabIndex = 0,
+  longPressDelay = 550,
   ...rest
 }: ContextMenuTriggerProps) => {
   const { isDisabled, setOpen, anchorRef, triggerRef, positionAnchor } = useContextMenuContext();
@@ -321,12 +325,33 @@ const Trigger = ({
     clearLongPress();
   };
 
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    onKeyDown?.(event);
+    if (isDisabled || event.defaultPrevented) {
+      return;
+    }
+
+    const isContextMenuKey = event.key === 'ContextMenu' || event.key === 'Menu';
+    const isShiftF10 = event.shiftKey && event.key === 'F10';
+    if (!isContextMenuKey && !isShiftF10) {
+      return;
+    }
+
+    event.preventDefault();
+    setOpen(true);
+  };
+
   return (
     <div
       ref={triggerRef}
       data-slot="context-menu-trigger"
       className={clsx('context-menu__trigger', className)}
+      role={role}
+      tabIndex={isDisabled ? undefined : tabIndex}
+      aria-haspopup="menu"
+      aria-disabled={isDisabled || undefined}
       onContextMenu={handleContextMenu}
+      onKeyDown={handleKeyDown}
       onPointerCancel={handlePointerCancel}
       onPointerDown={handlePointerDown}
       onPointerLeave={handlePointerLeave}
