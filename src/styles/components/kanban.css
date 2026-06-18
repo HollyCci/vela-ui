@@ -220,6 +220,7 @@
   border-radius: calc(var(--radius) * 1.5);
   background-color: var(--overlay);
   flex-direction: column;
+  gap: calc(var(--spacing) * 2);
   transition: box-shadow .15s;
   display: flex;
   overflow: hidden;
@@ -249,6 +250,15 @@
 
 .kanban__card[data-selected=true]>.kanban__card-content {
   background-color: var(--accent-soft);
+}
+
+.kanban__card-actions {
+  border-top: 1px solid var(--separator);
+  justify-content: flex-end;
+  align-items: center;
+  gap: calc(var(--spacing) * 1);
+  padding-top: calc(var(--spacing) * 1.5);
+  display: flex;
 }
 
 .kanban__scroll-shadow {
@@ -337,12 +347,25 @@
 
 .kanban__drag-handle:focus,
 .kanban__drag-handle:focus-visible,
+.kanban__card:hover .kanban__drag-handle,
+.kanban__card:focus-within .kanban__drag-handle,
+.kanban__card[data-dragging=true] .kanban__drag-handle,
 .kanban__drag-handle[data-focus-visible=true] {
   clip-path: none;
   white-space: normal;
+  border-radius: var(--radius-sm);
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
+  margin: 0;
+  padding: 0;
+  position: static;
+  overflow: visible;
+}
+
+.kanban__drag-handle:focus,
+.kanban__drag-handle:focus-visible,
+.kanban__drag-handle[data-focus-visible=true] {
   --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
-  width: auto;
-  height: auto;
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   --tw-ring-color: var(--focus);
   --tw-ring-offset-width: var(--ring-offset-width);
@@ -350,17 +373,13 @@
   --tw-ring-offset-color: var(--background);
   --tw-outline-style: none;
   outline-style: none;
-  margin: 0;
-  padding: 0;
-  position: static;
-  overflow: visible;
 }
 
 .kanban__card[data-focus-visible=true] .kanban__drag-handle {
   clip-path: none;
   white-space: normal;
-  width: auto;
-  height: auto;
+  width: calc(var(--spacing) * 6);
+  height: calc(var(--spacing) * 6);
   margin: 0;
   padding: 0;
   position: static;

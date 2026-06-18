@@ -26,7 +26,7 @@ const highRiskNotes = {
   'data-grid': 'Smoke covers sorting, selection, cell editing, column resize, pinned horizontal scroll, virtualization range changes, row drag reorder, and expandable rows; still needs same-viewport visual and DOM/CSS comparison.',
   'file-tree': 'Smoke covers selection, keyboard focus movement, multi-select checkboxes, and real drag-and-drop reorder; still needs same-viewport visual and full DOM/CSS comparison.',
   'floating-toc': 'Smoke covers trigger behavior; still needs scroll-spy, anchor syncing, and sticky-state comparison.',
-  kanban: 'Smoke covers board anatomy only; drag reorder, card actions, and column state still require live-reference comparison.',
+  kanban: 'Smoke covers board anatomy, card action feedback, drag handles, and real card reorder feedback; cross-column drop and same-viewport visual comparison still need live-reference verification.',
   'list-view': 'Smoke covers multi-selection; still needs sorting, action bar, and empty-state comparison.',
   'number-value': 'Smoke covers formatting slots; still needs animated-change and locale option comparison.',
   'pressable-feedback': 'Smoke covers progress completion; still needs ripple, press duration, and keyboard feedback comparison.',

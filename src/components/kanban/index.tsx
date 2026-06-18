@@ -40,7 +40,7 @@ export type KanbanProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'st
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
 export type KanbanColumnHeaderProps = HTMLAttributes<HTMLElement> & {
-  title: ReactNode;
+  title?: ReactNode;
   /** 数量徽标文案 */
   count?: ReactNode;
   /** 列状态指示器颜色（CSS 颜色值或 var(--xxx)），省略且无 indicator 时渲染默认圆点 */
@@ -81,6 +81,8 @@ export type KanbanCardProps = Omit<
   /** 无障碍文本（沿用 RAC GridListItem 的 textValue 命名） */
   textValue?: string;
   size?: KanbanSize;
+  /** 允许整张卡片直接拖拽；DragHandle 仍可作为显式拖拽入口 */
+  dragListener?: boolean;
   className?: string;
   style?: CSSProperties;
 };
@@ -118,10 +120,66 @@ const Column = forwardRef<HTMLElement, HTMLAttributes<HTMLElement>>(
 );
 Column.displayName = 'Kanban.Column';
 
+export type KanbanColumnIndicatorProps = HTMLAttributes<HTMLSpanElement> & {
+  color?: string;
+};
+
+const ColumnIndicator = forwardRef<HTMLSpanElement, KanbanColumnIndicatorProps>(
+  ({ color, className, style, ...rest }, ref) => {
+    const mergedStyle =
+      color !== undefined ? ({ backgroundColor: color, ...style } as CSSProperties) : style;
+    return (
+      <span
+        ref={ref}
+        className={clsx('kanban__column-indicator', className)}
+        data-slot="kanban-column-indicator"
+        style={mergedStyle}
+        aria-hidden="true"
+        {...rest}
+      />
+    );
+  },
+);
+ColumnIndicator.displayName = 'Kanban.ColumnIndicator';
+
+const ColumnTitle = forwardRef<HTMLHeadingElement, HTMLAttributes<HTMLHeadingElement>>(
+  ({ className, ...rest }, ref) => (
+    <h3
+      ref={ref}
+      className={clsx('kanban__column-title', className)}
+      data-slot="kanban-column-title"
+      {...rest}
+    />
+  ),
+);
+ColumnTitle.displayName = 'Kanban.ColumnTitle';
+
+const ColumnCount = forwardRef<HTMLSpanElement, HTMLAttributes<HTMLSpanElement>>(
+  ({ className, ...rest }, ref) => (
+    <span
+      ref={ref}
+      className={clsx('kanban__column-count', className)}
+      data-slot="kanban-column-count"
+      {...rest}
+    />
+  ),
+);
+ColumnCount.displayName = 'Kanban.ColumnCount';
+
+const ColumnActions = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      className={clsx('kanban__column-actions', className)}
+      data-slot="kanban-column-actions"
+      {...rest}
+    />
+  ),
+);
+ColumnActions.displayName = 'Kanban.ColumnActions';
+
 const ColumnHeader = forwardRef<HTMLElement, KanbanColumnHeaderProps>(
-  ({ title, count, indicatorColor, indicator, actions, className, ...rest }, ref) => {
-    const indicatorStyle: CSSProperties | undefined =
-      indicatorColor !== undefined ? { backgroundColor: indicatorColor } : undefined;
+  ({ title, count, indicatorColor, indicator, actions, children, className, ...rest }, ref) => {
     return (
       <header
         ref={ref}
@@ -129,26 +187,13 @@ const ColumnHeader = forwardRef<HTMLElement, KanbanColumnHeaderProps>(
         className={clsx('kanban__column-header', className)}
         {...rest}
       >
-        <span
-          className="kanban__column-indicator"
-          data-slot="kanban-column-indicator"
-          style={indicatorStyle}
-          aria-hidden="true"
-        >
-          {indicator}
-        </span>
-        <h3 className="kanban__column-title" data-slot="kanban-column-title">
-          {title}
-        </h3>
-        {count !== undefined && (
-          <span className="kanban__column-count" data-slot="kanban-column-count">
-            {count}
-          </span>
-        )}
-        {actions !== undefined && (
-          <div className="kanban__column-actions" data-slot="kanban-column-actions">
-            {actions}
-          </div>
+        {children ?? (
+          <>
+            <ColumnIndicator color={indicatorColor}>{indicator}</ColumnIndicator>
+            {title !== undefined && <ColumnTitle>{title}</ColumnTitle>}
+            {count !== undefined && <ColumnCount>{count}</ColumnCount>}
+            {actions !== undefined && <ColumnActions>{actions}</ColumnActions>}
+          </>
         )}
       </header>
     );
@@ -292,6 +337,7 @@ function KanbanCardImpl<T extends object>({
   id,
   textValue,
   size,
+  dragListener = true,
   className,
   children,
   ...rest
@@ -346,7 +392,7 @@ function KanbanCardImpl<T extends object>({
         aria-label={textValue}
         className={clsx('kanban__card', `kanban__card--${resolvedSize}`, className)}
         dragControls={dragControls}
-        dragListener={false}
+        dragListener={dragListener}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         whileDrag={CARD_DRAGGING}
@@ -382,6 +428,20 @@ const CardContent = forwardRef<HTMLDivElement, KanbanCardContentProps>(
   },
 );
 CardContent.displayName = 'Kanban.CardContent';
+
+export type KanbanCardActionsProps = SectionProps;
+
+const CardActions = forwardRef<HTMLDivElement, KanbanCardActionsProps>(
+  ({ className, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="kanban-card-actions"
+      className={clsx('kanban__card-actions', className)}
+      {...rest}
+    />
+  ),
+);
+CardActions.displayName = 'Kanban.CardActions';
 
 const GripVerticalIcon = () => (
   <svg
@@ -732,10 +792,15 @@ export function useKanbanColumn<T extends object>(
 const Kanban = Object.assign(KanbanRoot, {
   Column,
   ColumnHeader,
+  ColumnIndicator,
+  ColumnTitle,
+  ColumnCount,
+  ColumnActions,
   ColumnBody,
   CardList,
   Card: KanbanCard,
   CardContent,
+  CardActions,
   DragHandle,
   DropIndicator: KanbanDropIndicator,
   Empty,

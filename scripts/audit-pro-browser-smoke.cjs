@@ -464,7 +464,23 @@ const runTargetedSmoke = async (page) => {
     await expectVisible(preview.locator('[data-slot="kanban-column-count"]').filter({ hasText: '3' }).first(), 'kanban todo column count');
     await expectVisible(preview.locator('[data-slot="kanban-card"]').filter({ hasText: '学员「王晓萌」连续 3 天未打卡' }).first(), 'kanban first card');
     await expectVisible(preview.locator('[data-slot="kanban-card-list"][data-kanban-column="todo"]').first(), 'kanban todo droppable list');
-    checks.push('kanban renders board columns, counts, droppable lists, and card anatomy');
+    const secondCard = preview.locator('[data-slot="kanban-card"][data-kanban-task-id="t2"]').first();
+    await secondCard.hover();
+    await expectVisible(secondCard.locator('[data-slot="kanban-drag-handle"]').first(), 'kanban card drag handle');
+    await secondCard.locator('[data-kanban-card-action="priority"]').click();
+    await expectVisible(secondCard.locator('[data-slot="chip"]').filter({ hasText: '高优' }).first(), 'kanban card action updates priority');
+
+    const orderReadout = preview.locator('[data-kanban-order]').first();
+    await expectVisible(orderReadout, 'kanban order readout');
+    const beforeOrder = await orderReadout.textContent();
+    const firstCard = preview.locator('[data-slot="kanban-card"][data-kanban-task-id="t1"]').first();
+    const thirdCard = preview.locator('[data-slot="kanban-card"][data-kanban-task-id="t3"]').first();
+    await dragLocatorToLocator(page, firstCard, thirdCard, 'kanban reorder first card after third card');
+    const afterOrder = await orderReadout.textContent();
+    if (!afterOrder || afterOrder === beforeOrder) {
+      throw new Error('kanban: dragging a card did not update the order readout');
+    }
+    checks.push('kanban renders board anatomy, exposes card actions, drag handles, and real reorder feedback');
   }
 
   await clickComponent(page, 'item-card');

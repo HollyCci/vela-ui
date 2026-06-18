@@ -703,6 +703,22 @@ const setKanbanColumn = (task: KanbanTask, column: string): KanbanTask => ({
   ...task,
   status: column,
 });
+const KANBAN_PRIORITY_ORDER: KanbanTask['priority'][] = ['low', 'normal', 'high'];
+const getNextKanbanPriority = (priority: KanbanTask['priority']) =>
+  KANBAN_PRIORITY_ORDER[(KANBAN_PRIORITY_ORDER.indexOf(priority) + 1) % KANBAN_PRIORITY_ORDER.length];
+const getKanbanBoardOrder = (
+  items: KanbanTask[],
+  columns: { id: string; title: string }[] = KANBAN_COLUMNS,
+) =>
+  columns
+    .map((column) => {
+      const ordered = items
+        .filter((task) => task.status === column.id)
+        .map((task) => task.id)
+        .join(',');
+      return `${column.id}:${ordered || '-'}`;
+    })
+    .join('|');
 
 type KanbanColumnViewProps = {
   kanban: ReturnType<typeof useKanban<KanbanTask>>;
@@ -727,16 +743,36 @@ const KanbanColumnView = ({ kanban, column, actions }: KanbanColumnViewProps) =>
           dragAndDropHooks={dragAndDropHooks}
           renderEmptyState={renderKanbanEmpty}
         >
-          {(task: KanbanTask) => (
-            <Kanban.Card id={task.id} textValue={task.title}>
-              <Kanban.CardContent>
-                <span style={{ fontWeight: 600, lineHeight: 1.4 }}>{task.title}</span>
-                <Chip size="sm" color={KANBAN_PRIORITY[task.priority].color}>
-                  {KANBAN_PRIORITY[task.priority].label}
-                </Chip>
-              </Kanban.CardContent>
-            </Kanban.Card>
-          )}
+          {(task: KanbanTask) => {
+            const nextPriority = getNextKanbanPriority(task.priority);
+            return (
+              <Kanban.Card id={task.id} textValue={task.title} data-kanban-task-id={task.id}>
+                <Kanban.CardContent>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                    <Kanban.DragHandle aria-label={`拖拽 ${task.title}`} />
+                    <span style={{ flex: 1, fontWeight: 600, lineHeight: 1.4 }}>{task.title}</span>
+                    <Chip size="sm" color={KANBAN_PRIORITY[task.priority].color}>
+                      {KANBAN_PRIORITY[task.priority].label}
+                    </Chip>
+                  </div>
+                  <Kanban.CardActions>
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      data-kanban-card-action="priority"
+                      aria-label={`调整 ${task.title} 优先级`}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        kanban.updateItem(task.id, { ...task, priority: nextPriority });
+                      }}
+                    >
+                      {KANBAN_PRIORITY[nextPriority].label}
+                    </Button>
+                  </Kanban.CardActions>
+                </Kanban.CardContent>
+              </Kanban.Card>
+            );
+          }}
         </Kanban.CardList>
       </Kanban.ColumnBody>
     </Kanban.Column>
@@ -766,6 +802,7 @@ const KanbanDemo = () => {
   const distribution = KANBAN_COLUMNS.map(
     (column) => `${column.title} ${kanban.list.items.filter((task) => task.status === column.id).length}`,
   ).join(' · ');
+  const order = getKanbanBoardOrder(kanban.list.items);
 
   return (
     <DemoSection isColumn label="多列 · 拖拽换列 / 列内排序 / 新增任务（回显各列数量）">
@@ -785,7 +822,12 @@ const KanbanDemo = () => {
           />
         ))}
       </Kanban>
-      <div style={{ fontSize: 13, color: 'var(--foreground)' }}>当前分布：{distribution}</div>
+      <div style={{ fontSize: 13, color: 'var(--foreground)' }} data-kanban-distribution>
+        当前分布：{distribution}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-order>
+        当前顺序：{order}
+      </div>
     </DemoSection>
   );
 };
@@ -2943,14 +2985,24 @@ const KanbanDefaultVariantDemo = () => {
     getColumn: getKanbanColumn,
     setColumn: setKanbanColumn,
   });
+  const distribution = KANBAN_COLUMNS.map(
+    (column) => `${column.title} ${kanban.list.items.filter((task) => task.status === column.id).length}`,
+  ).join(' · ');
+  const order = getKanbanBoardOrder(kanban.list.items);
 
   return (
-    <DemoSection label="default kanban">
+    <DemoSection isColumn label="default kanban">
       <Kanban size="sm" style={{ width: 760 }}>
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumnView key={column.id} kanban={kanban} column={column} />
         ))}
       </Kanban>
+      <div style={{ fontSize: 13, color: 'var(--foreground)' }} data-kanban-distribution>
+        当前分布：{distribution}
+      </div>
+      <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-order>
+        当前顺序：{order}
+      </div>
     </DemoSection>
   );
 };
