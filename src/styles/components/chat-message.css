@@ -72,6 +72,10 @@
   }
 }
 
+.chat-message__actions:focus-within {
+  opacity: 1;
+}
+
 .chat-message__action {
   color: var(--muted);
 }

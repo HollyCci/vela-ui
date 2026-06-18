@@ -34,18 +34,22 @@ const CHAT_MESSAGE_DEMO_ANSWER =
 
 const ChatMessageDemo = () => (
   <DemoSection label="用户 / 助手气泡" isColumn>
-    <ChatMessage variant="user">请帮我总结一下这份季度报告的要点。</ChatMessage>
-    <ChatMessage
-      variant="assistant"
-      avatar={<Avatar fallback="AI" />}
-      actions={
-        <ChatMessageActions>
-          <ChatMessageActions.Copy content={CHAT_MESSAGE_DEMO_ANSWER} />
-        </ChatMessageActions>
-      }
-    >
-      {CHAT_MESSAGE_DEMO_ANSWER}
-    </ChatMessage>
+    <ChatMessage.User>
+      <ChatMessage.Bubble>
+        <ChatMessage.Content>请帮我总结一下这份季度报告的要点。</ChatMessage.Content>
+      </ChatMessage.Bubble>
+    </ChatMessage.User>
+    <ChatMessage.Assistant>
+      <ChatMessage.Avatar fallback="AI" show />
+      <ChatMessage.Body>
+        <ChatMessage.Content>{CHAT_MESSAGE_DEMO_ANSWER}</ChatMessage.Content>
+        <ChatMessage.Actions>
+          <ChatMessageActions>
+            <ChatMessageActions.Copy content={CHAT_MESSAGE_DEMO_ANSWER} />
+          </ChatMessageActions>
+        </ChatMessage.Actions>
+      </ChatMessage.Body>
+    </ChatMessage.Assistant>
   </DemoSection>
 );
 
@@ -1958,36 +1962,52 @@ const ChatMessageVariantDemo = ({ variant }: { variant: 'default' | 'loading' | 
   <DemoSection label={`chat-message-${variant}`} isColumn>
     {variant === 'default' && (
       <>
-        <ChatMessage variant="user">请用一句话解释今天的学习风险。</ChatMessage>
-        <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
-          风险集中在阅读理解，建议先补讲题型再追加练习。
-        </ChatMessage>
+        <ChatMessage.User>
+          <ChatMessage.Bubble>
+            <ChatMessage.Content>请用一句话解释今天的学习风险。</ChatMessage.Content>
+          </ChatMessage.Bubble>
+        </ChatMessage.User>
+        <ChatMessage.Assistant>
+          <ChatMessage.Avatar fallback="AI" show />
+          <ChatMessage.Body>
+            <ChatMessage.Content>
+              风险集中在阅读理解，建议先补讲题型再追加练习。
+            </ChatMessage.Content>
+          </ChatMessage.Body>
+        </ChatMessage.Assistant>
       </>
     )}
     {variant === 'loading' && (
-      <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
-        <ChatLoader.Skeleton>
-          <ChatLoader.SkeletonAvatar />
-          <ChatLoader.SkeletonBlock>
-            <ChatLoader.SkeletonLine />
-            <ChatLoader.SkeletonLine />
-            <ChatLoader.SkeletonLine size="sm" />
-          </ChatLoader.SkeletonBlock>
-        </ChatLoader.Skeleton>
-      </ChatMessage>
+      <ChatMessage.Assistant>
+        <ChatMessage.Avatar fallback="AI" show />
+        <ChatMessage.Body>
+          <ChatMessage.Content>
+            <ChatLoader.Skeleton>
+              <ChatLoader.SkeletonAvatar />
+              <ChatLoader.SkeletonBlock>
+                <ChatLoader.SkeletonLine />
+                <ChatLoader.SkeletonLine />
+                <ChatLoader.SkeletonLine size="sm" />
+              </ChatLoader.SkeletonBlock>
+            </ChatLoader.Skeleton>
+          </ChatMessage.Content>
+        </ChatMessage.Body>
+      </ChatMessage.Assistant>
     )}
     {variant === 'with-markdown' && (
-      <ChatMessage
-        variant="assistant"
-        avatar={<Avatar fallback="AI" />}
-        actions={
-          <ChatMessageActions>
-            <ChatMessageActions.Copy content={MARKDOWN_SAMPLE} />
-          </ChatMessageActions>
-        }
-      >
-        <Markdown>{'### 建议\n\n- 先完成 **阅读理解** 错题讲评\n- 追加 `15 min` 课后练习\n\n> 明天复盘完成率。'}</Markdown>
-      </ChatMessage>
+      <ChatMessage.Assistant>
+        <ChatMessage.Avatar fallback="AI" show />
+        <ChatMessage.Body>
+          <ChatMessage.Content>
+            <Markdown>{'### 建议\n\n- 先完成 **阅读理解** 错题讲评\n- 追加 `15 min` 课后练习\n\n> 明天复盘完成率。'}</Markdown>
+          </ChatMessage.Content>
+          <ChatMessage.Actions>
+            <ChatMessageActions>
+              <ChatMessageActions.Copy content={MARKDOWN_SAMPLE} />
+            </ChatMessageActions>
+          </ChatMessage.Actions>
+        </ChatMessage.Body>
+      </ChatMessage.Assistant>
     )}
   </DemoSection>
 );
