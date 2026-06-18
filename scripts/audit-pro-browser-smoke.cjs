@@ -170,8 +170,397 @@ const pressLocatorFor = async (page, locator, ms, label) => {
   await sleep(250);
 };
 
+const hoverLocatorAt = async (page, locator, fx, fy, label) => {
+  await expectVisible(locator, label);
+  await locator.scrollIntoViewIfNeeded();
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`${label} has no bounding box`);
+  await page.mouse.move(box.x + box.width * fx, box.y + box.height * fy, { steps: 8 });
+  await sleep(350);
+};
+
+const expectSlotCount = async (locator, count, label) => {
+  const actual = await locator.count();
+  if (actual !== count) throw new Error(`${label}: expected ${count}, got ${actual}`);
+};
+
+const expectClassIncludes = async (locator, className, label) => {
+  await expectVisible(locator, label);
+  const classes = (await locator.getAttribute('class')) ?? '';
+  if (!classes.split(/\s+/).includes(className)) {
+    throw new Error(`${label}: expected class ${className}, got ${classes}`);
+  }
+};
+
 const runTargetedSmoke = async (page) => {
   const checks = [];
+
+  await clickComponent(page, 'area-chart');
+  {
+    const preview = scoped(page, 'area-chart-stacked');
+    const chart = preview.locator('[data-slot="area-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.84, 0.42, 'area-chart stacked chart');
+    await expectVisible(chart.locator('svg').first(), 'area-chart svg');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Desktop' }).first(), 'area-chart stacked tooltip');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Mobile' }).filter({ hasText: 'Tablet' }).first(), 'area-chart multi-series tooltip values');
+    checks.push('area-chart renders a real SVG chart and shows stacked tooltip content on hover');
+  }
+
+  await clickComponent(page, 'bar-chart');
+  {
+    const preview = scoped(page, 'bar-chart-horizontal-stacked');
+    const chart = preview.locator('[data-slot="bar-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.62, 0.42, 'bar-chart horizontal stacked chart');
+    await expectVisible(chart.locator('svg').first(), 'bar-chart svg');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: /Proposal|Review|Qualified|Demo|Trial|Lead/ }).filter({ hasText: 'Email' }).first(), 'bar-chart stacked tooltip');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Social' }).filter({ hasText: 'Search' }).first(), 'bar-chart multi-series tooltip values');
+    checks.push('bar-chart renders horizontal stacked bars and multi-series tooltip content');
+  }
+
+  await clickComponent(page, 'chart-tooltip');
+  {
+    const preview = scoped(page, 'chart-tooltip-custom-formatters');
+    const chart = preview.locator('[data-slot="line-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.84, 0.42, 'chart-tooltip formatter chart');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Report:' }).first(), 'chart-tooltip formatted header');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: /Revenue: \$|Profit: \$/ }).first(), 'chart-tooltip formatted values');
+    await expectVisible(preview.locator('.chart-tooltip__indicator--line').first(), 'chart-tooltip line indicator');
+    checks.push('chart-tooltip custom formatter content is emitted by a hovered chart');
+  }
+
+  await clickComponent(page, 'composed-chart');
+  {
+    const preview = scoped(page, 'composed-chart-multi-type');
+    const chart = preview.locator('[data-slot="composed-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.84, 0.42, 'composed-chart multi type chart');
+    await expectVisible(chart.locator('svg').first(), 'composed-chart svg');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Trend' }).filter({ hasText: 'Mobile' }).first(), 'composed-chart area and bar tooltip');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Desktop' }).first(), 'composed-chart line tooltip');
+    checks.push('composed-chart combines area, bar, line series with shared tooltip payload');
+  }
+
+  await clickComponent(page, 'line-chart');
+  {
+    const preview = scoped(page, 'line-chart-multi-line-chart-colors');
+    const chart = preview.locator('[data-slot="line-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.84, 0.42, 'line-chart multi line chart');
+    await expectVisible(chart.locator('svg').first(), 'line-chart svg');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Search' }).filter({ hasText: 'Direct' }).first(), 'line-chart multi-series tooltip');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Social' }).first(), 'line-chart third series tooltip');
+    await expectVisible(preview.locator('.chart-tooltip__indicator--line').first(), 'line-chart line indicator tooltip');
+    checks.push('line-chart renders multiple colored lines and line-indicator tooltip content');
+  }
+
+  await clickComponent(page, 'pie-chart');
+  {
+    const preview = scoped(page, 'pie-chart-with-breakdown');
+    await expectVisible(preview.locator('[data-slot="pie-chart"] svg').first(), 'pie-chart svg');
+    const sales = preview.getByRole('button', { name: 'Hide Sales' });
+    await sales.click();
+    await expectVisible(preview.getByRole('button', { name: 'Show Sales' }), 'pie-chart legend toggle state');
+    await expectVisible(preview.locator('.kpi').filter({ hasText: 'Visible share' }).locator('.kpi__value').filter({ hasText: '72%' }).first(), 'pie-chart visible share after legend toggle');
+    await expectVisible(preview.locator('.kpi').filter({ hasText: 'Active segments' }).locator('.kpi__value').filter({ hasText: '3' }).first(), 'pie-chart active segment count');
+    await preview.getByRole('button', { name: 'Hide Product' }).hover();
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Product' }).filter({ hasText: 'Share' }).first(), 'pie-chart legend hover tooltip');
+    checks.push('pie-chart legend buttons toggle visible segments and update breakdown tooltip');
+  }
+
+  await clickComponent(page, 'radar-chart');
+  {
+    const preview = scoped(page, 'radar-chart-multi-series');
+    const chart = preview.locator('[data-slot="radar-chart"]').first();
+    await hoverLocatorAt(page, chart, 0.25, 0.38, 'radar-chart polar chart');
+    await expectVisible(chart.locator('svg').first(), 'radar-chart svg');
+    if ((await chart.locator('.recharts-polar-grid-concentric-polygon').count()) < 2) {
+      throw new Error('radar-chart: expected multiple polygon grid rings');
+    }
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: /Previous|Target|Current/ }).first(), 'radar-chart tooltip series');
+    checks.push('radar-chart renders polar grid and multi-series tooltip on hover');
+  }
+
+  await clickComponent(page, 'radial-chart');
+  {
+    const preview = scoped(page, 'radial-chart-with-legend');
+    await expectVisible(preview.locator('[data-slot="radial-chart"] svg').first(), 'radial-chart svg');
+    await preview.getByRole('button', { name: 'Hide Retention' }).click();
+    await expectVisible(preview.getByRole('button', { name: 'Show Retention' }), 'radial-chart legend toggle state');
+    await expectVisible(preview.getByText('67%'), 'radial-chart average after legend toggle');
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Visible rings' }).filter({ hasText: '3' }).first(), 'radial-chart visible rings tooltip');
+    await preview.getByRole('button', { name: 'Hide Revenue' }).hover();
+    await expectVisible(preview.locator('.chart-tooltip').filter({ hasText: 'Revenue' }).filter({ hasText: 'Score' }).first(), 'radial-chart legend hover tooltip');
+    checks.push('radial-chart legend buttons filter rings and update summary tooltip');
+  }
+
+  await clickComponent(page, 'number-value');
+  {
+    const preview = scoped(page, 'number-value-with-prefix-suffix');
+    await expectSlotCount(preview.locator('[data-slot="number-value"]'), 2, 'number-value count');
+    await expectVisible(preview.locator('[data-slot="number-value-prefix"]').filter({ hasText: 'ARR' }).first(), 'number-value ARR prefix');
+    await expectVisible(preview.locator('[data-slot="number-value-value"]').filter({ hasText: '8,472' }).first(), 'number-value formatted value');
+    await expectVisible(preview.locator('[data-slot="number-value-suffix"]').filter({ hasText: '/月' }).first(), 'number-value suffix');
+    await expectVisible(preview.locator('[data-slot="number-value-prefix"]').filter({ hasText: '排名 #' }).first(), 'number-value rank prefix');
+    checks.push('number-value renders formatted values with prefix and suffix slots');
+  }
+
+  await clickComponent(page, 'trend-chip');
+  {
+    const preview = scoped(page, 'trend-chip-variants');
+    const chips = preview.locator('[data-slot="chip"]');
+    await expectSlotCount(chips, 3, 'trend-chip variants count');
+    await expectClassIncludes(chips.filter({ hasText: '12%' }).first(), 'chip--success', 'trend-chip success variant');
+    await expectClassIncludes(chips.filter({ hasText: '3%' }).first(), 'chip--danger', 'trend-chip danger variant');
+    await expectClassIncludes(chips.filter({ hasText: '0%' }).first(), 'chip--default', 'trend-chip neutral variant');
+    await expectVisible(preview.locator('.trend-chip__indicator svg').first(), 'trend-chip indicator icon');
+    checks.push('trend-chip maps trend direction to semantic chip variants and indicators');
+  }
+
+  await clickComponent(page, 'agenda');
+  {
+    const preview = scoped(page, 'agenda-default');
+    const agenda = preview.locator('[data-slot="agenda"]').first();
+    await expectVisible(agenda, 'agenda root');
+    await preview.getByRole('radio', { name: /月|Month/i }).click();
+    if ((await agenda.getAttribute('data-view')) !== 'month') {
+      throw new Error('agenda: view selector did not switch to month');
+    }
+    await preview.getByRole('radio', { name: /周|Week/i }).click();
+    if ((await agenda.getAttribute('data-view')) !== 'week') {
+      throw new Error('agenda: view selector did not switch back to week');
+    }
+    const event = preview.locator('[data-slot="agenda-event"][data-event-id="6"]').first();
+    await expectVisible(event, 'agenda timed event');
+    await event.click();
+    await expectVisible(preview.locator('[data-slot="agenda-event"][data-event-id="6"][data-selected="true"]').first(), 'agenda selected event');
+    checks.push('agenda switches calendar views and selects a real timed event');
+  }
+
+  await clickComponent(page, 'empty-state');
+  {
+    const preview = scoped(page, 'empty-state-default');
+    const empty = preview.getByRole('status').first();
+    await expectClassIncludes(empty, 'empty-state--md', 'empty-state root size');
+    await expectVisible(preview.locator('.empty-state__media[aria-hidden="true"]').first(), 'empty-state decorative media');
+    await preview.getByRole('button', { name: '刷新 0' }).click();
+    await expectVisible(preview.getByRole('button', { name: '刷新 1' }), 'empty-state action count');
+    checks.push('empty-state renders status semantics and action button feedback');
+  }
+
+  await clickComponent(page, 'kanban');
+  {
+    const preview = scoped(page, 'kanban-default');
+    await expectVisible(preview.locator('[data-slot="kanban"]').first(), 'kanban root');
+    const columns = preview.locator('[data-slot="kanban-column"]');
+    await expectSlotCount(columns, 3, 'kanban column count');
+    await expectVisible(preview.locator('[data-slot="kanban-column-title"]').filter({ hasText: '待跟进' }).first(), 'kanban todo column title');
+    await expectVisible(preview.locator('[data-slot="kanban-column-count"]').filter({ hasText: '3' }).first(), 'kanban todo column count');
+    await expectVisible(preview.locator('[data-slot="kanban-card"]').filter({ hasText: '学员「王晓萌」连续 3 天未打卡' }).first(), 'kanban first card');
+    await expectVisible(preview.locator('[data-slot="kanban-card-list"][data-kanban-column="todo"]').first(), 'kanban todo droppable list');
+    checks.push('kanban renders board columns, counts, droppable lists, and card anatomy');
+  }
+
+  await clickComponent(page, 'item-card');
+  {
+    const preview = scoped(page, 'item-card-pressable');
+    const card = preview.locator('[data-slot="item-card"]').filter({ hasText: '雅思核心词汇' }).first();
+    await expectVisible(card, 'item-card pressable card');
+    if ((await card.getAttribute('role')) !== 'button') {
+      throw new Error('item-card: pressable card did not expose button role');
+    }
+    await card.click();
+    await expectVisible(preview.getByText('已打开课程详情'), 'item-card press feedback');
+    checks.push('item-card pressable root dispatches a card-level press action');
+  }
+
+  await clickComponent(page, 'item-card-group');
+  {
+    const preview = scoped(page, 'item-card-group-pressable');
+    await expectVisible(preview.locator('.item-card-group[role="group"]').first(), 'item-card-group root');
+    const card = preview.locator('[data-slot="item-card"]').filter({ hasText: '考研英语冲刺班' }).first();
+    await expectVisible(card, 'item-card-group pressable item');
+    await card.click();
+    await expectVisible(preview.getByText('已点击：考研英语冲刺班'), 'item-card-group press feedback');
+    checks.push('item-card-group enhances child cards with grouped press callbacks');
+  }
+
+  await clickComponent(page, 'kpi');
+  {
+    const preview = scoped(page, 'kpi-with-actions');
+    await expectVisible(preview.locator('[data-slot="kpi"]').first(), 'kpi root');
+    await expectVisible(preview.locator('.kpi__value').filter({ hasText: '1,286' }).first(), 'kpi initial value');
+    await preview.getByRole('button', { name: '本周' }).click();
+    await expectVisible(preview.locator('.kpi__value').filter({ hasText: '5,214' }).first(), 'kpi toggled value');
+    await expectVisible(preview.getByRole('button', { name: '本月' }), 'kpi action button toggled label');
+    checks.push('kpi action slot changes period label and value state');
+  }
+
+  await clickComponent(page, 'kpi-group');
+  {
+    const horizontal = scoped(page, 'kpi-group-horizontal');
+    const vertical = scoped(page, 'kpi-group-vertical');
+    await expectClassIncludes(horizontal.locator('[data-slot="kpi-group"]').first(), 'kpi-group--horizontal', 'kpi-group horizontal');
+    await expectClassIncludes(vertical.locator('[data-slot="kpi-group"]').first(), 'kpi-group--vertical', 'kpi-group vertical');
+    if ((await horizontal.locator('[data-slot="kpi-group-separator"][aria-hidden="true"]').count()) === 0) {
+      throw new Error('kpi-group: expected decorative aria-hidden separator');
+    }
+    await expectVisible(horizontal.locator('[data-slot="kpi"]').filter({ hasText: '新增学员' }).first(), 'kpi-group child kpi');
+    checks.push('kpi-group exposes horizontal/vertical layouts, separators, and child KPI anatomy');
+  }
+
+  await clickComponent(page, 'widget');
+  {
+    const preview = scoped(page, 'widget-with-table');
+    await expectVisible(preview.locator('[data-slot="widget"]').first(), 'widget root');
+    await expectVisible(preview.locator('[data-slot="widget-header"]').filter({ hasText: '课程排行' }).first(), 'widget header');
+    const header = preview.getByRole('columnheader', { name: /课程|Course|name/i }).first();
+    await expectVisible(header, 'widget embedded data grid header');
+    await header.click();
+    await expectVisible(preview.locator('[data-slot="widget-content"] [data-slot="data-grid"]').first(), 'widget content data grid');
+    checks.push('widget composes header/content slots with an interactive data-grid child');
+  }
+
+  await clickComponent(page, 'chat-attachment');
+  {
+    const preview = scoped(page, 'chat-attachment-composer');
+    await expectVisible(preview.locator('.chat-attachment').filter({ hasText: '家长沟通记录.docx' }).first(), 'chat-attachment initial attachment');
+    await preview.locator('[data-slot="prompt-input-action"][aria-label="添加附件"]').click();
+    await expectVisible(preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }), 'chat-attachment added attachment remove button');
+    await preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }).click();
+    if (await preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }).count() !== 0) {
+      throw new Error('chat-attachment: removed attachment still has a remove button');
+    }
+    await preview.locator('[data-slot="prompt-input-send"]').first().click();
+    await expectVisible(preview.getByText(/已发送：.*附件 1 个/), 'chat-attachment composer sent status');
+    checks.push('chat-attachment composer adds, removes, and submits real attachment chips');
+  }
+
+  await clickComponent(page, 'chat-conversation');
+  {
+    const preview = scoped(page, 'chat-conversation-scroll-button');
+    const conversation = preview.locator('[data-slot="chat-conversation"]').first();
+    await expectVisible(conversation, 'chat-conversation root');
+    await expectSlotCount(preview.locator('[data-slot="chat-conversation-message"]'), 12, 'chat-conversation message count');
+    await conversation.evaluate((node) => {
+      node.scrollTop = 0;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+    });
+    const container = preview.locator('[data-slot="chat-conversation-scroll-button-container"]').first();
+    await expectVisible(container, 'chat-conversation scroll button container');
+    await page.waitForFunction((node) => node.getAttribute('data-state') === 'visible', await container.elementHandle());
+    await preview.locator('[data-slot="chat-conversation-scroll-button"]').first().click();
+    await page.waitForFunction(
+      (node) => node.scrollHeight - node.scrollTop - node.clientHeight <= 28,
+      await conversation.elementHandle(),
+      { timeout: 6000 },
+    );
+    await page.waitForFunction((node) => node.getAttribute('data-state') === 'hidden', await container.elementHandle());
+    checks.push('chat-conversation exposes scroll state and returns to bottom through its scroll button');
+  }
+
+  await clickComponent(page, 'chat-list-view');
+  {
+    const preview = scoped(page, 'chat-list-view-default');
+    await expectVisible(preview.locator('[data-slot="chat-list-view"]').first(), 'chat-list-view root');
+    await expectSlotCount(preview.locator('[data-slot="chat-list-view-item"]'), 3, 'chat-list-view item count');
+    const item = preview.locator('[data-slot="chat-list-view-item"]').filter({ hasText: '文案润色' }).first();
+    await item.click();
+    await expectVisible(preview.getByText('当前选中：3'), 'chat-list-view selected key readout');
+    const selected = (await item.getAttribute('aria-selected')) === 'true' || (await item.getAttribute('data-selected')) !== null;
+    if (!selected) throw new Error('chat-list-view: clicked item did not expose selected state');
+    checks.push('chat-list-view updates a controlled GridList selection');
+  }
+
+  await clickComponent(page, 'chat-loader');
+  {
+    const preview = scoped(page, 'chat-loader-default');
+    await expectVisible(preview.getByRole('status', { name: '自定义加载骨架' }), 'chat-loader custom skeleton status');
+    const statusCount = await preview.getByRole('status').count();
+    if (statusCount < 5) throw new Error(`chat-loader: expected at least 5 status regions, got ${statusCount}`);
+    await expectSlotCount(preview.locator('.chat-loader__skeleton'), 2, 'chat-loader skeleton count');
+    await expectSlotCount(preview.locator('.chat-loader__dot'), 6, 'chat-loader dot count');
+    const dot = preview.locator('.chat-loader__dot').first();
+    const activeAnimation = await dot.evaluate((node) => getComputedStyle(node).animationName);
+    if (activeAnimation === 'none') throw new Error('chat-loader: dot animation is unexpectedly disabled');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForFunction((node) => getComputedStyle(node).animationName === 'none', await dot.elementHandle());
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    checks.push('chat-loader exposes loading status semantics and reduced-motion animation fallback');
+  }
+
+  await clickComponent(page, 'chat-message');
+  {
+    const preview = scoped(page, 'chat-message-with-markdown');
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(page.url()).origin }).catch(() => undefined);
+    await expectVisible(preview.locator('.chat-message--assistant').first(), 'chat-message assistant bubble');
+    await expectVisible(preview.locator('[data-slot="markdown"]').filter({ hasText: '建议' }).first(), 'chat-message markdown content');
+    await expectVisible(preview.locator('[data-slot="markdown-inline-code"]').filter({ hasText: '15 min' }).first(), 'chat-message inline markdown code');
+    const copy = preview.locator('[data-slot="chat-message-action"]').first();
+    await copy.click();
+    await page.waitForFunction(
+      (button) => button.getAttribute('data-copy-status') !== 'idle',
+      await copy.elementHandle(),
+      { timeout: 3000 },
+    );
+    const status = await copy.getAttribute('data-copy-status');
+    if (status !== 'copied' && status !== 'failed') throw new Error(`chat-message: unexpected copy status ${status}`);
+    checks.push('chat-message combines assistant layout, markdown rendering, and copy action feedback');
+  }
+
+  await clickComponent(page, 'markdown');
+  {
+    const preview = scoped(page, 'markdown-streaming');
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(page.url()).origin }).catch(() => undefined);
+    await preview.getByRole('button', { name: '重新播放' }).click();
+    await expectVisible(preview.locator('[data-slot="text-shimmer"]').first(), 'markdown streaming shimmer');
+    await expectVisible(preview.locator('[data-slot="markdown"]').filter({ hasText: 'Streaming Markdown' }).first(), 'markdown streaming heading');
+    await expectVisible(preview.getByText('等待最后一个 token'), 'markdown streamed task item');
+    const defaultPreview = scoped(page, 'markdown-default');
+    const code = defaultPreview.locator('[data-slot="code-block-code"] code[data-language="typescript"]').first();
+    await expectVisible(code, 'markdown fenced code block');
+    const copy = defaultPreview.locator('[data-slot="code-block-copy-button"]').first();
+    await copy.click();
+    await page.waitForFunction(
+      (button) => button.getAttribute('data-copy-status') !== 'idle',
+      await copy.elementHandle(),
+      { timeout: 3000 },
+    );
+    const status = await copy.getAttribute('data-copy-status');
+    if (status !== 'copied' && status !== 'failed') throw new Error(`markdown: unexpected copy status ${status}`);
+    checks.push('markdown streams rich content and keeps code-block copy feedback functional');
+  }
+
+  await clickComponent(page, 'text-shimmer');
+  {
+    const preview = scoped(page, 'text-shimmer-default');
+    const shimmers = preview.locator('[data-slot="text-shimmer"]');
+    await expectSlotCount(shimmers, 2, 'text-shimmer count');
+    await expectVisible(shimmers.filter({ hasText: '正在生成回答…' }).first(), 'text-shimmer first text');
+    await expectVisible(shimmers.filter({ hasText: '检索知识库中…' }).first(), 'text-shimmer second text');
+    const activeAnimation = await shimmers.first().evaluate((node) => getComputedStyle(node).animationName);
+    if (activeAnimation === 'none') throw new Error('text-shimmer: animation is unexpectedly disabled');
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await page.waitForFunction((node) => getComputedStyle(node).animationName === 'none', await shimmers.first().elementHandle());
+    await page.emulateMedia({ reducedMotion: 'no-preference' });
+    checks.push('text-shimmer renders shimmer text and respects reduced-motion media preferences');
+  }
+
+  await clickComponent(page, 'app-layout');
+  {
+    const preview = scoped(page, 'app-layout-with-aside');
+    const layout = preview.locator('[data-app-layout]').first();
+    await expectVisible(layout, 'app-layout root');
+    await preview.getByRole('button', { name: '收起侧栏' }).click();
+    await page.waitForFunction((node) => node.getAttribute('data-sidebar-state') === 'collapsed', await layout.elementHandle());
+    const asideTrigger = preview.locator('[data-slot="app-layout-aside-trigger"]').first();
+    await expectVisible(asideTrigger, 'app-layout aside trigger');
+    await asideTrigger.click();
+    if ((await asideTrigger.getAttribute('aria-expanded')) !== 'false') {
+      throw new Error('app-layout: aside trigger did not expose aria-expanded=false after toggle');
+    }
+    await expectVisible(preview.locator('[data-slot="app-layout-aside"][data-state="closed"]').first(), 'app-layout closed aside');
+    await preview.getByRole('button', { name: '课程' }).click();
+    await expectVisible(preview.getByText('当前模块：courses'), 'app-layout active navigation state');
+    checks.push('app-layout coordinates sidebar collapse, aside trigger state, and nested navigation');
+  }
 
   await clickComponent(page, 'timeline');
   {
