@@ -2508,9 +2508,20 @@ const SidebarVariantMenuRows = ({
   </>
 );
 
+const readSidebarCookieState = () => {
+  if (typeof document === 'undefined') return true;
+  const match = /(?:^|;\s*)sidebar_state=(true|false)/.exec(document.cookie);
+  return match === null ? true : match[1] === 'true';
+};
+
 const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
   const [open, setOpen] = useState(variant !== 'icon-only');
   const [current, setCurrent] = useState('dashboard');
+  const [routePath, setRoutePath] = useState('/app/dashboard');
+  const [persistedOpen, setPersistedOpen] = useState(readSidebarCookieState);
+  const [persistedMessage, setPersistedMessage] = useState(
+    readSidebarCookieState() ? 'sidebar_state=true' : 'sidebar_state=false',
+  );
   const side = variant === 'right-side' ? 'right' : 'left';
   const sidebarVariant = variant === 'floating-variant' ? 'floating' : variant === 'inset-variant' ? 'inset' : 'sidebar';
   const collapsible = variant === 'collapsible' || variant === 'collapsible-groups' ? 'offcanvas' : 'icon';
@@ -2531,6 +2542,99 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
   const handleOpenChange = (next: boolean) => setOpen(next);
   const handleSelect = (id: string) => () => setCurrent(id);
 
+  if (variant === 'persisted-state') {
+    return (
+      <DemoSection label="persisted state" isColumn>
+        <div style={SIDEBAR_VARIANT_FRAME_STYLE}>
+          <Sidebar.Provider
+            defaultOpen={persistedOpen}
+            onOpenChange={(next) => {
+              setPersistedOpen(next);
+              setPersistedMessage(`sidebar_state=${String(next)}`);
+            }}
+            toggleShortcut={false}
+          >
+            <Sidebar>
+              <Sidebar.Header>
+                <div style={{ padding: '8px 4px', fontWeight: 600 }}>Vela</div>
+              </Sidebar.Header>
+              <Sidebar.Content>
+                <Sidebar.Group>
+                  <Sidebar.Menu aria-label="持久化导航">
+                    <SidebarVariantMenuRows current={current} onSelect={handleSelect} />
+                  </Sidebar.Menu>
+                </Sidebar.Group>
+              </Sidebar.Content>
+              <Sidebar.Rail />
+            </Sidebar>
+            <Sidebar.Main>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
+                <Sidebar.Trigger />
+                <span style={VARIANT_MUTED_STYLE}>{persistedMessage}</span>
+              </div>
+              <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>
+                非受控开合会写入 cookie，下一次用 defaultOpen 还原。
+              </div>
+            </Sidebar.Main>
+          </Sidebar.Provider>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'client-side-routing') {
+    return (
+      <DemoSection label="client-side routing" isColumn>
+        <div style={SIDEBAR_VARIANT_FRAME_STYLE}>
+          <Sidebar.Provider
+            open={open}
+            onOpenChange={handleOpenChange}
+            navigate={(href) => setRoutePath(href)}
+            toggleShortcut={false}
+          >
+            <Sidebar>
+              <Sidebar.Header>
+                <div style={{ padding: '8px 4px', fontWeight: 600 }}>Vela</div>
+              </Sidebar.Header>
+              <Sidebar.Content>
+                <Sidebar.Group>
+                  <Sidebar.GroupLabel>Routes</Sidebar.GroupLabel>
+                  <Sidebar.Menu aria-label="客户端路由">
+                    {SIDEBAR_VARIANT_ITEMS.map((item) => {
+                      const href = `/app/${item.id}`;
+                      return (
+                        <Sidebar.MenuItem
+                          key={item.id}
+                          id={item.id}
+                          href={href}
+                          textValue={item.label}
+                          isCurrent={routePath === href}
+                        >
+                          <Sidebar.MenuItemContent>
+                            <Sidebar.MenuIcon>{item.icon}</Sidebar.MenuIcon>
+                            <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
+                          </Sidebar.MenuItemContent>
+                        </Sidebar.MenuItem>
+                      );
+                    })}
+                  </Sidebar.Menu>
+                </Sidebar.Group>
+              </Sidebar.Content>
+              <Sidebar.Rail />
+            </Sidebar>
+            <Sidebar.Main>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
+                <Sidebar.Trigger />
+                <span style={VARIANT_MUTED_STYLE}>navigate({routePath})</span>
+              </div>
+              <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>当前路径：{routePath}</div>
+            </Sidebar.Main>
+          </Sidebar.Provider>
+        </div>
+      </DemoSection>
+    );
+  }
+
   return (
     <DemoSection label={variant} isColumn>
       <div style={SIDEBAR_VARIANT_FRAME_STYLE}>
@@ -2541,7 +2645,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
           variant={sidebarVariant}
           collapsible={collapsible}
           reduceMotion={variant === 'reduced-motion'}
-          toggleShortcut={false}
+          toggleShortcut={variant === 'keyboard-shortcut' ? 'mod+b' : false}
         >
           <Sidebar>
             <Sidebar.Header>
@@ -2699,6 +2803,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
               <Sidebar.Trigger />
               <span style={VARIANT_MUTED_STYLE}>
                 当前：{current} · {open ? '展开' : '收起'} · {side === 'right' ? '右侧' : sidebarVariant}
+                {variant === 'keyboard-shortcut' ? ' · Ctrl/Cmd+B' : ''}
               </span>
             </div>
             <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>
@@ -3136,11 +3241,14 @@ export const feedbackNavVariantDemos: Record<string, ReactNode> = {
   'sidebar-collapsible-groups': <SidebarVariantDemo variant="collapsible-groups" />,
   'sidebar-compact-with-user-menu': <SidebarVariantDemo variant="compact-with-user-menu" />,
   'sidebar-complex': <SidebarVariantDemo variant="complex" />,
+  'sidebar-client-side-routing': <SidebarVariantDemo variant="client-side-routing" />,
   'sidebar-default': <SidebarVariantDemo variant="default" />,
   'sidebar-floating-variant': <SidebarVariantDemo variant="floating-variant" />,
   'sidebar-icon-only': <SidebarVariantDemo variant="icon-only" />,
   'sidebar-inset-variant': <SidebarVariantDemo variant="inset-variant" />,
+  'sidebar-keyboard-shortcut': <SidebarVariantDemo variant="keyboard-shortcut" />,
   'sidebar-meeting-notes': <SidebarVariantDemo variant="meeting-notes" />,
+  'sidebar-persisted-state': <SidebarVariantDemo variant="persisted-state" />,
   'sidebar-reduced-motion': <SidebarVariantDemo variant="reduced-motion" />,
   'sidebar-right-side': <SidebarVariantDemo variant="right-side" />,
   'sidebar-with-avatar': <SidebarVariantDemo variant="with-avatar" />,

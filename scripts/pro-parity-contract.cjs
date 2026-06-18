@@ -72,7 +72,7 @@ const componentContracts = {
   'context-menu': ['context-trigger', 'submenu', 'checkbox-radio-items', 'keyboard-navigation'],
   navbar: ['responsive-menu', 'dropdown-actions', 'active-state', 'client-routing', 'programmatic-control'],
   segment: ['single-select', 'controlled-value', 'keyboard-navigation'],
-  sidebar: ['collapse-state', 'mobile-sheet', 'nested-navigation', 'keyboard-navigation'],
+  sidebar: ['collapse-state', 'mobile-sheet', 'nested-navigation', 'keyboard-navigation', 'persisted-state', 'client-routing'],
   stepper: ['step-state', 'orientation', 'controlled-step', 'actions'],
 
   'emoji-picker': ['popover-grid', 'search-filter', 'skin-tone', 'selection-action'],
@@ -146,7 +146,7 @@ const referenceVariantCounts = {
   'context-menu': 7,
   navbar: 13,
   segment: 11,
-  sidebar: 15,
+  sidebar: 18,
   stepper: 19,
 
   'emoji-picker': 4,
@@ -159,7 +159,6 @@ const referenceVariantCounts = {
 const liveReferenceVariantCounts = {
   agenda: 8,
   'app-layout': 20,
-  sidebar: 18,
 };
 
 const browserSmokeComponents = [

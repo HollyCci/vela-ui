@@ -2544,6 +2544,16 @@
         "demo": "sidebar-collapsible"
       },
       {
+        "heading": "Keyboard Shortcut",
+        "anchor": "keyboard-shortcut",
+        "demo": "sidebar-keyboard-shortcut"
+      },
+      {
+        "heading": "Persisted State",
+        "anchor": "persisted-state",
+        "demo": "sidebar-persisted-state"
+      },
+      {
         "heading": "Reduced Motion",
         "anchor": "reduced-motion",
         "demo": "sidebar-reduced-motion"
@@ -2567,6 +2577,11 @@
         "heading": "Icon Only",
         "anchor": "icon-only",
         "demo": "sidebar-icon-only"
+      },
+      {
+        "heading": "Client-Side Routing",
+        "anchor": "client-side-routing",
+        "demo": "sidebar-client-side-routing"
       }
     ]
   },
