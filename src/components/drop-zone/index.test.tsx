@@ -111,6 +111,48 @@ describe('DropZone', () => {
     expect(input.value).toBe('');
   });
 
+  it('root accept/maxSize are inherited by input and validate queued input files', () => {
+    let api!: ReturnType<typeof useDropZoneQueue>;
+    const { container } = render(
+      <DropZone accept=".pdf,image/*" maxSize={2048} simulateUpload={false}>
+        <QueueProbe onReady={(a) => (api = a)} />
+        <DropZone.Area>
+          <DropZone.Input />
+        </DropZone.Area>
+        <DropZone.FileQueue />
+      </DropZone>,
+    );
+
+    const input = container.querySelector('input[type="file"]') as HTMLInputElement;
+    expect(input).toHaveAttribute('accept', '.pdf,image/*');
+
+    fireEvent.change(input, {
+      target: {
+        files: [
+          makeFile('ok.pdf', 'application/pdf', 1024),
+          makeFile('large.png', 'image/png', 4096),
+          makeFile('notes.txt', 'text/plain', 512),
+        ],
+      },
+    });
+
+    expect(api.files).toHaveLength(3);
+    expect(api.files[0]).toMatchObject({ name: 'ok.pdf', status: 'complete', progress: 100 });
+    expect(api.files[1]).toMatchObject({
+      name: 'large.png',
+      status: 'failed',
+      color: 'red',
+      progress: 0,
+    });
+    expect(api.files[1].error).toContain('文件大小不能超过');
+    expect(api.files[2]).toMatchObject({
+      name: 'notes.txt',
+      status: 'failed',
+      color: 'red',
+      error: '不支持的文件类型：.pdf,image/*',
+    });
+  });
+
   it('disabled input does not enqueue files on change', () => {
     const onQueueChange = vi.fn();
     const { container } = render(
@@ -142,6 +184,34 @@ describe('DropZone', () => {
       color: 'red',
       error: 'too big',
       progress: 0,
+    });
+  });
+
+  it('queue validation also applies to files added from a drop source', () => {
+    let api!: ReturnType<typeof useDropZoneQueue>;
+    render(
+      <DropZone accept=".pdf" maxSize={1024} simulateUpload={false}>
+        <QueueProbe onReady={(a) => (api = a)} />
+      </DropZone>,
+    );
+
+    act(() => {
+      api.addFiles(
+        [
+          { name: 'drop.pdf', type: 'application/pdf', size: 512 },
+          { name: 'drop.txt', type: 'text/plain', size: 512 },
+        ],
+        { source: 'drop' },
+      );
+    });
+
+    expect(api.files).toHaveLength(2);
+    expect(api.files[0]).toMatchObject({ name: 'drop.pdf', source: 'drop', status: 'complete' });
+    expect(api.files[1]).toMatchObject({
+      name: 'drop.txt',
+      source: 'drop',
+      status: 'failed',
+      error: '不支持的文件类型：.pdf',
     });
   });
 
@@ -304,6 +374,38 @@ describe('DropZone', () => {
       expect(api.files[0].status).toBe('failed');
       expect(api.files[0].canRetry).toBe(true);
       expect(api.files[0].progress).toBe(100);
+    });
+
+    it('default FileQueue renders progress and retries a failed upload through queue state', () => {
+      let api!: ReturnType<typeof useDropZoneQueue>;
+      render(
+        <DropZone
+          simulateUpload
+          uploadInterval={100}
+          shouldFailUpload={(item) => item.attempt === 1}
+        >
+          <QueueProbe onReady={(a) => (api = a)} />
+          <DropZone.FileQueue />
+        </DropZone>,
+      );
+
+      act(() => api.addFiles([{ name: 'retry.pdf', type: 'application/pdf' }]));
+      expect(screen.getByLabelText('retry.pdf 上传进度')).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(100 * 20);
+      });
+      expect(api.files[0]).toMatchObject({ status: 'failed', canRetry: true, progress: 100 });
+      expect(screen.getByRole('button', { name: '重试' })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole('button', { name: '重试' }));
+      expect(api.files[0]).toMatchObject({ status: 'uploading', attempt: 2, progress: 8 });
+      expect(screen.getByLabelText('retry.pdf 上传进度')).toBeInTheDocument();
+
+      act(() => {
+        vi.advanceTimersByTime(100 * 20);
+      });
+      expect(api.files[0]).toMatchObject({ status: 'complete', progress: 100, canRetry: false });
     });
   });
 });

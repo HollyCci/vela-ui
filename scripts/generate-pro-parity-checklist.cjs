@@ -32,6 +32,7 @@ const highRiskNotes = {
   'pressable-feedback': 'Smoke covers progress completion; still needs ripple, press duration, and keyboard feedback comparison.',
   rating: 'Smoke covers radio selection; still needs hover preview, readonly, and half-step comparison.',
   resizable: 'Smoke covers pointer resize; still needs keyboard resize, collapse, and nested group comparison.',
+  'cell-slider': 'Smoke covers forced horizontal orientation plus controlled keyboard and pointer-drag value updates; grouped visual and DOM/CSS comparison remains pending.',
   'native-select': 'Smoke covers native value updates, root invalid propagation to the select element, and keyboard focus-visible ring; grouped/options visual comparison remains pending.',
   'prompt-input': 'Smoke covers attachment submit; still needs autosize, stop/send states, queue reorder, suggestions, and dropzone comparison.',
   'rich-text-editor': 'Smoke covers text input and toolbar state; still needs each toolbar command, link popover, and character-count comparison.',

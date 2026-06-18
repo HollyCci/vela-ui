@@ -60,6 +60,17 @@ describe('CellSlider', () => {
     );
   });
 
+  it('forces horizontal orientation even when runtime props include orientation', () => {
+    const { container } = renderSlider({
+      defaultValue: 50,
+      orientation: 'vertical',
+    });
+    expect(container.querySelector('[data-slot="cell-slider"]')).toHaveAttribute(
+      'data-orientation',
+      'horizontal',
+    );
+  });
+
   it('reflects controlled value on the range input and the output text', () => {
     const { container } = renderSlider({ value: 42 });
     // RAC renders the thumb as a native <input type="range"> (implicit role=slider)

@@ -107,6 +107,7 @@ type DropZoneUploadCandidate = DropZoneUploadFileLike & {
 type DropZoneFilePickerContextValue = DropZoneUploadQueueApi & {
   inputRef: RefObject<HTMLInputElement | null>;
   isDisabled: boolean;
+  accept?: string;
   addDropItems: (items: Iterable<DropZoneDropItem> | ArrayLike<DropZoneDropItem>) => void;
 };
 
@@ -154,6 +155,26 @@ const formatUploadFileSize = (size?: number) => {
   return `${(size / 1024 / 1024).toFixed(1).replace(/\.0$/, '')} MB`;
 };
 
+const normalizeAcceptTokens = (accept?: string) =>
+  accept
+    ?.split(',')
+    .map((token) => token.trim().toLowerCase())
+    .filter(Boolean) ?? [];
+
+const isUploadFileAccepted = (file: DropZoneUploadFileLike, accept?: string) => {
+  const tokens = normalizeAcceptTokens(accept);
+  if (tokens.length === 0) return true;
+
+  const fileName = file.name.toLowerCase();
+  const fileType = file.type?.toLowerCase() ?? '';
+
+  return tokens.some((token) => {
+    if (token.startsWith('.')) return fileName.endsWith(token);
+    if (token.endsWith('/*')) return fileType.startsWith(token.slice(0, -1));
+    return fileType === token;
+  });
+};
+
 const getUploadProgressStep = (progress: number) => {
   if (progress < 30) return 18;
   if (progress < 75) return 12;
@@ -182,6 +203,10 @@ export type DropZoneProps = HTMLAttributes<HTMLDivElement> & {
   render?: DropZoneRenderFunction;
   /** 禁用整个上传区，同时禁用拖放区域、触发按钮与隐藏文件输入 */
   isDisabled?: boolean;
+  /** 允许的文件类型，语法与原生 input accept 一致，并用于拖放/API 入队校验。 */
+  accept?: string;
+  /** 单文件最大字节数；超过后进入失败队列项。 */
+  maxSize?: number;
   /** 受控上传队列。提供后由外部负责持久化 onQueueChange 返回的新队列。 */
   queue?: DropZoneUploadQueueItem[];
   /** 非受控上传队列初始值。 */
@@ -210,6 +235,8 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       render,
       className,
       isDisabled = false,
+      accept,
+      maxSize,
       queue,
       defaultQueue = [],
       onQueueChange,
@@ -277,6 +304,21 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       [uploadFailureMessage],
     );
 
+    const validateConstraints = useCallback(
+      (file: DropZoneUploadFileLike) => {
+        if (!isUploadFileAccepted(file, accept)) return `不支持的文件类型：${accept}`;
+        if (
+          typeof maxSize === 'number' &&
+          typeof file.size === 'number' &&
+          file.size > maxSize
+        ) {
+          return `文件大小不能超过 ${formatUploadFileSize(maxSize)}`;
+        }
+        return undefined;
+      },
+      [accept, maxSize],
+    );
+
     // interval 回调闭包按创建时刻捕获这些值；用 latestRef 持有最新值避免读到陈旧闭包
     const latestRef = useRef({
       commitQueue,
@@ -301,7 +343,11 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       ): DropZoneUploadQueueItem => {
         const normalizedFile = normalizeUploadFile(fileLike);
         const now = Date.now();
-        const validationError = fileLike.error ?? validateFile?.(normalizedFile) ?? undefined;
+        const validationError =
+          fileLike.error ??
+          validateConstraints(normalizedFile) ??
+          validateFile?.(normalizedFile) ??
+          undefined;
         const status: DropZoneFileStatus =
           validationError !== undefined ? 'failed' : simulateUpload ? 'uploading' : 'complete';
         const progress =
@@ -330,7 +376,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
           updatedAt: now,
         };
       },
-      [getFileId, simulateUpload, validateFile],
+      [getFileId, simulateUpload, validateConstraints, validateFile],
     );
 
     const addFiles = useCallback<DropZoneUploadQueueApi['addFiles']>(
@@ -377,7 +423,9 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
           previousQueue.map((item) => {
             if (item.id !== id || item.status !== 'failed') return item;
 
-            const validationError = validateFile?.(item.file ?? item) ?? undefined;
+            const retryCandidate = item.file ?? item;
+            const validationError =
+              validateConstraints(retryCandidate) ?? validateFile?.(retryCandidate) ?? undefined;
             const status: DropZoneFileStatus =
               validationError !== undefined ? 'failed' : simulateUpload ? 'uploading' : 'complete';
             const progress =
@@ -396,7 +444,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
           }),
         );
       },
-      [commitQueue, simulateUpload, validateFile],
+      [commitQueue, simulateUpload, validateConstraints, validateFile],
     );
 
     const removeFile = useCallback(
@@ -486,6 +534,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       () => ({
         inputRef,
         isDisabled,
+        accept,
         files: queueItems,
         addFiles,
         addDropItems,
@@ -496,6 +545,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
       [
         addDropItems,
         addFiles,
+        accept,
         clearQueue,
         isDisabled,
         queueItems,
@@ -662,9 +712,10 @@ export type DropZoneInputProps = Omit<
 
 /** 隐藏文件输入（快照中为 Area 的兄弟节点）；注册到根 context 供 Trigger 点击 */
 const Input = forwardRef<HTMLInputElement, DropZoneInputProps>(
-  ({ onSelect, onChange, className, disabled, ...rest }, ref) => {
+  ({ onSelect, onChange, className, disabled, accept, ...rest }, ref) => {
     const context = useContext(DropZoneFilePickerContext);
     const mergedDisabled = context?.isDisabled === true || disabled === true;
+    const mergedAccept = context?.accept ?? accept;
 
     const handleRef = (node: HTMLInputElement | null) => {
       if (context !== null) context.inputRef.current = node;
@@ -693,6 +744,7 @@ const Input = forwardRef<HTMLInputElement, DropZoneInputProps>(
         data-slot="drop-zone-input"
         className={clsx('drop-zone__input', className)}
         disabled={mergedDisabled}
+        accept={mergedAccept}
         onChange={handleChange}
         {...rest}
         ref={handleRef}
@@ -705,9 +757,10 @@ Input.displayName = 'DropZone.Input';
 export type DropZoneFileListProps = HTMLAttributes<HTMLDivElement>;
 
 const FileList = forwardRef<HTMLDivElement, DropZoneFileListProps>(
-  ({ className, ...rest }, ref) => (
+  ({ className, role = 'list', ...rest }, ref) => (
     <div
       ref={ref}
+      role={role}
       data-slot="drop-zone-file-list"
       className={clsx('drop-zone__file-list', className)}
       {...rest}
@@ -721,9 +774,10 @@ export type DropZoneFileItemProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 const FileItem = forwardRef<HTMLDivElement, DropZoneFileItemProps>(
-  ({ status, className, ...rest }, ref) => (
+  ({ status, className, role = 'listitem', ...rest }, ref) => (
     <div
       ref={ref}
+      role={role}
       data-slot="drop-zone-file-item"
       data-status={status}
       className={clsx('drop-zone__file-item', className)}
@@ -927,7 +981,11 @@ const DefaultFileQueueItem = ({ item, queue }: DefaultFileQueueItemProps) => {
   const handleRemove = () => queue.removeFile(item.id);
 
   return (
-    <FileItem status={item.status}>
+    <FileItem
+      status={item.status}
+      data-source={item.source}
+      data-retryable={item.canRetry || undefined}
+    >
       <FileFormatIcon format={item.format} color={item.color} />
       <FileInfo>
         <FileName>{item.name}</FileName>

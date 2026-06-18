@@ -973,12 +973,30 @@ const runTargetedSmoke = async (page) => {
   await clickComponent(page, 'cell-slider');
   {
     const preview = scoped(page, 'cell-slider-controlled');
-    await expectVisible(preview.locator('[data-slot="cell-slider"]').first(), 'cell-slider root');
+    const root = preview.locator('[data-slot="cell-slider"]').first();
+    await expectVisible(root, 'cell-slider root');
+    const orientation = await root.getAttribute('data-orientation');
+    if (orientation !== 'horizontal') {
+      throw new Error(`cell-slider: expected forced horizontal orientation, got ${orientation}`);
+    }
     const slider = preview.getByRole('slider', { name: /学习密度/ });
     await slider.focus();
     await page.keyboard.press('ArrowRight');
-    await expectVisible(preview.locator('[data-slot="cell-slider-label"]').filter({ hasText: '学习密度：63%' }).first(), 'cell-slider controlled label');
-    checks.push('cell-slider keyboard step updates the controlled value label');
+    const label = preview.locator('[data-slot="cell-slider-label"]').filter({ hasText: /学习密度：\d+%/ }).first();
+    await expectVisible(label.filter({ hasText: '学习密度：63%' }), 'cell-slider controlled label');
+    const readPercent = async () => {
+      const text = await label.innerText();
+      const match = text.match(/(\d+)%/);
+      if (!match) throw new Error(`cell-slider: could not read percent from "${text}"`);
+      return Number(match[1]);
+    };
+    const beforeDrag = await readPercent();
+    await dragLocatorBy(page, preview.locator('[data-slot="cell-slider-thumb"]').first(), 80, 0, 'cell-slider thumb');
+    const afterDrag = await readPercent();
+    if (afterDrag <= beforeDrag) {
+      throw new Error(`cell-slider: expected pointer drag to increase value, got ${beforeDrag}% -> ${afterDrag}%`);
+    }
+    checks.push('cell-slider stays horizontal and updates controlled value through keyboard and pointer drag');
   }
 
   await clickComponent(page, 'cell-switch');

@@ -16,9 +16,9 @@ import RichTextEditor, { type RichTextEditorJSONContent } from '../../components
 import NumberStepper from '../../components/number-stepper';
 import InlineSelect from '../../components/inline-select';
 import DropZone, {
-  isDropZoneFileItem,
-  type DropZoneAreaProps,
   type DropZoneFileFormatIconColor,
+  type DropZoneFileStatus,
+  type DropZoneUploadQueueItem,
 } from '../../components/drop-zone';
 import CellSwitch from '../../components/cell-switch';
 import CellSelect from '../../components/cell-select';
@@ -529,460 +529,230 @@ const InlineSelectDemo = () => {
   );
 };
 
+const UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
+const DOCUMENT_ACCEPT = '.pdf,.doc,.docx';
+const IMAGE_ACCEPT = 'image/png,image/jpeg,image/webp,image/gif';
+
+type DemoQueueFileLike = {
+  name: string;
+  size?: number;
+  type?: string;
+};
+
 /** 从文件名提取大写扩展名作为格式徽标 */
 const getFileFormat = (name: string) => {
   const ext = name.includes('.') ? name.split('.').pop() : undefined;
   return ext !== undefined && ext !== '' ? ext.toUpperCase() : 'FILE';
 };
 
-const UPLOAD_MAX_BYTES = 20 * 1024 * 1024;
-const UPLOAD_ALLOWED_EXTENSIONS = new Set(['pdf', 'doc', 'docx']);
-const IMAGE_ALLOWED_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'webp', 'gif']);
-
-type DemoUploadFileLike = {
-  name: string;
-  size?: number;
-  type?: string;
-};
-
-type DemoUploadFile = {
-  id: string;
-  name: string;
-  format: string;
-  color: DropZoneFileFormatIconColor;
-  size: string;
-  status: 'complete' | 'failed';
-  reason?: string;
-};
-
-const formatFileSize = (size?: number) => {
-  if (typeof size !== 'number') return '大小未知';
-  if (size < 1024 * 1024) return `${Math.max(1, Math.round(size / 1024))} KB`;
-  return `${(size / 1024 / 1024).toFixed(1).replace(/\.0$/, '')} MB`;
-};
-
-const getFileExtension = (name: string) => name.split('.').pop()?.toLowerCase() ?? '';
-
-const getUploadFailureReason = (file: DemoUploadFileLike) => {
-  const extension = getFileExtension(file.name);
-  if (!UPLOAD_ALLOWED_EXTENSIONS.has(extension)) return '仅支持 PDF、DOC、DOCX';
-  if (typeof file.size === 'number' && file.size > UPLOAD_MAX_BYTES) return '超过 20MB 限制';
-  return undefined;
-};
-
-const getUploadIconColor = (
+const getDemoQueueIconColor = (
   format: string,
-  status: DemoUploadFile['status'],
+  status: DropZoneFileStatus,
 ): DropZoneFileFormatIconColor => {
   if (status === 'failed') return 'red';
-  if (format === 'PDF') return 'orange';
+  if (format === 'PDF' || format === 'ZIP') return 'orange';
   if (format === 'DOC' || format === 'DOCX') return 'blue';
+  if (format === 'XLS' || format === 'XLSX' || format === 'CSV') return 'green';
+  if (format === 'PNG' || format === 'JPG' || format === 'JPEG' || format === 'WEBP') return 'purple';
   return 'gray';
 };
 
-const createUploadFile = (
-  file: DemoUploadFileLike,
+const createDemoQueueItem = (
+  file: DemoQueueFileLike,
   id: string,
-  forcedFailureReason?: string,
-): DemoUploadFile => {
-  const reason = forcedFailureReason ?? getUploadFailureReason(file);
-  const status = reason === undefined ? 'complete' : 'failed';
+  status: DropZoneFileStatus,
+  options: Partial<Pick<DropZoneUploadQueueItem, 'progress' | 'error' | 'canRetry'>> = {},
+): DropZoneUploadQueueItem => {
   const format = getFileFormat(file.name);
+  const now = Date.now();
 
   return {
     id,
     name: file.name,
+    size: file.size,
+    type: file.type,
     format,
-    color: getUploadIconColor(format, status),
-    size: formatFileSize(file.size),
+    color: getDemoQueueIconColor(format, status),
     status,
-    reason,
+    progress: options.progress ?? (status === 'complete' ? 100 : status === 'failed' ? 100 : 45),
+    error: options.error,
+    canRetry: options.canRetry ?? false,
+    attempt: 1,
+    source: 'api',
+    createdAt: now,
+    updatedAt: now,
   };
 };
 
-const createImageUploadFile = (file: DemoUploadFileLike, id: string): DemoUploadFile => {
-  const extension = getFileExtension(file.name);
-  const isImage =
-    IMAGE_ALLOWED_EXTENSIONS.has(extension) ||
-    (typeof file.type === 'string' && file.type.startsWith('image/'));
-  const reason = isImage ? undefined : '仅支持 PNG、JPG、WEBP、GIF';
-  const status = reason === undefined ? 'complete' : 'failed';
-
-  return {
-    id,
-    name: file.name,
-    format: getFileFormat(file.name),
-    color: status === 'failed' ? 'red' : 'purple',
-    size: formatFileSize(file.size),
-    status,
-    reason,
-  };
-};
-
-type DemoFileEntryProps = {
-  file: DemoUploadFile;
-  onRemove: (id: string) => void;
-};
-
-/** 回显条目：单独成组件以便事件处理具名（JSX 内禁匿名函数） */
-const DemoFileEntry = ({ file, onRemove }: DemoFileEntryProps) => {
-  const handleRemove = () => onRemove(file.id);
-  const meta =
-    file.status === 'failed' ? `${file.size} | ${file.reason ?? '校验失败'}` : `${file.size} | 已添加`;
-
-  return (
-    <DropZone.FileItem status={file.status}>
-      <DropZone.FileFormatIcon format={file.format} color={file.color} />
-      <DropZone.FileInfo>
-        <DropZone.FileName>{file.name}</DropZone.FileName>
-        <DropZone.FileMeta>{meta}</DropZone.FileMeta>
-      </DropZone.FileInfo>
-      <DropZone.FileRemoveTrigger aria-label={`移除 ${file.name}`} onPress={handleRemove} />
-    </DropZone.FileItem>
-  );
-};
-
-type DemoStatusFile = {
-  id: string;
-  name: string;
-  format: string;
-  color: 'green' | 'orange';
-  size: string;
-  status: 'uploading' | 'failed';
-  progress?: number;
-};
-
-const INITIAL_STATUS_FILES: DemoStatusFile[] = [
-  {
-    id: 'spring-students',
-    name: '学员名单-2026春季班.xlsx',
-    format: 'XLSX',
-    color: 'green',
-    size: '1.2 MB',
-    status: 'uploading',
-    progress: 45,
-  },
-  {
-    id: 'course-backup',
-    name: '课件备份.zip',
-    format: 'ZIP',
-    color: 'orange',
-    size: '18 MB',
-    status: 'failed',
-  },
+const INITIAL_STATUS_FILES: DropZoneUploadQueueItem[] = [
+  createDemoQueueItem(
+    { name: '学员名单-2026春季班.xlsx', size: 1.2 * 1024 * 1024 },
+    'spring-students',
+    'uploading',
+    { progress: 45 },
+  ),
+  createDemoQueueItem(
+    { name: '课件备份.zip', size: 18 * 1024 * 1024 },
+    'course-backup',
+    'failed',
+    { error: '上传失败，请重试', canRetry: true },
+  ),
 ];
 
-const INITIAL_COMPACT_FILES: DemoUploadFile[] = [
-  createUploadFile({ name: '课程合同.pdf', size: 640 * 1024 }, 'compact-contract'),
-  createUploadFile({ name: '课堂记录.docx', size: 1.4 * 1024 * 1024 }, 'compact-notes'),
+const INITIAL_COMPACT_FILES: DropZoneUploadQueueItem[] = [
+  createDemoQueueItem({ name: '课程合同.pdf', size: 640 * 1024 }, 'compact-contract', 'complete'),
+  createDemoQueueItem({ name: '课堂记录.docx', size: 1.4 * 1024 * 1024 }, 'compact-notes', 'complete'),
 ];
 
-const INITIAL_MAX_SIZE_FILES: DemoUploadFile[] = [
-  createUploadFile({ name: '课程说明.pdf', size: 820 * 1024 }, 'max-size-valid'),
-  createUploadFile({ name: '完整资料包.docx', size: 24.6 * 1024 * 1024 }, 'max-size-invalid'),
+const INITIAL_MAX_SIZE_FILES: DropZoneUploadQueueItem[] = [
+  createDemoQueueItem({ name: '课程说明.pdf', size: 820 * 1024 }, 'max-size-valid', 'complete'),
+  createDemoQueueItem(
+    { name: '完整资料包.docx', size: 24.6 * 1024 * 1024 },
+    'max-size-invalid',
+    'failed',
+    { error: '文件大小不能超过 20 MB' },
+  ),
 ];
 
-type DemoStatusFileEntryProps = {
-  file: DemoStatusFile;
-  onRemove: (id: string) => void;
-  onRetry: (id: string) => void;
-};
-
-const DemoStatusFileEntry = ({ file, onRemove, onRetry }: DemoStatusFileEntryProps) => {
-  const handleRemove = () => onRemove(file.id);
-  const handleRetry = () => onRetry(file.id);
-  const meta =
-    file.status === 'failed'
-      ? `${file.size} | 上传失败`
-      : `${file.size} | ${file.progress === 35 ? '重新上传中…' : '上传中…'}`;
-
-  return (
-    <DropZone.FileItem status={file.status}>
-      <DropZone.FileFormatIcon format={file.format} color={file.color} />
-      <DropZone.FileInfo>
-        <DropZone.FileName>{file.name}</DropZone.FileName>
-        <DropZone.FileMeta>{meta}</DropZone.FileMeta>
-        {file.status === 'uploading' && (
-          <DropZone.FileProgress value={file.progress ?? 45} aria-label={`${file.name} 上传进度`}>
-            <DropZone.FileProgressTrack>
-              <DropZone.FileProgressFill />
-            </DropZone.FileProgressTrack>
-          </DropZone.FileProgress>
-        )}
-        {file.status === 'failed' && (
-          <DropZone.FileRetryTrigger onPress={handleRetry}>重试</DropZone.FileRetryTrigger>
-        )}
-      </DropZone.FileInfo>
-      <DropZone.FileRemoveTrigger aria-label={`移除 ${file.name}`} onPress={handleRemove} />
-    </DropZone.FileItem>
-  );
-};
-
-const useDropZoneUploadFiles = () => {
-  const [uploadFiles, setUploadFiles] = useState<DemoUploadFile[]>([]);
-
-  const handleDrop: NonNullable<DropZoneAreaProps['onDrop']> = (event) => {
-    const batchId = Date.now().toString(36);
-    const uploadItems = event.items.filter(isDropZoneFileItem);
-
-    void Promise.all(
-      uploadItems.map(async (item, index) => {
-        const id = `${batchId}-drop-${index}`;
-        try {
-          const file = await item.getFile();
-          return createUploadFile(file, id);
-        } catch {
-          return createUploadFile(
-            { name: item.name, type: item.type },
-            id,
-            '无法读取拖放文件',
-          );
-        }
-      }),
-    ).then((files) => {
-      if (files.length > 0) setUploadFiles(files);
-    });
-  };
-  // 文件选择器：DropZone.Input 的 onSelect（参考 API 签名 FileList）
-  const handleSelect = (files: FileList) => {
-    const batchId = Date.now().toString(36);
-    setUploadFiles(
-      Array.from(files).map((file, index) => createUploadFile(file, `${batchId}-select-${index}`)),
-    );
-  };
-  const handleRemoveFile = (id: string) =>
-    setUploadFiles((prev) => prev.filter((file) => file.id !== id));
-
-  return { handleDrop, handleSelect, handleRemoveFile, uploadFiles };
-};
+const shouldFailBackupUpload = (item: DropZoneUploadQueueItem) =>
+  item.name.includes('备份') && item.attempt < 3;
 
 const DropZoneDefaultVariantDemo = () => {
-  const { handleDrop, handleSelect, handleRemoveFile, uploadFiles } = useDropZoneUploadFiles();
-
   return (
     <DemoSection label="拖放高亮 + 文件选择回显" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area onDrop={handleDrop}>
+      <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
+        <DropZone.Area>
           <DropZone.Icon />
           <DropZone.Label>拖拽文件到此处上传</DropZone.Label>
           <DropZone.Description>支持 PDF、Word，单个不超过 20MB</DropZone.Description>
           <DropZone.Trigger>选择文件</DropZone.Trigger>
         </DropZone.Area>
-        <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
-        {uploadFiles.length > 0 && (
-          <DropZone.FileList>
-            {uploadFiles.map((file) => (
-              <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-            ))}
-          </DropZone.FileList>
-        )}
+        <DropZone.Input multiple />
+        <DropZone.FileQueue />
       </DropZone>
     </DemoSection>
   );
 };
 
-const DropZoneMultipleFilesVariantDemo = () => {
-  const { handleDrop, handleSelect, handleRemoveFile, uploadFiles } = useDropZoneUploadFiles();
+const DropZoneMultipleFilesVariantDemo = () => (
+  <DemoSection label="多文件上传" isColumn>
+    <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
+      <DropZone.Area>
+        <DropZone.Icon />
+        <DropZone.Label>一次拖入多个课件文件</DropZone.Label>
+        <DropZone.Description>支持批量选择，列表会持续追加</DropZone.Description>
+        <DropZone.Trigger>批量选择</DropZone.Trigger>
+      </DropZone.Area>
+      <DropZone.Input multiple />
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-  return (
-    <DemoSection label="多文件上传" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area onDrop={handleDrop}>
-          <DropZone.Icon />
-          <DropZone.Label>一次拖入多个课件文件</DropZone.Label>
-          <DropZone.Description>支持批量选择，列表会按本次选择结果刷新</DropZone.Description>
-          <DropZone.Trigger>批量选择</DropZone.Trigger>
-        </DropZone.Area>
-        <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
-        {uploadFiles.length > 0 && (
-          <DropZone.FileList>
-            {uploadFiles.map((file) => (
-              <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-            ))}
-          </DropZone.FileList>
-        )}
-      </DropZone>
-    </DemoSection>
-  );
-};
+const DropZoneCustomIconVariantDemo = () => (
+  <DemoSection label="自定义图标" isColumn>
+    <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
+      <DropZone.Area>
+        <DropZone.Icon>
+          <BookIcon />
+        </DropZone.Icon>
+        <DropZone.Label>上传课程资料</DropZone.Label>
+        <DropZone.Description>课程图标会帮助区分资料类型</DropZone.Description>
+        <DropZone.Trigger>选择资料</DropZone.Trigger>
+      </DropZone.Area>
+      <DropZone.Input multiple />
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-const DropZoneCustomIconVariantDemo = () => {
-  const { handleSelect, handleRemoveFile, uploadFiles } = useDropZoneUploadFiles();
+const DropZoneCustomTriggersVariantDemo = () => (
+  <DemoSection label="自定义触发器" isColumn>
+    <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
+      <DropZone.Area>
+        <DropZone.Icon />
+        <DropZone.Label>从多个入口选择文件</DropZone.Label>
+        <DropZone.Description>可从合同或附件入口选择文件</DropZone.Description>
+        <div style={{ display: 'flex', gap: 8 }}>
+          <DropZone.Trigger>上传合同</DropZone.Trigger>
+          <DropZone.Trigger>上传附件</DropZone.Trigger>
+        </div>
+      </DropZone.Area>
+      <DropZone.Input multiple />
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-  return (
-    <DemoSection label="自定义图标" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area>
-          <DropZone.Icon>
-            <BookIcon />
-          </DropZone.Icon>
-          <DropZone.Label>上传课程资料</DropZone.Label>
-          <DropZone.Description>课程图标会帮助区分资料类型</DropZone.Description>
-          <DropZone.Trigger>选择资料</DropZone.Trigger>
-        </DropZone.Area>
-        <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
-        {uploadFiles.length > 0 && (
-          <DropZone.FileList>
-            {uploadFiles.map((file) => (
-              <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-            ))}
-          </DropZone.FileList>
-        )}
-      </DropZone>
-    </DemoSection>
-  );
-};
+const DropZoneImageOnlyVariantDemo = () => (
+  <DemoSection label="仅图片" isColumn>
+    <DropZone accept={IMAGE_ACCEPT} style={{ width: 420 }}>
+      <DropZone.Area>
+        <DropZone.Icon />
+        <DropZone.Label>上传封面图</DropZone.Label>
+        <DropZone.Description>仅接收 PNG、JPG、WEBP、GIF</DropZone.Description>
+        <DropZone.Trigger>选择图片</DropZone.Trigger>
+      </DropZone.Area>
+      <DropZone.Input multiple />
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-const DropZoneCustomTriggersVariantDemo = () => {
-  const { handleSelect, handleRemoveFile, uploadFiles } = useDropZoneUploadFiles();
+const DropZoneMaxSizeLimitVariantDemo = () => (
+  <DemoSection label="大小限制反馈" isColumn>
+    <DropZone
+      accept={DOCUMENT_ACCEPT}
+      maxSize={UPLOAD_MAX_BYTES}
+      defaultQueue={INITIAL_MAX_SIZE_FILES}
+      replaceQueueOnAdd
+      simulateUpload={false}
+      style={{ width: 420 }}
+    >
+      <DropZone.Area>
+        <DropZone.Icon />
+        <DropZone.Label>上传小于 20MB 的文档</DropZone.Label>
+        <DropZone.Description>超过限制的文件会进入失败状态</DropZone.Description>
+        <DropZone.Trigger>选择文件</DropZone.Trigger>
+      </DropZone.Area>
+      <DropZone.Input multiple />
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-  return (
-    <DemoSection label="自定义触发器" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area>
-          <DropZone.Icon />
-          <DropZone.Label>从多个入口选择文件</DropZone.Label>
-          <DropZone.Description>可从合同或附件入口选择文件</DropZone.Description>
-          <div style={{ display: 'flex', gap: 8 }}>
-            <DropZone.Trigger>上传合同</DropZone.Trigger>
-            <DropZone.Trigger>上传附件</DropZone.Trigger>
-          </div>
-        </DropZone.Area>
-        <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
-        {uploadFiles.length > 0 && (
-          <DropZone.FileList>
-            {uploadFiles.map((file) => (
-              <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-            ))}
-          </DropZone.FileList>
-        )}
-      </DropZone>
-    </DemoSection>
-  );
-};
+const DropZoneCompactFileListVariantDemo = () => (
+  <DemoSection label="紧凑文件列表" isColumn>
+    <DropZone defaultQueue={INITIAL_COMPACT_FILES} simulateUpload={false} style={{ width: 360 }}>
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
-const DropZoneImageOnlyVariantDemo = () => {
-  const [imageFiles, setImageFiles] = useState<DemoUploadFile[]>([]);
-  const handleSelect = (files: FileList) => {
-    const batchId = Date.now().toString(36);
-    setImageFiles(
-      Array.from(files).map((file, index) =>
-        createImageUploadFile(file, `${batchId}-image-${index}`),
-      ),
-    );
-  };
-  const handleRemoveFile = (id: string) =>
-    setImageFiles((prev) => prev.filter((file) => file.id !== id));
-
-  return (
-    <DemoSection label="仅图片" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area>
-          <DropZone.Icon />
-          <DropZone.Label>上传封面图</DropZone.Label>
-          <DropZone.Description>仅接收 PNG、JPG、WEBP、GIF</DropZone.Description>
-          <DropZone.Trigger>选择图片</DropZone.Trigger>
-        </DropZone.Area>
-        <DropZone.Input accept="image/png,image/jpeg,image/webp,image/gif" multiple onSelect={handleSelect} />
-        {imageFiles.length > 0 && (
-          <DropZone.FileList>
-            {imageFiles.map((file) => (
-              <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-            ))}
-          </DropZone.FileList>
-        )}
-      </DropZone>
-    </DemoSection>
-  );
-};
-
-const DropZoneMaxSizeLimitVariantDemo = () => {
-  const [files, setFiles] = useState<DemoUploadFile[]>(INITIAL_MAX_SIZE_FILES);
-  const handleRemoveFile = (id: string) => setFiles((prev) => prev.filter((file) => file.id !== id));
-  const handleSelect = (selectedFiles: FileList) => {
-    setFiles(
-      Array.from(selectedFiles).map((file, index) =>
-        createUploadFile(file, `max-size-selected-${file.name}-${index}`),
-      ),
-    );
-  };
-
-  return (
-    <DemoSection label="大小限制反馈" isColumn>
-      <DropZone style={{ width: 420 }}>
-        <DropZone.Area>
-          <DropZone.Icon />
-          <DropZone.Label>上传小于 20MB 的文档</DropZone.Label>
-          <DropZone.Description>超过限制的文件会进入失败状态</DropZone.Description>
-          <DropZone.Trigger>选择文件</DropZone.Trigger>
-        </DropZone.Area>
-        <DropZone.Input accept=".pdf,.doc,.docx" multiple onSelect={handleSelect} />
-        <DropZone.FileList>
-          {files.map((file) => (
-            <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-          ))}
-        </DropZone.FileList>
-      </DropZone>
-    </DemoSection>
-  );
-};
-
-const DropZoneCompactFileListVariantDemo = () => {
-  const [files, setFiles] = useState<DemoUploadFile[]>(INITIAL_COMPACT_FILES);
-  const handleRemoveFile = (id: string) => setFiles((prev) => prev.filter((file) => file.id !== id));
-
-  return (
-    <DemoSection label="紧凑文件列表" isColumn>
-      <DropZone style={{ width: 360 }}>
-        <DropZone.FileList>
-          {files.map((file) => (
-            <DemoFileEntry key={file.id} file={file} onRemove={handleRemoveFile} />
-          ))}
-        </DropZone.FileList>
-      </DropZone>
-    </DemoSection>
-  );
-};
-
-const DropZoneUploadProgressVariantDemo = () => {
-  const [statusFiles, setStatusFiles] = useState<DemoStatusFile[]>(INITIAL_STATUS_FILES);
-  const handleRemoveStatusFile = (id: string) =>
-    setStatusFiles((prev) => prev.filter((file) => file.id !== id));
-  const handleRetryStatusFile = (id: string) =>
-    setStatusFiles((prev) =>
-      prev.map((file) =>
-        file.id === id ? { ...file, status: 'uploading', progress: 35 } : file,
-      ),
-    );
-
-  return (
-    <DemoSection label="上传进度与失败重试">
-      <DropZone style={{ width: 420 }}>
-        <DropZone.FileList>
-          {statusFiles.map((file) => (
-            <DemoStatusFileEntry
-              key={file.id}
-              file={file}
-              onRemove={handleRemoveStatusFile}
-              onRetry={handleRetryStatusFile}
-            />
-          ))}
-        </DropZone.FileList>
-      </DropZone>
-    </DemoSection>
-  );
-};
+const DropZoneUploadProgressVariantDemo = () => (
+  <DemoSection label="上传进度与失败重试">
+    <DropZone
+      defaultQueue={INITIAL_STATUS_FILES}
+      uploadInterval={650}
+      uploadFailureMessage="上传失败，请重试"
+      shouldFailUpload={shouldFailBackupUpload}
+      style={{ width: 420 }}
+    >
+      <DropZone.FileQueue />
+    </DropZone>
+  </DemoSection>
+);
 
 const DropZoneDisabledVariantDemo = () => (
   <DemoSection label="整体禁用" isColumn>
-    <DropZone isDisabled style={{ width: 420 }}>
+    <DropZone isDisabled accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon />
         <DropZone.Label>上传入口已锁定</DropZone.Label>
         <DropZone.Description>禁用状态会同时阻止拖放与文件选择</DropZone.Description>
         <DropZone.Trigger>选择文件</DropZone.Trigger>
       </DropZone.Area>
-      <DropZone.Input accept=".pdf,.doc,.docx" multiple />
+      <DropZone.Input multiple />
     </DropZone>
   </DemoSection>
 );

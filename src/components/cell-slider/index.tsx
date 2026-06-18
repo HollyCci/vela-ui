@@ -115,7 +115,12 @@ Output.displayName = 'CellSlider.Output';
  */
 const CellSliderRoot = ({ variant = 'default', className, ...rest }: CellSliderProps) => (
   <CellSliderContext.Provider value={variant}>
-    <Slider data-slot="cell-slider" className={clsx('cell-slider', className)} {...rest} />
+    <Slider
+      {...rest}
+      orientation="horizontal"
+      data-slot="cell-slider"
+      className={clsx('cell-slider', className)}
+    />
   </CellSliderContext.Provider>
 );
 CellSliderRoot.displayName = 'CellSlider';
