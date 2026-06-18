@@ -2759,15 +2759,21 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
 
     return (
       <DemoSection label={`sheet-${variant}`} isColumn>
-        <Sheet placement="bottom" isOpen={isOpen} onOpenChange={setIsOpen}>
+        <Sheet
+          placement="bottom"
+          isOpen={isOpen}
+          onOpenChange={setIsOpen}
+          snapPoints={snapHeights}
+          activeSnapPoint={snapHeights[snapStep]}
+          onActiveSnapPointChange={(snapPoint) => {
+            const nextIndex = snapHeights.findIndex((height) => height === snapPoint);
+            if (nextIndex >= 0) setSnapStep(nextIndex);
+          }}
+        >
           <Sheet.Trigger variant="secondary">打开 Snap Sheet</Sheet.Trigger>
           <Sheet.Backdrop variant={variant === 'snap-points-custom-fade' ? 'blur' : 'opaque'}>
             <Sheet.Content>
-              <Sheet.Dialog
-                snapPoints={snapHeights}
-                activeSnapPoint={snapStep}
-                onSnapPointChange={setSnapStep}
-              >
+              <Sheet.Dialog>
                 <Sheet.Handle />
                 <Sheet.Header>
                   <Sheet.Heading>{snapLabels[snapStep]}高度</Sheet.Heading>

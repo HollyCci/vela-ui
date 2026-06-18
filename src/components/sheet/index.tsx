@@ -2,11 +2,13 @@
 
 import {
   createContext,
+  useEffect,
   useContext,
   useRef,
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
 } from 'react';
@@ -36,6 +38,7 @@ import clsx from 'clsx';
 export type SheetPlacement = 'top' | 'bottom' | 'left' | 'right';
 export type SheetBackdrop = 'opaque' | 'blur' | 'transparent';
 export type SheetSnapPoint = number | string;
+export type SheetActiveSnapPoint = SheetSnapPoint | null;
 
 /**
  * Root（即 OSS Drawer = RAC DialogTrigger）：管理 isOpen/defaultOpen/onOpenChange 与 trigger 关联、焦点圈定。
@@ -45,6 +48,23 @@ export type SheetSnapPoint = number | string;
 export type SheetProps = Omit<DrawerRootProps, 'className' | 'style'> & {
   placement?: SheetPlacement;
   isDetached?: boolean;
+  /** HeroUI Pro-compatible root-level snap points. Dialog-level props are still accepted for older demos. */
+  snapPoints?: SheetSnapPoint[];
+  /** Root-level controlled snap point value. Numeric values match a snap point first, then fall back to index. */
+  activeSnapPoint?: SheetActiveSnapPoint;
+  /** Root-level uncontrolled initial snap point value. */
+  defaultActiveSnapPoint?: SheetActiveSnapPoint;
+  /** Root-level snap point value callback, matching the Pro API shape. */
+  onActiveSnapPointChange?: (snapPoint: SheetActiveSnapPoint) => void;
+  /** Legacy index callback kept for local callers that already consume indexes. */
+  onSnapPointChange?: (index: number) => void;
+  /** Fraction of the sheet dimension required before a drag closes the sheet. */
+  closeThreshold?: number;
+  /** Reference prop retained for API parity; backdrop fade is handled by the Backdrop variant in this implementation. */
+  fadeFromIndex?: number;
+  /** Enables nested-sheet parent scaling when a child sheet is open. */
+  shouldScaleBackground?: boolean;
+  onClose?: () => void;
 };
 
 export type SheetTriggerProps = Omit<ButtonProps, 'className' | 'style'> & {
@@ -92,6 +112,7 @@ export type SheetHandleProps = Omit<DrawerHandleProps, 'className' | 'style'> & 
   style?: CSSProperties;
   /** 抓手按下回调：本层用它把手势交给 framer-motion 的拖拽关闭（底座 Handle 已透传到底层 div） */
   onPointerDown?: (event: ReactPointerEvent<HTMLDivElement>) => void;
+  onClick?: (event: ReactMouseEvent<HTMLDivElement>) => void;
 };
 
 export type SheetCloseTriggerProps = Omit<DrawerCloseTriggerProps, 'className' | 'style'> & {
@@ -108,12 +129,32 @@ export type SheetCloseProps = Omit<ButtonProps, 'className' | 'style' | 'slot'> 
 type SheetContextValue = {
   placement: SheetPlacement;
   isDetached: boolean;
+  snapPoints?: SheetSnapPoint[];
+  activeSnapPoint?: SheetActiveSnapPoint;
+  defaultActiveSnapPoint?: SheetActiveSnapPoint;
+  onActiveSnapPointChange?: (snapPoint: SheetActiveSnapPoint) => void;
+  onSnapPointChange?: (index: number) => void;
+  closeThreshold: number;
+  shouldScaleBackground: boolean;
+  nestedOpen: boolean;
+  setNestedOpen?: (isOpen: boolean) => void;
 };
 
-const SheetContext = createContext<SheetContextValue>({ placement: 'bottom', isDetached: false });
+const SheetContext = createContext<SheetContextValue>({
+  placement: 'bottom',
+  isDetached: false,
+  closeThreshold: 0.3,
+  shouldScaleBackground: true,
+  nestedOpen: false,
+});
 
 /** Dialog 把 framer-motion 的 dragControls 经 context 下发给 Handle：抓手 pointerdown 即 start 拖拽 */
-const SheetDragContext = createContext<DragControls | null>(null);
+type SheetDragContextValue = {
+  dragControls: DragControls;
+  cycleSnapPoint?: () => void;
+};
+
+const SheetDragContext = createContext<SheetDragContextValue | null>(null);
 
 /** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐目标交互手感 */
 const DISMISS_FRACTION = 0.3;
@@ -146,6 +187,20 @@ const hasSnapPoints = (snapPoints: SheetSnapPoint[] | undefined) =>
 
 const toCssSize = (value: SheetSnapPoint | undefined) =>
   typeof value === 'number' ? `${value}px` : value;
+
+const snapPointToIndex = (
+  value: SheetActiveSnapPoint | undefined,
+  snapPoints: SheetSnapPoint[],
+  fallbackIndex: number,
+) => {
+  if (value === undefined) return clampIndex(fallbackIndex, snapPoints.length);
+  if (value === null) return 0;
+
+  const exactIndex = snapPoints.findIndex((snapPoint) => snapPoint === value);
+  if (exactIndex >= 0) return exactIndex;
+
+  return typeof value === 'number' ? clampIndex(value, snapPoints.length) : fallbackIndex;
+};
 
 /**
  * Trigger：直接渲染 OSS Button 作为 RAC DialogTrigger（Sheet Root）的触发器。
@@ -210,17 +265,40 @@ const Dialog = ({
   style,
   ...rest
 }: SheetDialogProps) => {
-  const { placement } = useContext(SheetContext);
+  const sheetContext = useContext(SheetContext);
+  const {
+    placement,
+    snapPoints: rootSnapPoints,
+    activeSnapPoint: rootActiveSnapPoint,
+    defaultActiveSnapPoint: rootDefaultActiveSnapPoint,
+    onActiveSnapPointChange,
+    onSnapPointChange: onRootSnapPointChange,
+    closeThreshold,
+    shouldScaleBackground,
+    nestedOpen,
+  } = sheetContext;
   const overlayState = useContext(OverlayTriggerStateContext);
   const vertical = isVerticalPlacement(placement);
   const sign = dismissSign(placement);
-  const resolvedSnapPoints = snapPoints ?? [];
+  const resolvedSnapPoints = snapPoints ?? rootSnapPoints ?? [];
   const snapsEnabled = hasSnapPoints(resolvedSnapPoints);
   const [uncontrolledSnapPoint, setUncontrolledSnapPoint] = useState(() =>
-    snapsEnabled ? clampIndex(defaultActiveSnapPoint, resolvedSnapPoints.length) : 0,
+    snapsEnabled
+      ? snapPointToIndex(
+          rootSnapPoints === undefined ? defaultActiveSnapPoint : rootDefaultActiveSnapPoint,
+          resolvedSnapPoints,
+          defaultActiveSnapPoint,
+        )
+      : 0,
   );
+  const rootSnapControlled = rootSnapPoints !== undefined && rootActiveSnapPoint !== undefined;
+  const dialogSnapControlled = activeSnapPoint !== undefined;
   const currentSnapPoint = snapsEnabled
-    ? clampIndex(activeSnapPoint ?? uncontrolledSnapPoint, resolvedSnapPoints.length)
+    ? dialogSnapControlled
+      ? clampIndex(activeSnapPoint, resolvedSnapPoints.length)
+      : rootSnapControlled
+        ? snapPointToIndex(rootActiveSnapPoint, resolvedSnapPoints, uncontrolledSnapPoint)
+        : clampIndex(uncontrolledSnapPoint, resolvedSnapPoints.length)
     : 0;
   const currentSnapValue = snapsEnabled ? resolvedSnapPoints[currentSnapPoint] : undefined;
   const currentSnapSize = toCssSize(currentSnapValue);
@@ -249,8 +327,19 @@ const Dialog = ({
   const setSnapPoint = (index: number) => {
     if (!snapsEnabled) return;
     const nextIndex = clampIndex(index, resolvedSnapPoints.length);
-    if (activeSnapPoint === undefined) setUncontrolledSnapPoint(nextIndex);
-    if (nextIndex !== currentSnapPoint) onSnapPointChange?.(nextIndex);
+    const nextSnapPoint = resolvedSnapPoints[nextIndex] ?? null;
+
+    if (!dialogSnapControlled && !rootSnapControlled) setUncontrolledSnapPoint(nextIndex);
+    if (nextIndex !== currentSnapPoint) {
+      onSnapPointChange?.(nextIndex);
+      onRootSnapPointChange?.(nextIndex);
+      onActiveSnapPointChange?.(nextSnapPoint);
+    }
+  };
+
+  const cycleSnapPoint = () => {
+    if (!snapsEnabled) return;
+    setSnapPoint((currentSnapPoint + 1) % resolvedSnapPoints.length);
   };
 
   const handleDragEnd = (_event: unknown, info: PanInfo) => {
@@ -286,7 +375,7 @@ const Dialog = ({
     }
 
     const shouldDismiss =
-      directedTravel > dimension * DISMISS_FRACTION || directedSpeed > VELOCITY_THRESHOLD;
+      directedTravel > dimension * closeThreshold || directedSpeed > VELOCITY_THRESHOLD;
 
     if (shouldDismiss && overlayState) {
       overlayState.close();
@@ -295,7 +384,7 @@ const Dialog = ({
   };
 
   return (
-    <SheetDragContext.Provider value={dragControls}>
+    <SheetDragContext.Provider value={{ dragControls, cycleSnapPoint }}>
       {/*
        * motion.div 作为 .drawer__content 的 flex 子项「包住」整块面板（Drawer.Dialog），
        * drag 的 transform 平移整块面板的视觉盒（背景/圆角/阴影都在内层 .drawer__dialog 上）。
@@ -321,24 +410,23 @@ const Dialog = ({
         dragTransition={{ bounceStiffness: 520, bounceDamping: 44 }}
         dragMomentum={false}
         style={{
-          // 让 wrapper 在 .drawer__content 的 flex 布局里等价于原 Dialog 的占位与尺寸
           display: 'flex',
           flexDirection: 'column',
-          flex: 'auto',
-          minHeight: 0,
-          width: '100%',
-          ...(vertical ? { y: offset } : { x: offset }),
+          ...(vertical
+            ? { flex: 'auto', minHeight: 0, width: '100%', y: offset }
+            : { height: '100%', minWidth: 0, x: offset }),
         }}
         transition={SNAP_TRANSITION}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
-        className="sheet__drag-surface"
+        className={clsx('sheet__drag-surface', `sheet__drag-surface--${placement}`)}
       >
         <Drawer.Dialog
           data-slot="sheet-dialog"
           data-sheet-snap-points={snapsEnabled ? 'true' : undefined}
           data-sheet-snap-index={snapsEnabled ? currentSnapPoint : undefined}
           data-sheet-snap-point={snapsEnabled ? String(currentSnapValue) : undefined}
+          data-sheet-nested-open={shouldScaleBackground && nestedOpen ? '' : undefined}
           className={clsx('sheet__dialog', `sheet__dialog--${placement}`, className)}
           style={{ ...style, ...snapStyle }}
           {...rest}
@@ -379,15 +467,20 @@ Footer.displayName = 'Sheet.Footer';
  * 拖拽手柄：底座 Handle 自带内嵌 bar（drawer.css 已渲染为可见药丸）；本层叠加 sheet__handle 视觉。
  * 抓手上的 pointerdown 桥接到 Dialog 的 framer-motion drag，使「抓手按下即可向下拖拽关闭」。
  */
-const Handle = ({ className, onPointerDown, ...rest }: SheetHandleProps) => {
-  const dragControls = useContext(SheetDragContext);
+const Handle = ({ className, onPointerDown, onClick, ...rest }: SheetHandleProps) => {
+  const dragContext = useContext(SheetDragContext);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     onPointerDown?.(event);
     // 抓手按下即把手势交给 Dialog 的 framer-motion 拖拽（dragListener=false 时唯一入口）
-    dragControls?.start(event);
+    dragContext?.dragControls.start(event);
     // 阻止冒泡到 Drawer.Dialog 自带的指针拖拽 onPointerDown，避免 CSS transform 与 motion 双引擎冲突
     event.stopPropagation();
+  };
+
+  const handleClick = (event: ReactMouseEvent<HTMLDivElement>) => {
+    onClick?.(event);
+    if (!event.defaultPrevented) dragContext?.cycleSnapPoint?.();
   };
 
   return (
@@ -395,6 +488,7 @@ const Handle = ({ className, onPointerDown, ...rest }: SheetHandleProps) => {
       data-slot="sheet-handle"
       className={clsx('sheet__handle', className)}
       onPointerDown={handlePointerDown}
+      onClick={handleClick}
       {...rest}
     />
   );
@@ -416,26 +510,106 @@ CloseTrigger.displayName = 'Sheet.CloseTrigger';
  * framer-motion 在 Sheet.Dialog 上接入：手柄向关闭方向拖动，超过位移/速度阈值即关闭，否则弹回。
  * placement（底/顶/左/右）与 isDetached 经 context 下发到 Content/Dialog 叠加 `sheet__*` 修饰类。
  */
-const SheetRoot = ({ placement = 'bottom', isDetached = false, children, ...rest }: SheetProps) => (
-  <SheetContext.Provider value={{ placement, isDetached }}>
-    <Drawer data-slot="sheet" {...rest}>
-      {children}
-    </Drawer>
-  </SheetContext.Provider>
-);
+const SheetRoot = ({
+  placement = 'bottom',
+  isDetached = false,
+  children,
+  snapPoints,
+  activeSnapPoint,
+  defaultActiveSnapPoint,
+  onActiveSnapPointChange,
+  onSnapPointChange,
+  closeThreshold = DISMISS_FRACTION,
+  shouldScaleBackground = true,
+  onClose,
+  onOpenChange,
+  ...rest
+}: SheetProps) => {
+  const [nestedOpen, setNestedOpen] = useState(false);
+  const handleOpenChange = (nextOpen: boolean) => {
+    onOpenChange?.(nextOpen);
+    if (!nextOpen) onClose?.();
+  };
+
+  return (
+    <SheetContext.Provider
+      value={{
+        placement,
+        isDetached,
+        snapPoints,
+        activeSnapPoint,
+        defaultActiveSnapPoint,
+        onActiveSnapPointChange,
+        onSnapPointChange,
+        closeThreshold,
+        shouldScaleBackground,
+        nestedOpen,
+        setNestedOpen,
+      }}
+    >
+      <Drawer data-slot="sheet" onOpenChange={handleOpenChange} {...rest}>
+        {children}
+      </Drawer>
+    </SheetContext.Provider>
+  );
+};
 SheetRoot.displayName = 'Sheet';
 
 /**
  * 嵌套 sheet（参考实现 Sheet.NestedRoot）：放在另一个 Sheet 内部，复用同样的 placement/detached 下发逻辑。
  * 底座无独立嵌套 root，这里以新的 DialogTrigger 形成第二层模态，父层 sheet 仍保持打开。
  */
-const NestedRoot = ({ placement = 'bottom', isDetached = false, children, ...rest }: SheetProps) => (
-  <SheetContext.Provider value={{ placement, isDetached }}>
-    <Drawer data-slot="sheet-nested" {...rest}>
-      {children}
-    </Drawer>
-  </SheetContext.Provider>
-);
+const NestedRoot = ({
+  placement = 'bottom',
+  isDetached = false,
+  children,
+  snapPoints,
+  activeSnapPoint,
+  defaultActiveSnapPoint,
+  onActiveSnapPointChange,
+  onSnapPointChange,
+  closeThreshold = DISMISS_FRACTION,
+  shouldScaleBackground = true,
+  onClose,
+  onOpenChange,
+  isOpen,
+  ...rest
+}: SheetProps) => {
+  const { setNestedOpen } = useContext(SheetContext);
+
+  useEffect(() => {
+    if (isOpen === undefined) return undefined;
+    setNestedOpen?.(isOpen);
+    return () => setNestedOpen?.(false);
+  }, [isOpen, setNestedOpen]);
+
+  const handleOpenChange = (nextOpen: boolean) => {
+    setNestedOpen?.(nextOpen);
+    onOpenChange?.(nextOpen);
+    if (!nextOpen) onClose?.();
+  };
+
+  return (
+    <SheetContext.Provider
+      value={{
+        placement,
+        isDetached,
+        snapPoints,
+        activeSnapPoint,
+        defaultActiveSnapPoint,
+        onActiveSnapPointChange,
+        onSnapPointChange,
+        closeThreshold,
+        shouldScaleBackground,
+        nestedOpen: false,
+      }}
+    >
+      <Drawer data-slot="sheet-nested" isOpen={isOpen} onOpenChange={handleOpenChange} {...rest}>
+        {children}
+      </Drawer>
+    </SheetContext.Provider>
+  );
+};
 NestedRoot.displayName = 'Sheet.NestedRoot';
 
 const Sheet = Object.assign(SheetRoot, {

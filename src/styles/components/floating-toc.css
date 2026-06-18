@@ -50,6 +50,10 @@
   display: flex;
 }
 
+.floating-toc__trigger .floating-toc__bar {
+  pointer-events: none;
+}
+
 [data-placement=left]>.floating-toc__bar {
   justify-content: flex-start;
 }

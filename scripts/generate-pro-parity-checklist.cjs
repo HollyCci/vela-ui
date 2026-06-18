@@ -39,7 +39,7 @@ const highRiskNotes = {
   'context-menu': 'Smoke covers right-click action; still needs submenu, checkbox/radio items, and keyboard navigation comparison.',
   sidebar: 'Smoke covers mobile trigger; still needs collapse, nested navigation, and keyboard navigation comparison.',
   stepper: 'Smoke covers controlled step selection; still needs all orientation, status, action, and validation variants comparison.',
-  sheet: 'Smoke covers open and Escape close; still needs placements, snap points, drag handles, and nested sheet comparison.',
+  sheet: 'Smoke covers Escape close, handle bar, side placement sizing, snap handle cycling, nested sheet state, and non-dismissable mode; still needs same-viewport visual and DOM/CSS comparison.',
 };
 
 const parseProCategories = () => {

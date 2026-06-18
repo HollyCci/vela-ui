@@ -2773,7 +2773,7 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
           <FloatingToc.Bar key={entry.key} itemKey={entry.key} />
         ))}
       </FloatingToc.Trigger>
-      <FloatingToc.Content>
+      <FloatingToc.Content data-demo-floating-toc={variant}>
         <div
           style={
             variant === 'virtualized'

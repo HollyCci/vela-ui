@@ -170,6 +170,16 @@ const clickLocator = async (locator, label) => {
   await sleep(100);
 };
 
+const clickLocatorCenter = async (page, locator, label) => {
+  await expectVisible(locator, label);
+  await locator.scrollIntoViewIfNeeded();
+  await sleep(120);
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`${label} has no bounding box`);
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  await sleep(160);
+};
+
 const dragLocatorBy = async (page, locator, dx, dy, label) => {
   await expectVisible(locator, label);
   await locator.scrollIntoViewIfNeeded();
@@ -1059,12 +1069,19 @@ const runTargetedSmoke = async (page) => {
     const preview = scoped(page, 'floating-toc-press-mode');
     const trigger = preview.locator('[data-slot="floating-toc-trigger"]').first();
     await expectVisible(trigger, 'floating-toc trigger');
-    const content = page.locator('[data-slot="floating-toc-content"]').filter({ hasText: '课程安排' }).first();
-    await expectVisible(content, 'floating-toc press content');
-    await trigger.click();
+    const content = page.locator('[data-slot="floating-toc-content"][data-demo-floating-toc="press-mode"]').filter({ hasText: '课程安排' }).first();
+    await trigger.scrollIntoViewIfNeeded();
+    await sleep(250);
+    if ((await trigger.getAttribute('aria-expanded')) === 'true') {
+      await clickLocatorCenter(page, trigger, 'floating-toc close trigger');
+      await content.waitFor({ state: 'hidden', timeout: 6000 });
+    }
+    await clickLocatorCenter(page, trigger, 'floating-toc open trigger');
+    await expectVisible(content, 'floating-toc opened press content');
+    await clickLocatorCenter(page, trigger, 'floating-toc close trigger');
     await content.waitFor({ state: 'hidden', timeout: 6000 });
-    await trigger.click();
-    await expectVisible(page.locator('[data-slot="floating-toc-content"]').filter({ hasText: '课程安排' }).first(), 'floating-toc reopened press content');
+    await clickLocatorCenter(page, trigger, 'floating-toc reopen trigger');
+    await expectVisible(page.locator('[data-slot="floating-toc-content"][data-demo-floating-toc="press-mode"]').filter({ hasText: '课程安排' }).first(), 'floating-toc reopened press content');
     await page.keyboard.press('Escape');
     checks.push('floating-toc press trigger opens and closes directory content');
   }
@@ -1092,12 +1109,107 @@ const runTargetedSmoke = async (page) => {
 
   await clickComponent(page, 'sheet');
   {
+    const closeVisibleSheets = async () => {
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        if ((await page.locator('[data-slot="sheet-dialog"]:visible').count()) === 0) return;
+        await page.keyboard.press('Escape').catch(() => undefined);
+        await sleep(180);
+      }
+      const closeTriggers = page.locator('[data-slot="sheet-close-trigger"]:visible');
+      const count = await closeTriggers.count();
+      for (let index = count - 1; index >= 0; index -= 1) {
+        await closeTriggers.nth(index).click({ force: true }).catch(() => undefined);
+        await sleep(120);
+      }
+    };
+
     const preview = scoped(page, 'sheet-default');
     await preview.getByRole('button', { name: /打开/ }).first().click();
-    await expectVisible(page.locator('[data-slot="sheet-dialog"]').first(), 'sheet dialog');
+    const defaultDialog = page.locator('[data-slot="sheet-dialog"]:visible').first();
+    await expectVisible(defaultDialog, 'sheet dialog');
+    await expectVisible(defaultDialog.locator('[data-slot="sheet-handle"]').first(), 'sheet handle');
+    await expectVisible(defaultDialog.locator('[data-slot="drawer-handle-bar"]').first(), 'sheet handle bar');
     await page.keyboard.press('Escape');
-    await page.locator('[data-slot="sheet-dialog"]').first().waitFor({ state: 'hidden', timeout: 6000 });
-    checks.push('sheet opens and closes with Escape in a real browser');
+    await page.locator('[data-slot="sheet-dialog"]:visible').first().waitFor({ state: 'hidden', timeout: 6000 }).catch(() => undefined);
+
+    const placementPreview = scoped(page, 'sheet-placements');
+    await clickLocator(placementPreview.getByRole('button', { name: 'right' }).first(), 'sheet right placement trigger');
+    const rightDialog = page.locator('[data-slot="sheet-dialog"]:visible').filter({ hasText: 'right placement' }).first();
+    await expectVisible(rightDialog, 'sheet right placement dialog');
+    await page.waitForFunction(
+      (element) => {
+        const rect = element.getBoundingClientRect();
+        return Math.abs(window.innerWidth - (rect.x + rect.width)) <= 8 && rect.width <= window.innerWidth * 0.9;
+      },
+      await rightDialog.elementHandle(),
+      { timeout: 6000 },
+    );
+    const rightBox = await rightDialog.boundingBox();
+    const viewport = page.viewportSize();
+    if (!rightBox || !viewport) throw new Error('sheet: right placement has no measurable box');
+    if (Math.abs(rightBox.x + rightBox.width - viewport.width) > 8) {
+      throw new Error('sheet: right placement dialog is not aligned to the viewport right edge');
+    }
+    if (rightBox.width > viewport.width * 0.9) {
+      throw new Error('sheet: right placement dialog is too wide and likely lost side-sheet sizing');
+    }
+    await closeVisibleSheets();
+
+    const snapPreview = scoped(page, 'sheet-snap-points');
+    await clickLocator(snapPreview.getByRole('button', { name: /打开 Snap Sheet/ }).first(), 'sheet snap trigger');
+    const snapDialog = page.locator('[data-slot="sheet-dialog"]:visible[data-sheet-snap-points="true"]').first();
+    await expectVisible(snapDialog, 'sheet snap dialog');
+    const snapBefore = await snapDialog.getAttribute('data-sheet-snap-index');
+    await clickLocator(snapDialog.locator('[data-slot="sheet-handle"]').first(), 'sheet snap handle');
+    await page.waitForFunction(
+      (before) => document.querySelector('[data-slot="sheet-dialog"][data-sheet-snap-points="true"]')?.getAttribute('data-sheet-snap-index') !== before,
+      snapBefore,
+      { timeout: 6000 },
+    );
+    const snapAfter = await snapDialog.getAttribute('data-sheet-snap-index');
+    if (snapBefore === snapAfter) throw new Error('sheet: handle click did not cycle snap point');
+    await closeVisibleSheets();
+
+    const nestedPreview = scoped(page, 'sheet-nested');
+    await clickLocator(nestedPreview.getByRole('button', { name: /打开父 Sheet/ }).first(), 'sheet nested parent trigger');
+    const parentDialog = page.locator('[data-slot="sheet-dialog"]:visible').filter({ hasText: '父面板' }).first();
+    await expectVisible(parentDialog, 'sheet parent dialog');
+    await clickLocator(parentDialog.getByRole('button', { name: /打开子 Sheet/ }).first(), 'sheet nested child trigger');
+    const childDialog = page.locator('[data-slot="sheet-dialog"]:visible').filter({ hasText: '子面板' }).first();
+    await expectVisible(childDialog, 'sheet child dialog');
+    if ((await page.locator('[data-slot="sheet-dialog"]:visible').count()) < 2) {
+      throw new Error('sheet: nested sheet did not keep parent and child dialogs visible');
+    }
+    const parentNestedState = await parentDialog.getAttribute('data-sheet-nested-open');
+    if (parentNestedState === null) {
+      throw new Error('sheet: parent dialog did not expose nested-open scale state');
+    }
+    await page.waitForFunction(
+      (element) => {
+        const rect = element.getBoundingClientRect();
+        const rightGap = window.innerWidth - (rect.x + rect.width);
+        return rightGap >= -2 && rightGap <= 24 && rect.width <= window.innerWidth * 0.9;
+      },
+      await childDialog.elementHandle(),
+      { timeout: 6000 },
+    );
+    const childBox = await childDialog.boundingBox();
+    const nestedViewport = page.viewportSize();
+    const childRightGap = childBox && nestedViewport ? nestedViewport.width - (childBox.x + childBox.width) : Number.POSITIVE_INFINITY;
+    if (!childBox || !nestedViewport || childRightGap < -2 || childRightGap > 24) {
+      throw new Error('sheet: nested right dialog is not aligned near the viewport right edge');
+    }
+    await closeVisibleSheets();
+
+    const nonDismissablePreview = scoped(page, 'sheet-non-dismissable');
+    await clickLocator(nonDismissablePreview.getByRole('button', { name: /打开 Sheet/ }).first(), 'sheet non-dismissable trigger');
+    const lockedDialog = page.locator('[data-slot="sheet-dialog"]:visible').filter({ hasText: '遮罩和 Esc 不会关闭' }).first();
+    await expectVisible(lockedDialog, 'sheet non-dismissable dialog');
+    await page.keyboard.press('Escape');
+    await sleep(250);
+    await expectVisible(lockedDialog, 'sheet non-dismissable dialog after Escape');
+    await closeVisibleSheets();
+    checks.push('sheet covers Escape close, handle bar, side placement sizing, snap cycling, nested sheet state, and non-dismissable mode');
   }
 
   await clickComponent(page, 'carousel');

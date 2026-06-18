@@ -61,8 +61,9 @@
 .sheet__content--left {
   border-top-right-radius: calc(var(--radius) * 2);
   border-bottom-right-radius: calc(var(--radius) * 2);
-  max-width: 96vw;
   height: 100dvh;
+  width: 100%;
+  max-width: none;
   top: 0;
   bottom: 0;
   left: 0;
@@ -71,8 +72,9 @@
 .sheet__content--right {
   border-top-left-radius: calc(var(--radius) * 2);
   border-bottom-left-radius: calc(var(--radius) * 2);
-  max-width: 96vw;
   height: 100dvh;
+  width: 100%;
+  max-width: none;
   top: 0;
   bottom: 0;
   right: 0;
@@ -96,14 +98,18 @@
 
 [data-sheet-detached].sheet__content--left {
   top: .5rem;
+  right: .5rem;
   bottom: .5rem;
   left: .5rem;
+  width: auto;
 }
 
 [data-sheet-detached].sheet__content--right {
   top: .5rem;
+  left: .5rem;
   bottom: .5rem;
   right: .5rem;
+  width: auto;
 }
 
 .sheet__dialog {
@@ -118,6 +124,15 @@
   display: flex;
   position: relative;
   overflow: hidden;
+}
+
+.sheet__drag-surface {
+  min-width: 0;
+}
+
+.sheet__drag-surface--left,
+.sheet__drag-surface--right {
+  height: 100%;
 }
 
 .sheet__dialog--bottom {
@@ -160,12 +175,34 @@
   border-top-right-radius: calc(var(--radius) * 2);
   border-bottom-right-radius: calc(var(--radius) * 2);
   height: 100%;
+  width: 20rem;
+  max-width: 85vw;
 }
 
 .sheet__dialog--right {
   border-top-left-radius: calc(var(--radius) * 2);
   border-bottom-left-radius: calc(var(--radius) * 2);
   height: 100%;
+  width: 20rem;
+  max-width: 85vw;
+}
+
+@media (min-width:40rem) {
+  .sheet__dialog--left,
+  .sheet__dialog--right {
+    width: 24rem;
+  }
+}
+
+.sheet__dialog[data-sheet-nested-open] {
+  transform: translateY(-.5rem) scale(.96);
+  transition: transform .24s cubic-bezier(.32, .72, 0, 1), height .24s var(--ease-out-fluid), width .24s var(--ease-out-fluid);
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .sheet__dialog[data-sheet-nested-open] {
+    transition: none;
+  }
 }
 
 .sheet__header {
@@ -213,7 +250,8 @@
   cursor: grabbing;
 }
 
-.sheet__handle-bar {
+.sheet__handle-bar,
+.sheet__handle>[data-slot=drawer-handle-bar] {
   background-color: var(--default);
   border-radius: 3.40282e38px;
   width: 2rem;
@@ -223,7 +261,9 @@
 }
 
 .sheet__handle:hover .sheet__handle-bar,
-.sheet__handle:active .sheet__handle-bar {
+.sheet__handle:active .sheet__handle-bar,
+.sheet__handle:hover>[data-slot=drawer-handle-bar],
+.sheet__handle:active>[data-slot=drawer-handle-bar] {
   background-color: var(--default-hover);
 }
 

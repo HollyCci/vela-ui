@@ -99,6 +99,7 @@ type FloatingTocContextValue = {
   placement: FloatingTocPlacement;
   triggerMode: FloatingTocTriggerMode;
   triggerRef: RefObject<HTMLButtonElement | null>;
+  contentRef: RefObject<HTMLElement | null>;
   activeKey: string | undefined;
   itemsByKey: Map<string, FloatingTocItemData>;
   scheduleOpen: () => void;
@@ -132,6 +133,7 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
   (
     {
       className,
+      onPointerDown,
       onPointerEnter,
       onPointerLeave,
       onClick,
@@ -145,6 +147,7 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
     forwardedRef,
   ) => {
     const {
+      isOpen,
       placement,
       triggerMode,
       triggerRef,
@@ -152,7 +155,6 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
       scheduleClose,
       openNow,
       closeNow,
-      toggle,
     } = useFloatingTocContext('FloatingToc.Trigger');
     // CSS 的 :focus-visible:not(:focus) 永不命中，焦点环依赖 data-focus-visible=true
     const [isFocusVisible, setIsFocusVisible] = useState(false);
@@ -170,13 +172,32 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
       onPointerEnter?.(event);
       if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleOpen();
     };
+    const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
+      onPointerDown?.(event);
+      if (triggerMode !== 'press') return;
+      event.preventDefault();
+      event.stopPropagation();
+      if (isOpen) {
+        closeNow();
+        window.setTimeout(closeNow, 0);
+      } else {
+        openNow();
+      }
+    };
     const handlePointerLeave = (event: ReactPointerEvent<HTMLButtonElement>) => {
       onPointerLeave?.(event);
       if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleClose();
     };
     const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
       onClick?.(event);
-      if (triggerMode === 'press') toggle();
+      if (triggerMode === 'press' && event.detail === 0) {
+        if (isOpen) {
+          closeNow();
+          window.setTimeout(closeNow, 0);
+        } else {
+          openNow();
+        }
+      }
     };
     // 仅键盘聚焦立即打开（hover 模式）；鼠标点击产生的 focus 不触发
     const handleFocus = (event: ReactFocusEvent<HTMLButtonElement>) => {
@@ -202,10 +223,13 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
         ref={handleRef}
         type="button"
         aria-label={ariaLabel}
+        aria-expanded={isOpen}
         data-slot="floating-toc-trigger"
         data-placement={placement}
+        data-open={isOpen || undefined}
         data-focus-visible={isFocusVisible || undefined}
         className={clsx('floating-toc__trigger', className)}
+        onPointerDown={handlePointerDown}
         onPointerEnter={handlePointerEnter}
         onPointerLeave={handlePointerLeave}
         onClick={handleClick}
@@ -267,6 +291,7 @@ const Content = forwardRef<HTMLElement, FloatingTocContentProps>(
       placement: rootPlacement,
       triggerMode,
       triggerRef,
+      contentRef,
       scheduleClose,
       cancelClose,
       openNow,
@@ -280,10 +305,11 @@ const Content = forwardRef<HTMLElement, FloatingTocContentProps>(
     const handleRef = useCallback(
       (node: HTMLElement | null) => {
         popoverRef.current = node;
+        contentRef.current = node;
         if (typeof forwardedRef === 'function') forwardedRef(node);
         else if (forwardedRef !== null) forwardedRef.current = node;
       },
-      [forwardedRef],
+      [contentRef, forwardedRef],
     );
 
     // RAC 内部关闭请求（Escape / 点击外部）同步回根状态
@@ -325,6 +351,8 @@ const Content = forwardRef<HTMLElement, FloatingTocContentProps>(
       <Popover
         ref={handleRef}
         data-slot="floating-toc-content"
+        data-floating-toc-trigger-mode={triggerMode}
+        data-floating-toc-root-placement={rootPlacement}
         triggerRef={triggerRef}
         isOpen={isOpen}
         onOpenChange={handleOpenChange}
@@ -400,6 +428,7 @@ const FloatingTocRoot = ({
   isOpenRef.current = isOpen;
   activeKeyRef.current = resolvedActiveKey;
   const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const contentRef = useRef<HTMLElement | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const itemsByKey = useMemo(() => new Map(items.map((item) => [item.key, item])), [items]);
@@ -496,6 +525,28 @@ const FloatingTocRoot = ({
   );
 
   useEffect(() => {
+    if (!isOpen || typeof document === 'undefined') return undefined;
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target;
+      if (!(target instanceof Node)) return;
+      if (triggerRef.current?.contains(target) || contentRef.current?.contains(target)) return;
+      setOpen(false);
+    };
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+
+    document.addEventListener('pointerdown', handlePointerDown, true);
+    document.addEventListener('keydown', handleKeyDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', handlePointerDown, true);
+      document.removeEventListener('keydown', handleKeyDown, true);
+    };
+  }, [isOpen, setOpen]);
+
+  useEffect(() => {
     if (items.length === 0 || typeof document === 'undefined') return undefined;
 
     let frame = 0;
@@ -558,6 +609,7 @@ const FloatingTocRoot = ({
       placement,
       triggerMode,
       triggerRef,
+      contentRef,
       activeKey: resolvedActiveKey,
       itemsByKey,
       scheduleOpen,
@@ -573,6 +625,7 @@ const FloatingTocRoot = ({
       isOpen,
       placement,
       triggerMode,
+      contentRef,
       resolvedActiveKey,
       itemsByKey,
       scheduleOpen,
