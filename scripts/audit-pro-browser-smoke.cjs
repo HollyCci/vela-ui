@@ -193,6 +193,22 @@ const dragLocatorBy = async (page, locator, dx, dy, label) => {
   await sleep(250);
 };
 
+const dragLocatorToLocator = async (page, source, target, label) => {
+  await expectVisible(source, `${label} source`);
+  await expectVisible(target, `${label} target`);
+  await source.scrollIntoViewIfNeeded();
+  await target.scrollIntoViewIfNeeded();
+  await sleep(80);
+  const sourceBox = await source.boundingBox();
+  const targetBox = await target.boundingBox();
+  if (!sourceBox || !targetBox) throw new Error(`${label} has no drag/drop bounding box`);
+  await page.mouse.move(sourceBox.x + sourceBox.width / 2, sourceBox.y + sourceBox.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(targetBox.x + targetBox.width / 2, targetBox.y + targetBox.height / 2, { steps: 10 });
+  await page.mouse.up();
+  await sleep(350);
+};
+
 const pressLocatorFor = async (page, locator, ms, label) => {
   await expectVisible(locator, label);
   const box = await locator.boundingBox();
@@ -744,11 +760,39 @@ const runTargetedSmoke = async (page) => {
     const preview = scoped(page, 'file-tree-with-icons');
     const tree = preview.locator('[data-slot="file-tree"]').first();
     await expectVisible(tree, 'file-tree root');
-    const treeItem = preview.locator('[data-slot="file-tree-item-content"]').filter({ hasText: /courses|operations/i }).first();
-    await expectVisible(treeItem, 'file-tree expandable item');
+    const treeItem = preview.locator('[data-slot="file-tree-item"]').filter({ hasText: /courses|operations/i }).first();
+    await expectVisible(treeItem.locator('[data-slot="file-tree-item-content"]').first(), 'file-tree expandable item');
     await treeItem.click();
-    await expectVisible(preview.locator('[data-slot="file-tree-item-content"]').first(), 'file-tree item content');
-    checks.push('file-tree renders real slots and accepts tree item interaction');
+    const selectedAfterClick = (await treeItem.getAttribute('aria-selected')) === 'true' || (await treeItem.getAttribute('data-selected')) === 'true';
+    if (!selectedAfterClick) throw new Error('file-tree: clicked item did not expose selected state');
+    await page.keyboard.press('ArrowDown');
+    await sleep(120);
+    const focusedRows = await preview.locator('[data-slot="file-tree-item"][data-focused="true"], [data-slot="file-tree-item"][data-focus-visible="true"]').count();
+    if (focusedRows === 0) throw new Error('file-tree: keyboard navigation did not expose a focused row state');
+
+    const multiPreview = scoped(page, 'file-tree-multiple-selection');
+    const checkbox = multiPreview.locator('[data-slot="file-tree-checkbox"]').first();
+    await expectVisible(checkbox, 'file-tree multi-select checkbox');
+    await checkbox.click();
+    if ((await multiPreview.locator('[data-slot="file-tree-item"][data-selected="true"], [data-slot="file-tree-item"][aria-selected="true"]').count()) === 0) {
+      throw new Error('file-tree: checkbox selection did not expose selected rows');
+    }
+
+    const dndPreview = scoped(page, 'file-tree-drag-and-drop');
+    const order = dndPreview.locator('[data-file-tree-dnd-order]').first();
+    const status = dndPreview.locator('[data-file-tree-dnd-status]').first();
+    await expectVisible(order, 'file-tree drag order');
+    const orderBefore = (await order.innerText()).trim();
+    const dragRow = dndPreview.locator('[data-slot="file-tree-item"]').filter({ hasText: 'ielts-plan.md' }).first();
+    const targetRow = dndPreview.locator('[data-slot="file-tree-item"]').filter({ hasText: 'operations' }).first();
+    await dragLocatorToLocator(page, dragRow.locator('[data-slot="file-tree-drag-handle"]').first(), targetRow, 'file-tree drag ielts-plan to operations');
+    await page.waitForFunction(
+      ({ orderSelector, before }) => document.querySelector(orderSelector)?.textContent?.trim() !== before,
+      { orderSelector: '.sc-live-preview[data-slug="file-tree-drag-and-drop"] [data-file-tree-dnd-order]', before: orderBefore },
+      { timeout: 6000 },
+    );
+    await expectVisible(status.filter({ hasText: '已移动' }).first(), 'file-tree drag status');
+    checks.push('file-tree supports selection, keyboard focus movement, multi-select checkboxes, and real drag-and-drop reorder');
   }
 
   await clickComponent(page, 'rich-text-editor');

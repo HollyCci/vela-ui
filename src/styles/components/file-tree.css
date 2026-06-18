@@ -178,6 +178,7 @@
 .file-tree__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
 .file-tree__indicator:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
   animation: none;
+  transition: none;
 }
 
 @media (prefers-reduced-motion:reduce) {
@@ -185,6 +186,7 @@
   .file-tree__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
   .file-tree__indicator:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
     animation: none;
+    transition: none;
   }
 }
 

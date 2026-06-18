@@ -2562,6 +2562,12 @@ const renderTreeDataNode = (node: DemoTreeNode): ReactNode => (
   </FileTree.Item>
 );
 
+const flattenTreeDataNames = (nodes: DemoTreeNode[]): string[] =>
+  nodes.flatMap((node) => [
+    node.value.name,
+    ...flattenTreeDataNames(node.children ?? []),
+  ]);
+
 type FileTreeVariant =
   | 'custom-indicator'
   | 'default'
@@ -2577,12 +2583,18 @@ type FileTreeVariant =
 const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   const [query, setQuery] = useState('course');
   const [expandedKeys, setExpandedKeys] = useState<Set<DemoKey>>(new Set(['courses']));
+  const [lastMove, setLastMove] = useState('尚未移动文件');
   const tree = useFileTreeData<DemoFileNode>({
     initialItems: FILE_TREE_ITEMS,
     getKey: (item) => item.id,
     getChildren: (item) => item.children ?? [],
   });
-  const drag = useFileTreeDrag({ tree });
+  const drag = useFileTreeDrag({
+    tree,
+    onMove: (keys, target) => {
+      setLastMove(`已移动 ${[...keys].join(', ')} ${target.dropPosition} ${String(target.key)}`);
+    },
+  });
   const helpers = useFileTree({ items: FILE_TREE_ITEMS });
   const visibleItems =
     variant === 'dynamic-collection'
@@ -2632,6 +2644,8 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   }
 
   if (variant === 'drag-and-drop') {
+    const treeOrder = flattenTreeDataNames(tree.items as DemoTreeNode[]);
+
     return (
       <DemoSection isColumn label="drag and drop">
         <div style={{ width: 320 }}>
@@ -2644,7 +2658,8 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
             {(tree.items as DemoTreeNode[]).map(renderTreeDataNode)}
           </FileTree>
         </div>
-        <span style={demoMutedStyle}>把文件拖到目标目录即可调整归档位置。</span>
+        <span data-file-tree-dnd-status style={demoMutedStyle}>{lastMove}</span>
+        <span data-file-tree-dnd-order style={demoMutedStyle}>当前顺序：{treeOrder.join(' > ')}</span>
       </DemoSection>
     );
   }
