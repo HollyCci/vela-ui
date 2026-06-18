@@ -23,7 +23,7 @@ const smokeIds = new Set(browserSmokeComponents);
 
 const highRiskNotes = {
   agenda: 'Smoke covers view switching, event selection, drag, resize, empty-slot create preview, event create, keyboard delete, all-day events, month overflow, weekend cells, and current-time indicator; still needs same-viewport visual and DOM/CSS comparison.',
-  'data-grid': 'Smoke covers sorting and selection; still needs cell editing, column resize, density, sticky, and virtual-scroll comparison.',
+  'data-grid': 'Smoke covers sorting, selection, cell editing, column resize, pinned horizontal scroll, virtualization range changes, row drag reorder, and expandable rows; still needs same-viewport visual and DOM/CSS comparison.',
   'file-tree': 'Smoke covers tree slots and basic item interaction; still needs drag/drop and full keyboard navigation comparison.',
   'floating-toc': 'Smoke covers trigger behavior; still needs scroll-spy, anchor syncing, and sticky-state comparison.',
   kanban: 'Smoke covers board anatomy only; drag reorder, card actions, and column state still require live-reference comparison.',

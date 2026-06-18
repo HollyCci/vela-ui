@@ -667,7 +667,66 @@ const runTargetedSmoke = async (page) => {
     await expectVisible(checkbox, 'data-grid selection checkbox');
     await checkbox.focus();
     await page.keyboard.press('Space');
-    checks.push('data-grid supports real header sorting and row selection controls');
+    const editablePreview = scoped(page, 'data-grid-editable-cells');
+    const ownerInput = editablePreview.locator('input[aria-label="编辑 负责人"]').first();
+    await expectVisible(ownerInput, 'data-grid editable owner input');
+    await ownerInput.fill('Mina');
+    await page.keyboard.press('Enter');
+    await expectVisible(editablePreview.getByText(/负责人为 Mina/), 'data-grid edit commit message');
+
+    const resizingPreview = scoped(page, 'data-grid-column-resizing');
+    const customerHeader = resizingPreview.getByRole('columnheader', { name: /Customer/i }).first();
+    await expectVisible(customerHeader, 'data-grid resizable customer header');
+    const widthBefore = (await customerHeader.boundingBox())?.width ?? 0;
+    await dragLocatorBy(page, resizingPreview.locator('.data-grid__column-resizer').first(), 90, 0, 'data-grid column resizer');
+    await expectVisible(resizingPreview.getByText(/customer width:/), 'data-grid resize message');
+    const widthAfter = (await customerHeader.boundingBox())?.width ?? 0;
+    if (Math.abs(widthAfter - widthBefore) < 8) {
+      throw new Error('data-grid: column resize did not change header width');
+    }
+
+    const pinnedPreview = scoped(page, 'data-grid-pinned-columns');
+    const pinnedGrid = pinnedPreview.locator('[data-slot="data-grid"]').first();
+    const pinnedScroller = pinnedPreview.locator('.data-grid__scroll-container').first();
+    await expectVisible(pinnedPreview.locator('[data-pinned="left"]').first(), 'data-grid left pinned cells');
+    await expectVisible(pinnedPreview.locator('[data-pinned="right"]').first(), 'data-grid right pinned cells');
+    await pinnedScroller.evaluate((node) => {
+      node.scrollLeft = node.scrollWidth;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+    });
+    await page.waitForFunction(
+      (node) => Number.parseFloat(getComputedStyle(node).getPropertyValue('--data-grid-scroll-left')) > 0,
+      await pinnedGrid.elementHandle(),
+    );
+
+    const virtualPreview = scoped(page, 'data-grid-virtualized');
+    const virtualGrid = virtualPreview.locator('[data-slot="data-grid"][data-virtualized="true"]').first();
+    const virtualScroller = virtualPreview.locator('.data-grid__scroll-container[data-virtualized="true"]').first();
+    await expectVisible(virtualGrid, 'data-grid virtualized root');
+    const virtualStartBefore = Number((await virtualGrid.getAttribute('data-virtual-start')) ?? '0');
+    await virtualScroller.evaluate((node) => {
+      node.scrollTop = 540;
+      node.dispatchEvent(new Event('scroll', { bubbles: true }));
+    });
+    await page.waitForFunction(
+      ({ node, before }) => Number(node.getAttribute('data-virtual-start') ?? '0') > before,
+      { node: await virtualGrid.elementHandle(), before: virtualStartBefore },
+    );
+    await expectVisible(virtualPreview.getByText(/可见窗口：/), 'data-grid virtual range label');
+
+    const dragPreview = scoped(page, 'data-grid-drag-and-drop');
+    const orderBefore = (await dragPreview.getByText(/^当前顺序：/).innerText()).trim();
+    await dragLocatorBy(page, dragPreview.locator('[data-slot="data-grid-drag-handle"]').first(), 0, 90, 'data-grid row drag handle');
+    const orderAfter = (await dragPreview.getByText(/^当前顺序：/).innerText()).trim();
+    if (orderAfter === orderBefore) {
+      throw new Error('data-grid: row drag did not update rendered order');
+    }
+
+    const expandablePreview = scoped(page, 'data-grid-expandable-rows');
+    await clickLocator(expandablePreview.getByRole('button', { name: '展开行' }).first(), 'data-grid expand row button');
+    await expectVisible(expandablePreview.locator('[data-expanded-content="true"]').first(), 'data-grid expanded content row');
+
+    checks.push('data-grid supports sorting, selection, editing, column resize, pinned scroll, virtualization, row drag, and expandable rows');
   }
 
   await clickComponent(page, 'file-tree');
