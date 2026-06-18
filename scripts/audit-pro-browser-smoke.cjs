@@ -142,6 +142,10 @@ const auditComponentPages = async (page) => {
 
 const scoped = (page, slug) => page.locator(`.sc-live-preview[data-slug="${slug}"]`).first();
 
+const expectText = async (locator, text, label) => {
+  await expectVisible(locator.filter({ hasText: text }).first(), label);
+};
+
 const runTargetedSmoke = async (page) => {
   const checks = [];
 
@@ -154,6 +158,32 @@ const runTargetedSmoke = async (page) => {
     await preview.getByRole('button', { name: '打开' }).first().click();
     await expectVisible(preview.getByText(/^已打开：/), 'timeline action state');
     checks.push('timeline action buttons update visible state');
+  }
+
+  await clickComponent(page, 'data-grid');
+  {
+    const preview = scoped(page, 'data-grid-default');
+    await expectVisible(preview.locator('[data-slot="data-grid"]').first(), 'data-grid root');
+    const sortedHeader = preview.getByRole('columnheader', { name: /Customer|客户|student|学员/i }).first();
+    await expectVisible(sortedHeader, 'data-grid sortable column header');
+    await sortedHeader.click();
+    const checkbox = preview.getByRole('checkbox').first();
+    await expectVisible(checkbox, 'data-grid selection checkbox');
+    await checkbox.focus();
+    await page.keyboard.press('Space');
+    checks.push('data-grid supports real header sorting and row selection controls');
+  }
+
+  await clickComponent(page, 'file-tree');
+  {
+    const preview = scoped(page, 'file-tree-anatomy');
+    const tree = preview.locator('[data-slot="file-tree"]').first();
+    await expectVisible(tree, 'file-tree anatomy root');
+    const treeItem = preview.locator('[data-slot="file-tree-item-content"]').filter({ hasText: /styles|components/i }).first();
+    await expectVisible(treeItem, 'file-tree expandable item');
+    await treeItem.click();
+    await expectVisible(preview.locator('[data-slot="file-tree-item-content"]').first(), 'file-tree item content');
+    checks.push('file-tree anatomy renders real slots and accepts tree item interaction');
   }
 
   await clickComponent(page, 'rich-text-editor');
@@ -194,6 +224,65 @@ const runTargetedSmoke = async (page) => {
     checks.push('prompt-input handles attachment action and submit state');
   }
 
+  await clickComponent(page, 'cell-select');
+  {
+    const preview = scoped(page, 'cell-select-controlled');
+    const trigger = preview.locator('[data-slot="cell-select-trigger"]').first();
+    await expectVisible(trigger, 'cell-select trigger');
+    await trigger.click();
+    await expectVisible(page.locator('[data-slot="cell-select-list"]').first(), 'cell-select list');
+    await page.locator('[data-slot="cell-select-item"]').filter({ hasText: '晚上' }).first().click();
+    await expectVisible(preview.locator('[data-slot="cell-select-label"]').filter({ hasText: '晚上' }).first(), 'cell-select controlled label');
+    checks.push('cell-select opens its popover and updates controlled value');
+  }
+
+  await clickComponent(page, 'drop-zone');
+  {
+    const preview = scoped(page, 'drop-zone-default');
+    const input = preview.locator('[data-slot="drop-zone-input"]').first();
+    await expectVisible(preview.locator('[data-slot="drop-zone-area"]').first(), 'drop-zone area');
+    await input.setInputFiles({
+      name: 'browser-smoke.pdf',
+      mimeType: 'application/pdf',
+      buffer: Buffer.from('%PDF-1.4\n% vela smoke\n'),
+    });
+    await expectVisible(preview.locator('[data-slot="drop-zone-file-item"]').filter({ hasText: 'browser-smoke.pdf' }).first(), 'drop-zone uploaded file item');
+    await preview.locator('[data-slot="drop-zone-file-remove-trigger"]').first().click();
+    await preview.locator('[data-slot="drop-zone-file-item"]').waitFor({ state: 'hidden', timeout: 6000 });
+    checks.push('drop-zone accepts file input and removes uploaded file item');
+  }
+
+  await clickComponent(page, 'rating');
+  {
+    const preview = scoped(page, 'rating-controlled');
+    const rating = preview.locator('[data-slot="rating"]').first();
+    await expectVisible(rating, 'rating root');
+    const option = preview.locator('[data-slot="rating-item"]').nth(4);
+    await expectVisible(option, 'rating fifth option');
+    await option.click();
+    const checkedCount = await preview.getByRole('radio', { checked: true }).count();
+    if (checkedCount === 0) throw new Error('rating: click did not select a radio item');
+    checks.push('rating updates selection through real radio interaction');
+  }
+
+  await clickComponent(page, 'resizable');
+  {
+    const preview = scoped(page, 'resizable-default');
+    const handle = preview.locator('[data-slot="resizable-handle"]').first();
+    await handle.waitFor({ state: 'visible', timeout: 6000 });
+    const before = await preview.getByText(/当前布局：/).innerText();
+    const box = await handle.boundingBox();
+    if (!box) throw new Error('resizable: handle has no bounding box');
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2 + 80, box.y + box.height / 2, { steps: 8 });
+    await page.mouse.up();
+    await sleep(250);
+    const after = await preview.getByText(/当前布局：/).innerText();
+    if (before === after) throw new Error('resizable: drag did not update layout readout');
+    checks.push('resizable handle changes layout in a real pointer drag');
+  }
+
   await clickComponent(page, 'sheet');
   {
     const preview = scoped(page, 'sheet-default');
@@ -216,6 +305,29 @@ const runTargetedSmoke = async (page) => {
       throw new Error('carousel: next click did not expose an active dot state');
     }
     checks.push('carousel next control keeps active dot state present');
+  }
+
+  await clickComponent(page, 'command');
+  {
+    const preview = scoped(page, 'command-default');
+    await preview.getByRole('button', { name: /打开命令面板/ }).click();
+    await expectVisible(page.locator('[data-slot="command-list"]').first(), 'command list');
+    await page.getByRole('searchbox', { name: /Search commands|搜索命令/i }).fill('设置');
+    await page.locator('[data-slot="command-item"]').filter({ hasText: '打开设置' }).first().click();
+    await expectText(preview.locator('span'), '已执行：open-settings', 'command action state');
+    checks.push('command dialog filters and executes a command action');
+  }
+
+  await clickComponent(page, 'context-menu');
+  {
+    const preview = scoped(page, 'context-menu-default');
+    const target = preview.getByText('在此处右键').first();
+    await expectVisible(target, 'context-menu trigger target');
+    await target.click({ button: 'right' });
+    await expectVisible(page.locator('[data-slot="context-menu-menu"]').first(), 'context-menu menu');
+    await page.locator('[data-slot="context-menu-menu"] [role="menuitem"]').filter({ hasText: '重新加载' }).first().click();
+    await expectText(preview.locator('span'), '已选择：reload', 'context-menu action state');
+    checks.push('context-menu opens on right click and dispatches item action');
   }
 
   await clickComponent(page, 'sidebar');

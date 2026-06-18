@@ -231,6 +231,7 @@
     "empty-state-with-background"
   ],
   "file-tree": [
+    "file-tree-anatomy",
     "file-tree-custom-indicator",
     "file-tree-default",
     "file-tree-drag-and-drop",

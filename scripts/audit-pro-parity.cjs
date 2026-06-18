@@ -4,6 +4,7 @@ const path = require('path');
 const {
   REFERENCE,
   componentContracts,
+  referenceVariantCounts,
   browserSmokeComponents,
 } = require('./pro-parity-contract.cjs');
 
@@ -34,10 +35,13 @@ const componentIds = components.map((component) => component.id);
 const contractIds = Object.keys(componentContracts).sort();
 const expectedIds = [...componentIds].sort();
 const smokeIds = new Set(browserSmokeComponents);
+const countIds = Object.keys(referenceVariantCounts).sort();
 const problems = [];
 
 const missingContracts = expectedIds.filter((id) => !componentContracts[id]);
 const staleContracts = contractIds.filter((id) => !expectedIds.includes(id));
+const missingReferenceCounts = expectedIds.filter((id) => referenceVariantCounts[id] === undefined);
+const staleReferenceCounts = countIds.filter((id) => !expectedIds.includes(id));
 
 for (const id of missingContracts) {
   problems.push(`${id}: missing parity contract entry`);
@@ -45,14 +49,24 @@ for (const id of missingContracts) {
 for (const id of staleContracts) {
   problems.push(`${id}: parity contract entry is not in PRO_CATEGORIES`);
 }
+for (const id of missingReferenceCounts) {
+  problems.push(`${id}: missing reference variant count`);
+}
+for (const id of staleReferenceCounts) {
+  problems.push(`${id}: reference variant count is not in PRO_CATEGORIES`);
+}
 
 for (const { id } of components) {
   const tags = componentContracts[id];
+  const expectedVariantCount = referenceVariantCounts[id];
   if (!Array.isArray(tags) || tags.length === 0) {
     problems.push(`${id}: parity contract must list expected behaviors`);
   }
   if (!Array.isArray(demoIndex[id]) || demoIndex[id].length === 0) {
     problems.push(`${id}: demo-index must list reference variants`);
+  }
+  if (expectedVariantCount !== undefined && demoIndex[id]?.length !== expectedVariantCount) {
+    problems.push(`${id}: expected ${expectedVariantCount} reference variants, found ${demoIndex[id]?.length ?? 0}`);
   }
   if (!docsMeta[id]?.sections || docsMeta[id].sections.length !== demoIndex[id].length) {
     problems.push(`${id}: docs-meta sections must match demo-index variants`);
@@ -76,6 +90,7 @@ console.log(`Reference: ${REFERENCE.name} ${REFERENCE.version}`);
 console.log(`Reference URL: ${REFERENCE.url}`);
 console.log(`Reference checked: ${REFERENCE.checkedAt}`);
 console.log(`Parity contract components: ${contractIds.length}`);
+console.log(`Reference variant counts: ${countIds.length}`);
 console.log(`Browser smoke components: ${browserSmokeComponents.length}`);
 console.log('');
 console.log('| Category | Component | Variants | Expected behavior tags | Browser smoke |');

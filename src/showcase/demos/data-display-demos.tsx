@@ -2276,6 +2276,7 @@ const renderTreeDataNode = (node: DemoTreeNode): ReactNode => (
 );
 
 type FileTreeVariant =
+  | 'anatomy'
   | 'custom-indicator'
   | 'default'
   | 'drag-and-drop'
@@ -2301,6 +2302,34 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
     variant === 'dynamic-collection'
       ? helpers.filterTree((node) => node.name.toLowerCase().includes(query.toLowerCase()))
       : FILE_TREE_ITEMS;
+
+  if (variant === 'anatomy') {
+    return (
+      <DemoSection isColumn label="anatomy">
+        <div style={{ width: 380 }}>
+          <FileTree
+            aria-label="File tree anatomy"
+            defaultExpandedKeys={['root', 'components']}
+            selectionMode="single"
+            showGuideLines
+          >
+            <FileTree.Item id="root" icon={<FolderIcon />} title="src">
+              <FileTree.Item id="components" icon={<FolderIcon />} title="components">
+                <FileTree.Item id="file-tree" icon={<FileIcon />} title="file-tree.tsx" />
+                <FileTree.Item id="timeline" icon={<FileIcon />} title="timeline.tsx" />
+              </FileTree.Item>
+              <FileTree.Item id="styles" icon={<FolderIcon />} title="styles">
+                <FileTree.Item id="tokens" icon={<FileIcon />} title="tokens.css" />
+              </FileTree.Item>
+            </FileTree.Item>
+          </FileTree>
+        </div>
+        <span style={demoMutedStyle}>
+          Anatomy maps the same root, item content, chevron, icon, label, selection, and guide-line slots used by every variant.
+        </span>
+      </DemoSection>
+    );
+  }
 
   if (variant === 'sizes') {
     return (
@@ -3553,6 +3582,7 @@ export const dataDisplayVariantDemos: Record<string, ReactNode> = {
   'empty-state-with-avatar': <EmptyStateVariantDemo variant="with-avatar" />,
   'empty-state-with-avatar-group': <EmptyStateVariantDemo variant="with-avatar-group" />,
   'empty-state-with-background': <EmptyStateVariantDemo variant="with-background" />,
+  'file-tree-anatomy': <FileTreeVariantDemo variant="anatomy" />,
   'file-tree-custom-indicator': <FileTreeVariantDemo variant="custom-indicator" />,
   'file-tree-default': <FileTreeVariantDemo variant="default" />,
   'file-tree-drag-and-drop': <FileTreeVariantDemo variant="drag-and-drop" />,
