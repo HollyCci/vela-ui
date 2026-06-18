@@ -385,6 +385,21 @@ const runTargetedSmoke = async (page) => {
     if ((await dragPreview.locator('[data-slot="agenda-event"][data-event-id="6"]').count()) !== 0) {
       throw new Error('agenda: keyboard Delete did not remove a focused timed event');
     }
+    const createColumn = dragPreview.locator('[data-slot="agenda-day-column"]').first();
+    await expectVisible(createColumn, 'agenda create target column');
+    await createColumn.scrollIntoViewIfNeeded();
+    const createColumnBox = await createColumn.boundingBox();
+    if (!createColumnBox) throw new Error('agenda: create target column has no bounding box');
+    const createX = createColumnBox.x + createColumnBox.width / 2;
+    const createStartY = createColumnBox.y + Math.min(120, createColumnBox.height * 0.25);
+    const createEndY = createStartY + 90;
+    await page.mouse.move(createX, createStartY);
+    await page.mouse.down();
+    await page.mouse.move(createX, createEndY, { steps: 8 });
+    await expectVisible(dragPreview.locator('[data-slot="agenda-create-preview"]').first(), 'agenda create preview');
+    await page.mouse.up();
+    await sleep(150);
+    await expectVisible(dragPreview.locator('[data-slot="agenda-event"]').filter({ hasText: 'New Event' }).first(), 'agenda created event');
     const allDayPreview = scoped(page, 'agenda-all-day-events');
     await expectVisible(allDayPreview.locator('[data-slot="agenda-all-day-event"]').first(), 'agenda all-day event');
     const monthPreview = scoped(page, 'agenda-month-view-features');
@@ -399,7 +414,7 @@ const runTargetedSmoke = async (page) => {
     if (!currentTimeLineBox || currentTimeLineBox.width < 20 || currentTimeLineBox.height < 1) {
       throw new Error('agenda: current time line has no usable layout box');
     }
-    checks.push('agenda switches views, selects events, drags/resizes/deletes timed events, and renders all-day/month/current-time states');
+    checks.push('agenda switches views, selects events, drags/resizes/deletes/creates timed events, and renders all-day/month/current-time states');
   }
 
   await clickComponent(page, 'empty-state');

@@ -139,6 +139,11 @@ type AgendaTimedEventDraft = {
   translateX: number;
 };
 
+type AgendaCreateDraft = {
+  start: Date;
+  end: Date;
+};
+
 type AgendaTimedEventInteraction = {
   mode: AgendaTimedEventInteractionMode;
   originalStart: Date;
@@ -1045,19 +1050,179 @@ export type AgendaDayColumnProps = Omit<AgendaSectionProps, 'children'> & {
 
 /** 一天的时间网格列：渲染逐小时 slot 行，事件作为绝对定位子元素叠加 */
 const DayColumn = forwardRef<HTMLDivElement, AgendaDayColumnProps>(
-  ({ date, className, children, ...rest }, ref) => {
-    const { startHour, endHour } = useAgendaContext();
+  ({ date, className, children, onPointerDown, ...rest }, ref) => {
+    const { startHour, endHour, slotDuration, onEventCreate } = useAgendaContext();
+    const columnRef = useRef<HTMLDivElement | null>(null);
+    const anchorMinuteRef = useRef<number | null>(null);
+    const createDraftRef = useRef<AgendaCreateDraft | null>(null);
+    const movedRef = useRef(false);
+    const cleanupRef = useRef<(() => void) | null>(null);
+    const [createDraft, setCreateDraft] = useState<AgendaCreateDraft | null>(null);
     const slotCount = endHour - startHour;
     const dateKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(
       date.getDate(),
     ).padStart(2, '0')}`;
+    const day = startOfDay(date);
+
+    const setColumnRef = useCallback(
+      (node: HTMLDivElement | null) => {
+        columnRef.current = node;
+        if (typeof ref === 'function') ref(node);
+        else if (ref) (ref as MutableRefObject<HTMLDivElement | null>).current = node;
+      },
+      [ref],
+    );
+
+    const removeCreateListeners = useCallback(() => {
+      cleanupRef.current?.();
+      cleanupRef.current = null;
+    }, []);
+
+    useEffect(
+      () => () => {
+        removeCreateListeners();
+      },
+      [removeCreateListeners],
+    );
+
+    const minuteFromPointer = useCallback(
+      (clientY: number) => {
+        const column = columnRef.current;
+        if (!column) return null;
+        const rect = column.getBoundingClientRect();
+        const slot = column.querySelector<HTMLElement>('[data-slot="agenda-time-slot"]');
+        const slotHeight = slot?.getBoundingClientRect().height || 60;
+        const maxGridHeight = (endHour - startHour) * slotHeight;
+        const offsetY = clamp(clientY - rect.top, 0, maxGridHeight);
+        const rawMinutes = startHour * 60 + (offsetY / slotHeight) * slotDuration;
+        return clamp(snapMinutes(rawMinutes), startHour * 60, endHour * 60);
+      },
+      [endHour, slotDuration, startHour],
+    );
+
+    const buildCreateDraft = useCallback(
+      (anchorMinute: number, pointerMinute: number): AgendaCreateDraft => {
+        const minMinute = startHour * 60;
+        const maxMinute = endHour * 60;
+        let startMinute = Math.min(anchorMinute, pointerMinute);
+        let endMinute = Math.max(anchorMinute, pointerMinute);
+
+        if (endMinute - startMinute < MIN_TIMED_EVENT_DURATION_MINUTES) {
+          if (pointerMinute < anchorMinute) {
+            startMinute = clamp(
+              anchorMinute - MIN_TIMED_EVENT_DURATION_MINUTES,
+              minMinute,
+              maxMinute - MIN_TIMED_EVENT_DURATION_MINUTES,
+            );
+            endMinute = startMinute + MIN_TIMED_EVENT_DURATION_MINUTES;
+          } else {
+            startMinute = clamp(
+              anchorMinute,
+              minMinute,
+              maxMinute - MIN_TIMED_EVENT_DURATION_MINUTES,
+            );
+            endMinute = startMinute + MIN_TIMED_EVENT_DURATION_MINUTES;
+          }
+        }
+
+        return {
+          start: dateAtMinutes(day, startMinute),
+          end: dateAtMinutes(day, endMinute),
+        };
+      },
+      [day, endHour, startHour],
+    );
+
+    const handlePointerDown = useCallback(
+      (pointerEvent: ReactPointerEvent<HTMLDivElement>) => {
+        onPointerDown?.(pointerEvent);
+        if (pointerEvent.defaultPrevented) return;
+        if (pointerEvent.button !== 0 || !onEventCreate) return;
+
+        const target = pointerEvent.target as HTMLElement;
+        if (
+          target.closest(
+            '[data-slot="agenda-event"], [data-slot="agenda-resize-handle"], [data-slot="agenda-current-time-indicator"]',
+          )
+        ) {
+          return;
+        }
+
+        const anchorMinute = minuteFromPointer(pointerEvent.clientY);
+        if (anchorMinute === null) return;
+
+        pointerEvent.preventDefault();
+        removeCreateListeners();
+        anchorMinuteRef.current = anchorMinute;
+        movedRef.current = false;
+        const initialDraft = buildCreateDraft(anchorMinute, anchorMinute);
+        createDraftRef.current = initialDraft;
+        setCreateDraft(initialDraft);
+
+        const startY = pointerEvent.clientY;
+        const handlePointerMove = (nativeEvent: PointerEvent) => {
+          nativeEvent.preventDefault();
+          const anchor = anchorMinuteRef.current;
+          if (anchor === null) return;
+          const pointerMinute = minuteFromPointer(nativeEvent.clientY);
+          if (pointerMinute === null) return;
+          movedRef.current =
+            movedRef.current ||
+            Math.abs(nativeEvent.clientY - startY) > 4 ||
+            pointerMinute !== anchor;
+          const nextDraft = buildCreateDraft(anchor, pointerMinute);
+          createDraftRef.current = nextDraft;
+          setCreateDraft(nextDraft);
+        };
+        const handlePointerUp = (nativeEvent: PointerEvent) => {
+          nativeEvent.preventDefault();
+          removeCreateListeners();
+          const draft = createDraftRef.current;
+          anchorMinuteRef.current = null;
+          createDraftRef.current = null;
+          setCreateDraft(null);
+          if (movedRef.current && draft) onEventCreate(draft);
+          movedRef.current = false;
+        };
+
+        document.addEventListener('pointermove', handlePointerMove, { passive: false });
+        document.addEventListener('pointerup', handlePointerUp, { passive: false });
+        document.addEventListener('pointercancel', handlePointerUp, { passive: false });
+        cleanupRef.current = () => {
+          document.removeEventListener('pointermove', handlePointerMove);
+          document.removeEventListener('pointerup', handlePointerUp);
+          document.removeEventListener('pointercancel', handlePointerUp);
+        };
+      },
+      [
+        buildCreateDraft,
+        minuteFromPointer,
+        onEventCreate,
+        onPointerDown,
+        removeCreateListeners,
+      ],
+    );
+
+    const createPreviewStyle = useMemo<CSSProperties | undefined>(() => {
+      if (!createDraft) return undefined;
+      const startMin = minutesFromMidnight(createDraft.start, day);
+      const endMin = minutesFromMidnight(createDraft.end, day);
+      const topSlots = (startMin - startHour * 60) / slotDuration;
+      const heightSlots = (endMin - startMin) / slotDuration;
+      return {
+        top: `calc(var(--agenda-slot-height) * ${topSlots})`,
+        height: `max(20px, calc(var(--agenda-slot-height) * ${heightSlots}))`,
+      };
+    }, [createDraft, day, slotDuration, startHour]);
 
     return (
       <div
-        ref={ref}
+        ref={setColumnRef}
         data-slot="agenda-day-column"
         data-date={dateKey}
         data-weekend={isWeekend(date) ? 'true' : undefined}
+        data-create-target={onEventCreate ? 'true' : undefined}
+        onPointerDown={handlePointerDown}
         className={clsx('agenda__day-column', className)}
         {...rest}
       >
@@ -1070,6 +1235,14 @@ const DayColumn = forwardRef<HTMLDivElement, AgendaDayColumnProps>(
             className="agenda__time-slot"
           />
         ))}
+        {createPreviewStyle && (
+          <div
+            aria-hidden="true"
+            data-slot="agenda-create-preview"
+            className="agenda__create-preview"
+            style={createPreviewStyle}
+          />
+        )}
         {children}
       </div>
     );

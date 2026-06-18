@@ -1256,6 +1256,20 @@ const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
     endHour,
     onEventMove: updateTimedEvent,
     onEventResize: updateTimedEvent,
+    onEventCreate: ({ start, end }) => {
+      const id = `created-${start.getTime()}`;
+      setEvents((current) => [
+        ...current,
+        {
+          id,
+          title: 'New Event',
+          start,
+          end,
+          color: '#14b8a6',
+        },
+      ]);
+      setMessage(`已创建事件 ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
+    },
     onEventDelete: (id) => {
       setEvents((current) => current.filter((event) => event.id !== id));
       setMessage(`已删除事件 ${id}`);

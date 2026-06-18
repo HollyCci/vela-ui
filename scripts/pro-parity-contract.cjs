@@ -15,7 +15,7 @@ const componentContracts = {
   'radar-chart': ['responsive-chart', 'tooltip-hover', 'polar-grid'],
   'radial-chart': ['responsive-chart', 'tooltip-hover', 'progress-arc'],
 
-  agenda: ['calendar-layout', 'event-drag', 'event-resize', 'event-delete', 'all-day-events', 'month-overflow', 'weekend-highlight', 'current-time-indicator'],
+  agenda: ['calendar-layout', 'event-drag', 'event-resize', 'event-create', 'create-preview', 'event-delete', 'all-day-events', 'month-overflow', 'weekend-highlight', 'current-time-indicator'],
   'action-bar': ['selection-state', 'floating-actions', 'dismiss-action', 'responsive-labels'],
   carousel: ['previous-next', 'dots', 'loop', 'autoplay', 'api-access'],
   'data-grid': ['sorting', 'selection', 'cell-editing', 'column-resize', 'virtual-scroll'],
