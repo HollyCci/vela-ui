@@ -573,7 +573,8 @@
     "stepper-with-icons"
   ],
   "text-shimmer": [
-    "text-shimmer-default"
+    "text-shimmer-default",
+    "text-shimmer-color"
   ],
   "trend-chip": [
     "trend-chip-custom-indicator",

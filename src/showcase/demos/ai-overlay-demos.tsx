@@ -682,12 +682,24 @@ const PromptSuggestionDemo = () => {
   );
 };
 
-const TextShimmerDemo = () => (
-  <DemoSection label="加载文案微光效果">
-    <TextShimmer>正在生成回答…</TextShimmer>
-    <TextShimmer>检索知识库中…</TextShimmer>
-  </DemoSection>
-);
+const TextShimmerVariantDemo = ({ variant = 'default' }: { variant?: 'default' | 'color' }) => {
+  if (variant === 'color') {
+    return (
+      <DemoSection label="语义色微光文案">
+        <TextShimmer style={{ color: 'var(--color-blue-600)' }}>正在分析续费风险…</TextShimmer>
+        <TextShimmer style={{ color: 'var(--color-emerald-600)' }}>已找到可复用素材…</TextShimmer>
+        <TextShimmer style={{ color: 'var(--color-amber-600)' }}>等待工具返回结果…</TextShimmer>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label="加载文案微光效果">
+      <TextShimmer>正在生成回答…</TextShimmer>
+      <TextShimmer>检索知识库中…</TextShimmer>
+    </DemoSection>
+  );
+};
 
 const CODE_SAMPLE = `type Status = 'idle' | 'running' | 'success';
 
@@ -2947,7 +2959,7 @@ export const aiOverlayDemos: Record<string, ReactNode> = {
   'chain-of-thought': <ChainOfThoughtDemo />,
   'prompt-input': <PromptInputDemo />,
   'prompt-suggestion': <PromptSuggestionDemo />,
-  'text-shimmer': <TextShimmerDemo />,
+  'text-shimmer': <TextShimmerVariantDemo />,
   'code-block': <CodeBlockDemo />,
   modal: <ModalDemo />,
   drawer: <DrawerDemo />,
@@ -3025,5 +3037,6 @@ export const aiOverlayVariantDemos: Record<string, ReactNode> = {
   'sheet-snap-points-custom-fade': <SheetVariantDemo variant="snap-points-custom-fade" />,
   'sheet-snap-points-sequential': <SheetVariantDemo variant="snap-points-sequential" />,
   'sheet-with-form': <SheetVariantDemo variant="with-form" />,
-  'text-shimmer-default': <TextShimmerDemo />,
+  'text-shimmer-color': <TextShimmerVariantDemo variant="color" />,
+  'text-shimmer-default': <TextShimmerVariantDemo />,
 };

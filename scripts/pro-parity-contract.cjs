@@ -45,7 +45,7 @@ const componentContracts = {
   markdown: ['markdown-rendering', 'code-rendering', 'link-rendering'],
   'prompt-input': ['textarea-autosize', 'send-stop', 'attachments', 'queue-reorder', 'suggestions'],
   'prompt-suggestion': ['selection-action', 'card-layout'],
-  'text-shimmer': ['loading-animation', 'text-rendering'],
+  'text-shimmer': ['loading-animation', 'text-rendering', 'color-variants'],
 
   'emoji-reaction-button': ['toggle-reaction', 'count-state', 'readonly-state'],
   'number-value': ['number-formatting', 'animated-change', 'locale-options'],
@@ -119,7 +119,7 @@ const referenceVariantCounts = {
   markdown: 3,
   'prompt-input': 9,
   'prompt-suggestion': 2,
-  'text-shimmer': 1,
+  'text-shimmer': 2,
 
   'emoji-reaction-button': 4,
   'number-value': 8,
@@ -151,6 +151,20 @@ const referenceVariantCounts = {
 
   'emoji-picker': 4,
   sheet: 16,
+};
+
+// Current live component-page counts from `pnpm audit:pro:reference-live`.
+// These can differ from the local contract while Vela is catching up to the
+// upstream HeroUI Pro docs. The networked audit remains the source of truth.
+const liveReferenceVariantCounts = {
+  agenda: 8,
+  'action-bar': 3,
+  'data-grid': 16,
+  'file-tree': 10,
+  resizable: 10,
+  'app-layout': 20,
+  navbar: 13,
+  sidebar: 18,
 };
 
 const browserSmokeComponents = [
@@ -224,5 +238,6 @@ module.exports = {
   REFERENCE,
   componentContracts,
   referenceVariantCounts,
+  liveReferenceVariantCounts,
   browserSmokeComponents,
 };

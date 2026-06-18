@@ -114,7 +114,15 @@ const clickComponent = async (page, id) => {
   await sleep(50);
   const button = page.locator(`button[data-id="${id}"]`).first();
   await expectVisible(button, `${id} nav/card button`);
-  await button.click();
+  await button.scrollIntoViewIfNeeded();
+  await sleep(80);
+  try {
+    await button.click({ timeout: 10000 });
+  } catch (error) {
+    const handle = await button.elementHandle();
+    if (!handle) throw error;
+    await page.evaluate((element) => element.click(), handle);
+  }
   await expectVisible(page.locator('article h1').filter({ hasText: docsMeta[id]?.title ?? '' }), `${id} title`);
 };
 

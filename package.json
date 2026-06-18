@@ -558,7 +558,8 @@
     "audit:pro:browser": "node scripts/audit-pro-browser-smoke.cjs",
     "audit:pro:coverage": "node scripts/audit-pro-coverage.cjs",
     "audit:pro:interactivity": "node scripts/audit-pro-interactivity.cjs",
-    "audit:pro:parity": "node scripts/audit-pro-parity.cjs"
+    "audit:pro:parity": "node scripts/audit-pro-parity.cjs",
+    "audit:pro:reference-live": "node scripts/audit-pro-reference-live.cjs"
   },
   "peerDependencies": {
     "@heroui/react": "^3.2.0",

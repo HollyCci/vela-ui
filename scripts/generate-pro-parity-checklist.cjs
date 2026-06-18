@@ -5,6 +5,7 @@ const {
   REFERENCE,
   componentContracts,
   referenceVariantCounts,
+  liveReferenceVariantCounts,
   browserSmokeComponents,
 } = require('./pro-parity-contract.cjs');
 
@@ -99,6 +100,7 @@ const buildMarkdown = () => {
   lines.push('- `pnpm build`');
   lines.push('- `pnpm build:demo`');
   lines.push('- `pnpm audit:goal`');
+  lines.push('- `pnpm audit:pro:reference-live` before claiming final parity; this external-network gate is intentionally not part of `audit:goal`.');
   lines.push('');
   lines.push('## Component Checklist');
 
@@ -106,10 +108,10 @@ const buildMarkdown = () => {
     lines.push('');
     lines.push(`### ${category}`);
     lines.push('');
-    lines.push('| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |');
+    lines.push('| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |');
     lines.push('| --- | ---: | ---: | --- | --- | --- | --- | --- | --- |');
     for (const id of ids) {
-      const referenceCount = referenceVariantCounts[id];
+      const referenceCount = liveReferenceVariantCounts[id] ?? referenceVariantCounts[id];
       const localCount = demoIndex[id]?.length ?? 0;
       const title = formatTitle(docsMeta[id]?.title ?? id);
       const smoke = smokeIds.has(id) ? '`covered`' : '`missing`';

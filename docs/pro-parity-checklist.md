@@ -18,12 +18,13 @@ Reference checked: 2026-06-18
 - `pnpm build`
 - `pnpm build:demo`
 - `pnpm audit:goal`
+- `pnpm audit:pro:reference-live` before claiming final parity; this external-network gate is intentionally not part of `audit:goal`.
 
 ## Component Checklist
 
 ### Charts
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Area Chart](https://heroui.pro/docs/react/components/area-chart) | 6 | 6 | `responsive-chart`, `gradient-fill`, `tooltip-hover`, `multi-series` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Bar Chart](https://heroui.pro/docs/react/components/bar-chart) | 8 | 8 | `responsive-chart`, `tooltip-hover`, `horizontal-orientation`, `stacked-series` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
@@ -36,14 +37,14 @@ Reference checked: 2026-06-18
 
 ### Data Display
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
-| [Agenda](https://heroui.pro/docs/react/components/agenda) | 1 | 1 | `calendar-layout`, `event-drag`, `event-resize`, `current-time-indicator` | `covered` | `pending` | `pending` | `pending` | Smoke covers view switching and event selection; still needs event drag, resize, and current-time indicator comparison. |
-| [Action Bar](https://heroui.pro/docs/react/components/action-bar) | 2 | 2 | `selection-state`, `floating-actions`, `dismiss-action` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
+| [Agenda](https://heroui.pro/docs/react/components/agenda) | 8 | 1 | `calendar-layout`, `event-drag`, `event-resize`, `current-time-indicator` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 1, reference 8. |
+| [Action Bar](https://heroui.pro/docs/react/components/action-bar) | 3 | 2 | `selection-state`, `floating-actions`, `dismiss-action` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 2, reference 3. |
 | [Carousel](https://heroui.pro/docs/react/components/carousel) | 6 | 6 | `previous-next`, `dots`, `loop`, `autoplay`, `api-access` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
-| [Data Grid](https://heroui.pro/docs/react/components/data-grid) | 12 | 12 | `sorting`, `selection`, `cell-editing`, `column-resize`, `virtual-scroll` | `covered` | `pending` | `pending` | `pending` | Smoke covers sorting and selection; still needs cell editing, column resize, density, sticky, and virtual-scroll comparison. |
+| [Data Grid](https://heroui.pro/docs/react/components/data-grid) | 16 | 12 | `sorting`, `selection`, `cell-editing`, `column-resize`, `virtual-scroll` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 12, reference 16. |
 | [Empty State](https://heroui.pro/docs/react/components/empty-state) | 8 | 8 | `visual-state`, `action-buttons` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
-| [File Tree](https://heroui.pro/docs/react/components/file-tree) | 11 | 11 | `tree-expansion`, `selection`, `drag-drop`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Smoke covers anatomy and basic item interaction; still needs drag/drop and full keyboard navigation comparison. |
+| [File Tree](https://heroui.pro/docs/react/components/file-tree) | 10 | 11 | `tree-expansion`, `selection`, `drag-drop`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 11, reference 10. |
 | [Floating TOC](https://heroui.pro/docs/react/components/floating-toc) | 10 | 10 | `scroll-spy`, `anchor-navigation`, `sticky-state` | `covered` | `pending` | `pending` | `pending` | Smoke covers trigger behavior; still needs scroll-spy, anchor syncing, and sticky-state comparison. |
 | [Hover Card](https://heroui.pro/docs/react/components/hover-card) | 6 | 6 | `hover-trigger`, `focus-trigger`, `delayed-overlay` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Kanban](https://heroui.pro/docs/react/components/kanban) | 4 | 4 | `drag-reorder`, `column-state`, `card-actions` | `covered` | `pending` | `pending` | `pending` | Smoke covers board anatomy only; drag reorder, card actions, and column state still require live-reference comparison. |
@@ -57,7 +58,7 @@ Reference checked: 2026-06-18
 
 ### AI
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Chain Of Thought (New)](https://heroui.pro/docs/react/components/chain-of-thought) | 4 | 4 | `collapsible-steps`, `streaming-state`, `status-icons` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Chat Attachment (New)](https://heroui.pro/docs/react/components/chat-attachment) | 3 | 3 | `attachment-preview`, `remove-action`, `grouping` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
@@ -72,11 +73,11 @@ Reference checked: 2026-06-18
 | [Markdown (New)](https://heroui.pro/docs/react/components/markdown) | 3 | 3 | `markdown-rendering`, `code-rendering`, `link-rendering` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Prompt Input (New)](https://heroui.pro/docs/react/components/prompt-input) | 9 | 9 | `textarea-autosize`, `send-stop`, `attachments`, `queue-reorder`, `suggestions` | `covered` | `pending` | `pending` | `pending` | Smoke covers attachment submit; still needs autosize, stop/send states, queue reorder, suggestions, and dropzone comparison. |
 | [Prompt Suggestion (New)](https://heroui.pro/docs/react/components/prompt-suggestion) | 2 | 2 | `selection-action`, `card-layout` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
-| [Text Shimmer (New)](https://heroui.pro/docs/react/components/text-shimmer) | 1 | 1 | `loading-animation`, `text-rendering` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
+| [Text Shimmer (New)](https://heroui.pro/docs/react/components/text-shimmer) | 2 | 2 | `loading-animation`, `text-rendering`, `color-variants` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 
 ### Feedback
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Emoji Reaction Button](https://heroui.pro/docs/react/components/emoji-reaction-button) | 4 | 4 | `toggle-reaction`, `count-state`, `readonly-state` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Number Value](https://heroui.pro/docs/react/components/number-value) | 8 | 8 | `number-formatting`, `animated-change`, `locale-options` | `covered` | `pending` | `pending` | `pending` | Smoke covers formatting slots; still needs animated-change and locale option comparison. |
@@ -86,13 +87,13 @@ Reference checked: 2026-06-18
 
 ### Layout
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
-| [Resizable](https://heroui.pro/docs/react/components/resizable) | 7 | 7 | `panel-resize`, `keyboard-resize`, `nested-groups`, `collapse-state` | `covered` | `pending` | `pending` | `pending` | Smoke covers pointer resize; still needs keyboard resize, collapse, and nested group comparison. |
+| [Resizable](https://heroui.pro/docs/react/components/resizable) | 10 | 7 | `panel-resize`, `keyboard-resize`, `nested-groups`, `collapse-state` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 7, reference 10. |
 
 ### Forms
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Cell Color Picker](https://heroui.pro/docs/react/components/cell-color-picker) | 6 | 6 | `popover-picker`, `presets`, `controlled-value`, `disabled-state` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Cell Select](https://heroui.pro/docs/react/components/cell-select) | 7 | 7 | `popover-select`, `controlled-value`, `custom-value`, `disabled-state` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
@@ -108,19 +109,19 @@ Reference checked: 2026-06-18
 
 ### Navigation
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
-| [AppLayout](https://heroui.pro/docs/react/components/app-layout) | 14 | 14 | `sidebar-collapse`, `mobile-sheet`, `resizable-areas`, `sticky-regions` | `covered` | `pending` | `pending` | `pending` | Smoke covers sidebar/aside state; still needs mobile sheet, resizable areas, and sticky regions comparison. |
+| [AppLayout](https://heroui.pro/docs/react/components/app-layout) | 20 | 14 | `sidebar-collapse`, `mobile-sheet`, `resizable-areas`, `sticky-regions` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 14, reference 20. |
 | [Command](https://heroui.pro/docs/react/components/command) | 9 | 9 | `command-dialog`, `keyboard-search`, `grouped-results`, `shortcut-display` | `covered` | `pending` | `pending` | `pending` | Smoke covers dialog filtering and execution; still needs keyboard command navigation and grouped result comparison. |
 | [Context Menu](https://heroui.pro/docs/react/components/context-menu) | 7 | 7 | `context-trigger`, `submenu`, `checkbox-radio-items`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Smoke covers right-click action; still needs submenu, checkbox/radio items, and keyboard navigation comparison. |
-| [Navbar](https://heroui.pro/docs/react/components/navbar) | 7 | 7 | `responsive-menu`, `dropdown-actions`, `active-state` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
+| [Navbar](https://heroui.pro/docs/react/components/navbar) | 13 | 7 | `responsive-menu`, `dropdown-actions`, `active-state` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 7, reference 13. |
 | [Segment](https://heroui.pro/docs/react/components/segment) | 11 | 11 | `single-select`, `controlled-value`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
-| [Sidebar](https://heroui.pro/docs/react/components/sidebar) | 15 | 15 | `collapse-state`, `mobile-sheet`, `nested-navigation`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Smoke covers mobile trigger; still needs collapse, nested navigation, and keyboard navigation comparison. |
+| [Sidebar](https://heroui.pro/docs/react/components/sidebar) | 18 | 15 | `collapse-state`, `mobile-sheet`, `nested-navigation`, `keyboard-navigation` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 15, reference 18. |
 | [Stepper](https://heroui.pro/docs/react/components/stepper) | 19 | 19 | `step-state`, `orientation`, `controlled-step`, `actions` | `covered` | `pending` | `pending` | `pending` | Smoke covers controlled step selection; still needs all orientation, status, action, and validation variants comparison. |
 
 ### Overlays
 
-| Component | Reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
+| Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Emoji Picker](https://heroui.pro/docs/react/components/emoji-picker) | 4 | 4 | `popover-grid`, `search-filter`, `skin-tone`, `selection-action` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Sheet](https://heroui.pro/docs/react/components/sheet) | 16 | 16 | `modal-overlay`, `placement`, `snap-points`, `drag-handle`, `nested-sheet` | `covered` | `pending` | `pending` | `pending` | Smoke covers open and Escape close; still needs placements, snap points, drag handles, and nested sheet comparison. |

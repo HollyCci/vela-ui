@@ -1294,6 +1294,11 @@
         "heading": "Usage",
         "anchor": "usage",
         "demo": "text-shimmer-default"
+      },
+      {
+        "heading": "Color",
+        "anchor": "color",
+        "demo": "text-shimmer-color"
       }
     ]
   },
