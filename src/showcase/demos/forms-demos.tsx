@@ -181,7 +181,7 @@ const NativeSelectDemo = () => {
         </NativeSelect>
         <NativeSelect aria-invalid="true" data-invalid="true" fullWidth style={{ width: 200 }}>
           <NativeSelect.Label>验证失败</NativeSelect.Label>
-          <NativeSelect.Trigger aria-invalid="true" defaultValue="">
+          <NativeSelect.Trigger defaultValue="">
             <NativeSelect.Option value="">必选项未选择</NativeSelect.Option>
             <NativeSelect.Option value="ok">合规选项</NativeSelect.Option>
           </NativeSelect.Trigger>
@@ -2228,7 +2228,6 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
         value={variant === 'controlled' || variant === 'form-example' ? campus : undefined}
         defaultValue={variant === 'controlled' || variant === 'form-example' ? undefined : ''}
         disabled={variant === 'disabled-select'}
-        aria-invalid={variant === 'invalid-state' ? 'true' : undefined}
         onChange={variant === 'controlled' || variant === 'form-example' ? handleCampusChange : undefined}
       >
         <NativeSelect.Option value="">请选择校区</NativeSelect.Option>

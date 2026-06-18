@@ -1030,7 +1030,56 @@ const runTargetedSmoke = async (page) => {
     await expectVisible(select, 'native-select element');
     await select.selectOption('sh');
     await expectVisible(preview.getByText('Controlled select (上海校区)'), 'native-select controlled section label');
-    checks.push('native-select uses the native select element and updates controlled copy');
+
+    const invalidPreview = scoped(page, 'native-select-invalid-state');
+    const invalidSelect = invalidPreview.locator('[data-slot="native-select-select"]').first();
+    await expectVisible(invalidSelect, 'native-select invalid element');
+    if ((await invalidSelect.getAttribute('aria-invalid')) !== 'true') {
+      throw new Error('native-select: root invalid state did not propagate to the native select');
+    }
+
+    const focusProbe = await select.evaluate((element) => {
+      const selector = [
+        'a[href]',
+        'button:not([disabled])',
+        'select:not([disabled])',
+        'input:not([disabled])',
+        'textarea:not([disabled])',
+        '[tabindex]:not([tabindex="-1"])',
+      ].join(',');
+      const candidates = Array.from(document.querySelectorAll(selector)).filter((node) => {
+        const rect = node.getBoundingClientRect();
+        const style = getComputedStyle(node);
+        return rect.width > 0 && rect.height > 0 && style.visibility !== 'hidden' && style.display !== 'none';
+      });
+      const index = candidates.indexOf(element);
+      const previous = candidates[index - 1];
+      previous?.focus();
+      return { index, hasPrevious: previous !== undefined };
+    });
+    if (!focusProbe.hasPrevious) {
+      throw new Error(`native-select: could not find a previous tabbable before the controlled select (${focusProbe.index})`);
+    }
+    await page.keyboard.press('Tab');
+    const reachedKeyboardFocus = await select.evaluate((element) => document.activeElement === element);
+    if (!reachedKeyboardFocus) {
+      throw new Error('native-select: keyboard tab did not reach the controlled select');
+    }
+    const focusState = await select.evaluate((element) => {
+      const style = getComputedStyle(element);
+      return {
+        focusVisible: element.matches(':focus-visible'),
+        boxShadow: style.boxShadow,
+        borderColor: style.borderColor,
+        ringShadow: style.getPropertyValue('--tw-ring-shadow'),
+      };
+    });
+    if (!focusState.focusVisible || !focusState.ringShadow.includes('calc(2px')) {
+      throw new Error(
+        `native-select: focus-visible ring was not applied (${JSON.stringify(focusState)})`,
+      );
+    }
+    checks.push('native-select uses the native select element, propagates invalid semantics, and shows keyboard focus ring');
   }
 
   await clickComponent(page, 'number-stepper');

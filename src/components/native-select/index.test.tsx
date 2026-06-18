@@ -93,6 +93,38 @@ describe('NativeSelect', () => {
     expect(select).toHaveAttribute('aria-describedby', 'explicit-id');
   });
 
+  it('propagates root invalid state to the native select element', () => {
+    render(
+      <NativeSelect aria-invalid="true" data-invalid="true">
+        <NativeSelect.Label>Campus</NativeSelect.Label>
+        <NativeSelect.Trigger defaultValue="">
+          <NativeSelect.Option value="">Pick one</NativeSelect.Option>
+        </NativeSelect.Trigger>
+      </NativeSelect>,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Campus' })).toHaveAttribute(
+      'aria-invalid',
+      'true',
+    );
+  });
+
+  it('lets explicit Trigger aria-invalid override root invalid state', () => {
+    render(
+      <NativeSelect aria-invalid="true" data-invalid="true">
+        <NativeSelect.Label>Campus</NativeSelect.Label>
+        <NativeSelect.Trigger defaultValue="" aria-invalid="false">
+          <NativeSelect.Option value="">Pick one</NativeSelect.Option>
+        </NativeSelect.Trigger>
+      </NativeSelect>,
+    );
+
+    expect(screen.getByRole('combobox', { name: 'Campus' })).toHaveAttribute(
+      'aria-invalid',
+      'false',
+    );
+  });
+
   it('secondary variant + fullWidth add modifier classes; default renders indicator', () => {
     const { container } = render(
       <NativeSelect variant="secondary" fullWidth>

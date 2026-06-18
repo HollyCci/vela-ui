@@ -27,6 +27,7 @@ export type NativeSelectProps = HTMLAttributes<HTMLDivElement> & {
   variant?: NativeSelectVariant;
   /** 撑满容器（参考 API）：同时给 root 与 trigger 加 --full-width 修饰类 */
   fullWidth?: boolean;
+  'data-invalid'?: boolean | 'true' | 'false';
 };
 
 export type NativeSelectTriggerProps = SelectHTMLAttributes<HTMLSelectElement> & {
@@ -48,6 +49,7 @@ export type NativeSelectDescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
 type NativeSelectContextValue = {
   fullWidth: boolean;
+  isInvalid: boolean;
   selectId: string;
   descriptionId: string;
   resolvedDescriptionId: string;
@@ -57,6 +59,7 @@ type NativeSelectContextValue = {
 
 const NativeSelectContext = createContext<NativeSelectContextValue>({
   fullWidth: false,
+  isInvalid: false,
   selectId: '',
   descriptionId: '',
   resolvedDescriptionId: '',
@@ -139,14 +142,19 @@ Description.displayName = 'NativeSelect.Description';
  */
 const Trigger = forwardRef<HTMLSelectElement, NativeSelectTriggerProps>(
   ({ className, id, wrapperClassName, children, ...rest }, ref) => {
-    const { fullWidth, selectId, resolvedDescriptionId, hasDescription } =
+    const { fullWidth, isInvalid, selectId, resolvedDescriptionId, hasDescription } =
       useContext(NativeSelectContext);
     const childArray = Children.toArray(children);
     const indicator = childArray.find(isIndicatorElement);
     const options = childArray.filter((child) => !isIndicatorElement(child));
-    const { 'aria-describedby': ariaDescribedBy, ...selectProps } = rest;
+    const {
+      'aria-describedby': ariaDescribedBy,
+      'aria-invalid': ariaInvalid,
+      ...selectProps
+    } = rest;
     const describedBy =
       ariaDescribedBy ?? (hasDescription ? resolvedDescriptionId : undefined);
+    const resolvedAriaInvalid = ariaInvalid ?? (isInvalid ? true : undefined);
 
     return (
       <div
@@ -163,6 +171,7 @@ const Trigger = forwardRef<HTMLSelectElement, NativeSelectTriggerProps>(
           data-slot="native-select-select"
           id={id ?? selectId}
           aria-describedby={describedBy}
+          aria-invalid={resolvedAriaInvalid}
           className={clsx('native-select__select', className)}
         >
           {options}
@@ -190,7 +199,14 @@ OptGroup.displayName = 'NativeSelect.OptGroup';
  * （CSS 依赖 .native-select[data-invalid=true] / [aria-invalid=true]）。
  */
 const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
-  ({ variant = 'primary', fullWidth = false, className, ...rest }, ref) => {
+  ({
+    variant = 'primary',
+    fullWidth = false,
+    className,
+    'aria-invalid': ariaInvalid,
+    'data-invalid': dataInvalid,
+    ...rest
+  }, ref) => {
     const selectId = useId();
     const descriptionId = useId();
     const [descriptionIds, setDescriptionIds] = useState<string[]>([]);
@@ -204,9 +220,15 @@ const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
         });
     }, []);
     const resolvedDescriptionId = descriptionIds[0] ?? descriptionId;
+    const isInvalid =
+      ariaInvalid === true ||
+      ariaInvalid === 'true' ||
+      dataInvalid === true ||
+      dataInvalid === 'true';
     const contextValue = useMemo<NativeSelectContextValue>(
       () => ({
         fullWidth,
+        isInvalid,
         selectId,
         descriptionId,
         resolvedDescriptionId,
@@ -218,6 +240,7 @@ const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
         descriptionId,
         resolvedDescriptionId,
         fullWidth,
+        isInvalid,
         registerDescription,
         selectId,
       ],
@@ -228,6 +251,8 @@ const NativeSelectRoot = forwardRef<HTMLDivElement, NativeSelectProps>(
       <div
         ref={ref}
         data-slot="native-select"
+        aria-invalid={ariaInvalid}
+        data-invalid={dataInvalid}
         className={clsx(
           'native-select',
           variant === 'secondary' && 'native-select--secondary',
