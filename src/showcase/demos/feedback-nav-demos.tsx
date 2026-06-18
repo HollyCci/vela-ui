@@ -24,7 +24,7 @@ import ProgressBar from '../../components/progress-bar';
 import ProgressCircle from '../../components/progress-circle';
 import Rating from '../../components/rating';
 import Resizable from '../../components/resizable';
-import AppLayout from '../../components/app-layout';
+import AppLayout, { useAppLayout } from '../../components/app-layout';
 import Sidebar from '../../components/sidebar';
 import Segment from '../../components/segment';
 import Stepper, { useStepperStep } from '../../components/stepper';
@@ -2853,25 +2853,48 @@ const AppLayoutSidebarContent = ({
   </nav>
 );
 
+const AppLayoutRouteActions = () => {
+  const layout = useAppLayout();
+
+  return (
+    <div style={{ ...VARIANT_PANEL_STYLE, margin: '12px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+      {APP_LAYOUT_NAV.map((item) => (
+        <Button key={item.id} size="sm" variant="ghost" onClick={() => layout?.navigate?.(`/app/${item.id}`)}>
+          {item.label}
+        </Button>
+      ))}
+    </div>
+  );
+};
+
 const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
   const [sidebarOpen, setSidebarOpen] = useState(!variant.includes('offcanvas'));
   const [asideOpen, setAsideOpen] = useState(true);
   const [active, setActive] = useState('dashboard');
+  const [routePath, setRoutePath] = useState('/app/dashboard');
 
   const hasAside =
     variant === 'with-aside' ||
-    variant === 'resizable-aside' ||
+    variant === 'resizable-sidebar' ||
     variant === 'complex' ||
     variant === 'with-toolbar' ||
-    variant === 'inset-dashboard';
+    variant === 'inset-dashboard' ||
+    variant === 'persisted-state' ||
+    variant === 'aside-keyboard-shortcut' ||
+    variant === 'mobile-aside-sheet' ||
+    variant === 'mobile-behavior' ||
+    variant === 'controlled-state';
   const sidebarVariant =
     variant === 'floating-sidebar' ? 'floating' : variant === 'inset-dashboard' || variant === 'with-inset-sidebar' ? 'inset' : 'sidebar';
   const sidebarCollapsible =
     variant === 'offcanvas' || variant === 'resizable-sidebar' ? 'offcanvas' : variant === 'resizable-sidebar' ? 'none' : 'icon';
   const isResizableSidebar = variant === 'resizable-sidebar';
-  const isResizableAside = variant === 'resizable-aside' || variant === 'complex';
+  const isResizableAside = variant === 'resizable-sidebar' || variant === 'complex';
   const scrollMode = variant === 'content-scroll' ? 'content' : 'page';
   const showToolbar = variant === 'with-toolbar' || variant === 'with-breadcrumbs' || variant === 'docs-site' || variant === 'complex';
+  const isPersistedState = variant === 'persisted-state';
+  const isControlledState = variant === 'controlled-state';
+  const isSheetAside = variant === 'mobile-aside-sheet' || variant === 'mobile-behavior' || variant === 'offcanvas';
 
   const sidebar = (
     <AppLayoutSidebarContent active={active} onSelect={setActive} />
@@ -2883,7 +2906,31 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
       <TrendChip trend="up" value="8.2%" suffix="活跃" size="sm" />
     </div>
   ) : null;
-  const navbar = (
+  const navbar =
+    variant === 'navbar-adaptation' ? (
+      <Navbar position="floating" maxWidth="full" shouldBlockScroll={false}>
+        <Navbar.Header>
+          <Navbar.Brand>
+            <strong>Vela</strong>
+          </Navbar.Brand>
+          <Navbar.Content>
+            {APP_LAYOUT_NAV.slice(0, 3).map((item) => (
+              <Navbar.Item
+                key={item.id}
+                href={`/app/${item.id}`}
+                isCurrent={routePath === `/app/${item.id}`}
+              >
+                {item.label}
+              </Navbar.Item>
+            ))}
+          </Navbar.Content>
+          <Navbar.Spacer />
+          <Navbar.Content>
+            <Navbar.MenuToggle />
+          </Navbar.Content>
+        </Navbar.Header>
+      </Navbar>
+    ) : (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 16px' }}>
       <AppLayout.MenuToggle tooltip="打开导航" />
       <Button size="sm" variant="ghost" onClick={() => setSidebarOpen((open) => !open)}>
@@ -2893,7 +2940,7 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
       <span style={{ flex: 1 }} />
       {hasAside && <AppLayout.AsideTrigger closedTooltip="打开详情" openTooltip="关闭详情" />}
     </div>
-  );
+    );
   const toolbar = showToolbar ? (
     <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '8px 16px' }}>
       {variant === 'with-breadcrumbs' || variant === 'docs-site' ? (
@@ -2918,10 +2965,12 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
         navbar={navbar}
         aside={aside}
         toolbar={toolbar}
-        footer={variant === 'complex' ? <div style={{ padding: 12, ...VARIANT_MUTED_STYLE }}>已同步 · 3 个任务待处理</div> : undefined}
-        sidebarOpen={sidebarOpen}
+        footer={variant === 'complex' || variant === 'with-toolbar' ? <div style={{ padding: 12, ...VARIANT_MUTED_STYLE }}>已同步 · 3 个任务待处理</div> : undefined}
+        sidebarOpen={isPersistedState ? undefined : sidebarOpen}
+        defaultSidebarOpen={sidebarOpen}
         onSidebarOpenChange={setSidebarOpen}
-        asideOpen={asideOpen}
+        asideOpen={isPersistedState ? undefined : asideOpen}
+        defaultAsideOpen={asideOpen}
         onAsideOpenChange={setAsideOpen}
         sidebarVariant={sidebarVariant}
         sidebarCollapsible={isResizableSidebar ? 'none' : sidebarCollapsible}
@@ -2930,16 +2979,42 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
         sidebarDefaultSize={24}
         asideDefaultSize={24}
         scrollMode={scrollMode}
-        asideMobile={variant === 'offcanvas' ? 'sheet' : 'hidden'}
-        toggleShortcut={false}
-        asideToggleShortcut={false}
+        asideMobile={isSheetAside ? 'sheet' : 'hidden'}
+        navigate={(href) => {
+          setRoutePath(href);
+          setActive(href.replace('/app/', ''));
+        }}
+        toggleShortcut={variant === 'mobile-behavior' ? 'mod+b' : false}
+        asideToggleShortcut={variant === 'aside-keyboard-shortcut' ? 'mod+.' : false}
         style={APP_LAYOUT_VARIANT_STYLE}
       >
+        {variant === 'client-side-routing' && <AppLayoutRouteActions />}
+        {isControlledState && (
+          <div style={{ ...VARIANT_PANEL_STYLE, margin: '12px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+            <Button size="sm" variant="secondary" onClick={() => setSidebarOpen((open) => !open)}>
+              {sidebarOpen ? '关闭侧栏' : '打开侧栏'}
+            </Button>
+            <Button size="sm" variant="secondary" onClick={() => setAsideOpen((open) => !open)}>
+              {asideOpen ? '关闭详情' : '打开详情'}
+            </Button>
+            <span style={VARIANT_MUTED_STYLE}>
+              sidebar={String(sidebarOpen)} · aside={String(asideOpen)}
+            </span>
+          </div>
+        )}
         {APP_LAYOUT_VARIANT_ROWS.map((row) => (
           <div key={row} style={{ ...VARIANT_PANEL_STYLE, margin: '12px 16px' }}>
             <strong>{row}</strong>
             <p style={{ ...VARIANT_MUTED_STYLE, margin: '6px 0 0' }}>
-              {variant === 'content-scroll' ? '主内容区域独立滚动。' : `当前 ${active} 模块的工作内容。`}
+              {variant === 'content-scroll'
+                ? '主内容区域独立滚动。'
+                : variant === 'aside-keyboard-shortcut'
+                  ? `按 Ctrl/Cmd+. 切换详情 · ${asideOpen ? '打开' : '关闭'}`
+                  : variant === 'persisted-state'
+                    ? `sidebar_state / aside_state 会随非受控开合写入 cookie。`
+                    : variant === 'client-side-routing' || variant === 'navbar-adaptation'
+                      ? `当前路径 ${routePath}`
+                      : `当前 ${active} 模块的工作内容。`}
             </p>
           </div>
         ))}
@@ -3179,13 +3254,19 @@ export const feedbackNavVariantDemos: Record<string, ReactNode> = {
   'app-layout-collapsible': <AppLayoutVariantDemo variant="collapsible" />,
   'app-layout-complex': <AppLayoutVariantDemo variant="complex" />,
   'app-layout-content-scroll': <AppLayoutVariantDemo variant="content-scroll" />,
+  'app-layout-client-side-routing': <AppLayoutVariantDemo variant="client-side-routing" />,
+  'app-layout-controlled-state': <AppLayoutVariantDemo variant="controlled-state" />,
   'app-layout-default': <AppLayoutVariantDemo variant="default" />,
   'app-layout-docs-site': <AppLayoutVariantDemo variant="docs-site" />,
   'app-layout-floating-sidebar': <AppLayoutVariantDemo variant="floating-sidebar" />,
   'app-layout-inset-dashboard': <AppLayoutVariantDemo variant="inset-dashboard" />,
+  'app-layout-mobile-aside-sheet': <AppLayoutVariantDemo variant="mobile-aside-sheet" />,
+  'app-layout-mobile-behavior': <AppLayoutVariantDemo variant="mobile-behavior" />,
+  'app-layout-navbar-adaptation': <AppLayoutVariantDemo variant="navbar-adaptation" />,
   'app-layout-offcanvas': <AppLayoutVariantDemo variant="offcanvas" />,
-  'app-layout-resizable-aside': <AppLayoutVariantDemo variant="resizable-aside" />,
+  'app-layout-persisted-state': <AppLayoutVariantDemo variant="persisted-state" />,
   'app-layout-resizable-sidebar': <AppLayoutVariantDemo variant="resizable-sidebar" />,
+  'app-layout-aside-keyboard-shortcut': <AppLayoutVariantDemo variant="aside-keyboard-shortcut" />,
   'app-layout-with-aside': <AppLayoutVariantDemo variant="with-aside" />,
   'app-layout-with-breadcrumbs': <AppLayoutVariantDemo variant="with-breadcrumbs" />,
   'app-layout-with-inset-sidebar': <AppLayoutVariantDemo variant="with-inset-sidebar" />,

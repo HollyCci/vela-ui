@@ -1,8 +1,10 @@
 'use client';
 
 import {
+  cloneElement,
   createContext,
   forwardRef,
+  isValidElement,
   useCallback,
   useContext,
   useEffect,
@@ -112,6 +114,7 @@ export const useAppLayout = (): {
   isAsideOpen: boolean;
   setAsideOpen: (open: boolean) => void;
   toggleAside: () => void;
+  navigate?: (href: string) => void;
 } | null => {
   const ctx = useContext(AppLayoutContext);
   if (ctx === null) return null;
@@ -119,7 +122,28 @@ export const useAppLayout = (): {
     isAsideOpen: ctx.isAsideOpen,
     setAsideOpen: ctx.setAsideOpen,
     toggleAside: ctx.toggleAside,
+    navigate: ctx.navigate,
   };
+};
+
+type NavbarLikeProps = {
+  navigate?: (href: string) => void;
+  'data-in-app-layout'?: boolean;
+};
+
+const adaptNavbarForAppLayout = (
+  navbar: ReactNode,
+  navigate: ((href: string) => void) | undefined,
+): ReactNode => {
+  if (!isValidElement(navbar)) return navbar;
+  const type = navbar.type as { displayName?: string };
+  if (type.displayName !== 'Navbar') return navbar;
+  const props = navbar.props as NavbarLikeProps;
+
+  return cloneElement(navbar as ReactElement<NavbarLikeProps>, {
+    'data-in-app-layout': true,
+    navigate: props.navigate ?? navigate,
+  } satisfies NavbarLikeProps);
 };
 
 /** MobileAside 是 marker：被识别后从 children 中剔除，仅在 sheet 模式下注入 */
@@ -358,7 +382,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       <div className="app-layout__body" data-slot="app-layout-body">
         {navbar !== undefined && navbar !== null ? (
           <header className="app-layout__header" data-slot="app-layout-header">
-            {navbar}
+            {adaptNavbarForAppLayout(navbar, navigate)}
           </header>
         ) : null}
         {toolbar !== undefined && toolbar !== null ? (

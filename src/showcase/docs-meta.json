@@ -2254,14 +2254,44 @@
         "demo": "app-layout-resizable-sidebar"
       },
       {
-        "heading": "Resizable Aside",
-        "anchor": "resizable-aside",
-        "demo": "app-layout-resizable-aside"
+        "heading": "Persisted State",
+        "anchor": "persisted-state",
+        "demo": "app-layout-persisted-state"
+      },
+      {
+        "heading": "Aside Keyboard Shortcut",
+        "anchor": "aside-keyboard-shortcut",
+        "demo": "app-layout-aside-keyboard-shortcut"
+      },
+      {
+        "heading": "Mobile Aside Sheet",
+        "anchor": "mobile-aside-sheet",
+        "demo": "app-layout-mobile-aside-sheet"
       },
       {
         "heading": "Toolbar and Footer",
         "anchor": "toolbar-and-footer",
         "demo": "app-layout-with-toolbar"
+      },
+      {
+        "heading": "Mobile Behavior",
+        "anchor": "mobile-behavior",
+        "demo": "app-layout-mobile-behavior"
+      },
+      {
+        "heading": "Client-Side Routing",
+        "anchor": "client-side-routing",
+        "demo": "app-layout-client-side-routing"
+      },
+      {
+        "heading": "Controlled State",
+        "anchor": "controlled-state",
+        "demo": "app-layout-controlled-state"
+      },
+      {
+        "heading": "Navbar Adaptation",
+        "anchor": "navbar-adaptation",
+        "demo": "app-layout-navbar-adaptation"
       }
     ]
   },

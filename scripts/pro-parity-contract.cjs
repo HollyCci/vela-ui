@@ -67,7 +67,7 @@ const componentContracts = {
   'radio-button-group': ['single-select', 'controlled-value', 'disabled-state', 'validation-state'],
   'rich-text-editor': ['contenteditable-input', 'toolbar-commands', 'link-popover', 'character-count'],
 
-  'app-layout': ['sidebar-collapse', 'mobile-sheet', 'resizable-areas', 'sticky-regions'],
+  'app-layout': ['sidebar-collapse', 'mobile-sheet', 'resizable-areas', 'sticky-regions', 'persisted-state', 'client-routing', 'controlled-state', 'navbar-adaptation'],
   command: ['command-dialog', 'keyboard-search', 'grouped-results', 'shortcut-display'],
   'context-menu': ['context-trigger', 'submenu', 'checkbox-radio-items', 'keyboard-navigation'],
   navbar: ['responsive-menu', 'dropdown-actions', 'active-state', 'client-routing', 'programmatic-control'],
@@ -141,7 +141,7 @@ const referenceVariantCounts = {
   'radio-button-group': 12,
   'rich-text-editor': 7,
 
-  'app-layout': 14,
+  'app-layout': 20,
   command: 9,
   'context-menu': 7,
   navbar: 13,
@@ -158,7 +158,6 @@ const referenceVariantCounts = {
 // upstream HeroUI Pro docs. The networked audit remains the source of truth.
 const liveReferenceVariantCounts = {
   agenda: 8,
-  'app-layout': 20,
 };
 
 const browserSmokeComponents = [
