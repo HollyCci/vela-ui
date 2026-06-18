@@ -70,7 +70,7 @@ const componentContracts = {
   'app-layout': ['sidebar-collapse', 'mobile-sheet', 'resizable-areas', 'sticky-regions'],
   command: ['command-dialog', 'keyboard-search', 'grouped-results', 'shortcut-display'],
   'context-menu': ['context-trigger', 'submenu', 'checkbox-radio-items', 'keyboard-navigation'],
-  navbar: ['responsive-menu', 'dropdown-actions', 'active-state'],
+  navbar: ['responsive-menu', 'dropdown-actions', 'active-state', 'client-routing', 'programmatic-control'],
   segment: ['single-select', 'controlled-value', 'keyboard-navigation'],
   sidebar: ['collapse-state', 'mobile-sheet', 'nested-navigation', 'keyboard-navigation'],
   stepper: ['step-state', 'orientation', 'controlled-step', 'actions'],
@@ -144,7 +144,7 @@ const referenceVariantCounts = {
   'app-layout': 14,
   command: 9,
   'context-menu': 7,
-  navbar: 7,
+  navbar: 13,
   segment: 11,
   sidebar: 15,
   stepper: 19,
@@ -159,7 +159,6 @@ const referenceVariantCounts = {
 const liveReferenceVariantCounts = {
   agenda: 8,
   'app-layout': 20,
-  navbar: 13,
   sidebar: 18,
 };
 

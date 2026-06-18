@@ -16,7 +16,7 @@ import EmojiReactionButton from '../../components/emoji-reaction-button';
 import Link from '../../components/link';
 import MenuItem from '../../components/menu-item';
 import Meter from '../../components/meter';
-import Navbar from '../../components/navbar';
+import Navbar, { useNavbar } from '../../components/navbar';
 import NumberValue from '../../components/number-value';
 import Pagination from '../../components/pagination';
 import PressableFeedback from '../../components/pressable-feedback';
@@ -2134,14 +2134,114 @@ const NAVBAR_VARIANT_FRAME_STYLE: CSSProperties = {
   position: 'relative',
 };
 
+const NavbarProgrammaticStatus = () => {
+  const { height, isHidden, isMenuOpen, setMenuOpen } = useNavbar();
+
+  return (
+    <>
+      <Button size="sm" variant="ghost" onClick={() => setMenuOpen(!isMenuOpen)}>
+        {isMenuOpen ? '关闭菜单' : '打开菜单'}
+      </Button>
+      <Navbar.Label>
+        {height} · {isHidden ? 'hidden' : 'visible'} · {isMenuOpen ? 'open' : 'closed'}
+      </Navbar.Label>
+    </>
+  );
+};
+
 const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const [isMenuOpen, setMenuOpen] = useState(variant === 'with-menu');
+  const [isMenuOpen, setMenuOpen] = useState(
+    variant === 'with-menu' ||
+      variant === 'responsive-mobile-menu' ||
+      variant === 'programmatic-control',
+  );
   const [activeHref, setActiveHref] = useState('/app/dashboard');
+  const [routeLog, setRouteLog] = useState('等待导航');
   const isCompact = variant === 'compact';
 
-  const handleNavigate = (href: string) => setActiveHref(href);
+  const handleNavigate = (href: string) => {
+    setActiveHref(href);
+    setRouteLog(`navigate(${href})`);
+  };
   const handleDropdownAction = (key: ReactKey) => setActiveHref(`/app/${String(key)}`);
+
+  if (variant === 'compact-density') {
+    return (
+      <DemoSection label="compact density" isColumn>
+        <div style={NAVBAR_VARIANT_FRAME_STYLE}>
+          <Navbar
+            position="static"
+            size="sm"
+            height="2.75rem"
+            maxWidth="full"
+            shouldBlockScroll={false}
+            navigate={handleNavigate}
+          >
+            <Navbar.Header>
+              <Navbar.Brand>
+                <strong>Vela</strong>
+              </Navbar.Brand>
+              <Navbar.Content>
+                {NAVBAR_LINKS.map((link) => (
+                  <Navbar.Item key={link.href} href={link.href} isCurrent={activeHref === link.href}>
+                    {link.label}
+                  </Navbar.Item>
+                ))}
+              </Navbar.Content>
+              <Navbar.Spacer />
+              <Navbar.Content>
+                <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
+                  设置
+                </Navbar.Item>
+                <Navbar.MenuToggle srLabel="Toggle compact menu" />
+              </Navbar.Content>
+            </Navbar.Header>
+            <Navbar.Menu>
+              {NAVBAR_LINKS.map((link) => (
+                <Navbar.MenuItem key={link.href} href={link.href} isCurrent={activeHref === link.href}>
+                  {link.label}
+                </Navbar.MenuItem>
+              ))}
+            </Navbar.Menu>
+          </Navbar>
+          <div style={{ padding: 16, color: 'var(--muted)' }}>
+            当前：{activeHref.replace('/app/', '')} · height 2.75rem
+          </div>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'positioning') {
+    return (
+      <DemoSection label="positioning" isColumn>
+        {(['static', 'sticky', 'floating'] as const).map((position) => (
+          <div key={position} style={{ ...NAVBAR_VARIANT_FRAME_STYLE, minHeight: 96 }}>
+            <Navbar position={position} maxWidth="full" shouldBlockScroll={false} navigate={handleNavigate}>
+              <Navbar.Header>
+                <Navbar.Brand>
+                  <strong>{position}</strong>
+                </Navbar.Brand>
+                <Navbar.Content>
+                  <Navbar.Item href="/app/dashboard" isCurrent={activeHref === '/app/dashboard'}>
+                    工作台
+                  </Navbar.Item>
+                  <Navbar.Item href="/app/schedule" isCurrent={activeHref === '/app/schedule'}>
+                    排班
+                  </Navbar.Item>
+                </Navbar.Content>
+                <Navbar.Spacer />
+                <Navbar.Content>
+                  <Navbar.MenuToggle srLabel={`Toggle ${position} menu`} />
+                </Navbar.Content>
+              </Navbar.Header>
+            </Navbar>
+          </div>
+        ))}
+      </DemoSection>
+    );
+  }
 
   const navbar = (
     <Navbar
@@ -2155,6 +2255,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
       onMenuOpenChange={setMenuOpen}
       shouldBlockScroll={false}
       navigate={handleNavigate}
+      aria-label={variant === 'accessibility' ? 'Primary navigation' : undefined}
     >
       <Navbar.Header>
         <Navbar.Brand>
@@ -2190,7 +2291,17 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
           <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
             设置
           </Navbar.Item>
-          <Navbar.MenuToggle />
+          {variant === 'programmatic-control' ? (
+            <NavbarProgrammaticStatus />
+          ) : (
+            <Navbar.MenuToggle
+              srLabel={
+                variant === 'accessibility'
+                  ? 'Toggle primary navigation menu'
+                  : 'Toggle navigation menu'
+              }
+            />
+          )}
         </Navbar.Content>
       </Navbar.Header>
       <Navbar.Menu>
@@ -2220,6 +2331,8 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
         {navbar}
         <div style={{ padding: 16, color: 'var(--muted)' }}>
           当前：{activeHref.replace('/app/', '')} · 菜单{isMenuOpen ? '展开' : '收起'}
+          {variant === 'client-side-routing' ? ` · ${routeLog}` : ''}
+          {variant === 'accessibility' ? ' · aria-current=page' : ''}
         </div>
       </div>
     </DemoSection>
@@ -2992,10 +3105,16 @@ export const feedbackNavVariantDemos: Record<string, ReactNode> = {
   'context-menu-with-submenus': <ContextMenuVariantDemo variant="with-submenus" />,
 
   'navbar-compact': <NavbarVariantDemo variant="compact" />,
+  'navbar-compact-density': <NavbarVariantDemo variant="compact-density" />,
+  'navbar-accessibility': <NavbarVariantDemo variant="accessibility" />,
+  'navbar-client-side-routing': <NavbarVariantDemo variant="client-side-routing" />,
   'navbar-dashboard': <NavbarVariantDemo variant="dashboard" />,
   'navbar-default': <NavbarVariantDemo variant="default" />,
   'navbar-docs-site': <NavbarVariantDemo variant="docs-site" />,
   'navbar-hide-on-scroll': <NavbarVariantDemo variant="hide-on-scroll" />,
+  'navbar-positioning': <NavbarVariantDemo variant="positioning" />,
+  'navbar-programmatic-control': <NavbarVariantDemo variant="programmatic-control" />,
+  'navbar-responsive-mobile-menu': <NavbarVariantDemo variant="responsive-mobile-menu" />,
   'navbar-with-dropdowns': <NavbarVariantDemo variant="with-dropdowns" />,
   'navbar-with-menu': <NavbarVariantDemo variant="with-menu" />,
 

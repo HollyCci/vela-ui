@@ -2395,6 +2395,36 @@
         "heading": "Hide on Scroll",
         "anchor": "hide-on-scroll",
         "demo": "navbar-hide-on-scroll"
+      },
+      {
+        "heading": "Responsive Mobile Menu",
+        "anchor": "responsive-mobile-menu",
+        "demo": "navbar-responsive-mobile-menu"
+      },
+      {
+        "heading": "Compact Density",
+        "anchor": "compact-density",
+        "demo": "navbar-compact-density"
+      },
+      {
+        "heading": "Client-Side Routing",
+        "anchor": "client-side-routing",
+        "demo": "navbar-client-side-routing"
+      },
+      {
+        "heading": "Positioning",
+        "anchor": "positioning",
+        "demo": "navbar-positioning"
+      },
+      {
+        "heading": "Programmatic Control",
+        "anchor": "programmatic-control",
+        "demo": "navbar-programmatic-control"
+      },
+      {
+        "heading": "Accessibility",
+        "anchor": "accessibility",
+        "demo": "navbar-accessibility"
       }
     ]
   },

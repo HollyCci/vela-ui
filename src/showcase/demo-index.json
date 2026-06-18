@@ -371,13 +371,19 @@
     "native-select-with-label"
   ],
   "navbar": [
-    "navbar-compact",
-    "navbar-dashboard",
     "navbar-default",
     "navbar-docs-site",
-    "navbar-hide-on-scroll",
     "navbar-with-dropdowns",
-    "navbar-with-menu"
+    "navbar-dashboard",
+    "navbar-compact",
+    "navbar-with-menu",
+    "navbar-hide-on-scroll",
+    "navbar-responsive-mobile-menu",
+    "navbar-compact-density",
+    "navbar-client-side-routing",
+    "navbar-positioning",
+    "navbar-programmatic-control",
+    "navbar-accessibility"
   ],
   "number-stepper": [
     "number-stepper-controlled",
