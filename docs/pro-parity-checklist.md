@@ -40,7 +40,7 @@ Reference checked: 2026-06-18
 | Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
 | [Agenda](https://heroui.pro/docs/react/components/agenda) | 8 | 1 | `calendar-layout`, `event-drag`, `event-resize`, `current-time-indicator` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 1, reference 8. |
-| [Action Bar](https://heroui.pro/docs/react/components/action-bar) | 3 | 2 | `selection-state`, `floating-actions`, `dismiss-action` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 2, reference 3. |
+| [Action Bar](https://heroui.pro/docs/react/components/action-bar) | 3 | 3 | `selection-state`, `floating-actions`, `dismiss-action`, `responsive-labels` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Carousel](https://heroui.pro/docs/react/components/carousel) | 6 | 6 | `previous-next`, `dots`, `loop`, `autoplay`, `api-access` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
 | [Data Grid](https://heroui.pro/docs/react/components/data-grid) | 16 | 12 | `sorting`, `selection`, `cell-editing`, `column-resize`, `virtual-scroll` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 12, reference 16. |
 | [Empty State](https://heroui.pro/docs/react/components/empty-state) | 8 | 8 | `visual-state`, `action-buttons` | `covered` | `pending` | `pending` | `pending` | Needs same-viewport visual, DOM/CSS, and remaining interaction comparison against the live reference. |
@@ -89,7 +89,7 @@ Reference checked: 2026-06-18
 
 | Component | Live reference variants | Local demos | Behavior contract | Browser smoke | Manual visual | Manual DOM/CSS | Manual interaction | Open gap |
 | --- | ---: | ---: | --- | --- | --- | --- | --- | --- |
-| [Resizable](https://heroui.pro/docs/react/components/resizable) | 10 | 7 | `panel-resize`, `keyboard-resize`, `nested-groups`, `collapse-state` | `covered` | `pending` | `pending` | `pending` | Variant count mismatch: local 7, reference 10. |
+| [Resizable](https://heroui.pro/docs/react/components/resizable) | 10 | 10 | `panel-resize`, `keyboard-resize`, `nested-groups`, `collapse-state`, `persisted-layout`, `css-variables` | `covered` | `pending` | `pending` | `pending` | Smoke covers pointer resize; still needs keyboard resize, collapse, and nested group comparison. |
 
 ### Forms
 

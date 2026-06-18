@@ -1732,6 +1732,93 @@ const ResizableTwoPanel = ({
 const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
   const [layout, setLayout] = useState<number[]>([36, 64]);
   const [collapseState, setCollapseState] = useState('拖拽到最小宽度可折叠');
+  const [persistedStatus, setPersistedStatus] = useState('已保存布局');
+  const [handleSize, setHandleSize] = useState(6);
+
+  if (variant === 'size-units') {
+    return (
+      <DemoSection label="size units" isColumn>
+        <Resizable
+          onLayout={setLayout}
+          style={{ ...RESIZABLE_VARIANT_FRAME_STYLE, width: 560 }}
+        >
+          <Resizable.Panel defaultSize={25} minSize={15} maxSize={45} style={RESIZABLE_PANEL_STYLE}>
+            辅助栏 · 25%
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={75} minSize={40} style={RESIZABLE_PANEL_STYLE}>
+            内容区 · 75%
+          </Resizable.Panel>
+        </Resizable>
+        <span style={VARIANT_MUTED_STYLE}>当前尺寸：{layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'persisted-sizes') {
+    const autoSaveId = 'vela-demo-resizable-persisted';
+
+    return (
+      <DemoSection label="persisted sizes" isColumn>
+        <Resizable autoSaveId={autoSaveId} onLayout={setLayout} style={RESIZABLE_VARIANT_FRAME_STYLE}>
+          <Resizable.Panel id="navigator" defaultSize={28} minSize={18} style={RESIZABLE_PANEL_STYLE}>
+            导航面板
+          </Resizable.Panel>
+          <Resizable.Handle type="drag" />
+          <Resizable.Panel id="editor" defaultSize={72} minSize={36} style={RESIZABLE_PANEL_STYLE}>
+            编辑面板
+          </Resizable.Panel>
+        </Resizable>
+        <div style={VARIANT_ROW_STYLE}>
+          <Button
+            size="sm"
+            variant="secondary"
+            onClick={() => {
+              window.localStorage.removeItem(`react-resizable-panels:${autoSaveId}`);
+              setPersistedStatus('已重置保存尺寸');
+            }}
+          >
+            重置尺寸
+          </Button>
+          <span style={VARIANT_MUTED_STYLE}>{persistedStatus} · {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+        </div>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'css-variables') {
+    return (
+      <DemoSection label="css variables" isColumn>
+        <div style={VARIANT_ROW_STYLE}>
+          {[4, 8, 12].map((size) => (
+            <Button key={size} size="sm" variant={handleSize === size ? 'secondary' : 'ghost'} onClick={() => setHandleSize(size)}>
+              {size}px
+            </Button>
+          ))}
+        </div>
+        <Resizable
+          onLayout={setLayout}
+          style={{
+            ...RESIZABLE_VARIANT_FRAME_STYLE,
+            '--resizable-handle-size': `${handleSize}px`,
+            '--resizable-handle-hit-area': `${handleSize + 10}px`,
+            '--resizable-handle-color': 'var(--color-accent-soft)',
+            '--resizable-handle-color-hover': 'var(--color-accent)',
+            '--resizable-indicator-pill-width': `${Math.max(4, handleSize - 1)}px`,
+          } as CSSProperties}
+        >
+          <Resizable.Panel defaultSize={42} minSize={24} style={RESIZABLE_PANEL_STYLE}>
+            变量面板
+          </Resizable.Panel>
+          <Resizable.Handle type="line" withIndicator />
+          <Resizable.Panel defaultSize={58} minSize={30} style={RESIZABLE_PANEL_STYLE}>
+            预览面板
+          </Resizable.Panel>
+        </Resizable>
+        <span style={VARIANT_MUTED_STYLE}>握柄 {handleSize}px · {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+      </DemoSection>
+    );
+  }
 
   if (variant === 'nested') {
     return (
@@ -2862,6 +2949,9 @@ export const feedbackNavVariantDemos: Record<string, ReactNode> = {
 
   'resizable-default': <ResizableVariantDemo variant="default" />,
   'resizable-nested': <ResizableVariantDemo variant="nested" />,
+  'resizable-css-variables': <ResizableVariantDemo variant="css-variables" />,
+  'resizable-persisted-sizes': <ResizableVariantDemo variant="persisted-sizes" />,
+  'resizable-size-units': <ResizableVariantDemo variant="size-units" />,
   'resizable-types': <ResizableVariantDemo variant="types" />,
   'resizable-variants': <ResizableVariantDemo variant="variants" />,
   'resizable-vertical': <ResizableVariantDemo variant="vertical" />,

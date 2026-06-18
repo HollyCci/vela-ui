@@ -1,7 +1,8 @@
 {
   "action-bar": [
     "action-bar-default",
-    "action-bar-with-data-grid"
+    "action-bar-with-data-grid",
+    "action-bar-responsive-labels"
   ],
   "agenda": [
     "agenda-default"
@@ -495,12 +496,15 @@
   ],
   "resizable": [
     "resizable-default",
-    "resizable-nested",
+    "resizable-size-units",
+    "resizable-vertical",
     "resizable-types",
     "resizable-variants",
-    "resizable-vertical",
+    "resizable-nested",
     "resizable-with-collapse",
-    "resizable-with-indicator"
+    "resizable-with-indicator",
+    "resizable-persisted-sizes",
+    "resizable-css-variables"
   ],
   "segment": [
     "segment-controlled",

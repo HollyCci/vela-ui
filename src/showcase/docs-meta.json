@@ -336,6 +336,11 @@
         "heading": "With Data Grid",
         "anchor": "with-data-grid",
         "demo": "action-bar-with-data-grid"
+      },
+      {
+        "heading": "Responsive Labels",
+        "anchor": "responsive-labels",
+        "demo": "action-bar-responsive-labels"
       }
     ]
   },
@@ -1572,6 +1577,11 @@
         "demo": "resizable-default"
       },
       {
+        "heading": "Size Units",
+        "anchor": "size-units",
+        "demo": "resizable-size-units"
+      },
+      {
         "heading": "Vertical",
         "anchor": "vertical",
         "demo": "resizable-vertical"
@@ -1600,6 +1610,16 @@
         "heading": "With Indicator",
         "anchor": "with-indicator",
         "demo": "resizable-with-indicator"
+      },
+      {
+        "heading": "Persisted Sizes",
+        "anchor": "persisted-sizes",
+        "demo": "resizable-persisted-sizes"
+      },
+      {
+        "heading": "CSS Variables",
+        "anchor": "css-variables",
+        "demo": "resizable-css-variables"
       }
     ]
   },

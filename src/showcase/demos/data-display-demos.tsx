@@ -1595,6 +1595,58 @@ const ActionBarWithDataGridVariantDemo = () => {
   );
 };
 
+const ActionBarResponsiveLabelsVariantDemo = () => {
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001', '20260612003']));
+  const [action, setAction] = useState('已选择 2 条订单');
+  const count = selectedKeys === 'all' ? ORDER_ROWS.length : selectedKeys.size;
+
+  return (
+    <DemoSection isColumn label="responsive labels">
+      <div style={{ width: 560, maxWidth: '100%' }}>
+        <DataGrid
+          aria-label="响应式操作条订单"
+          columns={ORDER_COLUMNS.slice(0, 3)}
+          data={ORDER_ROWS.slice(0, 4)}
+          getRowId={orderRowId}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          showSelectionCheckboxes
+          onSelectionChange={setSelectedKeys}
+        />
+      </div>
+      <ActionBar isOpen={count > 0} aria-label="Responsive action labels">
+        <ActionBar.Prefix>
+          <Chip color="accent" size="sm">
+            {count}
+          </Chip>
+          <ActionBar.Label>已选择订单</ActionBar.Label>
+        </ActionBar.Prefix>
+        <Separator orientation="vertical" />
+        <ActionBar.Content>
+          <Button size="sm" variant="ghost" aria-label="归档所选订单" onClick={() => setAction(`已归档 ${count} 条订单`)}>
+            归档
+          </Button>
+          <Button size="sm" variant="ghost" aria-label="分配所选订单" onClick={() => setAction(`已分配 ${count} 条订单`)}>
+            分配
+          </Button>
+          <Button
+            size="sm"
+            variant="danger-soft"
+            aria-label="清除所选订单"
+            onClick={() => {
+              setAction('已清除选择');
+              setSelectedKeys(new Set());
+            }}
+          >
+            清除
+          </Button>
+        </ActionBar.Content>
+      </ActionBar>
+      <span style={demoTextStyle}>{action}</span>
+    </DemoSection>
+  );
+};
+
 const CarouselSlide = ({ title, meta }: { title: string; meta: string }) => (
   <div
     style={{
@@ -3526,6 +3578,7 @@ export const dataDisplayDemos: Record<string, ReactNode> = {
 export const dataDisplayVariantDemos: Record<string, ReactNode> = {
   'agenda-default': <AgendaDemo />,
   'action-bar-default': <ActionBarDefaultVariantDemo />,
+  'action-bar-responsive-labels': <ActionBarResponsiveLabelsVariantDemo />,
   'action-bar-with-data-grid': <ActionBarWithDataGridVariantDemo />,
   'carousel-api-access': <CarouselVariantDemo variant="api-access" />,
   'carousel-autoplay': <CarouselVariantDemo variant="autoplay" />,

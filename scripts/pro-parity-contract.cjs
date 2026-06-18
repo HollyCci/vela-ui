@@ -16,7 +16,7 @@ const componentContracts = {
   'radial-chart': ['responsive-chart', 'tooltip-hover', 'progress-arc'],
 
   agenda: ['calendar-layout', 'event-drag', 'event-resize', 'current-time-indicator'],
-  'action-bar': ['selection-state', 'floating-actions', 'dismiss-action'],
+  'action-bar': ['selection-state', 'floating-actions', 'dismiss-action', 'responsive-labels'],
   carousel: ['previous-next', 'dots', 'loop', 'autoplay', 'api-access'],
   'data-grid': ['sorting', 'selection', 'cell-editing', 'column-resize', 'virtual-scroll'],
   'empty-state': ['visual-state', 'action-buttons'],
@@ -53,7 +53,7 @@ const componentContracts = {
   rating: ['hover-preview', 'selection', 'readonly-state', 'half-step'],
   'trend-chip': ['trend-direction', 'semantic-color', 'number-formatting'],
 
-  resizable: ['panel-resize', 'keyboard-resize', 'nested-groups', 'collapse-state'],
+  resizable: ['panel-resize', 'keyboard-resize', 'nested-groups', 'collapse-state', 'persisted-layout', 'css-variables'],
 
   'cell-color-picker': ['popover-picker', 'presets', 'controlled-value', 'disabled-state'],
   'cell-select': ['popover-select', 'controlled-value', 'custom-value', 'disabled-state'],
@@ -90,7 +90,7 @@ const referenceVariantCounts = {
   'radial-chart': 5,
 
   agenda: 1,
-  'action-bar': 2,
+  'action-bar': 3,
   carousel: 6,
   'data-grid': 12,
   'empty-state': 8,
@@ -127,7 +127,7 @@ const referenceVariantCounts = {
   rating: 12,
   'trend-chip': 6,
 
-  resizable: 7,
+  resizable: 10,
 
   'cell-color-picker': 6,
   'cell-select': 7,
@@ -158,9 +158,7 @@ const referenceVariantCounts = {
 // upstream HeroUI Pro docs. The networked audit remains the source of truth.
 const liveReferenceVariantCounts = {
   agenda: 8,
-  'action-bar': 3,
   'data-grid': 16,
-  resizable: 10,
   'app-layout': 20,
   navbar: 13,
   sidebar: 18,
