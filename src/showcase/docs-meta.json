@@ -497,11 +497,6 @@
         "demo": "file-tree-default"
       },
       {
-        "heading": "Anatomy",
-        "anchor": "anatomy",
-        "demo": "file-tree-anatomy"
-      },
-      {
         "heading": "Reduced Motion",
         "anchor": "reduced-motion",
         "demo": "file-tree-reduced-motion"

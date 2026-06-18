@@ -597,14 +597,14 @@ const runTargetedSmoke = async (page) => {
 
   await clickComponent(page, 'file-tree');
   {
-    const preview = scoped(page, 'file-tree-anatomy');
+    const preview = scoped(page, 'file-tree-with-icons');
     const tree = preview.locator('[data-slot="file-tree"]').first();
-    await expectVisible(tree, 'file-tree anatomy root');
-    const treeItem = preview.locator('[data-slot="file-tree-item-content"]').filter({ hasText: /styles|components/i }).first();
+    await expectVisible(tree, 'file-tree root');
+    const treeItem = preview.locator('[data-slot="file-tree-item-content"]').filter({ hasText: /courses|operations/i }).first();
     await expectVisible(treeItem, 'file-tree expandable item');
     await treeItem.click();
     await expectVisible(preview.locator('[data-slot="file-tree-item-content"]').first(), 'file-tree item content');
-    checks.push('file-tree anatomy renders real slots and accepts tree item interaction');
+    checks.push('file-tree renders real slots and accepts tree item interaction');
   }
 
   await clickComponent(page, 'rich-text-editor');
