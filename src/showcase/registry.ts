@@ -37,6 +37,7 @@ export const PRO_CATEGORIES: Record<string, string[]> = {
     'kpi',
     'kpi-group',
     'list-view',
+    'timeline',
     'widget',
   ],
   AI: [
@@ -68,6 +69,7 @@ export const PRO_CATEGORIES: Record<string, string[]> = {
     'native-select',
     'number-stepper',
     'radio-button-group',
+    'rich-text-editor',
   ],
   Navigation: ['app-layout', 'command', 'context-menu', 'navbar', 'segment', 'sidebar', 'stepper'],
   Overlays: ['emoji-picker', 'sheet'],

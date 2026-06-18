@@ -12,6 +12,7 @@ import NumberField from '../../components/number-field';
 import Tag, { TagGroup, type TagSize, type TagVariant } from '../../components/tag';
 import CheckboxButtonGroup from '../../components/checkbox-button-group';
 import RadioButtonGroup from '../../components/radio-button-group';
+import RichTextEditor, { type RichTextEditorJSONContent } from '../../components/rich-text-editor';
 import NumberStepper from '../../components/number-stepper';
 import InlineSelect from '../../components/inline-select';
 import DropZone, {
@@ -2461,6 +2462,185 @@ const EarIcon = () => (
   </svg>
 );
 
+const RICH_TEXT_DEFAULT_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<h2>Launch brief</h2><p>Summarize the new onboarding flow, call out risk areas, and list the next owner actions.</p><blockquote>Keep the update short enough for the weekly product review.</blockquote>',
+};
+
+const RICH_TEXT_REVIEW_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<p><strong>Review note:</strong> The empty state is clear, but the CTA copy should better explain the next step.</p>',
+};
+
+const RichTextToolbar = () => (
+  <RichTextEditor.Toolbar>
+    <RichTextEditor.ToolbarGroup aria-label="Text formatting">
+      <RichTextEditor.ToggleButton command="bold" aria-label="Bold" />
+      <RichTextEditor.ToggleButton command="italic" aria-label="Italic" />
+      <RichTextEditor.ToggleButton command="underline" aria-label="Underline" />
+      <RichTextEditor.ToggleButton command="strike" aria-label="Strike" />
+    </RichTextEditor.ToolbarGroup>
+    <RichTextEditor.ToolbarGroup aria-label="Blocks">
+      <RichTextEditor.ToggleButton command="heading1" aria-label="Heading 1" />
+      <RichTextEditor.ToggleButton command="heading2" aria-label="Heading 2" />
+      <RichTextEditor.ToggleButton command="bulletList" aria-label="Bullet list" />
+      <RichTextEditor.ToggleButton command="orderedList" aria-label="Ordered list" />
+      <RichTextEditor.ToggleButton command="blockquote" aria-label="Quote" />
+    </RichTextEditor.ToolbarGroup>
+    <RichTextEditor.ToolbarGroup aria-label="Link">
+      <RichTextEditor.LinkPopover />
+      <RichTextEditor.ActionButton command="undo" aria-label="Undo" />
+      <RichTextEditor.ActionButton command="redo" aria-label="Redo" />
+    </RichTextEditor.ToolbarGroup>
+  </RichTextEditor.Toolbar>
+);
+
+type RichTextEditorVariantKey =
+  | 'default'
+  | 'controlled'
+  | 'character-count'
+  | 'placeholder'
+  | 'disabled-and-read-only'
+  | 'custom-composition'
+  | 'extensible-commands';
+
+const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariantKey }) => {
+  const [value, setValue] = useState<RichTextEditorJSONContent>(RICH_TEXT_DEFAULT_VALUE);
+  const [status, setStatus] = useState('等待编辑');
+
+  if (variant === 'disabled-and-read-only') {
+    return (
+      <DemoSection label="rich-text-editor-disabled-and-read-only" isColumn>
+        <RichTextEditor defaultValue={RICH_TEXT_DEFAULT_VALUE} isDisabled style={{ width: 640 }}>
+          <RichTextEditor.Shell>
+            <RichTextToolbar />
+            <RichTextEditor.Content />
+            <RichTextEditor.Footer>Disabled editor</RichTextEditor.Footer>
+          </RichTextEditor.Shell>
+        </RichTextEditor>
+        <RichTextEditor defaultValue={RICH_TEXT_REVIEW_VALUE} isReadOnly style={{ width: 640 }}>
+          <RichTextEditor.Shell>
+            <RichTextToolbar />
+            <RichTextEditor.Content />
+            <RichTextEditor.Footer>Read-only editor keeps selection readable but blocks commands.</RichTextEditor.Footer>
+          </RichTextEditor.Shell>
+        </RichTextEditor>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'custom-composition') {
+    return (
+      <DemoSection label="rich-text-editor-custom-composition" isColumn>
+        <RichTextEditor
+          defaultValue={RICH_TEXT_REVIEW_VALUE}
+          onValueChange={(_, details) => setStatus(`正文 ${details.characterCount} 字符`)}
+          style={{ width: 680 }}
+        >
+          <RichTextEditor.BubbleMenu>
+            <RichTextEditor.ToggleButton command="bold" aria-label="Bubble bold" />
+            <RichTextEditor.ToggleButton command="italic" aria-label="Bubble italic" />
+            <RichTextEditor.LinkPopover />
+          </RichTextEditor.BubbleMenu>
+          <RichTextEditor.Shell>
+            <RichTextEditor.Toolbar>
+              <RichTextEditor.ToolbarGroup>
+                <RichTextEditor.ToggleButton command="heading2" aria-label="Heading" />
+                <RichTextEditor.ToggleButton command="blockquote" aria-label="Quote" />
+                <RichTextEditor.ToggleButton command="bulletList" aria-label="Bullets" />
+              </RichTextEditor.ToolbarGroup>
+            </RichTextEditor.Toolbar>
+            <RichTextEditor.Content placeholder="记录这次设计 review 的结论…" />
+            <RichTextEditor.Footer>
+              <span>{status}</span>
+              <RichTextEditor.CharacterCount />
+            </RichTextEditor.Footer>
+          </RichTextEditor.Shell>
+        </RichTextEditor>
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'extensible-commands') {
+    return (
+      <DemoSection label="rich-text-editor-extensible-commands" isColumn>
+        <RichTextEditor
+          defaultValue={RICH_TEXT_DEFAULT_VALUE}
+          onValueChange={(_, details) => setStatus(`已同步 ${details.characterCount} 字符`)}
+          style={{ width: 680 }}
+        >
+          <RichTextEditor.Shell>
+            <RichTextToolbar />
+            <RichTextEditor.Content />
+            <RichTextEditor.Footer>
+              <RichTextEditor.FloatingMenu>
+                <RichTextEditor.CommandButton
+                  command={(editor) => {
+                    editor.runCommand('heading2');
+                    setStatus('已运行自定义命令：标题');
+                  }}
+                >
+                  标题
+                </RichTextEditor.CommandButton>
+                <RichTextEditor.CommandButton
+                  command={(editor) => {
+                    editor.setLink('https://vela-ui.local/docs/rich-text-editor');
+                    setStatus('已插入参考链接');
+                  }}
+                >
+                  参考链接
+                </RichTextEditor.CommandButton>
+              </RichTextEditor.FloatingMenu>
+              <span>{status}</span>
+            </RichTextEditor.Footer>
+          </RichTextEditor.Shell>
+        </RichTextEditor>
+      </DemoSection>
+    );
+  }
+
+  return (
+    <DemoSection label={`rich-text-editor-${variant}`} isColumn>
+      <RichTextEditor
+        value={variant === 'controlled' ? value : undefined}
+        defaultValue={variant === 'controlled' ? undefined : variant === 'placeholder' ? { type: 'doc', html: '' } : RICH_TEXT_DEFAULT_VALUE}
+        placeholder={variant === 'placeholder' ? 'Write a product update…' : undefined}
+        maxLength={variant === 'character-count' ? 180 : undefined}
+        onValueChange={(nextValue, details) => {
+          if (variant === 'controlled') setValue(nextValue);
+          setStatus(`更新：${details.characterCount} 字符`);
+        }}
+        style={{ width: 680 }}
+      >
+        <RichTextEditor.Shell>
+          <RichTextToolbar />
+          <RichTextEditor.Content />
+          {variant === 'character-count' ? (
+            <RichTextEditor.Footer>
+              <span>{status}</span>
+              <RichTextEditor.CharacterCount />
+            </RichTextEditor.Footer>
+          ) : (
+            <RichTextEditor.Footer>
+              <span>{variant === 'controlled' ? 'Controlled JSON value updates on every edit.' : status}</span>
+              {variant === 'placeholder' && (
+                <RichTextEditor.SuggestionMenu>
+                  <RichTextEditor.CommandButton command={(editor) => editor.runCommand('heading2')}>
+                    Add heading
+                  </RichTextEditor.CommandButton>
+                  <RichTextEditor.CommandButton command={(editor) => editor.runCommand('bulletList')}>
+                    Add list
+                  </RichTextEditor.CommandButton>
+                </RichTextEditor.SuggestionMenu>
+              )}
+            </RichTextEditor.Footer>
+          )}
+        </RichTextEditor.Shell>
+      </RichTextEditor>
+    </DemoSection>
+  );
+};
+
 export const formsDemos: Record<string, ReactNode> = {
   input: <InputDemo />,
   textarea: <TextareaDemo />,
@@ -2481,6 +2661,7 @@ export const formsDemos: Record<string, ReactNode> = {
   'cell-select': <CellSelectDemo />,
   'cell-slider': <CellSliderDemo />,
   'cell-color-picker': <CellColorPickerDemo />,
+  'rich-text-editor': <RichTextEditorVariantDemo variant="default" />,
 };
 
 export const formsVariantDemos: Record<string, ReactNode> = {
@@ -2573,4 +2754,11 @@ export const formsVariantDemos: Record<string, ReactNode> = {
   'radio-button-group-subscription-plans': <RadioButtonGroupVariantDemo variant="subscription-plans" />,
   'radio-button-group-with-icons': <RadioButtonGroupVariantDemo variant="with-icons" />,
   'radio-button-group-with-ripple': <RadioButtonGroupVariantDemo variant="with-ripple" />,
+  'rich-text-editor-character-count': <RichTextEditorVariantDemo variant="character-count" />,
+  'rich-text-editor-controlled': <RichTextEditorVariantDemo variant="controlled" />,
+  'rich-text-editor-custom-composition': <RichTextEditorVariantDemo variant="custom-composition" />,
+  'rich-text-editor-default': <RichTextEditorVariantDemo variant="default" />,
+  'rich-text-editor-disabled-and-read-only': <RichTextEditorVariantDemo variant="disabled-and-read-only" />,
+  'rich-text-editor-extensible-commands': <RichTextEditorVariantDemo variant="extensible-commands" />,
+  'rich-text-editor-placeholder': <RichTextEditorVariantDemo variant="placeholder" />,
 };

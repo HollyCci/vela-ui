@@ -1,0 +1,95 @@
+const REFERENCE = {
+  name: 'HeroUI Pro React Components',
+  url: 'https://heroui.pro/docs/react/components',
+  version: '1.0.0-beta.6',
+  checkedAt: '2026-06-18',
+};
+
+const componentContracts = {
+  'area-chart': ['responsive-chart', 'gradient-fill', 'tooltip-hover', 'multi-series'],
+  'bar-chart': ['responsive-chart', 'tooltip-hover', 'horizontal-orientation', 'stacked-series'],
+  'chart-tooltip': ['tooltip-content', 'formatter-api', 'color-indicators'],
+  'composed-chart': ['responsive-chart', 'tooltip-hover', 'mixed-series'],
+  'line-chart': ['responsive-chart', 'tooltip-hover', 'multi-series', 'sparkline'],
+  'pie-chart': ['responsive-chart', 'tooltip-hover', 'active-slice', 'legend'],
+  'radar-chart': ['responsive-chart', 'tooltip-hover', 'polar-grid'],
+  'radial-chart': ['responsive-chart', 'tooltip-hover', 'progress-arc'],
+
+  agenda: ['calendar-layout', 'event-drag', 'event-resize', 'current-time-indicator'],
+  'action-bar': ['selection-state', 'floating-actions', 'dismiss-action'],
+  carousel: ['previous-next', 'dots', 'loop', 'autoplay', 'api-access'],
+  'data-grid': ['sorting', 'selection', 'cell-editing', 'column-resize', 'virtual-scroll'],
+  'empty-state': ['visual-state', 'action-buttons'],
+  'file-tree': ['tree-expansion', 'selection', 'drag-drop', 'keyboard-navigation'],
+  'floating-toc': ['scroll-spy', 'anchor-navigation', 'sticky-state'],
+  'hover-card': ['hover-trigger', 'focus-trigger', 'delayed-overlay'],
+  kanban: ['drag-reorder', 'column-state', 'card-actions'],
+  'item-card': ['press-action', 'metadata-slots', 'layout-variants'],
+  'item-card-group': ['group-layout', 'item-actions', 'ranked-content'],
+  kpi: ['value-formatting', 'trend-state', 'icon-slot'],
+  'kpi-group': ['orientation', 'separator', 'responsive-layout'],
+  'list-view': ['selection', 'sorting', 'action-bar', 'empty-state'],
+  timeline: ['axis-placement', 'status-markers', 'action-buttons', 'current-item'],
+  widget: ['header-actions', 'content-layout', 'state-variants'],
+
+  'chain-of-thought': ['collapsible-steps', 'streaming-state', 'status-icons'],
+  'chat-attachment': ['attachment-preview', 'remove-action', 'grouping'],
+  'chat-conversation': ['message-stack', 'auto-scroll', 'scroll-button'],
+  'chat-list-view': ['conversation-selection', 'compact-layout'],
+  'chat-loader': ['skeleton-state', 'loading-animation'],
+  'chat-message': ['role-layout', 'avatar-slot', 'markdown-content'],
+  'chat-message-actions': ['copy-action', 'regenerate-action', 'menu-action'],
+  'chat-source': ['source-card', 'popover-details', 'confidence-state'],
+  'chat-tool': ['expand-collapse', 'status-state', 'call-result'],
+  'code-block': ['copy-action', 'language-label', 'scrolling-code'],
+  markdown: ['markdown-rendering', 'code-rendering', 'link-rendering'],
+  'prompt-input': ['textarea-autosize', 'send-stop', 'attachments', 'queue-reorder', 'suggestions'],
+  'prompt-suggestion': ['selection-action', 'card-layout'],
+  'text-shimmer': ['loading-animation', 'text-rendering'],
+
+  'emoji-reaction-button': ['toggle-reaction', 'count-state', 'readonly-state'],
+  'number-value': ['number-formatting', 'animated-change', 'locale-options'],
+  'pressable-feedback': ['press-state', 'ripple', 'keyboard-press'],
+  rating: ['hover-preview', 'selection', 'readonly-state', 'half-step'],
+  'trend-chip': ['trend-direction', 'semantic-color', 'number-formatting'],
+
+  resizable: ['panel-resize', 'keyboard-resize', 'nested-groups', 'collapse-state'],
+
+  'cell-color-picker': ['popover-picker', 'presets', 'controlled-value', 'disabled-state'],
+  'cell-select': ['popover-select', 'controlled-value', 'custom-value', 'disabled-state'],
+  'cell-slider': ['slider-drag', 'controlled-value', 'step-state', 'disabled-state'],
+  'cell-switch': ['toggle-state', 'controlled-value', 'disabled-state'],
+  'checkbox-button-group': ['multi-select', 'controlled-value', 'disabled-state', 'validation-state'],
+  'drop-zone': ['file-drop', 'file-input', 'file-list', 'progress-state', 'remove-action'],
+  'inline-select': ['inline-trigger', 'popover-select', 'controlled-value'],
+  'native-select': ['native-select', 'validation-state', 'grouped-options', 'disabled-state'],
+  'number-stepper': ['increment-decrement', 'keyboard-input', 'min-max', 'controlled-value'],
+  'radio-button-group': ['single-select', 'controlled-value', 'disabled-state', 'validation-state'],
+  'rich-text-editor': ['contenteditable-input', 'toolbar-commands', 'link-popover', 'character-count'],
+
+  'app-layout': ['sidebar-collapse', 'mobile-sheet', 'resizable-areas', 'sticky-regions'],
+  command: ['command-dialog', 'keyboard-search', 'grouped-results', 'shortcut-display'],
+  'context-menu': ['context-trigger', 'submenu', 'checkbox-radio-items', 'keyboard-navigation'],
+  navbar: ['responsive-menu', 'dropdown-actions', 'active-state'],
+  segment: ['single-select', 'controlled-value', 'keyboard-navigation'],
+  sidebar: ['collapse-state', 'mobile-sheet', 'nested-navigation', 'keyboard-navigation'],
+  stepper: ['step-state', 'orientation', 'controlled-step', 'actions'],
+
+  'emoji-picker': ['popover-grid', 'search-filter', 'skin-tone', 'selection-action'],
+  sheet: ['modal-overlay', 'placement', 'snap-points', 'drag-handle', 'nested-sheet'],
+};
+
+const browserSmokeComponents = [
+  'carousel',
+  'prompt-input',
+  'rich-text-editor',
+  'sheet',
+  'sidebar',
+  'timeline',
+];
+
+module.exports = {
+  REFERENCE,
+  componentContracts,
+  browserSmokeComponents,
+};

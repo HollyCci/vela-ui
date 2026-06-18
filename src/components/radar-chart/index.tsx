@@ -19,6 +19,7 @@ import {
   type TooltipContentProps,
   type TooltipPayloadEntry,
 } from 'recharts';
+import BaseChartTooltip from '../chart-tooltip';
 
 /** 参考数据项：含 category 键与数值系列字段 */
 export type RadarChartDatum = Record<string, number | string>;
@@ -92,7 +93,7 @@ function resolveColor(entry: TooltipPayloadEntry): string | undefined {
   return (entry as { fill?: string }).fill;
 }
 
-/** 直接渲染参考实现 .chart-tooltip BEM 结构的 recharts content；作为 RadarChart.Tooltip 的 content 传入 */
+/** Recharts tooltip content；作为 RadarChart.Tooltip 的 content 传入，DOM 由本仓库 ChartTooltip 统一输出 */
 function TooltipContent({
   active,
   payload,
@@ -104,9 +105,9 @@ function TooltipContent({
 }: RadarChartTooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div role="tooltip" className="chart-tooltip">
+    <BaseChartTooltip>
       {!hideHeader && label !== undefined && label !== '' && (
-        <div className="chart-tooltip__header">{labelFormatter ? labelFormatter(label) : label}</div>
+        <BaseChartTooltip.Header>{labelFormatter ? labelFormatter(label) : label}</BaseChartTooltip.Header>
       )}
       {payload.map((entry, index) => {
         const color = resolveColor(entry);
@@ -117,21 +118,16 @@ function TooltipContent({
             ? valueFormatter(value)
             : (value as ReactNode);
         return (
-          <div className="chart-tooltip__item" key={`${entry.dataKey ?? entry.name ?? index}`}>
-            <span
-              className={clsx(
-                'chart-tooltip__indicator',
-                `chart-tooltip__indicator--${indicator}`,
-              )}
-              style={color !== undefined ? { backgroundColor: color } : undefined}
-              aria-hidden="true"
-            />
-            <span className="chart-tooltip__label">{entry.name as ReactNode}</span>
-            <span className="chart-tooltip__value">{renderedValue}</span>
-          </div>
+          <BaseChartTooltip.Item
+            key={`${entry.dataKey ?? entry.name ?? index}`}
+            indicator={indicator}
+            indicatorColor={color}
+            label={entry.name as ReactNode}
+            value={renderedValue}
+          />
         );
       })}
-    </div>
+    </BaseChartTooltip>
   );
 }
 TooltipContent.displayName = 'RadarChart.TooltipContent';

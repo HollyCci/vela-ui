@@ -1001,6 +1001,51 @@ const SidebarDemo = () => {
             </Sidebar.Content>
             <Sidebar.Rail />
           </Sidebar>
+          <Sidebar.Mobile>
+            <Sidebar.Header>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px' }}>
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 6,
+                    background: 'var(--accent)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    fontWeight: 700,
+                    fontSize: 13,
+                  }}
+                >
+                  V
+                </div>
+                <span className="sidebar__menu-label-text" style={{ fontWeight: 600, fontSize: 14 }}>
+                  Vela
+                </span>
+              </div>
+            </Sidebar.Header>
+            <Sidebar.Content>
+              <Sidebar.Group>
+                <Sidebar.GroupLabel>导航</Sidebar.GroupLabel>
+                <Sidebar.Menu aria-label="移动端导航">
+                  {SIDEBAR_ITEMS.map((item) => (
+                    <Sidebar.MenuItem
+                      key={`${item.id}-mobile`}
+                      id={`${item.id}-mobile`}
+                      textValue={item.label}
+                      isCurrent={current === item.id}
+                      onAction={handleSelect(item.id)}
+                    >
+                      <Sidebar.MenuItemContent>
+                        <Sidebar.MenuLabel>{item.label}</Sidebar.MenuLabel>
+                      </Sidebar.MenuItemContent>
+                    </Sidebar.MenuItem>
+                  ))}
+                </Sidebar.Menu>
+              </Sidebar.Group>
+            </Sidebar.Content>
+          </Sidebar.Mobile>
           <Sidebar.Main>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
               <Sidebar.Trigger />
@@ -2374,6 +2419,81 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
             )}
             <Sidebar.Rail />
           </Sidebar>
+          <Sidebar.Mobile>
+            <Sidebar.Header>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, padding: '8px 4px' }}>
+                <div
+                  style={{
+                    width: 28,
+                    height: 28,
+                    borderRadius: withAvatar ? '50%' : 8,
+                    background: 'var(--accent)',
+                    color: 'var(--accent-foreground)',
+                    display: 'grid',
+                    placeItems: 'center',
+                    fontWeight: 700,
+                  }}
+                >
+                  {withAvatar ? '吴' : 'V'}
+                </div>
+                <span className="sidebar__menu-label-text" style={{ fontWeight: 600 }}>
+                  {variant === 'agent-hub' ? 'Agent Hub' : variant === 'meeting-notes' ? 'Meeting Notes' : 'Vela'}
+                </span>
+              </div>
+            </Sidebar.Header>
+            <Sidebar.Content>
+              {showGroups ? (
+                <>
+                  <Sidebar.Group>
+                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? '本周会议' : '工作区'}</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="移动端工作区" showGuideLines={variant === 'complex' ? 'hover' : true}>
+                      <SidebarVariantMenuRows
+                        current={current}
+                        onSelect={handleSelect}
+                        withChips={variant === 'agent-hub' || variant === 'meeting-notes'}
+                        withActions={withActions}
+                      />
+                    </Sidebar.Menu>
+                  </Sidebar.Group>
+                  <Sidebar.Group>
+                    <Sidebar.GroupLabel>收藏</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="移动端收藏">
+                      <Sidebar.MenuItem id="playbooks-mobile" textValue="Playbooks" onAction={handleSelect('playbooks')}>
+                        <Sidebar.MenuItemContent>
+                          <Sidebar.MenuIcon>✦</Sidebar.MenuIcon>
+                          <Sidebar.MenuLabel>Playbooks</Sidebar.MenuLabel>
+                        </Sidebar.MenuItemContent>
+                      </Sidebar.MenuItem>
+                    </Sidebar.Menu>
+                  </Sidebar.Group>
+                </>
+              ) : (
+                <Sidebar.Group>
+                  <Sidebar.Menu aria-label="移动端导航" showGuideLines={variant !== 'reduced-motion'}>
+                    <SidebarVariantMenuRows
+                      current={current}
+                      onSelect={handleSelect}
+                      withIcons={variant !== 'default'}
+                      withChips={variant === 'compact-with-user-menu'}
+                    />
+                  </Sidebar.Menu>
+                </Sidebar.Group>
+              )}
+            </Sidebar.Content>
+            {(variant === 'compact-with-user-menu' || withAvatar) && (
+              <Sidebar.Footer>
+                <Sidebar.Menu aria-label="移动端用户">
+                  <Sidebar.MenuItem id="profile-mobile" textValue="个人设置" onAction={handleSelect('profile')}>
+                    <Sidebar.MenuItemContent>
+                      <Sidebar.MenuIcon>●</Sidebar.MenuIcon>
+                      <Sidebar.MenuLabel>吴老师</Sidebar.MenuLabel>
+                      <Sidebar.MenuChip>Pro</Sidebar.MenuChip>
+                    </Sidebar.MenuItemContent>
+                  </Sidebar.MenuItem>
+                </Sidebar.Menu>
+              </Sidebar.Footer>
+            )}
+          </Sidebar.Mobile>
           <Sidebar.Main>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
               <Sidebar.Trigger />

@@ -886,6 +886,52 @@
       }
     ]
   },
+  "timeline": {
+    "title": "Timeline",
+    "description": "A composable event-history component for feeds, activity logs, and centered milestone timelines.",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "timeline-default"
+      },
+      {
+        "heading": "Centered Milestones",
+        "anchor": "centered-milestones",
+        "demo": "timeline-centered-milestones"
+      },
+      {
+        "heading": "Studio Review",
+        "anchor": "studio-review",
+        "demo": "timeline-studio-review"
+      },
+      {
+        "heading": "Compact Log",
+        "anchor": "compact-log",
+        "demo": "timeline-compact-log"
+      },
+      {
+        "heading": "Incident Response",
+        "anchor": "incident-response",
+        "demo": "timeline-incident-response"
+      },
+      {
+        "heading": "Version History",
+        "anchor": "version-history",
+        "demo": "timeline-version-history"
+      },
+      {
+        "heading": "Repository Activity",
+        "anchor": "repository-activity",
+        "demo": "timeline-repository-activity"
+      },
+      {
+        "heading": "Split Content",
+        "anchor": "split-content",
+        "demo": "timeline-split-content"
+      }
+    ]
+  },
   "widget": {
     "title": "Widget",
     "description": "A dashboard container that wraps charts, tables, KPIs, or any content with a consistent surface treatment — secondary background shell with an elevated white content area.",
@@ -1188,6 +1234,16 @@
         "demo": "prompt-input-inline"
       },
       {
+        "heading": "Compact",
+        "anchor": "compact",
+        "demo": "prompt-input-compact"
+      },
+      {
+        "heading": "Review Composer",
+        "anchor": "review-composer",
+        "demo": "prompt-input-review-composer"
+      },
+      {
         "heading": "With Suggestions",
         "anchor": "with-suggestions",
         "demo": "prompt-input-with-suggestions"
@@ -1201,6 +1257,11 @@
         "heading": "Queue",
         "anchor": "queue",
         "demo": "prompt-input-queue"
+      },
+      {
+        "heading": "With Attachments",
+        "anchor": "with-attachments",
+        "demo": "prompt-input-with-attachments"
       }
     ]
   },
@@ -2039,6 +2100,47 @@
         "heading": "With Ripple",
         "anchor": "with-ripple",
         "demo": "radio-button-group-with-ripple"
+      }
+    ]
+  },
+  "rich-text-editor": {
+    "title": "Rich Text Editor",
+    "description": "A composable editor with toolbar controls, selection bubble menu, JSON value updates, and character count support.",
+    "sections": [
+      {
+        "heading": "Usage",
+        "anchor": "usage",
+        "demo": "rich-text-editor-default"
+      },
+      {
+        "heading": "Controlled",
+        "anchor": "controlled",
+        "demo": "rich-text-editor-controlled"
+      },
+      {
+        "heading": "Character Count",
+        "anchor": "character-count",
+        "demo": "rich-text-editor-character-count"
+      },
+      {
+        "heading": "Placeholder",
+        "anchor": "placeholder",
+        "demo": "rich-text-editor-placeholder"
+      },
+      {
+        "heading": "Disabled And Read Only",
+        "anchor": "disabled-and-read-only",
+        "demo": "rich-text-editor-disabled-and-read-only"
+      },
+      {
+        "heading": "Custom Composition",
+        "anchor": "custom-composition",
+        "demo": "rich-text-editor-custom-composition"
+      },
+      {
+        "heading": "Extensible Commands",
+        "anchor": "extensible-commands",
+        "demo": "rich-text-editor-extensible-commands"
       }
     ]
   },

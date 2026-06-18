@@ -126,6 +126,7 @@
 @import './components/range-calendar.css';
 @import './components/rating.css';
 @import './components/resizable.css';
+@import './components/rich-text-editor.css';
 @import './components/scroll-shadow.css';
 @import './components/search-field.css';
 @import './components/segment.css';
@@ -149,6 +150,7 @@
 @import './components/textarea.css';
 @import './components/textfield.css';
 @import './components/time-field.css';
+@import './components/timeline.css';
 @import './components/toast.css';
 @import './components/toast-bottom.css';
 @import './components/toast-region.css';

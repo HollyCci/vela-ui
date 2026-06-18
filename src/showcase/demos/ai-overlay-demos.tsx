@@ -2249,7 +2249,16 @@ const PROMPT_RUN_STATE_TOKENS = [
 const PromptInputVariantDemo = ({
   variant,
 }: {
-  variant: 'default' | 'inline' | 'queue' | 'run-state' | 'secondary' | 'with-suggestions';
+  variant:
+    | 'default'
+    | 'inline'
+    | 'compact'
+    | 'queue'
+    | 'review-composer'
+    | 'run-state'
+    | 'secondary'
+    | 'with-attachments'
+    | 'with-suggestions';
 }) => {
   const [value, setValue] = useState(variant === 'run-state' ? PROMPT_RUN_STATE_DEFAULT_PROMPT : '');
   const [status, setStatus] = useState<PromptInputStatus>('ready');
@@ -2258,6 +2267,9 @@ const PromptInputVariantDemo = ({
   const [queuedPrompts, setQueuedPrompts] = useState<DemoQueuedPrompt[]>(INITIAL_QUEUED_PROMPTS);
   const [queueAction, setQueueAction] = useState('尚未操作队列');
   const [attachmentCount, setAttachmentCount] = useState(0);
+  const [attachments, setAttachments] = useState<string[]>(
+    variant === 'with-attachments' ? ['lesson-notes.pdf', 'student-progress.csv'] : [],
+  );
   const runStateTimersRef = useRef<number[]>([]);
   const runStateLastPromptRef = useRef(PROMPT_RUN_STATE_DEFAULT_PROMPT);
 
@@ -2317,6 +2329,11 @@ const PromptInputVariantDemo = ({
 
   const addAttachment = useCallback(() => {
     setAttachmentCount((count) => count + 1);
+    setAttachments((items) => [...items, `reference-${items.length + 1}.pdf`]);
+  }, []);
+
+  const removeAttachment = useCallback((name: string) => {
+    setAttachments((items) => items.filter((item) => item !== name));
   }, []);
 
   if (variant === 'with-suggestions') {
@@ -2423,18 +2440,79 @@ const PromptInputVariantDemo = ({
     );
   }
 
+  if (variant === 'review-composer') {
+    return (
+      <DemoSection label="prompt-input-review-composer" isColumn>
+        <PromptInput value={value} onValueChange={setValue} onSubmit={submitPrompt} variant="secondary">
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.TextArea placeholder="Review this component for visual parity, keyboard behavior, and states…" />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarStart>
+                <PromptInput.Action aria-label="Attach screenshot" tooltip="Attach screenshot" onPress={addAttachment}>
+                  ＋
+                </PromptInput.Action>
+                <PromptInput.Action aria-label="Insert checklist" tooltip="Insert checklist" onPress={() => setValue('Check spacing, focus order, disabled states, and mobile layout.')}>
+                  ✓
+                </PromptInput.Action>
+              </PromptInput.ToolbarStart>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+          <PromptInput.Footer>
+            {attachmentCount > 0 ? `${attachmentCount} review attachments queued` : 'Review composer keeps actions visible for QA workflows.'}
+          </PromptInput.Footer>
+        </PromptInput>
+        {value.startsWith('已发送') && <span style={{ fontSize: 12, color: 'var(--muted)' }}>{value}</span>}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-attachments') {
+    return (
+      <DemoSection label="prompt-input-with-attachments" isColumn>
+        <PromptInput value={value} onValueChange={setValue} onSubmit={submitPrompt}>
+          <PromptInput.Shell>
+            <PromptInput.Content>
+              <PromptInput.Attachments>
+                {attachments.map((name) => (
+                  <DemoAttachment key={name} name={name} onRemove={removeAttachment} />
+                ))}
+              </PromptInput.Attachments>
+              <PromptInput.TextArea placeholder="Ask AI to compare the attached files…" />
+            </PromptInput.Content>
+            <PromptInput.Toolbar>
+              <PromptInput.ToolbarStart>
+                <PromptInput.Action aria-label="Add file" tooltip="Add file" onPress={addAttachment}>
+                  ＋
+                </PromptInput.Action>
+              </PromptInput.ToolbarStart>
+              <PromptInput.ToolbarEnd>
+                <PromptInput.Send />
+              </PromptInput.ToolbarEnd>
+            </PromptInput.Toolbar>
+          </PromptInput.Shell>
+          <PromptInput.Footer>{attachments.length} attachments ready for context.</PromptInput.Footer>
+        </PromptInput>
+      </DemoSection>
+    );
+  }
+
   return (
     <DemoSection label={`prompt-input-${variant}`} isColumn>
       <PromptInput
         value={value}
         onValueChange={setValue}
         onSubmit={submitPrompt}
-        variant={variant === 'inline' ? 'inline' : variant === 'secondary' ? 'secondary' : 'primary'}
-        size={variant === 'secondary' ? 'sm' : 'md'}
+        variant={variant === 'inline' || variant === 'compact' ? 'inline' : variant === 'secondary' ? 'secondary' : 'primary'}
+        size={variant === 'secondary' || variant === 'compact' ? 'sm' : 'md'}
       >
         <PromptInput.Shell>
           <PromptInput.Content>
-            <PromptInput.TextArea placeholder={variant === 'inline' ? 'Inline 输入…' : '向 AI 发送提示…'} />
+            <PromptInput.TextArea placeholder={variant === 'inline' ? 'Inline 输入…' : variant === 'compact' ? 'Compact composer…' : '向 AI 发送提示…'} />
           </PromptInput.Content>
           <PromptInput.Toolbar>
             <PromptInput.ToolbarStart>
@@ -2920,11 +2998,14 @@ export const aiOverlayVariantDemos: Record<string, ReactNode> = {
   'markdown-default': <MarkdownVariantDemo variant="default" />,
   'markdown-streaming': <MarkdownVariantDemo variant="streaming" />,
   'markdown-with-streamdown': <MarkdownVariantDemo variant="with-streamdown" />,
+  'prompt-input-compact': <PromptInputVariantDemo variant="compact" />,
   'prompt-input-default': <PromptInputVariantDemo variant="default" />,
   'prompt-input-inline': <PromptInputVariantDemo variant="inline" />,
   'prompt-input-queue': <PromptInputVariantDemo variant="queue" />,
+  'prompt-input-review-composer': <PromptInputVariantDemo variant="review-composer" />,
   'prompt-input-run-state': <PromptInputVariantDemo variant="run-state" />,
   'prompt-input-secondary': <PromptInputVariantDemo variant="secondary" />,
+  'prompt-input-with-attachments': <PromptInputVariantDemo variant="with-attachments" />,
   'prompt-input-with-suggestions': <PromptInputVariantDemo variant="with-suggestions" />,
   'prompt-suggestion-cards': <PromptSuggestionVariantDemo variant="cards" />,
   'prompt-suggestion-default': <PromptSuggestionVariantDemo variant="default" />,

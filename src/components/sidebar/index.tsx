@@ -11,7 +11,7 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
-  type KeyboardEvent as ReactKeyboardEvent,
+  type RefObject,
   type MouseEvent,
   type ReactNode,
 } from 'react';
@@ -34,6 +34,7 @@ import {
   type TreeProps,
 } from 'react-aria-components';
 import clsx from 'clsx';
+import Sheet from '../sheet';
 
 export type SidebarSide = 'left' | 'right';
 export type SidebarVariant = 'sidebar' | 'floating' | 'inset';
@@ -57,6 +58,8 @@ type SidebarContextValue = {
   reduceMotion: boolean;
   /** Group 通过 context 下发 closeMobileOnAction，MenuItem 按下后据此收起移动端 sheet */
   closeMobileOnAction: boolean;
+  /** 受控移动端 Sheet 关闭后焦点还原到打开前元素 */
+  mobileOpenerRef: RefObject<HTMLElement | null>;
 };
 
 const SidebarContext = createContext<SidebarContextValue | null>(null);
@@ -147,18 +150,29 @@ const Provider = forwardRef<HTMLDivElement, SidebarProviderProps>(
 
     const [isMobile, setIsMobile] = useState(false);
     const [isMobileOpen, setMobileOpen] = useState(false);
+    const mobileOpenerRef = useRef<HTMLElement | null>(null);
 
     useEffect(() => {
       const mql = window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT}px)`);
       const onChange = () => setIsMobile(mql.matches);
       onChange();
       mql.addEventListener('change', onChange);
-      return () => mql.removeEventListener('change', onChange);
+      window.addEventListener('resize', onChange);
+      return () => {
+        mql.removeEventListener('change', onChange);
+        window.removeEventListener('resize', onChange);
+      };
     }, []);
 
     const toggleSidebar = useCallback(() => {
-      if (isMobile) setMobileOpen(!isMobileOpen);
-      else setOpen(!isOpen);
+      if (isMobile) {
+        if (!isMobileOpen && typeof document !== 'undefined' && document.activeElement instanceof HTMLElement) {
+          mobileOpenerRef.current = document.activeElement;
+        }
+        setMobileOpen(!isMobileOpen);
+      } else {
+        setOpen(!isOpen);
+      }
     }, [isMobile, isMobileOpen, isOpen, setOpen]);
 
     useEffect(() => {
@@ -190,6 +204,7 @@ const Provider = forwardRef<HTMLDivElement, SidebarProviderProps>(
         navigate,
         reduceMotion,
         closeMobileOnAction: true,
+        mobileOpenerRef,
       }),
       [isOpen, setOpen, toggleSidebar, isMobile, isMobileOpen, side, variant, collapsible, state, navigate, reduceMotion],
     );
@@ -670,137 +685,54 @@ export type SidebarMobileProps = {
   children?: ReactNode;
 };
 
-/** 焦点陷阱用：抽屉内可聚焦元素的 tab 序选择器（排除已显式 tabindex=-1 的元素） */
-const FOCUSABLE_SELECTOR = [
-  'a[href]',
-  'area[href]',
-  'button:not([disabled])',
-  'input:not([disabled])',
-  'select:not([disabled])',
-  'textarea:not([disabled])',
-  'summary',
-  'iframe',
-  'audio[controls]',
-  'video[controls]',
-  '[contenteditable]:not([contenteditable="false"])',
-  '[tabindex]:not([tabindex="-1"])',
-].join(',');
-
-/** 收集容器内当前可见且可聚焦的元素（按 DOM 顺序≈tab 顺序） */
-const getFocusableElements = (container: HTMLElement): HTMLElement[] =>
-  Array.from(container.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)).filter(
-    (el) =>
-      !el.hasAttribute('disabled') &&
-      el.getAttribute('aria-hidden') !== 'true' &&
-      // offsetParent 为 null 即被 display:none 隐藏；fixed 定位元素 offsetParent 也为 null，故再退一步用尺寸判断
-      (el.offsetParent !== null || el.getClientRects().length > 0),
-  );
-
 /**
- * 移动端 sheet 包装：桌面端不渲染任何东西；移动端把 children 包进一个从 side 滑入的抽屉容器，
- * 开合受 Provider 的 isMobileOpen 控制。底座样式由 .sidebar__mobile / .sidebar__mobile-sheet 提供。
+ * 移动端 sheet 包装：桌面端不渲染任何东西；移动端复用本仓库 Sheet（Drawer/RAC 焦点圈定、
+ * Esc/遮罩关闭、滑入动画），只叠加 Sidebar 自身 slot/class 与 side 状态。
  */
 const Mobile = ({ backdrop = 'blur', children }: SidebarMobileProps) => {
-  const { isMobile, isMobileOpen, setMobileOpen, side } = useSidebarContext();
-  const dialogRef = useRef<HTMLDivElement>(null);
-  /** 打开抽屉前的焦点元素，关闭后还原焦点用 */
-  const lastFocusedRef = useRef<HTMLElement | null>(null);
+  const { isMobile, isMobileOpen, setMobileOpen, side, mobileOpenerRef } = useSidebarContext();
 
   useEffect(() => {
-    if (!isMobile || !isMobileOpen) return undefined;
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setMobileOpen(false);
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMobile, isMobileOpen, setMobileOpen]);
-
-  // 打开时把焦点移入抽屉(首个可聚焦元素，回退到抽屉容器自身)，关闭时还回打开前的元素
-  useEffect(() => {
-    if (!isMobile || !isMobileOpen) return undefined;
-    const dialog = dialogRef.current;
-    if (dialog === null) return undefined;
-
-    const opener =
-      typeof document !== 'undefined' && document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    lastFocusedRef.current = opener;
-
-    const focusables = getFocusableElements(dialog);
-    (focusables[0] ?? dialog).focus();
-
-    return () => {
-      const target = lastFocusedRef.current;
-      lastFocusedRef.current = null;
-      // 仅在目标仍在文档中时还原焦点，避免聚焦到已卸载节点
-      if (target !== null && target.isConnected) target.focus();
-    };
-  }, [isMobile, isMobileOpen]);
+    if (!isMobile || isMobileOpen) return;
+    const opener = mobileOpenerRef.current;
+    mobileOpenerRef.current = null;
+    if (opener?.isConnected) {
+      queueMicrotask(() => opener.focus());
+    }
+  }, [isMobile, isMobileOpen, mobileOpenerRef]);
 
   if (!isMobile) return null;
 
-  const handleBackdropClick = () => setMobileOpen(false);
-
-  // Tab / Shift+Tab 焦点陷阱：到达边界时回卷到另一端，使焦点不会跑到背景
-  const handleDialogKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
-    if (event.key !== 'Tab') return;
-    const dialog = dialogRef.current;
-    if (dialog === null) return;
-
-    const focusables = getFocusableElements(dialog);
-    if (focusables.length === 0) {
-      // 抽屉内无可聚焦项：把焦点钉在容器上，阻止 Tab 跑向背景
-      event.preventDefault();
-      dialog.focus();
-      return;
-    }
-
-    const first = focusables[0];
-    const last = focusables[focusables.length - 1];
-    const active = document.activeElement;
-
-    if (event.shiftKey) {
-      if (active === first || active === dialog || !dialog.contains(active)) {
-        event.preventDefault();
-        last.focus();
-      }
-    } else if (active === last) {
-      event.preventDefault();
-      first.focus();
-    }
-  };
-
   return (
-    <div
-      data-slot="sidebar-mobile"
-      data-state={isMobileOpen ? 'open' : 'closed'}
-      data-side={side}
-      data-backdrop={backdrop}
-      className="sidebar__mobile"
-      hidden={!isMobileOpen}
-    >
-      <div
-        role="presentation"
+    <Sheet placement={side} isOpen={isMobileOpen} onOpenChange={setMobileOpen}>
+      <Sheet.Backdrop
+        variant={backdrop}
         className="sidebar__mobile-backdrop"
         data-slot="sidebar-mobile-backdrop"
-        onClick={handleBackdropClick}
-      />
-      <div
-        ref={dialogRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Navigation menu"
-        tabIndex={-1}
-        data-slot="sidebar-mobile-dialog"
-        className="sidebar__mobile-dialog"
-        onKeyDown={handleDialogKeyDown}
       >
-        <div data-slot="sidebar-mobile-sheet" className="sidebar__mobile-sheet">
-          {children}
-        </div>
-      </div>
-    </div>
+        <Sheet.Content
+          className="sidebar__mobile-sheet"
+          data-slot="sidebar-mobile-sheet"
+          data-sheet-drawer-direction={side}
+        >
+          <Sheet.Dialog
+            aria-label="Navigation menu"
+            className="sidebar__mobile-dialog"
+            data-slot="sidebar-mobile-dialog"
+          >
+            <div
+              data-slot="sidebar-mobile"
+              data-state={isMobileOpen ? 'open' : 'closed'}
+              data-side={side}
+              data-backdrop={backdrop}
+              className="sidebar__mobile"
+            >
+              {children}
+            </div>
+          </Sheet.Dialog>
+        </Sheet.Content>
+      </Sheet.Backdrop>
+    </Sheet>
   );
 };
 Mobile.displayName = 'Sidebar.Mobile';

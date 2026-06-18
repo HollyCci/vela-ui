@@ -336,6 +336,16 @@
     "list-view-selection-modes",
     "list-view-with-actions"
   ],
+  "timeline": [
+    "timeline-centered-milestones",
+    "timeline-compact-log",
+    "timeline-default",
+    "timeline-incident-response",
+    "timeline-repository-activity",
+    "timeline-split-content",
+    "timeline-studio-review",
+    "timeline-version-history"
+  ],
   "markdown": [
     "markdown-default",
     "markdown-streaming",
@@ -418,11 +428,14 @@
     "pressable-feedback-with-ripple"
   ],
   "prompt-input": [
+    "prompt-input-compact",
     "prompt-input-default",
     "prompt-input-inline",
     "prompt-input-queue",
+    "prompt-input-review-composer",
     "prompt-input-run-state",
     "prompt-input-secondary",
+    "prompt-input-with-attachments",
     "prompt-input-with-suggestions"
   ],
   "prompt-suggestion": [
@@ -456,6 +469,15 @@
     "radio-button-group-subscription-plans",
     "radio-button-group-with-icons",
     "radio-button-group-with-ripple"
+  ],
+  "rich-text-editor": [
+    "rich-text-editor-character-count",
+    "rich-text-editor-controlled",
+    "rich-text-editor-custom-composition",
+    "rich-text-editor-default",
+    "rich-text-editor-disabled-and-read-only",
+    "rich-text-editor-extensible-commands",
+    "rich-text-editor-placeholder"
   ],
   "rating": [
     "rating-controlled",

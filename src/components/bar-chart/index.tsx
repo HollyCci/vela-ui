@@ -25,6 +25,7 @@ import {
   Label,
   LabelList,
 } from 'recharts';
+import ChartTooltip from '../chart-tooltip';
 
 type ChartDatum = Record<string, number | string>;
 
@@ -120,28 +121,26 @@ function TooltipContent({
 }: BarChartTooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div role="tooltip" className={clsx('chart-tooltip', className)}>
+    <ChartTooltip className={className}>
       {label !== undefined && label !== null && (
-        <div className="chart-tooltip__header">
+        <ChartTooltip.Header>
           {labelFormatter ? labelFormatter(label) : label}
-        </div>
+        </ChartTooltip.Header>
       )}
       {payload.map((entry, index) => (
-        <div className="chart-tooltip__item" key={String(entry.dataKey ?? index)}>
-          <span
-            className={clsx('chart-tooltip__indicator', `chart-tooltip__indicator--${indicator}`)}
-            style={{ backgroundColor: entry.color }}
-            aria-hidden="true"
-          />
-          <span className="chart-tooltip__label">{entry.name}</span>
-          <span className="chart-tooltip__value">
-            {valueFormatter && entry.value !== undefined
+        <ChartTooltip.Item
+          key={String(entry.dataKey ?? index)}
+          indicator={indicator}
+          indicatorColor={entry.color}
+          label={entry.name}
+          value={
+            valueFormatter && entry.value !== undefined
               ? valueFormatter(entry.value, entry)
-              : entry.value}
-          </span>
-        </div>
+              : entry.value
+          }
+        />
       ))}
-    </div>
+    </ChartTooltip>
   );
 }
 TooltipContent.displayName = 'BarChart.TooltipContent';

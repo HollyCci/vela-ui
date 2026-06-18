@@ -18,6 +18,7 @@ import {
   Tooltip,
   Legend,
 } from 'recharts';
+import ChartTooltip from '../chart-tooltip';
 
 type ChartDatum = Record<string, number | string>;
 type RechartsPieChartProps = ComponentProps<typeof RechartsPieChart>;
@@ -107,28 +108,26 @@ function TooltipContent({
 }: PieChartTooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   return (
-    <div role="tooltip" className={clsx('chart-tooltip', className)}>
+    <ChartTooltip className={className}>
       {label !== undefined && label !== null && (
-        <div className="chart-tooltip__header">
+        <ChartTooltip.Header>
           {labelFormatter ? labelFormatter(label) : label}
-        </div>
+        </ChartTooltip.Header>
       )}
       {payload.map((entry, index) => (
-        <div className="chart-tooltip__item" key={String(entry.dataKey ?? entry.name ?? index)}>
-          <span
-            className={clsx('chart-tooltip__indicator', `chart-tooltip__indicator--${indicator}`)}
-            style={{ backgroundColor: resolveColor(entry) }}
-            aria-hidden="true"
-          />
-          <span className="chart-tooltip__label">{entry.name}</span>
-          <span className="chart-tooltip__value">
-            {valueFormatter && entry.value !== undefined
+        <ChartTooltip.Item
+          key={String(entry.dataKey ?? entry.name ?? index)}
+          indicator={indicator}
+          indicatorColor={resolveColor(entry)}
+          label={entry.name}
+          value={
+            valueFormatter && entry.value !== undefined
               ? valueFormatter(entry.value, entry)
-              : entry.value}
-          </span>
-        </div>
+              : entry.value
+          }
+        />
       ))}
-    </div>
+    </ChartTooltip>
   );
 }
 TooltipContent.displayName = 'PieChart.TooltipContent';

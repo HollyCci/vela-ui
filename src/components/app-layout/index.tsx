@@ -17,6 +17,7 @@ import {
 import { Button, Tooltip, type ButtonProps } from '@heroui/react';
 import clsx from 'clsx';
 import Resizable from '../resizable';
+import Sheet from '../sheet';
 
 export type AppLayoutSidebarSide = 'left' | 'right';
 export type AppLayoutSidebarVariant = 'sidebar' | 'floating' | 'inset';
@@ -502,15 +503,27 @@ AppLayoutRoot.displayName = 'AppLayout';
 /** 移动端 aside 以 sheet 呈现：受 aside 开合状态驱动（仅 ≤1024px 由 CSS 显示） */
 const AppLayoutMobileAsideSheet = ({ children }: { children: ReactNode }): ReactElement | null => {
   const ctx = useContext(AppLayoutContext);
-  if (ctx === null || !ctx.isAsideOpen) return null;
+  if (ctx === null) return null;
   return (
-    <div className="app-layout__mobile-aside-sheet" data-slot="app-layout-mobile-aside-sheet">
-      <div className="app-layout__mobile-aside-dialog" data-slot="app-layout-mobile-aside-dialog">
-        <div className="app-layout__mobile-aside" data-slot="app-layout-mobile-aside">
-          {children}
-        </div>
-      </div>
-    </div>
+    <Sheet placement="right" isOpen={ctx.isAsideOpen} onOpenChange={ctx.setAsideOpen}>
+      <Sheet.Backdrop variant="blur">
+        <Sheet.Content
+          className="app-layout__mobile-aside-sheet"
+          data-slot="app-layout-mobile-aside-sheet"
+          data-sheet-drawer-direction="right"
+        >
+          <Sheet.Dialog
+            aria-label="Aside panel"
+            className="app-layout__mobile-aside-dialog"
+            data-slot="app-layout-mobile-aside-dialog"
+          >
+            <div className="app-layout__mobile-aside" data-slot="app-layout-mobile-aside">
+              {children}
+            </div>
+          </Sheet.Dialog>
+        </Sheet.Content>
+      </Sheet.Backdrop>
+    </Sheet>
   );
 };
 AppLayoutMobileAsideSheet.displayName = 'AppLayout.MobileAsideSheet';

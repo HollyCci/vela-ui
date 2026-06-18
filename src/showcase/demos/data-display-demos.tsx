@@ -29,6 +29,7 @@ import PieChart from '../../components/pie-chart';
 import ProgressBar from '../../components/progress-bar';
 import Separator from '../../components/separator';
 import Switch from '../../components/switch';
+import Timeline from '../../components/timeline';
 import Tooltip from '../../components/tooltip';
 import Widget from '../../components/widget';
 import DemoSection from '../demo-section';
@@ -3392,6 +3393,117 @@ const ChartTooltipVariantDemo = ({ variant }: { variant: ChartTooltipVariantKey 
   </DemoSection>
 );
 
+type TimelineVariantKey =
+  | 'default'
+  | 'centered-milestones'
+  | 'studio-review'
+  | 'compact-log'
+  | 'incident-response'
+  | 'version-history'
+  | 'repository-activity'
+  | 'split-content';
+
+const TIMELINE_VARIANT_ITEMS: Record<TimelineVariantKey, Array<{
+  title: string;
+  description: string;
+  time: string;
+  status?: 'default' | 'accent' | 'success' | 'warning' | 'danger' | 'muted';
+}>> = {
+  default: [
+    { title: 'Imported customer notes', description: '42 interview highlights were attached to the opportunity.', time: '09:18', status: 'accent' },
+    { title: 'Assigned follow-up owner', description: 'Mia Chen will prepare the next review agenda.', time: '10:04', status: 'success' },
+    { title: 'Shared summary', description: 'Stakeholders received the product feedback digest.', time: '11:30', status: 'default' },
+  ],
+  'centered-milestones': [
+    { title: 'Discovery', description: 'Research synthesis and success metrics were locked.', time: 'Week 1', status: 'success' },
+    { title: 'Prototype', description: 'Interaction model and component inventory are in review.', time: 'Week 2', status: 'accent' },
+    { title: 'Release', description: 'Public changelog and migration notes are queued.', time: 'Week 3', status: 'muted' },
+  ],
+  'studio-review': [
+    { title: 'Scene approved', description: 'Primary animation timing matches the reference handoff.', time: '09:40', status: 'success' },
+    { title: 'Copy pass requested', description: 'Shorten the empty-state paragraph before final export.', time: '10:15', status: 'warning' },
+    { title: 'Ready for QA', description: 'Responsive checks are assigned to the frontend owner.', time: '11:05', status: 'accent' },
+  ],
+  'compact-log': [
+    { title: 'Build started', description: 'Preview build picked up commit 8f4c2a1.', time: '12:01', status: 'accent' },
+    { title: 'Checks passed', description: 'Types, lint, and visual smoke checks are green.', time: '12:04', status: 'success' },
+    { title: 'Deploy queued', description: 'Production promotion waits for reviewer approval.', time: '12:06', status: 'muted' },
+  ],
+  'incident-response': [
+    { title: 'Alert triggered', description: 'Checkout latency crossed the 95th percentile threshold.', time: '14:22', status: 'danger' },
+    { title: 'Mitigation applied', description: 'Traffic was shifted to the warm standby pool.', time: '14:29', status: 'warning' },
+    { title: 'Incident resolved', description: 'Error rate returned to baseline and monitoring continues.', time: '14:46', status: 'success' },
+  ],
+  'version-history': [
+    { title: 'v0.4.0 published', description: 'Added controlled sheet snap points and grouped command actions.', time: 'Jun 18', status: 'success' },
+    { title: 'v0.3.2 patched', description: 'Fixed keyboard navigation in nested menus.', time: 'Jun 13', status: 'accent' },
+    { title: 'v0.3.0 released', description: 'Introduced AI message and source components.', time: 'Jun 08', status: 'muted' },
+  ],
+  'repository-activity': [
+    { title: 'Opened pull request', description: 'feat(showcase): add timeline parity demos.', time: '2m ago', status: 'accent' },
+    { title: 'Requested review', description: 'Design and accessibility reviewers were assigned.', time: '5m ago', status: 'warning' },
+    { title: 'Merged dependency update', description: 'UI library patch release was consumed by the build.', time: '1h ago', status: 'success' },
+  ],
+  'split-content': [
+    { title: 'Plan', description: 'Scope the component slots and API surface.', time: 'Step 1', status: 'success' },
+    { title: 'Implement', description: 'Wire visual states, actions, and keyboard semantics.', time: 'Step 2', status: 'accent' },
+    { title: 'Verify', description: 'Compare against the reference and record parity gaps.', time: 'Step 3', status: 'muted' },
+  ],
+};
+
+const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
+  const [message, setMessage] = useState('尚未选择时间线事件');
+  const axis = variant === 'centered-milestones' || variant === 'split-content' ? 'center' : 'start';
+  const placement = variant === 'centered-milestones' ? 'alternate' : variant === 'split-content' ? 'alternate' : 'end';
+  const density = variant === 'compact-log' ? 'compact' : variant === 'incident-response' ? 'spacious' : 'default';
+  const size = variant === 'centered-milestones' ? 'lg' : variant === 'compact-log' ? 'sm' : 'md';
+  const items = TIMELINE_VARIANT_ITEMS[variant];
+
+  return (
+    <DemoSection label={`timeline-${variant}`} isColumn>
+      <Timeline
+        axis={axis}
+        placement={placement}
+        density={density}
+        size={size}
+        aria-label={`${variant} timeline`}
+        style={{ width: variant === 'centered-milestones' || variant === 'split-content' ? 720 : 560, maxWidth: '100%' }}
+      >
+        {items.map((item, index) => (
+          <Timeline.Item
+            key={item.title}
+            status={item.status}
+            isCurrent={variant === 'incident-response' && index === 1}
+          >
+            <Timeline.Rail>
+              <Timeline.Marker pulse={variant === 'incident-response' && index === 1}>
+                {variant === 'centered-milestones' ? index + 1 : null}
+              </Timeline.Marker>
+              <Timeline.Connector />
+            </Timeline.Rail>
+            <Timeline.Content>
+              <Timeline.Time>{item.time}</Timeline.Time>
+              <Timeline.Title>{item.title}</Timeline.Title>
+              <Timeline.Description>{item.description}</Timeline.Description>
+              {(variant === 'studio-review' || variant === 'incident-response' || variant === 'repository-activity') && (
+                <Timeline.Actions>
+                  <Button size="sm" variant="secondary" onClick={() => setMessage(`已打开：${item.title}`)}>
+                    打开
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={() => setMessage(`已复制链接：${item.title}`)}>
+                    复制链接
+                  </Button>
+                </Timeline.Actions>
+              )}
+            </Timeline.Content>
+          </Timeline.Item>
+        ))}
+      </Timeline>
+      <span style={{ fontSize: 12, color: 'var(--muted)' }}>{message}</span>
+    </DemoSection>
+  );
+};
+
 export const dataDisplayDemos: Record<string, ReactNode> = {
   agenda: <AgendaDemo />,
   kpi: <KpiDemo />,
@@ -3399,6 +3511,7 @@ export const dataDisplayDemos: Record<string, ReactNode> = {
   'item-card': <ItemCardDemo />,
   'item-card-group': <ItemCardGroupDemo />,
   'list-view': <ListViewDemo />,
+  timeline: <TimelineVariantDemo variant="default" />,
   'empty-state': <EmptyStateDemo />,
   widget: <WidgetDemo />,
   'file-tree': <FileTreeDemo />,
@@ -3509,6 +3622,14 @@ export const dataDisplayVariantDemos: Record<string, ReactNode> = {
   'list-view-secondary': <ListViewVariantDemo variant="secondary" />,
   'list-view-selection-modes': <ListViewVariantDemo variant="selection-modes" />,
   'list-view-with-actions': <ListViewVariantDemo variant="with-actions" />,
+  'timeline-centered-milestones': <TimelineVariantDemo variant="centered-milestones" />,
+  'timeline-compact-log': <TimelineVariantDemo variant="compact-log" />,
+  'timeline-default': <TimelineVariantDemo variant="default" />,
+  'timeline-incident-response': <TimelineVariantDemo variant="incident-response" />,
+  'timeline-repository-activity': <TimelineVariantDemo variant="repository-activity" />,
+  'timeline-split-content': <TimelineVariantDemo variant="split-content" />,
+  'timeline-studio-review': <TimelineVariantDemo variant="studio-review" />,
+  'timeline-version-history': <TimelineVariantDemo variant="version-history" />,
   'widget-dashboard-grid': <WidgetVariantDemo variant="dashboard-grid" />,
   'widget-default': <WidgetVariantDemo variant="default" />,
   'widget-usage-summary': <WidgetVariantDemo variant="usage-summary" />,

@@ -410,6 +410,11 @@
       "import": "./dist/components/resizable/index.js",
       "default": "./dist/components/resizable/index.js"
     },
+    "./rich-text-editor": {
+      "types": "./dist/components/rich-text-editor/index.d.ts",
+      "import": "./dist/components/rich-text-editor/index.js",
+      "default": "./dist/components/rich-text-editor/index.js"
+    },
     "./search-field": {
       "types": "./dist/components/search-field/index.d.ts",
       "import": "./dist/components/search-field/index.js",
@@ -485,6 +490,11 @@
       "import": "./dist/components/textarea/index.js",
       "default": "./dist/components/textarea/index.js"
     },
+    "./timeline": {
+      "types": "./dist/components/timeline/index.d.ts",
+      "import": "./dist/components/timeline/index.js",
+      "default": "./dist/components/timeline/index.js"
+    },
     "./toast": {
       "types": "./dist/components/toast/index.d.ts",
       "import": "./dist/components/toast/index.js",
@@ -541,9 +551,12 @@
     "audit:css:parity": "node scripts/css-parity-check.cjs",
     "audit:fingerprint": "node scripts/audit-fingerprint.cjs",
     "audit:all": "npm run audit:pro && npm run check:exports && npm run check:css-index && npm run audit:css:parity && npm run audit:fingerprint",
-    "audit:pro": "node scripts/audit-pro-coverage.cjs && node scripts/audit-pro-interactivity.cjs",
+    "audit:goal": "npm run audit:all && npm run audit:pro:browser",
+    "audit:pro": "node scripts/audit-pro-coverage.cjs && node scripts/audit-pro-interactivity.cjs && node scripts/audit-pro-parity.cjs",
+    "audit:pro:browser": "node scripts/audit-pro-browser-smoke.cjs",
     "audit:pro:coverage": "node scripts/audit-pro-coverage.cjs",
-    "audit:pro:interactivity": "node scripts/audit-pro-interactivity.cjs"
+    "audit:pro:interactivity": "node scripts/audit-pro-interactivity.cjs",
+    "audit:pro:parity": "node scripts/audit-pro-parity.cjs"
   },
   "peerDependencies": {
     "@heroui/react": "^3.2.0",
@@ -586,6 +599,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.6.0",
     "jsdom": "^29.1.1",
+    "playwright-core": "^1.61.0",
     "react": "^19.2.7",
     "react-aria-components": "1.18.0",
     "react-dom": "^19.2.7",

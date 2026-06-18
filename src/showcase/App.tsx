@@ -1,4 +1,4 @@
-import { useState, type MouseEvent, type ReactNode } from 'react';
+import { useEffect, useState, type MouseEvent, type ReactNode } from 'react';
 import Button from '../components/button';
 import Chip from '../components/chip';
 import Segment from '../components/segment';
@@ -160,7 +160,7 @@ const DocsHeader = () => (
             <LogoIcon />
           </a>
           <Chip className="hidden h-6 min-w-fit gap-0.5 bg-default px-2 py-1 text-muted min-[1070px]:flex" size="sm" variant="soft">
-            1.0.0-beta.5
+            1.0.0-beta.6
           </Chip>
         </div>
       </div>
@@ -246,10 +246,12 @@ const HEIGHT_OVERRIDES: Record<string, number> = {
   resizable: 560,
   carousel: 620,
   'prompt-input': 560,
+  'rich-text-editor': 620,
   markdown: 720,
   'floating-toc': 560,
   'chat-list-view': 560,
   sheet: 560,
+  timeline: 560,
   'drop-zone': 560,
   'item-card-group': 560,
 };
@@ -444,6 +446,19 @@ AllComponentsOverview.displayName = 'AllComponentsOverview';
 
 const App = () => {
   const [activeId, setActiveId] = useState(ALL_COMPONENTS_ID);
+  const [isNarrow, setIsNarrow] = useState(false);
+
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const handleChange = () => setIsNarrow(query.matches);
+    handleChange();
+    query.addEventListener('change', handleChange);
+    window.addEventListener('resize', handleChange);
+    return () => {
+      query.removeEventListener('change', handleChange);
+      window.removeEventListener('resize', handleChange);
+    };
+  }, []);
 
   const handleItemClick = (e: MouseEvent<HTMLButtonElement>) => {
     const id = e.currentTarget.dataset.id;
@@ -477,7 +492,10 @@ const App = () => {
         ['--fd-toc-width' as string]: '268px',
         ['--fd-sidebar-col' as string]: 'var(--fd-sidebar-width)',
         ['--sc-layout-width' as string]: '87.5rem',
-        gridTemplate: `". header header header ."
+        gridTemplate: isNarrow
+          ? `"header"
+        "main" 1fr / minmax(0, 1fr)`
+          : `". header header header ."
         "sidebar sidebar toc-popover toc-popover ."
         "sidebar sidebar main toc ." 1fr / minmax(min-content, 1fr) var(--fd-sidebar-col) minmax(0, calc(var(--sc-layout-width, 97rem) - var(--fd-sidebar-col) - var(--fd-toc-width))) var(--fd-toc-width) minmax(min-content, 1fr)`,
       }}
