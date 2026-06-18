@@ -390,6 +390,26 @@
         "demo": "data-grid-default"
       },
       {
+        "heading": "Column Definitions",
+        "anchor": "column-definitions",
+        "demo": "data-grid-column-definitions"
+      },
+      {
+        "heading": "Row Selection",
+        "anchor": "row-selection",
+        "demo": "data-grid-row-selection"
+      },
+      {
+        "heading": "Sorting",
+        "anchor": "sorting",
+        "demo": "data-grid-sorting"
+      },
+      {
+        "heading": "Column Resizing",
+        "anchor": "column-resizing",
+        "demo": "data-grid-column-resizing"
+      },
+      {
         "heading": "Pinned Columns",
         "anchor": "pinned-columns",
         "demo": "data-grid-pinned-columns"

@@ -92,7 +92,7 @@ const referenceVariantCounts = {
   agenda: 1,
   'action-bar': 3,
   carousel: 6,
-  'data-grid': 12,
+  'data-grid': 16,
   'empty-state': 8,
   'file-tree': 10,
   'floating-toc': 10,
@@ -158,7 +158,6 @@ const referenceVariantCounts = {
 // upstream HeroUI Pro docs. The networked audit remains the source of truth.
 const liveReferenceVariantCounts = {
   agenda: 8,
-  'data-grid': 16,
   'app-layout': 20,
   navbar: 13,
   sidebar: 18,

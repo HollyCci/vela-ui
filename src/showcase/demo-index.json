@@ -185,18 +185,22 @@
     "context-menu-with-submenus"
   ],
   "data-grid": [
-    "data-grid-async-loading",
-    "data-grid-bulk-actions",
     "data-grid-default",
+    "data-grid-column-definitions",
+    "data-grid-row-selection",
+    "data-grid-sorting",
+    "data-grid-column-resizing",
+    "data-grid-pinned-columns",
     "data-grid-drag-and-drop",
+    "data-grid-expandable-rows",
     "data-grid-editable-cells",
     "data-grid-empty-state",
-    "data-grid-expandable-rows",
-    "data-grid-pinned-columns",
-    "data-grid-servers",
-    "data-grid-team-members",
+    "data-grid-async-loading",
+    "data-grid-virtualized",
+    "data-grid-bulk-actions",
     "data-grid-users",
-    "data-grid-virtualized"
+    "data-grid-team-members",
+    "data-grid-servers"
   ],
   "drop-zone": [
     "drop-zone-compact-file-list",

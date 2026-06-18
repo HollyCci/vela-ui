@@ -1768,6 +1768,173 @@ const DataGridDefaultVariantDemo = () => {
   );
 };
 
+const DataGridColumnDefinitionsVariantDemo = () => {
+  const [message, setMessage] = useState('双击一行或按 Enter 打开交易详情');
+  const columns: DataGridColumn<TransactionRow>[] = [
+    {
+      id: 'customer',
+      header: ({ sortDirection }) => (
+        <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+          Customer
+          {sortDirection !== undefined && (
+            <Badge color="accent">{sortDirection === 'ascending' ? 'A-Z' : 'Z-A'}</Badge>
+          )}
+        </span>
+      ),
+      isRowHeader: true,
+      allowsSorting: true,
+      width: 220,
+      cell: (row) => (
+        <span className="sc-transaction-customer">
+          <strong>{row.customer}</strong>
+          <span>{row.email}</span>
+        </span>
+      ),
+    },
+    { id: 'transactionId', header: 'Transaction ID', accessorKey: 'transactionId', width: 150 },
+    {
+      id: 'status',
+      header: 'Status',
+      width: 132,
+      cell: (row) => <TransactionStatusBadge status={row.status} />,
+    },
+    {
+      id: 'amount',
+      header: 'Amount',
+      accessorKey: 'amount',
+      width: 130,
+      align: 'end',
+      allowsSorting: true,
+    },
+  ];
+
+  return (
+    <DemoSection isColumn label="column definitions">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="Column definition transactions"
+          columns={columns}
+          data={TRANSACTION_ROWS.slice(0, 5)}
+          defaultSortDescriptor={{ column: 'customer', direction: 'ascending' }}
+          getRowId={transactionRowId}
+          onRowAction={(key) => setMessage(`已打开交易 ${String(key)}`)}
+        />
+      </div>
+      <span style={demoMutedStyle}>{message}</span>
+    </DemoSection>
+  );
+};
+
+const DataGridRowSelectionVariantDemo = () => {
+  const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['emma', 'olivia']));
+  const selectedCount =
+    selectedKeys === 'all' ? TRANSACTION_ROWS.length : selectedKeys.size;
+
+  return (
+    <DemoSection isColumn label="row selection">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="Selectable transactions"
+          columns={TRANSACTION_COLUMNS}
+          data={TRANSACTION_ROWS}
+          getRowId={transactionRowId}
+          selectedKeys={selectedKeys}
+          selectionMode="multiple"
+          showSelectionCheckboxes
+          onSelectionChange={setSelectedKeys}
+        />
+      </div>
+      <ActionBar isOpen={selectedCount > 0}>
+        <ActionBar.Prefix>
+          <Chip color="accent" size="sm">
+            {selectedCount}
+          </Chip>
+          <ActionBar.Label>selected</ActionBar.Label>
+        </ActionBar.Prefix>
+        <Separator orientation="vertical" />
+        <ActionBar.Content>
+          <Button size="sm" variant="ghost" onClick={() => setSelectedKeys(new Set())}>
+            Clear
+          </Button>
+          <Button size="sm" variant="ghost" onClick={() => setSelectedKeys('all')}>
+            Select all
+          </Button>
+        </ActionBar.Content>
+      </ActionBar>
+    </DemoSection>
+  );
+};
+
+const DataGridSortingVariantDemo = () => {
+  const [sortDescriptor, setSortDescriptor] = useState<DemoSortDescriptor>({
+    column: 'amount',
+    direction: 'descending',
+  });
+  const rows = [...TRANSACTION_ROWS].sort((a, b) => {
+    const column = sortDescriptor.column as keyof TransactionRow;
+    const left = a[column];
+    const right = b[column];
+    const result = String(left).localeCompare(String(right), undefined, { numeric: true });
+    return sortDescriptor.direction === 'descending' ? -result : result;
+  });
+
+  return (
+    <DemoSection isColumn label="sorting">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="Sortable transactions"
+          columns={TRANSACTION_COLUMNS}
+          data={rows}
+          getRowId={transactionRowId}
+          sortDescriptor={sortDescriptor}
+          onSortChange={setSortDescriptor}
+        />
+      </div>
+      <span style={demoTextStyle}>
+        Sort: {String(sortDescriptor.column)} ·{' '}
+        {sortDescriptor.direction === 'ascending' ? 'ascending' : 'descending'}
+      </span>
+    </DemoSection>
+  );
+};
+
+const DataGridColumnResizingVariantDemo = () => {
+  const [columnWidths, setColumnWidths] = useState<Record<string, number>>({
+    customer: 220,
+    transactionId: 150,
+    status: 132,
+    amount: 130,
+    balance: 110,
+    actions: 52,
+  });
+  const [message, setMessage] = useState('拖动表头分隔线调整列宽');
+
+  return (
+    <DemoSection isColumn label="column resizing">
+      <div style={{ width: 720 }}>
+        <DataGrid
+          aria-label="Resizable transactions"
+          columns={TRANSACTION_COLUMNS.map((column) => ({
+            ...column,
+            minWidth: column.id === 'actions' ? 48 : 96,
+            maxWidth: column.id === 'customer' ? 320 : 240,
+            resizable: column.id !== 'actions',
+          }))}
+          columnWidths={columnWidths}
+          data={TRANSACTION_ROWS}
+          enableColumnResizing
+          getRowId={transactionRowId}
+          onColumnResize={({ columnId, width }) => {
+            setColumnWidths((current) => ({ ...current, [columnId]: width }));
+            setMessage(`${columnId} width: ${width}px`);
+          }}
+        />
+      </div>
+      <span style={demoMutedStyle}>{message}</span>
+    </DemoSection>
+  );
+};
+
 const DataGridAsyncLoadingVariantDemo = () => {
   const [isLoading, setIsLoading] = useState(true);
   const rows = isLoading ? [] : STUDENT_ROWS;
@@ -3588,13 +3755,17 @@ export const dataDisplayVariantDemos: Record<string, ReactNode> = {
   'carousel-multiple-slides': <CarouselVariantDemo variant="multiple-slides" />,
   'data-grid-async-loading': <DataGridAsyncLoadingVariantDemo />,
   'data-grid-bulk-actions': <DataGridBulkActionsVariantDemo />,
+  'data-grid-column-definitions': <DataGridColumnDefinitionsVariantDemo />,
+  'data-grid-column-resizing': <DataGridColumnResizingVariantDemo />,
   'data-grid-default': <DataGridDefaultVariantDemo />,
   'data-grid-drag-and-drop': <DataGridDragAndDropVariantDemo />,
   'data-grid-editable-cells': <DataGridEditableCellsVariantDemo />,
   'data-grid-empty-state': <DataGridEmptyStateVariantDemo />,
   'data-grid-expandable-rows': <DataGridExpandableRowsVariantDemo />,
   'data-grid-pinned-columns': <DataGridPinnedColumnsVariantDemo />,
+  'data-grid-row-selection': <DataGridRowSelectionVariantDemo />,
   'data-grid-servers': <DataGridServersVariantDemo />,
+  'data-grid-sorting': <DataGridSortingVariantDemo />,
   'data-grid-team-members': <DataGridTeamMembersVariantDemo />,
   'data-grid-users': <DataGridUsersVariantDemo />,
   'data-grid-virtualized': <DataGridVirtualizedVariantDemo />,
