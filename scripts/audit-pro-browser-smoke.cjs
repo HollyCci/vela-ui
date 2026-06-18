@@ -110,6 +110,8 @@ const expectVisible = async (locator, label) => {
 };
 
 const clickComponent = async (page, id) => {
+  await page.keyboard.press('Escape').catch(() => undefined);
+  await sleep(50);
   const button = page.locator(`button[data-id="${id}"]`).first();
   await expectVisible(button, `${id} nav/card button`);
   await button.click();
@@ -144,6 +146,28 @@ const scoped = (page, slug) => page.locator(`.sc-live-preview[data-slug="${slug}
 
 const expectText = async (locator, text, label) => {
   await expectVisible(locator.filter({ hasText: text }).first(), label);
+};
+
+const dragLocatorBy = async (page, locator, dx, dy, label) => {
+  await expectVisible(locator, label);
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`${label} has no bounding box`);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + dx, box.y + box.height / 2 + dy, { steps: 8 });
+  await page.mouse.up();
+  await sleep(250);
+};
+
+const pressLocatorFor = async (page, locator, ms, label) => {
+  await expectVisible(locator, label);
+  const box = await locator.boundingBox();
+  if (!box) throw new Error(`${label} has no bounding box`);
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await sleep(ms);
+  await page.mouse.up();
+  await sleep(250);
 };
 
 const runTargetedSmoke = async (page) => {
@@ -224,6 +248,101 @@ const runTargetedSmoke = async (page) => {
     checks.push('prompt-input handles attachment action and submit state');
   }
 
+  await clickComponent(page, 'prompt-suggestion');
+  {
+    const preview = scoped(page, 'prompt-suggestion-cards');
+    await expectVisible(preview.locator('.prompt-suggestion').first(), 'prompt-suggestion root');
+    await preview.getByRole('button', { name: /完成率对比/ }).click();
+    await expectVisible(preview.getByText('当前：完成率对比'), 'prompt-suggestion first selection state');
+    await preview.getByRole('button', { name: /沟通重点/ }).click();
+    await expectVisible(preview.getByText('当前：沟通重点'), 'prompt-suggestion second selection state');
+    checks.push('prompt-suggestion dispatches a real selection action');
+  }
+
+  await clickComponent(page, 'chain-of-thought');
+  {
+    const preview = scoped(page, 'chain-of-thought-default');
+    const trigger = preview.getByRole('button', { name: /已思考 8 秒/ });
+    await expectVisible(trigger, 'chain-of-thought trigger');
+    await expectVisible(preview.locator('[data-slot="chain-of-thought-step"]').filter({ hasText: '拆解目标' }).first(), 'chain-of-thought expanded content');
+    await trigger.click();
+    await preview.locator('[data-slot="chain-of-thought-content"]').waitFor({ state: 'hidden', timeout: 6000 });
+    if ((await trigger.getAttribute('aria-expanded')) !== 'false') {
+      throw new Error('chain-of-thought: trigger did not expose collapsed aria-expanded=false');
+    }
+    await trigger.click();
+    await expectVisible(preview.locator('[data-slot="chain-of-thought-step"]').filter({ hasText: '输出结论' }).first(), 'chain-of-thought re-expanded content');
+    checks.push('chain-of-thought toggles disclosure content with aria-expanded state');
+  }
+
+  await clickComponent(page, 'chat-message-actions');
+  {
+    const preview = scoped(page, 'chat-message-actions-default');
+    await expectVisible(preview.locator('[data-slot="chat-message-actions"]').first(), 'chat-message-actions root');
+    const thumbsUp = preview.getByRole('button', { name: 'Good response' });
+    await thumbsUp.click();
+    if ((await thumbsUp.getAttribute('aria-pressed')) !== 'true') {
+      throw new Error('chat-message-actions: thumbs-up did not expose aria-pressed=true');
+    }
+    await expectVisible(preview.getByText(/评价：up/), 'chat-message-actions thumbs-up state');
+    await preview.getByRole('button', { name: 'Regenerate' }).click();
+    await expectVisible(preview.getByText(/重新生成：1/), 'chat-message-actions regenerate count');
+    await preview.locator('[data-slot="chat-message-action"][aria-label="More actions"]').click();
+    await page.getByRole('menuitem', { name: '标记复查' }).click();
+    await expectVisible(preview.getByText(/更多：1/), 'chat-message-actions menu count');
+    checks.push('chat-message-actions toggle, regenerate, and menu controls update state');
+  }
+
+  await clickComponent(page, 'chat-source');
+  {
+    const preview = scoped(page, 'chat-source-default');
+    await expectVisible(preview.locator('[data-slot="chat-source"]').first(), 'chat-source root');
+    const popupPromise = page.waitForEvent('popup', { timeout: 500 }).catch(() => null);
+    await preview.getByRole('link', { name: 'React Docs' }).click();
+    await expectVisible(preview.getByText('已打开引用'), 'chat-source open state');
+    await expectVisible(preview.locator('[data-slot="chat-source-status"]').first(), 'chat-source transient opened status');
+    const popup = await popupPromise;
+    if (popup !== null) await popup.close();
+    checks.push('chat-source opens a source through the real trigger');
+  }
+
+  await clickComponent(page, 'chat-tool');
+  {
+    const preview = scoped(page, 'chat-tool-approval');
+    const tool = preview.locator('.chat-tool').filter({ hasText: '需要权限：发送家长通知' }).first();
+    await expectVisible(tool, 'chat-tool approval root');
+    await preview.getByRole('button', { name: '允许' }).click();
+    await expectVisible(preview.locator('.chat-tool[data-status="success"]').first(), 'chat-tool success state');
+    await expectVisible(preview.getByText('已允许发送，正在模拟通知家长。'), 'chat-tool approval result text');
+    const trigger = tool.locator('.chat-tool__trigger').first();
+    await trigger.click();
+    if ((await trigger.getAttribute('aria-expanded')) !== 'false') {
+      throw new Error('chat-tool: trigger did not expose collapsed aria-expanded=false');
+    }
+    checks.push('chat-tool approval action updates status and disclosure state');
+  }
+
+  await clickComponent(page, 'code-block');
+  {
+    const preview = scoped(page, 'code-block-default');
+    await page.context().grantPermissions(['clipboard-read', 'clipboard-write'], { origin: new URL(page.url()).origin }).catch(() => undefined);
+    await expectVisible(preview.locator('[data-slot="code-block-code"]').first(), 'code-block code region');
+    await expectVisible(preview.locator('code[data-language="typescript"] [data-line="1"]').filter({ hasText: 'type Status' }).first(), 'code-block highlighted line');
+    const copy = preview.locator('[data-slot="code-block"]').filter({ hasText: 'typescript' }).locator('[data-slot="code-block-copy-button"]').first();
+    await expectVisible(copy, 'code-block copy button');
+    await copy.click();
+    await page.waitForFunction(
+      (button) => button.getAttribute('data-copy-status') !== 'idle',
+      await copy.elementHandle(),
+      { timeout: 3000 },
+    );
+    const copyStatus = await copy.getAttribute('data-copy-status');
+    if (copyStatus !== 'copied' && copyStatus !== 'failed') {
+      throw new Error(`code-block: expected copied or failed status, got ${copyStatus}`);
+    }
+    checks.push('code-block copy button exposes clipboard status feedback');
+  }
+
   await clickComponent(page, 'cell-select');
   {
     const preview = scoped(page, 'cell-select-controlled');
@@ -234,6 +353,93 @@ const runTargetedSmoke = async (page) => {
     await page.locator('[data-slot="cell-select-item"]').filter({ hasText: '晚上' }).first().click();
     await expectVisible(preview.locator('[data-slot="cell-select-label"]').filter({ hasText: '晚上' }).first(), 'cell-select controlled label');
     checks.push('cell-select opens its popover and updates controlled value');
+  }
+
+  await clickComponent(page, 'cell-color-picker');
+  {
+    const preview = scoped(page, 'cell-color-picker-controlled');
+    const trigger = preview.locator('[data-slot="cell-color-picker-trigger"]').first();
+    await expectVisible(trigger, 'cell-color-picker trigger');
+    await trigger.click();
+    await expectVisible(page.locator('[data-slot="cell-color-picker-swatch-picker"]').first(), 'cell-color-picker swatch picker');
+    await page.locator('[data-slot="cell-color-picker-swatch-picker-item"]').nth(1).click();
+    await expectVisible(preview.getByText(/当前颜色：#22c55e/i), 'cell-color-picker controlled color readout');
+    checks.push('cell-color-picker opens presets and updates the controlled color');
+  }
+
+  await clickComponent(page, 'cell-slider');
+  {
+    const preview = scoped(page, 'cell-slider-controlled');
+    await expectVisible(preview.locator('[data-slot="cell-slider"]').first(), 'cell-slider root');
+    const slider = preview.getByRole('slider', { name: /学习密度/ });
+    await slider.focus();
+    await page.keyboard.press('ArrowRight');
+    await expectVisible(preview.locator('[data-slot="cell-slider-label"]').filter({ hasText: '学习密度：63%' }).first(), 'cell-slider controlled label');
+    checks.push('cell-slider keyboard step updates the controlled value label');
+  }
+
+  await clickComponent(page, 'cell-switch');
+  {
+    const preview = scoped(page, 'cell-switch-controlled');
+    const trigger = preview.locator('[data-slot="cell-switch-trigger"]').first();
+    await expectVisible(trigger, 'cell-switch trigger');
+    await trigger.click();
+    await expectVisible(preview.getByText('自动学习提醒：关闭'), 'cell-switch controlled off state');
+    await trigger.click();
+    await expectVisible(preview.getByText('自动学习提醒：开启'), 'cell-switch controlled on state');
+    checks.push('cell-switch toggles the controlled selection state');
+  }
+
+  await clickComponent(page, 'checkbox-button-group');
+  {
+    const preview = scoped(page, 'checkbox-button-group-controlled');
+    await expectVisible(preview.locator('[data-slot="checkbox-button-group"]').first(), 'checkbox-button-group root');
+    await preview.locator('[data-slot="checkbox-button-group-item"]').filter({ hasText: '听力训练' }).first().click();
+    await expectVisible(preview.getByText(/已选择：reading, listening|已选择：listening, reading/), 'checkbox-button-group controlled selection');
+    checks.push('checkbox-button-group updates a controlled multi-selection');
+  }
+
+  await clickComponent(page, 'radio-button-group');
+  {
+    const preview = scoped(page, 'radio-button-group-controlled');
+    await expectVisible(preview.locator('[data-slot="radio-button-group"]').first(), 'radio-button-group root');
+    await preview.locator('[data-slot="radio-button-group-item"]').filter({ hasText: '阅读训练' }).first().click();
+    await expectVisible(preview.getByText('当前方案：reading'), 'radio-button-group controlled selection');
+    checks.push('radio-button-group updates a controlled single selection');
+  }
+
+  await clickComponent(page, 'inline-select');
+  {
+    const preview = scoped(page, 'inline-select-team-switcher');
+    const trigger = preview.locator('[data-slot="inline-select-trigger"]').first();
+    await expectVisible(trigger, 'inline-select trigger');
+    await trigger.click();
+    await expectVisible(page.locator('[data-slot="inline-select-list"]').first(), 'inline-select list');
+    await page.locator('[data-slot="inline-select-item"]').filter({ hasText: '教研组' }).first().click();
+    await expectVisible(preview.locator('[data-slot="inline-select-value"]').filter({ hasText: '教研组' }).first(), 'inline-select updated value');
+    checks.push('inline-select opens the popover and updates value');
+  }
+
+  await clickComponent(page, 'native-select');
+  {
+    const preview = scoped(page, 'native-select-controlled');
+    const select = preview.locator('[data-slot="native-select-select"]').first();
+    await expectVisible(select, 'native-select element');
+    await select.selectOption('sh');
+    await expectVisible(preview.getByText('Controlled select (上海校区)'), 'native-select controlled section label');
+    checks.push('native-select uses the native select element and updates controlled copy');
+  }
+
+  await clickComponent(page, 'number-stepper');
+  {
+    const preview = scoped(page, 'number-stepper-controlled');
+    const input = preview.locator('[data-slot="number-stepper-input"]').first();
+    await expectVisible(input, 'number-stepper input');
+    await preview.locator('[data-slot="number-stepper-increment-button"]').first().click();
+    const now = await input.getAttribute('aria-valuenow');
+    if (now !== '5') throw new Error(`number-stepper: expected aria-valuenow=5, got ${now}`);
+    await expectVisible(preview.getByText('Controlled (5)'), 'number-stepper controlled label');
+    checks.push('number-stepper increment button changes the controlled spinbutton value');
   }
 
   await clickComponent(page, 'drop-zone');
@@ -265,6 +471,29 @@ const runTargetedSmoke = async (page) => {
     checks.push('rating updates selection through real radio interaction');
   }
 
+  await clickComponent(page, 'emoji-reaction-button');
+  {
+    const preview = scoped(page, 'emoji-reaction-button-default');
+    const button = preview.locator('[data-slot="emoji-reaction-button"]').first();
+    await expectVisible(button, 'emoji-reaction-button root');
+    await button.click();
+    await expectVisible(preview.getByText('点击回应'), 'emoji-reaction-button toggled off state');
+    await button.click();
+    await expectVisible(preview.getByText('已回应'), 'emoji-reaction-button toggled on state');
+    checks.push('emoji-reaction-button toggles reaction state and count copy');
+  }
+
+  await clickComponent(page, 'pressable-feedback');
+  {
+    const preview = scoped(page, 'pressable-feedback-progress-feedback-callback');
+    const button = preview.locator('[data-slot="pressable-feedback"]').filter({ hasText: '点击同步' }).first();
+    await expectVisible(button, 'pressable-feedback progress button');
+    await button.click();
+    await sleep(2300);
+    await expectVisible(preview.getByText(/完成 1 次/), 'pressable-feedback progress callback count');
+    checks.push('pressable-feedback progress feedback fires the completion callback');
+  }
+
   await clickComponent(page, 'resizable');
   {
     const preview = scoped(page, 'resizable-default');
@@ -281,6 +510,53 @@ const runTargetedSmoke = async (page) => {
     const after = await preview.getByText(/当前布局：/).innerText();
     if (before === after) throw new Error('resizable: drag did not update layout readout');
     checks.push('resizable handle changes layout in a real pointer drag');
+  }
+
+  await clickComponent(page, 'action-bar');
+  {
+    const preview = scoped(page, 'action-bar-default');
+    await expectVisible(preview.locator('.action-bar').first(), 'action-bar root');
+    await preview.getByRole('button', { name: '标记完成' }).click();
+    await expectVisible(preview.getByText('已标记 3 门课程完成'), 'action-bar action state');
+    await preview.getByRole('button', { name: '收起操作条' }).click();
+    await preview.locator('.action-bar').waitFor({ state: 'hidden', timeout: 6000 });
+    checks.push('action-bar action buttons and controlled visibility work');
+  }
+
+  await clickComponent(page, 'floating-toc');
+  {
+    const preview = scoped(page, 'floating-toc-press-mode');
+    const trigger = preview.locator('[data-slot="floating-toc-trigger"]').first();
+    await expectVisible(trigger, 'floating-toc trigger');
+    const content = page.locator('[data-slot="floating-toc-content"]').filter({ hasText: '课程安排' }).first();
+    await expectVisible(content, 'floating-toc press content');
+    await trigger.click();
+    await content.waitFor({ state: 'hidden', timeout: 6000 });
+    await trigger.click();
+    await expectVisible(page.locator('[data-slot="floating-toc-content"]').filter({ hasText: '课程安排' }).first(), 'floating-toc reopened press content');
+    await page.keyboard.press('Escape');
+    checks.push('floating-toc press trigger opens and closes directory content');
+  }
+
+  await clickComponent(page, 'hover-card');
+  {
+    const preview = scoped(page, 'hover-card-placements');
+    await preview.getByRole('button', { name: 'left' }).click({ force: true });
+    await preview.locator('[data-slot="hover-card-trigger"]').first().hover();
+    await expectVisible(
+      page.locator('[data-slot="hover-card-content"][data-placement^="left"]').filter({ hasText: '雅思 7 分计划' }).first(),
+      'hover-card left placement content',
+    );
+    checks.push('hover-card placement controls update overlay placement');
+  }
+
+  await clickComponent(page, 'list-view');
+  {
+    const preview = scoped(page, 'list-view-selection-modes');
+    await expectVisible(preview.locator('[data-slot="list-view"]').first(), 'list-view root');
+    await preview.locator('[data-slot="list-view-item"]').filter({ hasText: 'Q4 financial report.xlsx' }).first().click();
+    await expectVisible(preview.getByText('已选择：2'), 'list-view multi-selection count');
+    checks.push('list-view updates multi-selection through real list items');
   }
 
   await clickComponent(page, 'sheet');
@@ -328,6 +604,52 @@ const runTargetedSmoke = async (page) => {
     await page.locator('[data-slot="context-menu-menu"] [role="menuitem"]').filter({ hasText: '重新加载' }).first().click();
     await expectText(preview.locator('span'), '已选择：reload', 'context-menu action state');
     checks.push('context-menu opens on right click and dispatches item action');
+  }
+
+  await clickComponent(page, 'navbar');
+  {
+    const preview = scoped(page, 'navbar-with-menu');
+    await expectVisible(preview.locator('[data-slot="navbar-menu"]').first(), 'navbar menu');
+    await preview.locator('[data-slot="navbar-menu-item"]').filter({ hasText: '排班' }).first().click();
+    await expectVisible(preview.getByText('当前：schedule · 菜单收起'), 'navbar menu item navigation state');
+    await expectVisible(preview.locator('[data-slot="navbar-item"][data-current="true"]').filter({ hasText: '排班' }).first(), 'navbar current item state');
+    checks.push('navbar menu item navigates and closes the responsive menu');
+  }
+
+  await clickComponent(page, 'segment');
+  {
+    const preview = scoped(page, 'segment-controlled');
+    await expectVisible(preview.locator('[data-slot="segment"]').first(), 'segment root');
+    await preview.locator('[data-slot="segment-item"]').filter({ hasText: '报表' }).first().click();
+    await expectVisible(preview.getByText('当前：reports'), 'segment controlled selection');
+    checks.push('segment updates controlled selected key');
+  }
+
+  await clickComponent(page, 'stepper');
+  {
+    const preview = scoped(page, 'stepper-controlled');
+    await expectVisible(preview.locator('[data-slot="stepper"]').first(), 'stepper root');
+    const stepButton = preview.locator('[data-slot="stepper-step"][data-index="2"] [data-slot="stepper-step-button"]').first();
+    await expectVisible(stepButton, 'stepper third step button');
+    await stepButton.click({ force: true });
+    await expectVisible(preview.locator('[data-slot="stepper-step"][data-index="2"][data-status="active"]').filter({ hasText: '支付' }).first(), 'stepper active step');
+    await expectVisible(preview.getByText(/当前第 3 步/), 'stepper controlled readout');
+    checks.push('stepper controlled steps can be selected by clicking a step');
+  }
+
+  await clickComponent(page, 'emoji-picker');
+  {
+    const preview = scoped(page, 'emoji-picker-default');
+    const trigger = preview.locator('[data-slot="emoji-picker-trigger"]').first();
+    await expectVisible(trigger, 'emoji-picker trigger');
+    await trigger.click();
+    const popover = page.locator('[data-slot="emoji-picker-popover"]:visible').first();
+    await expectVisible(popover.locator('[data-slot="emoji-picker-grid"]').first(), 'emoji-picker grid');
+    await popover.getByLabel('搜索表情').fill('手势');
+    await popover.locator('[data-slot="emoji-picker-item"]').filter({ hasText: '👍' }).first().click();
+    await expectVisible(preview.getByText('最近选择：👍'), 'emoji-picker selected state');
+    await page.locator('[data-slot="emoji-picker-popover"]').waitFor({ state: 'hidden', timeout: 6000 });
+    checks.push('emoji-picker opens, filters, and selects an emoji');
   }
 
   await clickComponent(page, 'sidebar');

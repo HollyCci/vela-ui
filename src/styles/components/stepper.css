@@ -197,6 +197,10 @@
   display: flex;
 }
 
+.stepper__step:last-child > .stepper__separator {
+  display: none;
+}
+
 .stepper__separator--horizontal {
   top: calc(var(--stepper-indicator-size) / 2 - var(--stepper-separator-size) / 2);
   left: calc(50% + var(--stepper-indicator-size) / 2);

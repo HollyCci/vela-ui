@@ -158,6 +158,12 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, selectedEmoji, f
     onEmojiSelect?.(String(key));
   };
 
+  const handleEmojiSelectionChange = (keys: 'all' | Set<Key>) => {
+    if (keys === 'all') return;
+    const first = keys.values().next();
+    if (!first.done) handleEmojiAction(first.value);
+  };
+
   const isSearching = query.trim() !== '';
 
   const visibleEmojis = useMemo<string[]>(() => {
@@ -212,6 +218,7 @@ const Panel = ({ size, categories, recentEmojis, onEmojiSelect, selectedEmoji, f
         disallowEmptySelection
         selectedKeys={selectedEmoji ? [selectedEmoji] : []}
         onAction={handleEmojiAction}
+        onSelectionChange={handleEmojiSelectionChange}
         className="emoji-picker__grid"
         renderEmptyState={renderEmptyState}
       >

@@ -2666,7 +2666,7 @@ const StepperStatusLabel = () => {
   return <span style={VARIANT_MUTED_STYLE}>{status}</span>;
 };
 
-const StepperVariantSteps = ({
+const renderStepperVariantSteps = ({
   variant,
   withDescriptions,
 }: {
@@ -2730,7 +2730,7 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
       <DemoSection label="sizes" isColumn>
         {(['sm', 'md', 'lg'] as const).map((stepperSize) => (
           <Stepper key={stepperSize} size={stepperSize} currentStep={1}>
-            <StepperVariantSteps variant="default" />
+            {renderStepperVariantSteps({ variant: 'default' })}
           </Stepper>
         ))}
       </DemoSection>
@@ -2742,7 +2742,7 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
       <DemoSection label="vertical sizes">
         {(['sm', 'md', 'lg'] as const).map((stepperSize) => (
           <Stepper key={stepperSize} orientation="vertical" size={stepperSize} currentStep={1}>
-            <StepperVariantSteps variant="default" withDescriptions />
+            {renderStepperVariantSteps({ variant: 'default', withDescriptions: true })}
           </Stepper>
         ))}
       </DemoSection>
@@ -2759,8 +2759,8 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
         onStepChange={isInteractive ? setCurrentStep : undefined}
         style={{ maxWidth: isVertical ? 360 : 660, ...customColorStyle }}
       >
-        <StepperVariantSteps
-          variant={
+        {renderStepperVariantSteps({
+          variant:
             variant === 'custom-completed-icon'
               ? 'custom-completed-icon'
               : variant === 'dynamic-icon'
@@ -2771,10 +2771,9 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
                     ? variant
                     : variant === 'render-function'
                       ? 'render-function'
-                      : 'default'
-          }
-          withDescriptions={withDescriptions}
-        />
+                      : 'default',
+          withDescriptions,
+        })}
       </Stepper>
       {isInteractive && (
         <span style={VARIANT_MUTED_STYLE}>点击步骤切换 · 当前第 {currentStep + 1} 步</span>

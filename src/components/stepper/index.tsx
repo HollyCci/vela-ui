@@ -2,6 +2,8 @@
 
 import {
   Children,
+  Fragment,
+  cloneElement,
   createContext,
   forwardRef,
   isValidElement,
@@ -32,6 +34,7 @@ export type StepperProps = OlHTMLAttributes<HTMLOListElement> & {
 };
 
 export type StepperStepProps = LiHTMLAttributes<HTMLLIElement>;
+type InternalStepperStepProps = StepperStepProps & { __index?: number };
 export type StepperIndicatorProps = HTMLAttributes<HTMLSpanElement>;
 export type StepperIconProps = HTMLAttributes<HTMLSpanElement>;
 export type StepperContentProps = HTMLAttributes<HTMLSpanElement>;
@@ -64,9 +67,6 @@ const StepperContext = createContext<StepperContextValue>({
   isInteractive: false,
   onStepSelect: noop,
 });
-
-/** 步骤下标由 Root 按 children 顺序注入（参考实现 li 上的 data-index） */
-const StepIndexContext = createContext(0);
 
 export type StepperStepContextValue = {
   index: number;
@@ -219,11 +219,11 @@ const Separator = forwardRef<HTMLDivElement, StepperSeparatorProps>(
 );
 Separator.displayName = 'Stepper.Separator';
 
-const Step = forwardRef<HTMLLIElement, StepperStepProps>(
-  ({ className, children, ...rest }, ref) => {
+const Step = forwardRef<HTMLLIElement, InternalStepperStepProps>(
+  ({ __index, className, children, ...rest }, ref) => {
     const { orientation, currentStep, stepCount, isInteractive, onStepSelect } =
       useContext(StepperContext);
-    const index = useContext(StepIndexContext);
+    const index = __index ?? 0;
 
     const status: StepperStepStatus =
       index < currentStep ? 'complete' : index === currentStep ? 'active' : 'inactive';
@@ -285,6 +285,15 @@ const Step = forwardRef<HTMLLIElement, StepperStepProps>(
 );
 Step.displayName = 'Stepper.Step';
 
+const flattenStepperChildren = (children: ReactNode): ReactNode[] =>
+  Children.toArray(children).flatMap((child) => {
+    if (isValidElement<{ children?: ReactNode }>(child) && child.type === Fragment) {
+      return flattenStepperChildren(child.props.children);
+    }
+
+    return [child];
+  });
+
 const StepperRoot = forwardRef<HTMLOListElement, StepperProps>(
   (
     {
@@ -302,7 +311,7 @@ const StepperRoot = forwardRef<HTMLOListElement, StepperProps>(
   ) => {
     const [internalStep, setInternalStep] = useState(defaultStep);
     const activeStep = currentStep ?? internalStep;
-    const items = Children.toArray(children);
+    const items = flattenStepperChildren(children);
     const stepCount = items.length;
     const isInteractive = onStepChange !== undefined;
 
@@ -329,12 +338,11 @@ const StepperRoot = forwardRef<HTMLOListElement, StepperProps>(
           className={clsx('stepper', `stepper--${orientation}`, `stepper--${size}`, className)}
           {...rest}
         >
-          {items.map((child, index) => (
-            // eslint-disable-next-line react/no-array-index-key
-            <StepIndexContext.Provider key={index} value={index}>
-              {child}
-            </StepIndexContext.Provider>
-          ))}
+          {items.map((child, index) =>
+            isValidElement<InternalStepperStepProps>(child) && child.type === Step
+              ? cloneElement(child, { key: child.key ?? index, __index: index })
+              : child,
+          )}
         </ol>
       </StepperContext.Provider>
     );
