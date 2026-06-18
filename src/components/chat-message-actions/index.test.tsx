@@ -1,3 +1,4 @@
+import { StrictMode } from 'react';
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -83,6 +84,25 @@ describe('ChatMessageActions', () => {
 
       // 真实计时器走完短超时后回到 idle
       await waitFor(() => expect(btn).toHaveAttribute('data-copy-status', 'idle'));
+    });
+
+    it('keeps copied feedback after StrictMode remounts effects', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      const user = userEvent.setup();
+      setClipboard(writeText);
+      render(
+        <StrictMode>
+          <ChatMessageActions.Copy content="strict mode copy" timeout={100000} />
+        </StrictMode>,
+      );
+      const btn = screen.getByRole('button', { name: 'Copy' });
+
+      await user.click(btn);
+
+      await waitFor(() => {
+        expect(btn).toHaveAttribute('data-copy-status', 'copied');
+      });
+      expect(writeText).toHaveBeenCalledWith('strict mode copy');
     });
 
     // 失败态：clipboard.writeText 抛错时切到 failed 且 aria-label 为 "Copy failed"

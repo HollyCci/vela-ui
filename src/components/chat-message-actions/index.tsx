@@ -259,9 +259,13 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
     }, []);
 
     useEffect(
-      () => () => {
-        mountedRef.current = false;
-        clearResetTimer();
+      () => {
+        mountedRef.current = true;
+
+        return () => {
+          mountedRef.current = false;
+          clearResetTimer();
+        };
       },
       [clearResetTimer],
     );
