@@ -1127,75 +1127,55 @@ const AGENDA_EVENTS: AgendaEvent[] = [
   },
 ];
 
-const AgendaDemo = () => {
-  const [events, setEvents] = useState(AGENDA_EVENTS);
-  const updateTimedEvent = useCallback((id: string, start: Date, end: Date) => {
-    setEvents((current) =>
-      current.map((event) => (event.id === id ? { ...event, start, end } : event)),
-    );
-  }, []);
-  const agenda = useAgenda({
-    events,
-    defaultView: 'week',
-    onEventMove: updateTimedEvent,
-    onEventResize: updateTimedEvent,
-  });
+type AgendaVariant =
+  | 'default'
+  | 'views'
+  | 'events'
+  | 'drag-interactions'
+  | 'all-day-events'
+  | 'month-view-features'
+  | 'weekend-highlighting'
+  | 'current-time-indicator';
 
-  return (
-    <DemoSection isColumn label="日历议程 · 视图切换、导航、事件拖拽移动与调整时长">
-      <div style={{ height: 600, width: '100%' }}>
-        <Agenda {...agenda}>
-          <Agenda.Header>
-            <Agenda.Heading />
-            <Agenda.ViewSelector />
-            <Agenda.Navigation>
-              <Agenda.NavButton slot="previous" />
-              <Agenda.TodayButton />
-              <Agenda.NavButton slot="next" />
-            </Agenda.Navigation>
-          </Agenda.Header>
-          <Agenda.Body>
-            {agenda.view === 'month' ? (
-              <Agenda.MonthGrid>
-                {agenda.visibleWeeks.map((week, weekIndex) => {
-                  const rowLayout = agenda.getMonthRowLayout(week);
-                  return (
-                    <Agenda.MonthRow
-                      // eslint-disable-next-line react/no-array-index-key -- 周序号在当前视图内稳定
-                      key={weekIndex}
-                      spanningRowCount={rowLayout.rowCount}
-                    >
-                      {rowLayout.items.map((item) => (
-                        <Agenda.MonthSpanningEvent
-                          key={item.event.id}
-                          event={item.event}
-                          colStart={item.colStart}
-                          colSpan={item.colSpan}
-                          row={item.row}
-                        />
-                      ))}
-                      {week.map((day, colIndex) => (
-                        <Agenda.MonthCell
-                          key={day.toISOString()}
-                          date={day}
-                          spanningRowCount={rowLayout.rowCountPerCol[colIndex] ?? 0}
-                        >
-                          {agenda.getPerCellEvents(day, week).map((event) => (
-                            <Agenda.MonthEvent key={event.id} event={event} />
-                          ))}
-                        </Agenda.MonthCell>
-                      ))}
-                    </Agenda.MonthRow>
-                  );
-                })}
-              </Agenda.MonthGrid>
-            ) : (
-              <>
-                <Agenda.WeekHeader />
-                <Agenda.AllDaySection>
-                  <Agenda.AllDayLabel>all-day</Agenda.AllDayLabel>
-                  {agenda.allDayLayout.map((item) => (
-                    <Agenda.AllDayEvent
+const AGENDA_MONTH_FEATURE_EVENTS: AgendaEvent[] = [
+  ...AGENDA_EVENTS,
+  { id: 'm1', title: 'Office Hours', start: agendaAt(2, 9, 0), end: agendaAt(2, 9, 45), color: '#06b6d4' },
+  { id: 'm2', title: 'Mentor Sync', start: agendaAt(2, 10, 0), end: agendaAt(2, 10, 45), color: '#8b5cf6' },
+  { id: 'm3', title: 'Content QA', start: agendaAt(2, 11, 0), end: agendaAt(2, 12, 0), color: '#f59e0b' },
+  { id: 'm4', title: 'Launch Review', start: agendaAt(1, 0, 0), end: agendaAt(3, 0, 0), color: '#ef4444', isAllDay: true },
+];
+
+const AgendaCanvas = ({
+  agenda,
+  monthMaxEvents = 2,
+}: {
+  agenda: ReturnType<typeof useAgenda>;
+  monthMaxEvents?: number;
+}) => (
+  <div style={{ height: 600, width: '100%' }}>
+    <Agenda {...agenda}>
+      <Agenda.Header>
+        <Agenda.Heading />
+        <Agenda.ViewSelector />
+        <Agenda.Navigation>
+          <Agenda.NavButton slot="previous" />
+          <Agenda.TodayButton />
+          <Agenda.NavButton slot="next" />
+        </Agenda.Navigation>
+      </Agenda.Header>
+      <Agenda.Body>
+        {agenda.view === 'month' ? (
+          <Agenda.MonthGrid>
+            {agenda.visibleWeeks.map((week, weekIndex) => {
+              const rowLayout = agenda.getMonthRowLayout(week);
+              return (
+                <Agenda.MonthRow
+                  // eslint-disable-next-line react/no-array-index-key -- 周序号在当前视图内稳定
+                  key={weekIndex}
+                  spanningRowCount={rowLayout.rowCount}
+                >
+                  {rowLayout.items.map((item) => (
+                    <Agenda.MonthSpanningEvent
                       key={item.event.id}
                       event={item.event}
                       colStart={item.colStart}
@@ -1203,22 +1183,96 @@ const AgendaDemo = () => {
                       row={item.row}
                     />
                   ))}
-                </Agenda.AllDaySection>
-                <Agenda.TimeGrid>
-                  <Agenda.CurrentTimeIndicator />
-                  {agenda.visibleDays.map((day) => (
-                    <Agenda.DayColumn key={day.toISOString()} date={day}>
-                      {agenda.getEventsForDay(day).map((event) => (
-                        <Agenda.Event key={event.id} event={event} />
+                  {week.map((day, colIndex) => (
+                    <Agenda.MonthCell
+                      key={day.toISOString()}
+                      date={day}
+                      maxEvents={monthMaxEvents}
+                      spanningRowCount={rowLayout.rowCountPerCol[colIndex] ?? 0}
+                    >
+                      {agenda.getPerCellEvents(day, week).map((event) => (
+                        <Agenda.MonthEvent key={event.id} event={event} />
                       ))}
-                    </Agenda.DayColumn>
+                    </Agenda.MonthCell>
                   ))}
-                </Agenda.TimeGrid>
-              </>
-            )}
-          </Agenda.Body>
-        </Agenda>
-      </div>
+                </Agenda.MonthRow>
+              );
+            })}
+          </Agenda.MonthGrid>
+        ) : (
+          <>
+            <Agenda.WeekHeader />
+            <Agenda.AllDaySection>
+              <Agenda.AllDayLabel>all-day</Agenda.AllDayLabel>
+              {agenda.allDayLayout.map((item) => (
+                <Agenda.AllDayEvent
+                  key={item.event.id}
+                  event={item.event}
+                  colStart={item.colStart}
+                  colSpan={item.colSpan}
+                  row={item.row}
+                />
+              ))}
+            </Agenda.AllDaySection>
+            <Agenda.TimeGrid>
+              <Agenda.CurrentTimeIndicator />
+              {agenda.visibleDays.map((day) => (
+                <Agenda.DayColumn key={day.toISOString()} date={day}>
+                  {agenda.getEventsForDay(day).map((event) => (
+                    <Agenda.Event key={event.id} event={event} />
+                  ))}
+                </Agenda.DayColumn>
+              ))}
+            </Agenda.TimeGrid>
+          </>
+        )}
+      </Agenda.Body>
+    </Agenda>
+  </div>
+);
+
+const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
+  const [events, setEvents] = useState(
+    variant === 'month-view-features' ? AGENDA_MONTH_FEATURE_EVENTS : AGENDA_EVENTS,
+  );
+  const [message, setMessage] = useState('点击事件选中；可拖拽移动并拖动底部调整时长。');
+  const now = new Date();
+  const isMonth = variant === 'month-view-features';
+  const startHour = variant === 'current-time-indicator' ? Math.max(0, now.getHours() - 2) : 8;
+  const endHour = variant === 'current-time-indicator' ? Math.min(24, now.getHours() + 3) : 18;
+
+  const updateTimedEvent = useCallback((id: string, start: Date, end: Date) => {
+    setEvents((current) =>
+      current.map((event) => (event.id === id ? { ...event, start, end } : event)),
+    );
+    setMessage(`已更新 ${id}: ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
+  }, []);
+  const agenda = useAgenda({
+    events,
+    defaultView:
+      isMonth ? 'month' : variant === 'views' || variant === 'events' ? 'day' : 'week',
+    defaultDate: variant === 'current-time-indicator' ? now : agendaAt(4, 0, 0),
+    startHour,
+    endHour,
+    onEventMove: updateTimedEvent,
+    onEventResize: updateTimedEvent,
+    onEventDelete: (id) => {
+      setEvents((current) => current.filter((event) => event.id !== id));
+      setMessage(`已删除事件 ${id}`);
+    },
+    onEventSelect: (id) => setMessage(id === null ? '未选中事件' : `已选中事件 ${id}`),
+  });
+
+  return (
+    <DemoSection isColumn label={variant}>
+      <AgendaCanvas agenda={agenda} monthMaxEvents={variant === 'month-view-features' ? 1 : 2} />
+      <span style={demoMutedStyle}>
+        {variant === 'current-time-indicator'
+          ? '当前时间线每分钟刷新；今日列高亮。'
+          : variant === 'weekend-highlighting'
+            ? '周末列和月视图周末单元格输出 data-weekend。'
+            : message}
+      </span>
     </DemoSection>
   );
 };
@@ -3724,7 +3778,7 @@ const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
 };
 
 export const dataDisplayDemos: Record<string, ReactNode> = {
-  agenda: <AgendaDemo />,
+  agenda: <AgendaVariantDemo variant="default" />,
   kpi: <KpiDemo />,
   'kpi-group': <KpiGroupDemo />,
   'item-card': <ItemCardDemo />,
@@ -3743,7 +3797,14 @@ export const dataDisplayDemos: Record<string, ReactNode> = {
 };
 
 export const dataDisplayVariantDemos: Record<string, ReactNode> = {
-  'agenda-default': <AgendaDemo />,
+  'agenda-all-day-events': <AgendaVariantDemo variant="all-day-events" />,
+  'agenda-current-time-indicator': <AgendaVariantDemo variant="current-time-indicator" />,
+  'agenda-default': <AgendaVariantDemo variant="default" />,
+  'agenda-drag-interactions': <AgendaVariantDemo variant="drag-interactions" />,
+  'agenda-events': <AgendaVariantDemo variant="events" />,
+  'agenda-month-view-features': <AgendaVariantDemo variant="month-view-features" />,
+  'agenda-views': <AgendaVariantDemo variant="views" />,
+  'agenda-weekend-highlighting': <AgendaVariantDemo variant="weekend-highlighting" />,
   'action-bar-default': <ActionBarDefaultVariantDemo />,
   'action-bar-responsive-labels': <ActionBarResponsiveLabelsVariantDemo />,
   'action-bar-with-data-grid': <ActionBarWithDataGridVariantDemo />,

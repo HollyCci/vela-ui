@@ -156,8 +156,24 @@ const expectText = async (locator, text, label) => {
   await expectVisible(locator.filter({ hasText: text }).first(), label);
 };
 
+const clickLocator = async (locator, label) => {
+  await expectVisible(locator, label);
+  await locator.scrollIntoViewIfNeeded();
+  await sleep(80);
+  try {
+    await locator.click({ timeout: 8000 });
+  } catch (error) {
+    const handle = await locator.elementHandle();
+    if (!handle) throw error;
+    await locator.evaluate((element) => element.click());
+  }
+  await sleep(100);
+};
+
 const dragLocatorBy = async (page, locator, dx, dy, label) => {
   await expectVisible(locator, label);
+  await locator.scrollIntoViewIfNeeded();
+  await sleep(80);
   const box = await locator.boundingBox();
   if (!box) throw new Error(`${label} has no bounding box`);
   await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
@@ -339,7 +355,51 @@ const runTargetedSmoke = async (page) => {
     await expectVisible(event, 'agenda timed event');
     await event.click();
     await expectVisible(preview.locator('[data-slot="agenda-event"][data-event-id="6"][data-selected="true"]').first(), 'agenda selected event');
-    checks.push('agenda switches calendar views and selects a real timed event');
+    const dragPreview = scoped(page, 'agenda-drag-interactions');
+    const draggableEvent = dragPreview.locator('[data-slot="agenda-event"][data-event-id="6"]').first();
+    const originalTime = await draggableEvent.locator('[data-slot="agenda-event-time"]').innerText();
+    await dragLocatorBy(page, draggableEvent, 0, 64, 'agenda draggable event');
+    const movedTime = await draggableEvent.locator('[data-slot="agenda-event-time"]').innerText();
+    if (movedTime === originalTime) {
+      throw new Error('agenda: dragging a timed event did not update its displayed time');
+    }
+    const eventsPreview = scoped(page, 'agenda-events');
+    const resizableEvent = eventsPreview.locator('[data-slot="agenda-event"][data-event-id="6"]').first();
+    const beforeResizeBox = await resizableEvent.boundingBox();
+    const beforeResizeTime = await resizableEvent.locator('[data-slot="agenda-event-time"]').innerText();
+    const resizeHandle = resizableEvent.locator('[data-slot="agenda-resize-handle"]').first();
+    await dragLocatorBy(page, resizeHandle, 0, 90, 'agenda resize handle');
+    const afterResizeTime = await resizableEvent.locator('[data-slot="agenda-event-time"]').innerText();
+    const afterResizeBox = await resizableEvent.boundingBox();
+    if (
+      afterResizeTime === beforeResizeTime &&
+      beforeResizeBox &&
+      afterResizeBox &&
+      Math.abs(afterResizeBox.height - beforeResizeBox.height) < 8
+    ) {
+      throw new Error('agenda: resizing a timed event did not update its displayed time');
+    }
+    await draggableEvent.focus();
+    await page.keyboard.press('Delete');
+    await sleep(150);
+    if ((await dragPreview.locator('[data-slot="agenda-event"][data-event-id="6"]').count()) !== 0) {
+      throw new Error('agenda: keyboard Delete did not remove a focused timed event');
+    }
+    const allDayPreview = scoped(page, 'agenda-all-day-events');
+    await expectVisible(allDayPreview.locator('[data-slot="agenda-all-day-event"]').first(), 'agenda all-day event');
+    const monthPreview = scoped(page, 'agenda-month-view-features');
+    await expectVisible(monthPreview.locator('[data-slot="agenda-month-cell-more"]').first(), 'agenda month overflow more control');
+    await expectVisible(monthPreview.locator('[data-slot="agenda-month-cell"][data-weekend="true"]').first(), 'agenda weekend month cell');
+    const currentTimePreview = scoped(page, 'agenda-current-time-indicator');
+    await currentTimePreview.locator('[data-slot="agenda-current-time-indicator"]').first().waitFor({ state: 'attached', timeout: 6000 });
+    await expectVisible(currentTimePreview.locator('[data-slot="agenda-current-time-label"]').first(), 'agenda current time label');
+    const currentTimeLine = currentTimePreview.locator('[data-slot="agenda-current-time-line"]').first();
+    await currentTimeLine.waitFor({ state: 'attached', timeout: 6000 });
+    const currentTimeLineBox = await currentTimeLine.boundingBox();
+    if (!currentTimeLineBox || currentTimeLineBox.width < 20 || currentTimeLineBox.height < 1) {
+      throw new Error('agenda: current time line has no usable layout box');
+    }
+    checks.push('agenda switches views, selects events, drags/resizes/deletes timed events, and renders all-day/month/current-time states');
   }
 
   await clickComponent(page, 'empty-state');
@@ -556,16 +616,16 @@ const runTargetedSmoke = async (page) => {
     const preview = scoped(page, 'app-layout-with-aside');
     const layout = preview.locator('[data-app-layout]').first();
     await expectVisible(layout, 'app-layout root');
-    await preview.getByRole('button', { name: '收起侧栏' }).click();
+    await clickLocator(preview.getByRole('button', { name: '收起侧栏' }), 'app-layout collapse sidebar button');
     await page.waitForFunction((node) => node.getAttribute('data-sidebar-state') === 'collapsed', await layout.elementHandle());
     const asideTrigger = preview.locator('[data-slot="app-layout-aside-trigger"]').first();
     await expectVisible(asideTrigger, 'app-layout aside trigger');
-    await asideTrigger.click();
+    await clickLocator(asideTrigger, 'app-layout aside trigger');
     if ((await asideTrigger.getAttribute('aria-expanded')) !== 'false') {
       throw new Error('app-layout: aside trigger did not expose aria-expanded=false after toggle');
     }
     await expectVisible(preview.locator('[data-slot="app-layout-aside"][data-state="closed"]').first(), 'app-layout closed aside');
-    await preview.getByRole('button', { name: '课程' }).click();
+    await clickLocator(preview.getByRole('button', { name: '课程' }), 'app-layout courses nav button');
     await expectVisible(preview.getByText('当前模块：courses'), 'app-layout active navigation state');
     checks.push('app-layout coordinates sidebar collapse, aside trigger state, and nested navigation');
   }

@@ -22,7 +22,7 @@ const docsMeta = JSON.parse(fs.readFileSync(docsMetaPath, 'utf8'));
 const smokeIds = new Set(browserSmokeComponents);
 
 const highRiskNotes = {
-  agenda: 'Smoke covers view switching and event selection; still needs event drag, resize, and current-time indicator comparison.',
+  agenda: 'Smoke covers view switching, event selection, drag, resize, keyboard delete, all-day events, month overflow, weekend cells, and current-time indicator; still needs same-viewport visual and DOM/CSS comparison.',
   'data-grid': 'Smoke covers sorting and selection; still needs cell editing, column resize, density, sticky, and virtual-scroll comparison.',
   'file-tree': 'Smoke covers tree slots and basic item interaction; still needs drag/drop and full keyboard navigation comparison.',
   'floating-toc': 'Smoke covers trigger behavior; still needs scroll-spy, anchor syncing, and sticky-state comparison.',

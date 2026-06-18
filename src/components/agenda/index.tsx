@@ -12,6 +12,7 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
   type PointerEvent as ReactPointerEvent,
@@ -943,11 +944,27 @@ export type AgendaAllDayEventProps = {
 };
 
 const AllDayEvent = ({ event, colStart, colSpan, row, className }: AgendaAllDayEventProps) => {
-  const { selectedEventId, setSelectedEventId } = useAgendaContext();
+  const { selectedEventId, setSelectedEventId, onEventDelete } = useAgendaContext();
 
   const handleClick = useCallback(
     () => setSelectedEventId(event.id),
     [event.id, setSelectedEventId],
+  );
+  const handleKeyDown = useCallback(
+    (keyboardEvent: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+        keyboardEvent.preventDefault();
+        setSelectedEventId(event.id);
+      }
+      if (
+        !event.isReadOnly &&
+        (keyboardEvent.key === 'Delete' || keyboardEvent.key === 'Backspace')
+      ) {
+        keyboardEvent.preventDefault();
+        onEventDelete?.(event.id);
+      }
+    },
+    [event.id, event.isReadOnly, onEventDelete, setSelectedEventId],
   );
 
   return (
@@ -957,6 +974,7 @@ const AllDayEvent = ({ event, colStart, colSpan, row, className }: AgendaAllDayE
       data-status={event.status ?? 'confirmed'}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       className={clsx('agenda__all-day-event', className)}
       style={{
         gridArea: `${row + 1} / ${colStart + 1} / auto / span ${colSpan}`,
@@ -1075,6 +1093,7 @@ const Event = ({ event, className }: AgendaEventProps) => {
     visibleDays,
     locale,
     onEventMove,
+    onEventDelete,
     onEventResize,
   } = useAgendaContext();
   const eventRef = useRef<HTMLDivElement | null>(null);
@@ -1325,10 +1344,28 @@ const Event = ({ event, className }: AgendaEventProps) => {
     },
     [event.id, setSelectedEventId],
   );
+  const handleKeyDown = useCallback(
+    (keyboardEvent: ReactKeyboardEvent<HTMLDivElement>) => {
+      if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+        keyboardEvent.preventDefault();
+        setSelectedEventId(event.id);
+      }
+      if (
+        !event.isReadOnly &&
+        (keyboardEvent.key === 'Delete' || keyboardEvent.key === 'Backspace')
+      ) {
+        keyboardEvent.preventDefault();
+        onEventDelete?.(event.id);
+      }
+    },
+    [event.id, event.isReadOnly, onEventDelete, setSelectedEventId],
+  );
 
   return (
     <div
       ref={eventRef}
+      role="button"
+      tabIndex={0}
       data-slot="agenda-event"
       data-event-id={event.id}
       data-status={event.status ?? 'confirmed'}
@@ -1337,6 +1374,7 @@ const Event = ({ event, className }: AgendaEventProps) => {
       data-dragging={draft?.mode === 'move' ? 'true' : undefined}
       data-resizing={draft?.mode === 'resize' ? 'true' : undefined}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       onPointerDown={(pointerEvent) => startInteraction('move', pointerEvent)}
       className={clsx('agenda__event', className)}
       style={{
@@ -1587,11 +1625,27 @@ const MonthSpanningEvent = ({
   row,
   className,
 }: AgendaMonthSpanningEventProps) => {
-  const { selectedEventId, setSelectedEventId } = useAgendaContext();
+  const { selectedEventId, setSelectedEventId, onEventDelete } = useAgendaContext();
 
   const handleClick = useCallback(
     () => setSelectedEventId(event.id),
     [event.id, setSelectedEventId],
+  );
+  const handleKeyDown = useCallback(
+    (keyboardEvent: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+        keyboardEvent.preventDefault();
+        setSelectedEventId(event.id);
+      }
+      if (
+        !event.isReadOnly &&
+        (keyboardEvent.key === 'Delete' || keyboardEvent.key === 'Backspace')
+      ) {
+        keyboardEvent.preventDefault();
+        onEventDelete?.(event.id);
+      }
+    },
+    [event.id, event.isReadOnly, onEventDelete, setSelectedEventId],
   );
 
   return (
@@ -1601,6 +1655,7 @@ const MonthSpanningEvent = ({
       data-status={event.status ?? 'confirmed'}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       className={clsx('agenda__month-spanning-event', className)}
       style={{
         position: 'absolute',
@@ -1624,7 +1679,7 @@ export type AgendaMonthEventProps = {
 
 /** 月视图单日事件（cell 内流式排列） */
 const MonthEvent = ({ event, className }: AgendaMonthEventProps) => {
-  const { selectedEventId, setSelectedEventId, locale } = useAgendaContext();
+  const { selectedEventId, setSelectedEventId, locale, onEventDelete } = useAgendaContext();
   const timeFormat = useMemo(
     () => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
     [locale],
@@ -1633,6 +1688,22 @@ const MonthEvent = ({ event, className }: AgendaMonthEventProps) => {
   const handleClick = useCallback(
     () => setSelectedEventId(event.id),
     [event.id, setSelectedEventId],
+  );
+  const handleKeyDown = useCallback(
+    (keyboardEvent: ReactKeyboardEvent<HTMLButtonElement>) => {
+      if (keyboardEvent.key === 'Enter' || keyboardEvent.key === ' ') {
+        keyboardEvent.preventDefault();
+        setSelectedEventId(event.id);
+      }
+      if (
+        !event.isReadOnly &&
+        (keyboardEvent.key === 'Delete' || keyboardEvent.key === 'Backspace')
+      ) {
+        keyboardEvent.preventDefault();
+        onEventDelete?.(event.id);
+      }
+    },
+    [event.id, event.isReadOnly, onEventDelete, setSelectedEventId],
   );
 
   return (
@@ -1643,6 +1714,7 @@ const MonthEvent = ({ event, className }: AgendaMonthEventProps) => {
       data-status={event.status ?? 'confirmed'}
       data-selected={selectedEventId === event.id ? 'true' : undefined}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       className={clsx('agenda__month-event', className)}
       style={eventColorStyle(event.color)}
     >

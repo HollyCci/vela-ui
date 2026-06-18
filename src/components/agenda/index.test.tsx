@@ -39,9 +39,11 @@ const EVENTS: AgendaEvent[] = [
 // 受控 selectedEventId 的测试 harness：把 selectedEventId 作为 prop 注入 useAgenda
 function ControlledAgenda({
   selectedEventId,
+  onEventDelete,
   onEventSelect,
 }: {
   selectedEventId: string | null;
+  onEventDelete?: (id: string) => void;
   onEventSelect?: (id: string | null) => void;
 }) {
   const agenda = useAgenda({
@@ -49,6 +51,7 @@ function ControlledAgenda({
     defaultView: 'day',
     date: monday,
     selectedEventId,
+    onEventDelete,
     onEventSelect,
   });
   return (
@@ -153,6 +156,29 @@ describe('Agenda', () => {
     // Segment 渲染 Month 选项；点击切到 month 视图
     await user.click(screen.getByText('Month'));
     expect(root).toHaveAttribute('data-view', 'month');
+  });
+
+  it('supports keyboard select and delete for timed events', async () => {
+    const user = userEvent.setup();
+    const onEventDelete = vi.fn();
+    const onEventSelect = vi.fn();
+    render(
+      <ControlledAgenda
+        selectedEventId={null}
+        onEventDelete={onEventDelete}
+        onEventSelect={onEventSelect}
+      />,
+    );
+
+    const standup = document.querySelector('[data-event-id="e1"]') as HTMLElement;
+    standup.focus();
+    expect(standup).toHaveFocus();
+
+    await user.keyboard('{Enter}');
+    expect(onEventSelect).toHaveBeenCalledWith('e1');
+
+    await user.keyboard('{Delete}');
+    expect(onEventDelete).toHaveBeenCalledWith('e1');
   });
 
   // a11y：完整周历（Header 含带 aria-label 的导航/视图选择器 + TimeGrid + 事件），axe 应无违规。

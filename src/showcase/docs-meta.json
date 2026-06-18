@@ -320,6 +320,41 @@
         "heading": "Usage",
         "anchor": "usage",
         "demo": "agenda-default"
+      },
+      {
+        "heading": "Views",
+        "anchor": "views",
+        "demo": "agenda-views"
+      },
+      {
+        "heading": "Events",
+        "anchor": "events",
+        "demo": "agenda-events"
+      },
+      {
+        "heading": "Drag Interactions",
+        "anchor": "drag-interactions",
+        "demo": "agenda-drag-interactions"
+      },
+      {
+        "heading": "All-Day Events",
+        "anchor": "all-day-events",
+        "demo": "agenda-all-day-events"
+      },
+      {
+        "heading": "Month View Features",
+        "anchor": "month-view-features",
+        "demo": "agenda-month-view-features"
+      },
+      {
+        "heading": "Weekend Highlighting",
+        "anchor": "weekend-highlighting",
+        "demo": "agenda-weekend-highlighting"
+      },
+      {
+        "heading": "Current Time Indicator",
+        "anchor": "current-time-indicator",
+        "demo": "agenda-current-time-indicator"
       }
     ]
   },

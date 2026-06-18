@@ -15,7 +15,7 @@ const componentContracts = {
   'radar-chart': ['responsive-chart', 'tooltip-hover', 'polar-grid'],
   'radial-chart': ['responsive-chart', 'tooltip-hover', 'progress-arc'],
 
-  agenda: ['calendar-layout', 'event-drag', 'event-resize', 'current-time-indicator'],
+  agenda: ['calendar-layout', 'event-drag', 'event-resize', 'event-delete', 'all-day-events', 'month-overflow', 'weekend-highlight', 'current-time-indicator'],
   'action-bar': ['selection-state', 'floating-actions', 'dismiss-action', 'responsive-labels'],
   carousel: ['previous-next', 'dots', 'loop', 'autoplay', 'api-access'],
   'data-grid': ['sorting', 'selection', 'cell-editing', 'column-resize', 'virtual-scroll'],
@@ -89,7 +89,7 @@ const referenceVariantCounts = {
   'radar-chart': 5,
   'radial-chart': 5,
 
-  agenda: 1,
+  agenda: 8,
   'action-bar': 3,
   carousel: 6,
   'data-grid': 16,
@@ -156,9 +156,7 @@ const referenceVariantCounts = {
 // Current live component-page counts from `pnpm audit:pro:reference-live`.
 // These can differ from the local contract while Vela is catching up to the
 // upstream HeroUI Pro docs. The networked audit remains the source of truth.
-const liveReferenceVariantCounts = {
-  agenda: 8,
-};
+const liveReferenceVariantCounts = {};
 
 const browserSmokeComponents = [
   'action-bar',

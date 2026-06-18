@@ -5,7 +5,14 @@
     "action-bar-responsive-labels"
   ],
   "agenda": [
-    "agenda-default"
+    "agenda-default",
+    "agenda-views",
+    "agenda-events",
+    "agenda-drag-interactions",
+    "agenda-all-day-events",
+    "agenda-month-view-features",
+    "agenda-weekend-highlighting",
+    "agenda-current-time-indicator"
   ],
   "app-layout": [
     "app-layout-default",
