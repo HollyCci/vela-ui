@@ -14,6 +14,12 @@
   background-color: var(--backdrop);
 }
 
+/* 基础 .drawer__backdrop--blur 把实色 scrim(var(--backdrop)) 画在元素本身上，盖过本组件用 ::before 做的
+   半透明 tint。本组件 scrim 一律走 ::before，故元素本身透明(sheet.css 后导入即胜) */
+.sheet__backdrop--blur {
+  background-color: transparent;
+}
+
 .sheet__backdrop--blur:before {
   background-color: var(--background);
 }
@@ -118,6 +124,9 @@
   --tw-shadow: var(--overlay-shadow);
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   outline: none;
+  /* 基础 .drawer__dialog 给 dialog 加了 1.5rem 内边距；本组件由 Header/Body/Footer 各自 padding 控制，
+     故此处归零，避免与分区 padding 叠成双层内边距(对齐 heroui Pro 的边到边面板) */
+  padding: 0;
   flex-direction: column;
   flex: auto;
   min-height: 0;
@@ -192,6 +201,22 @@
   .sheet__dialog--right {
     width: 24rem;
   }
+}
+
+/* 基础 .drawer__dialog[data-placement=...] 以 (0,2,0) 设 border-radius:0(左右)/max-height:85vh(上下)，
+   胜过单类修饰符 (0,1,0)。这里以 .sheet__dialog.sheet__dialog--X (0,2,0、且后导入) 只覆盖"输掉的那几条属性"，
+   不动响应式 width(避免破坏 40rem 的 24rem) */
+.sheet__dialog.sheet__dialog--left {
+  border-top-right-radius: calc(var(--radius) * 2);
+  border-bottom-right-radius: calc(var(--radius) * 2);
+}
+.sheet__dialog.sheet__dialog--right {
+  border-top-left-radius: calc(var(--radius) * 2);
+  border-bottom-left-radius: calc(var(--radius) * 2);
+}
+.sheet__dialog.sheet__dialog--bottom,
+.sheet__dialog.sheet__dialog--top {
+  max-height: 96vh;
 }
 
 .sheet__dialog[data-sheet-nested-open] {
