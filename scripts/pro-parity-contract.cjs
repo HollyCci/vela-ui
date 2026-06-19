@@ -2,7 +2,7 @@ const REFERENCE = {
   name: 'HeroUI Pro React Components',
   url: 'https://heroui.pro/docs/react/components',
   version: '1.0.0-beta.6',
-  checkedAt: '2026-06-18',
+  checkedAt: '2026-06-19',
 };
 
 const componentContracts = {
