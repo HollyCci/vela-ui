@@ -66,6 +66,8 @@ pnpm type-check   # TypeScript 检查
 
 ## 发布与升级版本
 
+> 完整可照做的发版作业流程（含门禁、版本号、排错、消费方安装）见 **[docs/release-sop.md](docs/release-sop.md)**。下面是速览。
+
 发布走 **GitHub Release 触发 → CI 自动发到 GitHub Packages**（`.github/workflows/publish.yml`，用仓库内置 `GITHUB_TOKEN`，无需手动 PAT）。发布前 `prepublishOnly` 会自动 `build + smoke` 把关。
 
 出新版本流程：
