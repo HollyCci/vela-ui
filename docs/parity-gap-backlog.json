@@ -2844,5 +2844,16 @@
       "summary": "Plain semantic compound component (ol/li + context-driven slots, no RAC needed since HeroUI Pro Stepper is likewise presentational); real controlled/uncontrolled step state, both orientations, all sizes, derived step-state, native button steps when interactive, and all 19 variant sections wired in demos — no code-grounded parity gaps.",
       "gapCount": 0
     }
+  ],
+  "batch2Fixed": [
+    "command",
+    "sidebar",
+    "kpi-value",
+    "kpi-trend",
+    "emoji-picker-search",
+    "emoji-picker-skin-tone"
+  ],
+  "deferredBig": [
+    "app-layout-mobile-sheet"
   ]
 }
