@@ -134,7 +134,7 @@
 }
 
 .segment__indicator {
-  z-index: -1;
+  z-index: 0;
   border-radius: var(--radius-3xl);
   background-color: var(--segment);
   width: 100%;
