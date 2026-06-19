@@ -383,6 +383,8 @@ const runTargetedSmoke = async (page) => {
     await expectVisible(event, 'agenda timed event');
     await event.click();
     await expectVisible(preview.locator('[data-slot="agenda-event"][data-event-id="6"][data-selected="true"]').first(), 'agenda selected event');
+    await page.keyboard.press('Escape');
+    await sleep(200);
     const dragPreview = scoped(page, 'agenda-drag-interactions');
     const draggableEvent = dragPreview.locator('[data-slot="agenda-event"][data-event-id="6"]').first();
     const originalTime = await draggableEvent.locator('[data-slot="agenda-event-time"]').innerText();
@@ -549,7 +551,12 @@ const runTargetedSmoke = async (page) => {
   {
     const preview = scoped(page, 'chat-attachment-composer');
     await expectVisible(preview.locator('.chat-attachment').filter({ hasText: '家长沟通记录.docx' }).first(), 'chat-attachment initial attachment');
+    // 「添加附件」触发真实隐藏 <input type=file>（chat-attachment-input）打开文件选择器；
+    // 经 filechooser 提供一个真实文件 补充材料-2.pdf，验证真文件输入链路而非旧字符串伪造
+    const fileChooserPromise = page.waitForEvent('filechooser');
     await preview.locator('[data-slot="prompt-input-action"][aria-label="添加附件"]').click();
+    const fileChooser = await fileChooserPromise;
+    await fileChooser.setFiles({ name: '补充材料-2.pdf', mimeType: 'application/pdf', buffer: Buffer.from('vela-test') });
     await expectVisible(preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }), 'chat-attachment added attachment remove button');
     await preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }).click();
     if (await preview.getByRole('button', { name: '移除附件 补充材料-2.pdf' }).count() !== 0) {
