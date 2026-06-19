@@ -2855,5 +2855,28 @@
   ],
   "deferredBig": [
     "app-layout-mobile-sheet"
+  ],
+  "batch3Fixed": [
+    "chat-attachment",
+    "chat-loader",
+    "pie-chart",
+    "rating",
+    "number-value",
+    "checkbox-button-group"
+  ],
+  "batch4Fixed": [
+    "markdown",
+    "chart-tooltip",
+    "trend-chip",
+    "cell-select",
+    "agenda(partial:month-drag deferred)"
+  ],
+  "batch5Fixed": [
+    "prompt-input(partial:handle-aria n/a)",
+    "sheet",
+    "chat-message-actions",
+    "kpi-group",
+    "item-card-group",
+    "chain-of-thought"
   ]
 }
