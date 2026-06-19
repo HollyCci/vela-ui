@@ -277,6 +277,8 @@ const TagDemo = () => {
 const CheckboxButtonGroupDemo = () => {
   const [modules, setModules] = useState<string[]>(['reading']);
   const handleModulesChange = (value: string[]) => setModules(value);
+  // 校验态：未选任何模块即视为无效，由底座 FieldError 渲染 errorMessage
+  const modulesInvalid = modules.length === 0;
 
   return (
     <DemoSection isColumn>
@@ -285,6 +287,8 @@ const CheckboxButtonGroupDemo = () => {
         layout="grid"
         value={modules}
         onChange={handleModulesChange}
+        isInvalid={modulesInvalid}
+        errorMessage="请至少选择一个训练模块"
         style={{ width: 480, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
       >
         <CheckboxButtonGroup.Item value="reading">

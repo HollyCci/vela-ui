@@ -83,6 +83,26 @@ describe('CheckboxButtonGroup', () => {
     expect(onChange).not.toHaveBeenCalled();
   });
 
+  it('isInvalid sets data-invalid and surfaces the errorMessage via FieldError', () => {
+    const { container } = renderGroup({ isInvalid: true, errorMessage: '至少选择一项' });
+
+    const group = container.querySelector('[data-slot="checkbox-button-group"]');
+    expect(group).toHaveAttribute('data-invalid', 'true');
+
+    const error = container.querySelector('[data-slot="error-message"]');
+    expect(error).toHaveClass('field-error');
+    expect(error).toHaveTextContent('至少选择一项');
+  });
+
+  it('errorMessage stays hidden while the group is valid', () => {
+    const { container } = renderGroup({ errorMessage: '至少选择一项' });
+
+    expect(container.querySelector('[data-slot="checkbox-button-group"]')).not.toHaveAttribute(
+      'data-invalid',
+    );
+    expect(container.querySelector('[data-slot="error-message"]')).toBeNull();
+  });
+
   it('has no axe a11y violations', async () => {
     const { container } = renderGroup();
     expect(await axe(container)).toHaveNoViolations();

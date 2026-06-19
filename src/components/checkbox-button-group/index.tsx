@@ -1,12 +1,16 @@
 'use client';
 
-import { forwardRef, type CSSProperties, type HTMLAttributes } from 'react';
+import { forwardRef, type CSSProperties, type HTMLAttributes, type ReactNode } from 'react';
 import {
   Checkbox,
   CheckboxGroup,
   type CheckboxGroupProps,
   type CheckboxProps,
 } from '@heroui/react';
+import {
+  FieldError as AriaFieldError,
+  type FieldErrorProps as AriaFieldErrorProps,
+} from 'react-aria-components';
 import clsx from 'clsx';
 import PressableFeedback from '../pressable-feedback';
 
@@ -19,6 +23,16 @@ type CheckboxButtonGroupItemRenderProps = Parameters<
 export type CheckboxButtonGroupProps = Omit<CheckboxGroupProps, 'className' | 'style'> & {
   /** 布局模式（参考 API）：grid 时列数由调用方样式（如 gridTemplateColumns）决定 */
   layout?: CheckboxButtonGroupLayout;
+  /** 校验错误信息（参考 API）：仅在组处于无效态（isInvalid/validate）时由底座 FieldError 渲染 */
+  errorMessage?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+};
+
+export type CheckboxButtonGroupErrorMessageProps = Omit<
+  AriaFieldErrorProps,
+  'className' | 'style'
+> & {
   className?: string;
   style?: CSSProperties;
 };
@@ -135,24 +149,64 @@ const ItemIcon = forwardRef<HTMLDivElement, CheckboxButtonGroupItemIconProps>(
 ItemIcon.displayName = 'CheckboxButtonGroup.ItemIcon';
 
 /**
- * 包装 OSS CheckboxGroup 的卡片多选组（参考 API）：
- * 受控 value/onChange、isDisabled、键盘交互由底座提供。
- * 参考实现快照所有 demo 根类均为 checkbox-group--secondary，故默认 variant=secondary（可透传覆盖）。
+ * 校验错误信息插槽（参考 API）：底座 OSS CheckboxGroup 透传 RAC FieldError context，
+ * 仅在组无效（isInvalid/validate）时渲染；与 input/textarea 等表单组件共用 .field-error 样式。
  */
-const CheckboxButtonGroupRoot = forwardRef<HTMLDivElement, CheckboxButtonGroupProps>(
-  ({ layout = 'flex', className, ...rest }, ref) => (
-    <CheckboxGroup
+const ErrorMessage = forwardRef<HTMLElement, CheckboxButtonGroupErrorMessageProps>(
+  ({ className, ...rest }, ref) => (
+    <AriaFieldError
       ref={ref}
-      data-slot="checkbox-button-group"
-      variant="secondary"
-      className={clsx(
-        'checkbox-button-group',
-        layout === 'grid' && 'checkbox-button-group--grid',
-        className,
-      )}
+      data-slot="error-message"
+      data-visible="true"
+      className={clsx('field-error', className)}
       {...rest}
     />
   ),
+);
+ErrorMessage.displayName = 'CheckboxButtonGroup.ErrorMessage';
+
+/**
+ * 包装 OSS CheckboxGroup 的卡片多选组（参考 API）：
+ * 受控 value/onChange、isDisabled、键盘交互由底座提供。
+ * 参考实现快照所有 demo 根类均为 checkbox-group--secondary，故默认 variant=secondary（可透传覆盖）。
+ * errorMessage 经底座 FieldError 渲染，仅在 isInvalid/validate 触发的无效态显示。
+ */
+const CheckboxButtonGroupRoot = forwardRef<HTMLDivElement, CheckboxButtonGroupProps>(
+  ({ layout = 'flex', className, errorMessage, children, ...rest }, ref) => {
+    const error =
+      errorMessage !== undefined ? <ErrorMessage>{errorMessage}</ErrorMessage> : null;
+    // children 可能是 render-prop（访问组校验态），保留底座原生用法的同时追加 FieldError
+    const content: CheckboxGroupProps['children'] =
+      typeof children === 'function'
+        ? (values) => (
+            <>
+              {children(values)}
+              {error}
+            </>
+          )
+        : (
+            <>
+              {children}
+              {error}
+            </>
+          );
+
+    return (
+      <CheckboxGroup
+        ref={ref}
+        data-slot="checkbox-button-group"
+        variant="secondary"
+        className={clsx(
+          'checkbox-button-group',
+          layout === 'grid' && 'checkbox-button-group--grid',
+          className,
+        )}
+        {...rest}
+      >
+        {content}
+      </CheckboxGroup>
+    );
+  },
 );
 CheckboxButtonGroupRoot.displayName = 'CheckboxButtonGroup';
 
@@ -161,6 +215,7 @@ const CheckboxButtonGroup = Object.assign(CheckboxButtonGroupRoot, {
   Indicator,
   ItemContent,
   ItemIcon,
+  ErrorMessage,
 });
 
 export default CheckboxButtonGroup;
