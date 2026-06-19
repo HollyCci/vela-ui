@@ -133,3 +133,36 @@
 .cell-color-picker .cell-color-picker__popover {
   min-width: var(--trigger-width);
 }
+
+.cell-color-picker__field {
+  display: flex;
+  flex-direction: column;
+}
+
+.cell-color-picker__field-input {
+  width: 100%;
+  height: calc(var(--spacing) * 8);
+  border-radius: var(--field-radius, calc(var(--radius) * 1.5));
+  border-width: var(--border-width-field, 1px);
+  border-style: solid;
+  border-color: var(--color-field-border);
+  background-color: var(--field-background, var(--background));
+  padding-inline: calc(var(--spacing) * 3);
+  color: var(--field-foreground, var(--foreground));
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading, var(--text-sm--line-height));
+  outline-style: none;
+  transition: border-color .15s var(--ease-smooth), box-shadow .15s var(--ease-out);
+}
+
+.cell-color-picker__field-input[data-focused=true],
+.cell-color-picker__field-input:focus {
+  border-color: var(--color-field-border-focus);
+}
+
+.cell-color-picker__field[data-disabled=true] .cell-color-picker__field-input,
+.cell-color-picker__field-input:disabled {
+  opacity: var(--disabled-opacity);
+  cursor: var(--cursor-disabled);
+  pointer-events: none;
+}

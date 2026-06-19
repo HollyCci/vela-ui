@@ -988,6 +988,9 @@ const CellColorPickerDemo = () => {
                   <CellColorPicker.Slider.Thumb />
                 </CellColorPicker.Slider.Track>
               </CellColorPicker.Slider>
+              <CellColorPicker.Field aria-label="十六进制色值">
+                <CellColorPicker.Field.Input />
+              </CellColorPicker.Field>
               <CellColorPicker.SwatchPicker aria-label="预设色板">
                 {PRESET_COLORS.map((preset) => (
                   <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
@@ -1020,8 +1023,8 @@ const CellColorPickerDemo = () => {
         </CellColorPicker>
       </div>
       <div style={{ width: 320 }}>
-        <CellColorPicker defaultValue="#EF4444">
-          <CellColorPicker.Trigger isDisabled>
+        <CellColorPicker defaultValue="#EF4444" isDisabled>
+          <CellColorPicker.Trigger>
             <CellColorPicker.Label>禁用项</CellColorPicker.Label>
             <CellColorPicker.ValueDisplay />
             <CellColorPicker.Swatch />
