@@ -106,7 +106,7 @@ Item.displayName = 'Segment.Item';
  *
  * 滑块指示器是 group 内的**单个常驻元素**（非每个选中项里临时挂载）：选中态切换时只更新它的
  * translate/width/height 内联样式，靠 CSS `transition: translate,width,height` 平滑滑动——对齐
- * heroui.pro Segment 的切换过渡。这避免了「指示器随选中项 unmount/remount + rAF FLIP」的脆弱写法
+ * 线上 Pro 版 Segment 的切换过渡。这避免了「指示器随选中项 unmount/remount + rAF FLIP」的脆弱写法
  * （rAF 在隐藏页会暂停、remount 元素无前态可过渡，都会让切换动画丢失）。
  */
 const SegmentRoot = forwardRef<HTMLDivElement, SegmentProps>(

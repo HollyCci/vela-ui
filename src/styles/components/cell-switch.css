@@ -16,7 +16,7 @@
   height: calc(var(--spacing) * 9);
   align-items: center;
   /* 基础 .switch__content 设 flex-direction:column 致标签与开关纵向堆叠居中；
-     cell 行布局须显式 row + space-between(标签左/开关右)对齐 heroui.pro */
+     cell 行布局须显式 row + space-between(标签左/开关右)对齐线上 Pro 版 */
   flex-direction: row;
   justify-content: space-between;
   gap: calc(var(--spacing) * 3);

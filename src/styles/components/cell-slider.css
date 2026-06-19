@@ -116,14 +116,14 @@
 
 /* 基础 .slider .slider__fill 用 var(--accent)(品牌蓝)，与本组件的 .cell-slider .cell-slider__fill
    同特指度(0,2,0)且 slider.css 在 lib.css 中后导入 → 蓝色胜出。默认轨道 fill 须更高特指度覆盖回
-   var(--color-default)(浅中性，对齐 heroui.pro 的 ≈#EBEBEC)，与 secondary fill 的 0,3,0 规则保持一致量级 */
+   var(--color-default)(浅中性，对齐线上 Pro 版的 ≈#EBEBEC)，与 secondary fill 的 0,3,0 规则保持一致量级 */
 .cell-slider .cell-slider__track--default .cell-slider__fill {
   background-color: var(--color-default);
 }
 
 /* 基础 .slider .slider__thumb 用 var(--accent)(蓝)+radius 1.5× 渲染实心圆把手，与 .cell-slider .cell-slider__thumb
    同特指度(0,2,0)且 slider.css 后导入而胜出 → 出现蓝色椭圆把手。提升至 0,3,0(加 .cell-slider__track)
-   覆盖回透明(仅 ::after 细条在交互时显示)，对齐 heroui.pro 静息态无突出把手 */
+   覆盖回透明(仅 ::after 细条在交互时显示)，对齐线上 Pro 版静息态无突出把手 */
 .cell-slider .cell-slider__track .cell-slider__thumb {
   top: calc(var(--spacing) * 0);
   --tw-translate-y: calc(1 / 2 * 100%);
