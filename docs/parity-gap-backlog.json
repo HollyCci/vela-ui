@@ -2,17 +2,7 @@
   "generatedAt": "2026-06-19",
   "reference": "https://heroui.pro/docs/react/components",
   "auditedCount": 55,
-  "notAudited": [
-    "emoji-reaction-button",
-    "cell-color-picker",
-    "number-stepper",
-    "app-layout",
-    "command",
-    "context-menu",
-    "segment",
-    "sidebar",
-    "stepper"
-  ],
+  "notAudited": [],
   "solidComponents": [
     "bar-chart",
     "item-card",
@@ -21,7 +11,11 @@
     "cell-switch",
     "drop-zone",
     "inline-select",
-    "radio-button-group"
+    "radio-button-group",
+    "emoji-reaction-button",
+    "number-stepper",
+    "segment",
+    "stepper"
   ],
   "confirmedHigh": [
     {
@@ -695,6 +689,45 @@
       "confidence": 0.5,
       "verdict": "confirmed",
       "verifyReason": "The gap is real. MonthSpanningEvent (src/components/agenda/index.tsx L1794-1845) pulls only {selectedEventId, setSelectedEventId, onEventDelete} from context (L1801) and renders a <button> (L1825-1843) wiring only onClick (L1830) + onKeyDown (L1831). MonthEvent (L1854-1897) is identical: context destructure L1855, button L1883-1895 with only onClick (L1889) + onKeyDown (L1890). Neither destructures onEventMove/onEventResize nor attaches onPointerDown. Their keyDown handlers (L1807-1822, L1865-1880) support only Enter/Space (select) and Delete/Backspace (delete) — no move/resize. By contrast onEventMove/onEventResize ARE in context (AgendaContextValue L565-566) and are consumed only by the timed Event component (L1268-1270), which computes canMove/canResize (L1289-1290), defines startInteraction (L1423) that calls onEventMove/onEventResize on pointerup (L1417/L1419), and wires onPointerDown for move (L1551) and a resize handle (L1571). startInteraction is hard-bound to [data-slot=\\\"agenda-day-column\\\"] (L1429), which exists only in the TimeGrid, not the month grid. MonthCell adds no event drag (its onPointerDown at L1053/L1138 belongs to DayColumn's create-by-drag, calling onEventCreate, L1136-1196). index.test.tsx has zero month-view drag/resize coverage. So month-view events cannot be dragged to another day or resized, unlike week/day. Calibration: month-view resize is only meaningful for multi-day spanning events, not single-day MonthEvent — the auditor's \\\"where applicable\\\" already accounts for this; the drag-to-new-day move gap is unambiguously real."
+    },
+    {
+      "id": "command",
+      "cat": "Navigation",
+      "kind": "missing-interaction",
+      "severity": "high",
+      "title": "Global Cmd+K / Ctrl+K open shortcut is decorative only — no keydown listener",
+      "detail": "HeroUI Pro's command palette is opened by a global Cmd+K (Ctrl+K) shortcut, the defining behavior behind the keyboard-search contract token. Here open state is fully delegated to the consumer and the only Cmd+K reference is a visual <Kbd abbr=\"⌘\">K</Kbd> on the trigger button — no component or demo wires a document keydown listener, so pressing Cmd+K does nothing.",
+      "evidence": "Demo shows '<Kbd abbr=\"⌘\" abbrTitle=\"Command\">K</Kbd>' next to handleOpen, but grep for 'keydown|addEventListener|metaKey|useEffect' returns nothing in both index.tsx and the demo; open is only triggered by Button onClick={handleOpen}.",
+      "contractToken": "keyboard-search",
+      "suggestedFix": "Add an optional global hotkey to the Command root (e.g. an openShortcut prop / useEffect document keydown handler matching metaKey||ctrlKey + 'k' that calls onOpenChange(true) and preventDefault), so the advertised Cmd+K actually opens the palette like HeroUI Pro.",
+      "confidence": 0.78,
+      "verdict": "reaudit"
+    },
+    {
+      "id": "sidebar",
+      "cat": "Navigation",
+      "kind": "controlled-api",
+      "severity": "high",
+      "title": "Nav items render no real <a> anchor — client routing loses native link behavior",
+      "detail": "MenuItem renders a RAC TreeItem (role=\"row\") and intercepts href imperatively in onAction via navigate()/window.location.href, so there is no rendered anchor. HeroUI Pro sidebar items are real links, so cmd/ctrl/middle-click 'open in new tab', right-click 'copy link', and hover status-bar URL preview all fail here.",
+      "evidence": "`<TreeItem ... onAction={handleAction} data-href={href}>` with `navigate(href)` / `window.location.href = href` and no `<a href>` rendered (lines 407-432).",
+      "contractToken": "client-routing",
+      "suggestedFix": "Render an inner <a href={href}> (or RAC Link / RouterProvider integration) inside MenuItemContent so native modifier-click/new-tab/copy-link work, while keeping onAction for SPA navigation.",
+      "confidence": 0.78,
+      "verdict": "reaudit"
+    },
+    {
+      "id": "app-layout",
+      "cat": "Navigation",
+      "kind": "fake",
+      "severity": "high",
+      "title": "Mobile sidebar has no sheet/overlay — just opens a static div",
+      "detail": "The aside gets a real drag-to-close Sheet on mobile, but the sidebar does not; MenuToggle merely flips open state and the sidebar stays the same static `app-layout__sidebar` div, so on mobile there is no scrim, no dismissable overlay, and no swipe-to-close as HeroUI Pro provides.",
+      "evidence": "`MenuToggle` handlePress only does `ctx?.setSidebarOpen(true)`; `sidebarRegion` is a plain `<div className=\"app-layout__sidebar\">` with no Sheet wrapper, while aside has `AppLayoutMobileAsideSheet` with `<Sheet placement=\"right\">`.",
+      "contractToken": "mobile-sheet",
+      "suggestedFix": "Render the sidebar inside a Sheet (mirroring AppLayoutMobileAsideSheet) when below the mobile breakpoint, driven by isSidebarOpen/setSidebarOpen, so mobile gets a real overlay with backdrop + drag/dismiss.",
+      "confidence": 0.74,
+      "verdict": "reaudit"
     }
   ],
   "otherGaps": [
@@ -2281,6 +2314,126 @@
       "contractToken": "validation-state",
       "suggestedFix": "When the control is invalid, expose the helper text via aria-errormessage (or role=alert) instead of/in addition to aria-describedby so screen readers announce it as an error.",
       "confidence": 0.4
+    },
+    {
+      "id": "app-layout",
+      "cat": "Navigation",
+      "kind": "missing-interaction",
+      "severity": "medium",
+      "title": "MenuToggle is open-only; cannot close the mobile sidebar",
+      "detail": "MenuToggle hardcodes opening the sidebar and provides no way to close it, so without a Sheet backdrop or a close affordance the mobile sidebar cannot be dismissed via the toggle, diverging from HeroUI Pro's toggle behavior.",
+      "evidence": "`const handlePress = useCallback(() => { ctx?.setSidebarOpen(true); }, [ctx]);` — always `true`, never toggles, and aria-label is fixed to 'Open navigation'.",
+      "contractToken": "mobile-sheet",
+      "suggestedFix": "Have MenuToggle call `ctx?.toggleSidebar()` (or pair it with a Sheet backdrop onOpenChange) and reflect state via aria-expanded/data-state so the mobile sidebar can be closed.",
+      "confidence": 0.62
+    },
+    {
+      "id": "cell-color-picker",
+      "cat": "Forms",
+      "kind": "missing-state",
+      "severity": "medium",
+      "title": "Disabled state only disables the trigger button, not the picker value/overlay",
+      "detail": "Disabled is applied via `<CellColorPicker.Trigger isDisabled>` on the RAC Button only; the root `CellColorPicker` (RAC ColorPicker) has no isDisabled wiring, so the controlled value and any programmatically-opened overlay/area/slider remain interactive. HeroUI's disabled cell variant gates the whole picker.",
+      "evidence": "Root `CellColorPickerProps = Omit<ColorPickerProps,'className'|'variant'>` with no isDisabled handling; demo uses `<CellColorPicker.Trigger isDisabled>` while the surrounding `<CellColorPicker defaultValue=\"#EF4444\">` is unguarded.",
+      "contractToken": "disabled-state",
+      "suggestedFix": "Accept `isDisabled` on `CellColorPickerRoot` and propagate it to the Trigger via context (and disable Area/Slider/SwatchPicker children) so the entire cell is inert, matching HeroUI's disabled variant.",
+      "confidence": 0.6
+    },
+    {
+      "id": "context-menu",
+      "cat": "Navigation",
+      "kind": "missing-variant",
+      "severity": "medium",
+      "title": "No checkbox (selectionMode=\"multiple\") items variant — only single-select radio is wired in demo",
+      "detail": "The contract token is \"checkbox-radio-items\" (both modes), and HeroUI Pro shows both a checkbox (multiple) and radio (single) selection section, but only single-selection is exercised: ContextMenu.Menu selectionMode=\"single\" defaultSelectedKeys={['preview']}. The component passes selectionMode through to HeroMenu so the multiple/checkbox capability exists but is never demonstrated, leaving checkbox-item parity unverified.",
+      "evidence": "with-selection variant uses only `selectionMode=\"single\"` with `<ContextMenu.ItemIndicator />`; no `selectionMode=\"multiple\"` usage anywhere in feedback-nav-demos.tsx.",
+      "contractToken": "checkbox-radio-items",
+      "suggestedFix": "Add a checkbox variant exercising `selectionMode=\"multiple\"` with ItemIndicator to confirm multi-select indicator/toggle parity; no index.tsx change needed since selectionMode already forwards to HeroMenu.",
+      "confidence": 0.6
+    },
+    {
+      "id": "sidebar",
+      "cat": "Navigation",
+      "kind": "missing-state",
+      "severity": "medium",
+      "title": "Collapsed icon-rail nested menus have no flyout/popover for children",
+      "detail": "With collapsible=\"icon\", RAC Tree only expands children inline; when the rail is collapsed to icons there is no popover/flyout to reveal a parent's nested items, so nested-navigation is unreachable in collapsed state. HeroUI Pro surfaces children as a hover/click flyout when collapsed.",
+      "evidence": "Submenu is a pass-through `(<>{children}</>)` and Menu is a plain RAC `<Tree>` with no collapsed-state popover branch; expansion is inline-only (lines 363-374, 559).",
+      "contractToken": "nested-navigation",
+      "suggestedFix": "In collapsed icon state, render parent items' children inside a Popover/flyout (e.g. HeroUI Popover or RAC) triggered on hover/click of the icon row instead of relying on inline Tree expansion.",
+      "confidence": 0.6
+    },
+    {
+      "id": "app-layout",
+      "cat": "Navigation",
+      "kind": "missing-interaction",
+      "severity": "medium",
+      "title": "No collapse trigger / rail to toggle the desktop sidebar",
+      "detail": "The icon-collapsible sidebar width is driven entirely by CSS variables from open state, but the component exposes no built-in collapse trigger or rail; consumers must wire their own button (as the demo does), whereas HeroUI Pro ships a sidebar trigger/rail control as part of the layout.",
+      "evidence": "`sidebarCollapsible='icon'` only affects `sidebarWidthVar` (collapsedSidebarWidth); the only exported triggers are `MenuToggle` (mobile, open-only) and `AsideTrigger`. Demo hand-rolls `<Button onClick={handleToggle}>收起侧栏</Button>`.",
+      "contractToken": "sidebar-collapse",
+      "suggestedFix": "Expose an `AppLayout.SidebarTrigger`/Rail subcomponent that calls `toggleSidebar()` and reflects collapsed/expanded data-state, matching HeroUI Pro's collapse control.",
+      "confidence": 0.55
+    },
+    {
+      "id": "app-layout",
+      "cat": "Navigation",
+      "kind": "controlled-api",
+      "severity": "medium",
+      "title": "Sidebar resizable silently disabled in icon-collapsible (default) mode",
+      "detail": "`sidebarResizable` only takes effect when collapsible is 'offcanvas' or 'none', so with the default `collapsible='icon'` a consumer setting `sidebarResizable` gets no resize handle and no warning — a silent no-op that diverges from HeroUI Pro's resizable sidebar areas.",
+      "evidence": "`const resolvedSidebarResizable = hasSidebar && sidebarResizable && (sidebarCollapsible === 'offcanvas' || sidebarCollapsible === 'none');`",
+      "contractToken": "resizable-areas",
+      "suggestedFix": "Either support resizing in icon mode (resize between collapsed/expanded bounds) or document/warn; at minimum allow resize to coexist with icon collapse as HeroUI Pro does.",
+      "confidence": 0.5
+    },
+    {
+      "id": "app-layout",
+      "cat": "Navigation",
+      "kind": "missing-state",
+      "severity": "low",
+      "title": "persisted-state restores nothing on mount (write-only cookie)",
+      "detail": "The component writes `sidebar_state`/`aside_state` cookies but never reads them to initialize open state, so persisted collapse state is not restored on the client after navigation/reload, unlike HeroUI Pro which hydrates from the persisted cookie.",
+      "evidence": "Two effects only `document.cookie = ...`; `useControllableOpen` initializes from `defaultSidebarOpen`/`defaultAsideOpen` with no cookie read.",
+      "contractToken": "persisted-state",
+      "suggestedFix": "On mount (uncontrolled), read the `sidebar_state`/`aside_state` cookie and seed initial open state so persistence round-trips.",
+      "confidence": 0.55
+    },
+    {
+      "id": "context-menu",
+      "cat": "Navigation",
+      "kind": "a11y",
+      "severity": "low",
+      "title": "Submenu Popover has no accessible name while root Popover does",
+      "detail": "ContextMenuPopover sets aria-label=\"Context menu\" on its RAC Popover (role=\"dialog\"), but ContextMenuSubmenuPopover renders a bare RAC <Popover> with no aria-label/aria-labelledby, so the submenu overlay's dialog node lacks an accessible name — inconsistent with the root and the same class of axe dialog-name issue the test file flags.",
+      "evidence": "Root: `<Popover aria-label=\"Context menu\" ...>` (line 385); Submenu: `ContextMenuSubmenuPopover` renders `<Popover offset placement className style {...rest}>` with no aria-label (lines 454-462).",
+      "contractToken": "submenu",
+      "suggestedFix": "Default an aria-label (or label association with the inner submenu Menu) on the SubmenuPopover's RAC Popover, mirroring the root ContextMenuPopover.",
+      "confidence": 0.5
+    },
+    {
+      "id": "sidebar",
+      "cat": "Navigation",
+      "kind": "missing-interaction",
+      "severity": "low",
+      "title": "Rail only toggles collapse — no drag-to-resize width",
+      "detail": "The Rail is a click-to-toggle button (tabIndex={-1}, onClick→toggleSidebar) with a resize cursor but no pointer-drag handler, so the sidebar width is fixed. HeroUI Pro's rail supports drag-to-resize; the resize cursor here implies an affordance the component does not deliver.",
+      "evidence": "`<button ... tabIndex={-1} aria-label=\"Toggle sidebar\" onClick={handleClick} />` where handleClick only calls toggleSidebar() — no onPointerDown/move resize logic (lines 578-598).",
+      "contractToken": "collapse-state",
+      "suggestedFix": "Add optional pointer-drag resizing on Rail (onPointerDown/move writing a width CSS var) gated behind a prop, or drop the resize cursor to avoid implying resize support.",
+      "confidence": 0.5
+    },
+    {
+      "id": "cell-color-picker",
+      "cat": "Forms",
+      "kind": "missing-variant",
+      "severity": "low",
+      "title": "No hex/text color field for direct value entry",
+      "detail": "The component exposes Area, Slider, SwatchPicker, Swatch, Label and ValueDisplay but no editable hex/channel input subcomponent; HeroUI's color picker variants typically include a text field for typing a color value, and the contract implies 6 variant sections.",
+      "evidence": "Exported subcomponents in index.tsx are Trigger, Label, ValueDisplay, Swatch, Popover, Area, Slider, SwatchPicker only — ValueDisplay is a read-only `<span>` (`state.color.toString('hex')`), never an input.",
+      "contractToken": "presets",
+      "suggestedFix": "Add a `CellColorPicker.Field`/`ColorField` (or editable hex input) subcomponent wrapping RAC ColorField so users can type a value, covering the format/input variant.",
+      "confidence": 0.4
     }
   ],
   "perComponentSummaries": [
@@ -2613,6 +2766,83 @@
       "solid": false,
       "summary": "Real implementation: @heroui/react Drawer (RAC DialogTrigger/ModalOverlay/Modal/Dialog) as the modal/focus-trap base, with a Motion (framer-motion) drag layer on Sheet.Dialog for drag-to-dismiss and discrete snap stepping; all 16 HeroUI variant sections have real composed demos. Core gaps are in snap-point fidelity (no continuous follow / nearest-snap), a missing isModal prop, and a missing preventCycle prop documented by HeroUI.",
       "gapCount": 6
+    }
+  ],
+  "reauditedAt": "2026-06-19",
+  "batch1Fixed": [
+    "text-shimmer",
+    "carousel",
+    "chat-conversation",
+    "empty-state",
+    "pressable-feedback",
+    "action-bar",
+    "rich-text-editor"
+  ],
+  "batch1Skipped": {
+    "file-tree": "removing hardcoded chevron aria-label regresses passing axe test; deferred fidelity item per RAC source"
+  },
+  "incidentalFindings": [
+    {
+      "id": "rich-text-editor",
+      "kind": "dom-semantics",
+      "title": "LinkPopover trigger nested inside Popover pressable → duplicate role=button name=Link (nested button)",
+      "severity": "medium"
+    }
+  ],
+  "reauditSummaries": [
+    {
+      "id": "emoji-reaction-button",
+      "solid": true,
+      "summary": "Real react-aria-components ToggleButton wrapper: genuine toggle semantics with onChange/data-selected output, consumer-driven Emoji/Count slots, and a readonly mode that cuts the onChange channel while preserving selected display — faithfully matches HeroUI Pro's 4 variant sections (default/disabled/read-only/sizes) with no fakes.",
+      "gapCount": 0
+    },
+    {
+      "id": "cell-color-picker",
+      "solid": false,
+      "summary": "Built on real RAC/HeroUI engines (ColorPicker, ColorArea, ColorSlider, ColorSwatchPicker, ColorSwatch) with genuine controlled value, popover overlay, presets and area/slider drag — no fakes; the four contract tokens (popover-picker, presets, controlled-value, disabled-state) are all wired, with only minor gaps around disabled overlay propagation and a missing hex/format input.",
+      "gapCount": 2
+    },
+    {
+      "id": "number-stepper",
+      "solid": true,
+      "summary": "Built on real react-aria-components NumberField (genuine increment/decrement, keyboard arrows/typing, min/max clamping, controlled+uncontrolled value) with @number-flow/react animated value display; all 13 documented variants are wired in the demo registry and all four contract tokens map to real RAC behavior.",
+      "gapCount": 0
+    },
+    {
+      "id": "app-layout",
+      "solid": false,
+      "summary": "Real engine work is present (controllable open hooks, cookie persistence, mod+b shortcut, Resizable panels, and a true Motion drag-to-close Sheet for the mobile aside), but the mobile sidebar has no overlay/sheet treatment and the icon-collapse rail is purely CSS-width with no real collapsed-rail interaction surface — the two biggest parity gaps vs HeroUI Pro.",
+      "gapCount": 5
+    },
+    {
+      "id": "command",
+      "solid": false,
+      "summary": "Built on real react-aria primitives (ModalOverlay/Modal/Dialog + Autocomplete/useFilter + Menu/MenuSection) so command-dialog, grouped-results, shortcut-display, and live keyboard-search filtering are genuine; the only real gap is the global Cmd+K open shortcut, which is purely a decorative Kbd hint with no listener.",
+      "gapCount": 1
+    },
+    {
+      "id": "context-menu",
+      "solid": false,
+      "summary": "Real-engine wrapper: RAC Popover (cursor-anchored via a 0-size virtual anchor div) + HeroUI Menu, with genuine controlled/uncontrolled open, right-click/long-press/Shift+F10 triggers, submenus (SubmenuTrigger/SubmenuPopover), sections, separators, and selection passthrough — quality is high and the contract tokens are all backed by real interaction code; gaps are narrow.",
+      "gapCount": 2
+    },
+    {
+      "id": "segment",
+      "solid": true,
+      "summary": "Real react-aria-components ToggleButtonGroup/ToggleButton implementation with genuine FLIP slide indicator animation; single-select, controlled-value, and keyboard-navigation are all real (RAC-native) and test-covered, matching HeroUI Pro segment parity.",
+      "gapCount": 0
+    },
+    {
+      "id": "sidebar",
+      "solid": false,
+      "summary": "Real implementation built on a genuine engine: RAC Tree/TreeItem drives the menu (real roving-focus keyboard nav, typeahead, nested inline expand/collapse), the repo's Sheet (Drawer + RAC focus trap) powers mobile, and open state is properly controlled/uncontrolled with cookie persistence, a mod+b shortcut, and a navigate() hook — not a facade. Gaps are narrow: client-routing items lack real anchor semantics, and collapsed-icon nested menus have no flyout.",
+      "gapCount": 3
+    },
+    {
+      "id": "stepper",
+      "solid": true,
+      "summary": "Plain semantic compound component (ol/li + context-driven slots, no RAC needed since HeroUI Pro Stepper is likewise presentational); real controlled/uncontrolled step state, both orientations, all sizes, derived step-state, native button steps when interactive, and all 19 variant sections wired in demos — no code-grounded parity gaps.",
+      "gapCount": 0
     }
   ]
 }
