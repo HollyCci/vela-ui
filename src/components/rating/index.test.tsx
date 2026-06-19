@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { render, screen, within, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
 import Rating from './index';
@@ -74,8 +74,48 @@ describe('Rating', () => {
     const radios = screen.getAllByRole('radio');
     await user.click(radios[4]); // value=5
     expect(onValueChange).toHaveBeenCalledWith(5);
-    // 受控 prop 未变，第三项仍不 active
+    // 移开指针以排除悬停预览，断言已提交态：受控 prop 未变，第三项仍不 active
+    await user.unhover(radios[4]);
     expect(items[2]).not.toHaveAttribute('data-active');
+  });
+
+  it('previews the hovered value via data-active and reverts on hover end', () => {
+    const { container } = renderRating({ defaultValue: 1 });
+    const items = getItems(container);
+    // 初始仅第一项 active
+    expect(items[0]).toHaveAttribute('data-active', 'true');
+    expect(items[2]).not.toHaveAttribute('data-active');
+
+    // 悬停第四颗星 → 前四项预览为 active（RAC useHover 需 mouse 指针类型）
+    fireEvent.pointerEnter(items[3], { pointerType: 'mouse' });
+    expect(items[0]).toHaveAttribute('data-active', 'true');
+    expect(items[2]).toHaveAttribute('data-active', 'true');
+    expect(items[3]).toHaveAttribute('data-active', 'true');
+    expect(items[4]).not.toHaveAttribute('data-active');
+
+    // 离开 → 恢复到已提交的 1 分
+    fireEvent.pointerLeave(items[3], { pointerType: 'mouse' });
+    expect(items[0]).toHaveAttribute('data-active', 'true');
+    expect(items[1]).not.toHaveAttribute('data-active');
+    expect(items[3]).not.toHaveAttribute('data-active');
+  });
+
+  it('skips hover preview when read-only', () => {
+    const { container } = render(
+      <Rating aria-label="评分" value={2} isReadOnly>
+        <Rating.Item value={1} />
+        <Rating.Item value={2} />
+        <Rating.Item value={3} />
+        <Rating.Item value={4} />
+        <Rating.Item value={5} />
+      </Rating>,
+    );
+    const items = getItems(container);
+    fireEvent.pointerEnter(items[4], { pointerType: 'mouse' });
+    // 只读不预览：仍只有前两项 active
+    expect(items[1]).toHaveAttribute('data-active', 'true');
+    expect(items[2]).not.toHaveAttribute('data-active');
+    expect(items[4]).not.toHaveAttribute('data-active');
   });
 
   it('renders a partial overlay for fractional controlled value', () => {

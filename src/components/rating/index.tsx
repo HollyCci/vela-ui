@@ -51,9 +51,18 @@ type RatingContextValue = {
   /** 当前评分数值（含小数），供 data-active / 半星计算 */
   value: number;
   icon?: ReactNode;
+  /** 指针悬停预览到的分值（null 表示未悬停）；只读/禁用时恒为 null */
+  hoverValue: number | null;
+  /** 设置悬停预览分值；只读/禁用时为空函数 */
+  setHoverValue: (value: number | null) => void;
 };
 
-const RatingContext = createContext<RatingContextValue>({ size: 'md', value: 0 });
+const RatingContext = createContext<RatingContextValue>({
+  size: 'md',
+  value: 0,
+  hoverValue: null,
+  setHoverValue: () => {},
+});
 
 /** 参考实现默认星形图标（与基准快照 SVG path 一致） */
 const StarIcon = () => (
@@ -63,15 +72,28 @@ const StarIcon = () => (
 );
 StarIcon.displayName = 'Rating.StarIcon';
 
+const noop = () => {};
+
 /**
  * 包装 RAC Radio 的单个评分项：选中/按压/只读/禁用等 data 属性由 RAC 输出，
  * data-active 标记当前分值覆盖到的项（与 RAC 单选的 data-selected 区分）。
  */
-const Item = ({ value, children, className, ...rest }: RatingItemProps) => {
-  const { size, value: rating, icon } = useContext(RatingContext);
+const Item = ({
+  value,
+  children,
+  className,
+  onHoverStart,
+  onHoverEnd,
+  ...rest
+}: RatingItemProps) => {
+  const { size, value: rating, icon, hoverValue, setHoverValue } = useContext(RatingContext);
 
-  const isActive = value <= rating;
-  const isPartial = !isActive && rating > value - 1 && rating < value;
+  // 悬停预览时以悬停分值（整数填充）驱动 data-active/填充，否则用已提交分值；
+  // 预览态不显示半星覆盖层（与基准的整星预览一致）。
+  const isPreviewing = hoverValue !== null;
+  const fill = isPreviewing ? hoverValue : rating;
+  const isActive = value <= fill;
+  const isPartial = !isPreviewing && !isActive && rating > value - 1 && rating < value;
   const partialPercent = isPartial ? Math.round((rating - (value - 1)) * 100) : 0;
 
   let content: ReactNode;
@@ -102,6 +124,14 @@ const Item = ({ value, children, className, ...rest }: RatingItemProps) => {
     <Radio
       aria-label={value === 1 ? '1 star' : `${value} stars`}
       {...rest}
+      onHoverStart={(e) => {
+        setHoverValue(value);
+        onHoverStart?.(e);
+      }}
+      onHoverEnd={(e) => {
+        setHoverValue(null);
+        onHoverEnd?.(e);
+      }}
       data-slot="rating-item"
       data-active={isActive || undefined}
       value={String(value)}
@@ -124,8 +154,13 @@ const RatingRoot = forwardRef<HTMLDivElement, RatingProps>(
     ref,
   ) => {
     const [internalValue, setInternalValue] = useState(defaultValue ?? 0);
+    const [hoverValue, setHoverValue] = useState<number | null>(null);
     const rating = value ?? internalValue;
     const selected = Math.floor(rating);
+
+    // 只读/禁用时不预览（rest 中保留这两个 prop 透传给 RadioGroup）
+    const isInteractive = !rest.isReadOnly && !rest.isDisabled;
+    const handleHover = isInteractive ? setHoverValue : noop;
 
     const handleChange = (next: string) => {
       const nextValue = Number(next);
@@ -134,7 +169,9 @@ const RatingRoot = forwardRef<HTMLDivElement, RatingProps>(
     };
 
     return (
-      <RatingContext.Provider value={{ size, value: rating, icon }}>
+      <RatingContext.Provider
+        value={{ size, value: rating, icon, hoverValue: isInteractive ? hoverValue : null, setHoverValue: handleHover }}
+      >
         <RadioGroup
           aria-label="Rating"
           {...rest}
