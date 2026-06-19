@@ -69,54 +69,43 @@ const MeterDemo = () => (
 
 const RATING_VALUES = [1, 2, 3, 4, 5];
 
-const RatingDemo = () => {
-  const [score, setScore] = useState(3);
-
-  return (
-    <>
-      <DemoSection label="受控（点击或方向键打分，按下星星有缩放反馈）">
-        <Rating aria-label="评分" value={score} onValueChange={setScore}>
-          {RATING_VALUES.map((v) => (
-            <Rating.Item key={v} value={v} />
-          ))}
-        </Rating>
-        <span>当前 {score} 分</span>
-      </DemoSection>
-      <DemoSection label="只读（半星）与禁用">
-        <Rating aria-label="3.5 out of 5 stars" value={3.5} isReadOnly>
-          {RATING_VALUES.map((v) => (
-            <Rating.Item key={v} value={v} />
-          ))}
-        </Rating>
-        <Rating aria-label="4 out of 5 stars" size="lg" value={4} isReadOnly>
-          {RATING_VALUES.map((v) => (
-            <Rating.Item key={v} value={v} />
-          ))}
-        </Rating>
-        <Rating aria-label="评分（禁用）" size="sm" value={2} isDisabled>
-          {RATING_VALUES.map((v) => (
-            <Rating.Item key={v} value={v} />
-          ))}
-        </Rating>
-      </DemoSection>
-    </>
-  );
-};
+const RatingDemo = () => (
+  <DemoSection label="Usage">
+    <Rating aria-label="3 out of 5 stars" defaultValue={3}>
+      {RATING_VALUES.map((v) => (
+        <Rating.Item key={v} value={v} />
+      ))}
+    </Rating>
+  </DemoSection>
+);
 
 const TrendChipDemo = () => (
-  <DemoSection label="趋势指标">
-    <TrendChip trend="up" value="12.5%" suffix="环比" />
-    <TrendChip trend="down" value="3.2%" suffix="较昨日" />
+  <DemoSection label="Usage">
+    <TrendChip trend="up" value="+3.3%" />
+    <TrendChip trend="down" value="-2.1%" />
     <TrendChip trend="neutral" value="0.0%" />
-    <TrendChip trend="up" value="8.4%" size="sm" />
   </DemoSection>
 );
 
 const NumberValueDemo = () => (
-  <DemoSection label="数字格式化">
-    <NumberValue value={1234567.89} />
-    <NumberValue value={0.4567} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
-    <NumberValue value={9988} formatOptions={{ style: 'currency', currency: 'CNY' }} />
+  <DemoSection label="Usage" isColumn>
+    {(
+      [
+        ['USD', 'USD'],
+        ['EUR', 'EUR'],
+        ['JPY', 'JPY'],
+        ['GBP', 'GBP'],
+      ] as const
+    ).map(([label, currency]) => (
+      <div key={currency} style={VARIANT_ROW_STYLE}>
+        <span style={{ ...VARIANT_MUTED_STYLE, width: 48 }}>{label}</span>
+        <NumberValue
+          value={228441}
+          locale="en-US"
+          formatOptions={{ style: 'currency', currency }}
+        />
+      </div>
+    ))}
   </DemoSection>
 );
 
@@ -204,35 +193,31 @@ const PressableFeedbackDemo = () => {
 };
 
 const EmojiReactionButtonDemo = () => {
-  const [isLiked, setIsLiked] = useState(false);
+  const [isLiked, setIsLiked] = useState(true);
 
   return (
-    <>
-      <DemoSection label="受控切换（悬停变底色，按下缩放）">
-        <EmojiReactionButton isSelected={isLiked} onChange={setIsLiked}>
-          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>{isLiked ? 13 : 12}</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-        <EmojiReactionButton defaultSelected size="lg">
-          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>28</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-        <EmojiReactionButton size="sm">
-          <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>5</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-      </DemoSection>
-      <DemoSection label="只读与禁用">
-        <EmojiReactionButton isSelected isReadOnly>
-          <EmojiReactionButton.Emoji>👀</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-        <EmojiReactionButton isDisabled>
-          <EmojiReactionButton.Emoji>😂</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>7</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-      </DemoSection>
-    </>
+    <DemoSection label="Usage">
+      <EmojiReactionButton isSelected={isLiked} onChange={setIsLiked}>
+        <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>12</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+      <EmojiReactionButton>
+        <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>1</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+      <EmojiReactionButton>
+        <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>5</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+      <EmojiReactionButton>
+        <EmojiReactionButton.Emoji>😂</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+      <EmojiReactionButton>
+        <EmojiReactionButton.Emoji>🚀</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>1</EmojiReactionButton.Count>
+      </EmojiReactionButton>
+    </DemoSection>
   );
 };
 
@@ -429,57 +414,28 @@ const TabsDemo = () => {
   );
 };
 
-const SEGMENT_RANGES = [
-  { id: 'day', label: '日' },
-  { id: 'week', label: '周' },
-  { id: 'month', label: '月' },
-  { id: 'year', label: '年', isDisabled: true },
-];
 
 const SegmentDemo = () => {
-  const [range, setRange] = useState<DemoKey>('week');
+  const [range, setRange] = useState<DemoKey>('dashboard');
 
   return (
-    <>
-      <DemoSection label="受控 + 同步两种尺寸">
-        <Segment aria-label="统计周期" selectedKey={range} onSelectionChange={setRange}>
-          {SEGMENT_RANGES.map((r) => (
-            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
-              {r.label}
-            </Segment.Item>
-          ))}
-        </Segment>
-        <Segment
-          aria-label="统计周期（小尺寸）"
-          selectedKey={range}
-          size="sm"
-          onSelectionChange={setRange}
-        >
-          {SEGMENT_RANGES.map((r) => (
-            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
-              {r.label}
-            </Segment.Item>
-          ))}
-        </Segment>
-      </DemoSection>
-      <DemoSection label="ghost 变体（非受控）">
-        <Segment aria-label="视图" defaultSelectedKey="day" variant="ghost">
-          {SEGMENT_RANGES.map((r) => (
-            <Segment.Item key={r.id} id={r.id} isDisabled={r.isDisabled}>
-              {r.label}
-            </Segment.Item>
-          ))}
-        </Segment>
-      </DemoSection>
-    </>
+    <DemoSection label="Usage">
+      <Segment aria-label="View" selectedKey={range} onSelectionChange={setRange}>
+        {SEGMENT_VARIANT_ITEMS.map((item) => (
+          <Segment.Item key={item.id} id={item.id}>
+            {item.label}
+          </Segment.Item>
+        ))}
+      </Segment>
+    </DemoSection>
   );
 };
 
 const STEPPER_STEPS = [
-  { title: '填写信息', description: '基础资料' },
-  { title: '上传材料', description: '相关证明' },
-  { title: '审核确认', description: '1-2 个工作日' },
-  { title: '完成', description: '开通成功' },
+  { title: 'Cart', description: 'Review items' },
+  { title: 'Shipping', description: 'Delivery address' },
+  { title: 'Payment', description: 'Card details' },
+  { title: 'Confirmation', description: 'Order placed' },
 ];
 
 const StepperDemo = () => {
@@ -489,7 +445,7 @@ const StepperDemo = () => {
 
   return (
     <>
-      <DemoSection label="受控 + 可点击（点任意步骤跳转，连接线随进度填充）" isColumn>
+      <DemoSection label="Usage" isColumn>
         <Stepper currentStep={currentStep} onStepChange={handleStepChange} style={{ maxWidth: 560 }}>
           {STEPPER_STEPS.map((step) => (
             <Stepper.Step key={step.title}>
@@ -500,11 +456,8 @@ const StepperDemo = () => {
             </Stepper.Step>
           ))}
         </Stepper>
-        <span>
-          当前第 {currentStep + 1} 步：{STEPPER_STEPS[currentStep].title}
-        </span>
       </DemoSection>
-      <DemoSection label="垂直 / 小尺寸 / 状态展示">
+      <DemoSection label="Vertical">
         <Stepper orientation="vertical" size="sm" currentStep={1}>
           {STEPPER_STEPS.map((step) => (
             <Stepper.Step key={step.title}>
@@ -547,9 +500,10 @@ const LinkDemo = () => {
 };
 
 const NAVBAR_LINKS = [
-  { href: '/app/dashboard', label: '工作台' },
-  { href: '/app/students', label: '学员管理' },
-  { href: '/app/schedule', label: '排班' },
+  { href: '/features', label: 'Features' },
+  { href: '/customers', label: 'Customers' },
+  { href: '/integrations', label: 'Integrations' },
+  { href: '/pricing', label: 'Pricing' },
 ];
 
 const NAVBAR_SCROLL_CONTAINER_STYLE: CSSProperties = {
@@ -578,17 +532,17 @@ const NAVBAR_MENU_CONTAINER_STYLE: CSSProperties = {
 const NavbarDemo = () => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [activeHref, setActiveHref] = useState('/app/dashboard');
+  const [activeHref, setActiveHref] = useState('/customers');
 
   const handleMenuOpenChange = (isOpen: boolean) => setIsMenuOpen(isOpen);
   const handleNavigate = (href: string) => setActiveHref(href);
   const activeLabel =
     NAVBAR_LINKS.find((link) => link.href === activeHref)?.label ??
-    (activeHref === '/app/settings' ? '设置' : '工作台');
+    (activeHref === '/settings' ? 'Settings' : 'Features');
 
   return (
     <>
-      <DemoSection label="hide-on-scroll（在容器内下滑隐藏、上滑恢复）" isColumn>
+      <DemoSection label="Usage" isColumn>
         <div ref={scrollContainerRef} style={NAVBAR_SCROLL_CONTAINER_STYLE}>
           <Navbar
             maxWidth="full"
@@ -598,7 +552,7 @@ const NavbarDemo = () => {
           >
             <Navbar.Header>
               <Navbar.Brand>
-                <strong>Matrix</strong>
+                <strong>hero</strong>
               </Navbar.Brand>
               <Navbar.Content>
                 {NAVBAR_LINKS.map((link) => (
@@ -610,18 +564,18 @@ const NavbarDemo = () => {
               <Navbar.Spacer />
               <Navbar.Content>
                 <Navbar.Separator />
-                <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
-                  设置
+                <Navbar.Item href="/settings" isCurrent={activeHref === '/settings'}>
+                  Settings
                 </Navbar.Item>
               </Navbar.Content>
             </Navbar.Header>
           </Navbar>
           <div style={NAVBAR_SCROLL_FILLER_STYLE}>
-            向下滚动隐藏导航栏，向上滚动立即恢复。当前：{activeLabel}
+            Scroll down to hide the navbar, scroll up to restore. Current: {activeLabel}
           </div>
         </div>
       </DemoSection>
-      <DemoSection label="移动菜单（受控 MenuToggle，汉堡图标切换为关闭）" isColumn>
+      <DemoSection label="With Menu" isColumn>
         <div style={NAVBAR_MENU_CONTAINER_STYLE}>
           <Navbar
             position="static"
@@ -633,7 +587,7 @@ const NavbarDemo = () => {
           >
             <Navbar.Header>
               <Navbar.Brand>
-                <strong>Matrix</strong>
+                <strong>hero</strong>
               </Navbar.Brand>
               <Navbar.Spacer />
               <Navbar.MenuToggle />
@@ -648,7 +602,7 @@ const NavbarDemo = () => {
           </Navbar>
         </div>
         <span>
-          移动菜单{isMenuOpen ? '已展开（点菜单项自动收起）' : '已收起'} · 当前：{activeLabel}
+          {isMenuOpen ? 'Menu open (tap an item to close)' : 'Menu closed'} · Current: {activeLabel}
         </span>
       </DemoSection>
     </>
@@ -757,61 +711,30 @@ const ContextMenuDemo = () => {
   const handleAction = (key: ReactKey) => setLastItem(String(key));
 
   return (
-    <>
-      <DemoSection label="右键区域 → 光标处打开 · 键盘导航 · Esc/点击外部关闭" isColumn>
-        <ContextMenu>
-          <ContextMenu.Trigger>
-            <div style={CONTEXT_MENU_TARGET_STYLE}>在此处右键</div>
-          </ContextMenu.Trigger>
-          <ContextMenu.Popover>
-            <ContextMenu.Menu aria-label="操作" onAction={handleAction}>
-              <ContextMenu.Item id="back" textValue="后退">
-                后退
-              </ContextMenu.Item>
-              <ContextMenu.Item id="forward" textValue="前进" isDisabled>
-                前进
-              </ContextMenu.Item>
-              <ContextMenu.Item id="reload" textValue="重新加载">
-                重新加载
-              </ContextMenu.Item>
-              <ContextMenu.Item id="save" textValue="另存为">
-                另存为…
-              </ContextMenu.Item>
-            </ContextMenu.Menu>
-          </ContextMenu.Popover>
-        </ContextMenu>
-        <span>{lastItem ? `已选择：${lastItem}` : '尚未操作'}</span>
-      </DemoSection>
-      <DemoSection label="分组 · 分隔线 · 危险项（variant=danger）" isColumn>
-        <ContextMenu>
-          <ContextMenu.Trigger>
-            <div style={CONTEXT_MENU_TARGET_STYLE}>右键查看完整菜单</div>
-          </ContextMenu.Trigger>
-          <ContextMenu.Popover>
-            <ContextMenu.Menu aria-label="文件操作" onAction={handleAction}>
-              <ContextMenu.Section>
-                <ContextMenu.Item id="cut" textValue="剪切">
-                  剪切
-                </ContextMenu.Item>
-                <ContextMenu.Item id="copy" textValue="复制">
-                  复制
-                </ContextMenu.Item>
-                <ContextMenu.Item id="paste" textValue="粘贴">
-                  粘贴
-                </ContextMenu.Item>
-              </ContextMenu.Section>
-              <ContextMenu.Separator />
-              <ContextMenu.Item id="rename" textValue="重命名">
-                重命名
-              </ContextMenu.Item>
-              <ContextMenu.Item id="delete" textValue="删除" variant="danger">
-                删除
-              </ContextMenu.Item>
-            </ContextMenu.Menu>
-          </ContextMenu.Popover>
-        </ContextMenu>
-      </DemoSection>
-    </>
+    <DemoSection label="Usage" isColumn>
+      <ContextMenu>
+        <ContextMenu.Trigger>
+          <div style={CONTEXT_MENU_TARGET_STYLE}>Right-click here</div>
+        </ContextMenu.Trigger>
+        <ContextMenu.Popover>
+          <ContextMenu.Menu aria-label="Actions" onAction={handleAction}>
+            <ContextMenu.Item id="back" textValue="Back">
+              Back
+            </ContextMenu.Item>
+            <ContextMenu.Item id="forward" textValue="Forward" isDisabled>
+              Forward
+            </ContextMenu.Item>
+            <ContextMenu.Item id="reload" textValue="Reload">
+              Reload
+            </ContextMenu.Item>
+            <ContextMenu.Item id="save" textValue="Save as">
+              Save as…
+            </ContextMenu.Item>
+          </ContextMenu.Menu>
+        </ContextMenu.Popover>
+      </ContextMenu>
+      {lastItem && <span style={VARIANT_MUTED_STYLE}>Selected: {lastItem}</span>}
+    </DemoSection>
   );
 };
 
@@ -825,7 +748,7 @@ const RESIZABLE_PANEL_STYLE: CSSProperties = {
 };
 
 const ResizableDemo = () => {
-  const [sizes, setSizes] = useState<number[]>([50, 50]);
+  const [sizes, setSizes] = useState<number[]>([30, 70]);
   const [vSizes, setVSizes] = useState<number[]>([40, 60]);
 
   const handleLayout = (next: number[]) => setSizes(next);
@@ -833,33 +756,33 @@ const ResizableDemo = () => {
 
   return (
     <>
-      <DemoSection label="水平（拖拽中缝或方向键调整两侧面板）" isColumn>
+      <DemoSection label="Usage" isColumn>
         <Resizable
           orientation="horizontal"
           onLayout={handleLayout}
           style={{ width: 520, height: 200, border: '1px solid var(--separator)', borderRadius: 12 }}
         >
-          <Resizable.Panel defaultSize={50} minSize={20} style={RESIZABLE_PANEL_STYLE}>
-            侧栏 {Math.round(sizes[0])}%
+          <Resizable.Panel defaultSize={30} minSize={15} maxSize={45} style={RESIZABLE_PANEL_STYLE}>
+            Sidebar {Math.round(sizes[0])}%
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
-          <Resizable.Panel defaultSize={50} minSize={20} style={RESIZABLE_PANEL_STYLE}>
-            内容 {Math.round(sizes[1])}%
+          <Resizable.Panel defaultSize={70} minSize={20} style={RESIZABLE_PANEL_STYLE}>
+            Main content {Math.round(sizes[1])}%
           </Resizable.Panel>
         </Resizable>
       </DemoSection>
-      <DemoSection label="垂直" isColumn>
+      <DemoSection label="Vertical" isColumn>
         <Resizable
           orientation="vertical"
           onLayout={handleVLayout}
           style={{ width: 360, height: 280, border: '1px solid var(--separator)', borderRadius: 12 }}
         >
           <Resizable.Panel defaultSize={40} minSize={15} style={RESIZABLE_PANEL_STYLE}>
-            上 {Math.round(vSizes[0])}%
+            Top {Math.round(vSizes[0])}%
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
           <Resizable.Panel defaultSize={60} minSize={15} style={RESIZABLE_PANEL_STYLE}>
-            下 {Math.round(vSizes[1])}%
+            Bottom {Math.round(vSizes[1])}%
           </Resizable.Panel>
         </Resizable>
       </DemoSection>
@@ -868,10 +791,10 @@ const ResizableDemo = () => {
 };
 
 const APP_LAYOUT_NAV: { id: string; label: string }[] = [
-  { id: 'dashboard', label: '仪表盘' },
-  { id: 'students', label: '学员' },
-  { id: 'courses', label: '课程' },
-  { id: 'settings', label: '设置' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'tracker', label: 'Tracker' },
+  { id: 'settings', label: 'Settings' },
 ];
 
 const AppLayoutDemo = () => {
@@ -885,7 +808,7 @@ const AppLayoutDemo = () => {
   };
 
   return (
-    <DemoSection isColumn>
+    <DemoSection label="Usage" isColumn>
       <AppLayout
         sidebarOpen={sidebarOpen}
         onSidebarOpenChange={setSidebarOpen}
@@ -915,14 +838,14 @@ const AppLayoutDemo = () => {
         navbar={
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, height: 52, padding: '0 16px' }}>
             <Button size="sm" variant="ghost" onClick={handleToggle}>
-              {sidebarOpen ? '收起侧栏' : '展开侧栏'}
+              {sidebarOpen ? 'Collapse' : 'Expand'}
             </Button>
             <span style={{ fontWeight: 600 }}>{APP_LAYOUT_NAV.find((n) => n.id === active)?.label}</span>
           </div>
         }
       >
         <div style={{ padding: 24, color: 'var(--muted)' }}>
-          主内容区 · 当前：{active} · 侧栏{sidebarOpen ? '展开' : '收起'}
+          Main content area. Resize to mobile to see the sidebar collapse into a sheet.
         </div>
       </AppLayout>
     </DemoSection>
@@ -930,10 +853,10 @@ const AppLayoutDemo = () => {
 };
 
 const SIDEBAR_ITEMS: { id: string; label: string }[] = [
-  { id: 'dashboard', label: '仪表盘' },
-  { id: 'students', label: '学员' },
-  { id: 'courses', label: '课程' },
-  { id: 'settings', label: '设置' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'tracker', label: 'Tracker' },
+  { id: 'settings', label: 'Settings' },
 ];
 
 const SidebarDemo = () => {
@@ -982,8 +905,8 @@ const SidebarDemo = () => {
             </Sidebar.Header>
             <Sidebar.Content>
               <Sidebar.Group>
-                <Sidebar.GroupLabel>导航</Sidebar.GroupLabel>
-                <Sidebar.Menu aria-label="导航">
+                <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
+                <Sidebar.Menu aria-label="Navigation">
                   {SIDEBAR_ITEMS.map((item) => (
                     <Sidebar.MenuItem
                       key={item.id}
@@ -1028,8 +951,8 @@ const SidebarDemo = () => {
             </Sidebar.Header>
             <Sidebar.Content>
               <Sidebar.Group>
-                <Sidebar.GroupLabel>导航</Sidebar.GroupLabel>
-                <Sidebar.Menu aria-label="移动端导航">
+                <Sidebar.GroupLabel>Navigation</Sidebar.GroupLabel>
+                <Sidebar.Menu aria-label="Mobile navigation">
                   {SIDEBAR_ITEMS.map((item) => (
                     <Sidebar.MenuItem
                       key={`${item.id}-mobile`}
@@ -1051,7 +974,7 @@ const SidebarDemo = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
               <Sidebar.Trigger />
               <span style={{ color: 'var(--muted)', fontSize: 14 }}>
-                当前：{current} · 侧栏{open ? '展开' : '收起'}
+                Main content area. Resize to mobile to see the Sheet sidebar.
               </span>
             </div>
           </Sidebar.Main>
@@ -1109,23 +1032,28 @@ const RatingItems = ({
 );
 
 const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
-  const [isSelected, setSelected] = useState(variant !== 'disabled');
+  const [isSelected, setSelected] = useState(true);
 
   if (variant === 'sizes') {
     return (
-      <DemoSection label="sizes">
-        <EmojiReactionButton size="sm" defaultSelected>
-          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>8</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-        <EmojiReactionButton defaultSelected>
-          <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>24</EmojiReactionButton.Count>
-        </EmojiReactionButton>
-        <EmojiReactionButton size="lg" defaultSelected>
-          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>128</EmojiReactionButton.Count>
-        </EmojiReactionButton>
+      <DemoSection label="sizes" isColumn>
+        {(['sm', 'md', 'lg'] as const).map((size) => (
+          <div key={size} style={VARIANT_ROW_STYLE}>
+            <span style={{ ...VARIANT_MUTED_STYLE, width: 32 }}>{size}</span>
+            <EmojiReactionButton size={size} defaultSelected>
+              <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+              <EmojiReactionButton.Count>5</EmojiReactionButton.Count>
+            </EmojiReactionButton>
+            <EmojiReactionButton size={size}>
+              <EmojiReactionButton.Emoji>😂</EmojiReactionButton.Emoji>
+              <EmojiReactionButton.Count>2</EmojiReactionButton.Count>
+            </EmojiReactionButton>
+            <EmojiReactionButton size={size}>
+              <EmojiReactionButton.Emoji>🎉</EmojiReactionButton.Emoji>
+              <EmojiReactionButton.Count>1</EmojiReactionButton.Count>
+            </EmojiReactionButton>
+          </div>
+        ))}
       </DemoSection>
     );
   }
@@ -1133,13 +1061,13 @@ const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'disabled') {
     return (
       <DemoSection label="disabled">
-        <EmojiReactionButton isDisabled>
-          <EmojiReactionButton.Emoji>🔥</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>0</EmojiReactionButton.Count>
-        </EmojiReactionButton>
         <EmojiReactionButton isDisabled isSelected>
-          <EmojiReactionButton.Emoji>👏</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>19</EmojiReactionButton.Count>
+          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>12</EmojiReactionButton.Count>
+        </EmojiReactionButton>
+        <EmojiReactionButton isDisabled>
+          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
         </EmojiReactionButton>
       </DemoSection>
     );
@@ -1149,10 +1077,13 @@ const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
     return (
       <DemoSection label="read only">
         <EmojiReactionButton isReadOnly isSelected>
-          <EmojiReactionButton.Emoji>👀</EmojiReactionButton.Emoji>
-          <EmojiReactionButton.Count>42</EmojiReactionButton.Count>
+          <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>12</EmojiReactionButton.Count>
         </EmojiReactionButton>
-        <span style={VARIANT_MUTED_STYLE}>只读态保留选中展示，不响应点击或键盘切换。</span>
+        <EmojiReactionButton isReadOnly>
+          <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+          <EmojiReactionButton.Count>3</EmojiReactionButton.Count>
+        </EmojiReactionButton>
       </DemoSection>
     );
   }
@@ -1160,10 +1091,13 @@ const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
   return (
     <DemoSection label="default">
       <EmojiReactionButton isSelected={isSelected} onChange={setSelected}>
-        <EmojiReactionButton.Emoji>{isSelected ? '💙' : '🤍'}</EmojiReactionButton.Emoji>
-        <EmojiReactionButton.Count>{isSelected ? 33 : 32}</EmojiReactionButton.Count>
+        <EmojiReactionButton.Emoji>❤️</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>12</EmojiReactionButton.Count>
       </EmojiReactionButton>
-      <span style={VARIANT_MUTED_STYLE}>{isSelected ? '已回应' : '点击回应'}</span>
+      <EmojiReactionButton>
+        <EmojiReactionButton.Emoji>👍</EmojiReactionButton.Emoji>
+        <EmojiReactionButton.Count>5</EmojiReactionButton.Count>
+      </EmojiReactionButton>
     </DemoSection>
   );
 };
@@ -1171,46 +1105,85 @@ const EmojiReactionVariantDemo = ({ variant }: VariantDemoProps) => {
 const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'compact') {
     return (
-      <DemoSection label="compact">
-        <NumberValue value={1284000} formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }} />
-        <NumberValue value={987654321} formatOptions={{ notation: 'compact', compactDisplay: 'long' }} />
+      <DemoSection label="compact" isColumn>
+        {[1234, 45678, 1234567, 9876543210].map((value) => (
+          <div key={value} style={VARIANT_ROW_STYLE}>
+            <span style={{ ...VARIANT_MUTED_STYLE, width: 120, textAlign: 'right' }}>
+              {value.toLocaleString('en-US')}
+            </span>
+            <NumberValue
+              value={value}
+              locale="zh-CN"
+              formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }}
+            />
+          </div>
+        ))}
       </DemoSection>
     );
   }
 
   if (variant === 'currency') {
     return (
-      <DemoSection label="currency">
-        <NumberValue value={9988} formatOptions={{ style: 'currency', currency: 'CNY' }} />
-        <NumberValue value={1249.5} locale="en-US" formatOptions={{ style: 'currency', currency: 'USD' }} />
+      <DemoSection label="currency" isColumn>
+        {(['USD', 'EUR', 'JPY', 'GBP'] as const).map((currency) => (
+          <div key={currency} style={VARIANT_ROW_STYLE}>
+            <span style={{ ...VARIANT_MUTED_STYLE, width: 48 }}>{currency}</span>
+            <NumberValue value={228441} locale="en-US" formatOptions={{ style: 'currency', currency }} />
+          </div>
+        ))}
       </DemoSection>
     );
   }
 
   if (variant === 'format-options') {
     return (
-      <DemoSection label="format options">
-        <NumberValue value={1234.567} formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }} />
-        <NumberValue value={42} formatOptions={{ style: 'unit', unit: 'kilometer-per-hour' }} />
+      <DemoSection label="format options" isColumn>
+        <div style={VARIANT_ROW_STYLE}>
+          <span style={{ ...VARIANT_MUTED_STYLE, width: 140 }}>Compact currency</span>
+          <NumberValue
+            value={1235000}
+            locale="zh-CN"
+            formatOptions={{ style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }}
+          />
+        </div>
+        <div style={VARIANT_ROW_STYLE}>
+          <span style={{ ...VARIANT_MUTED_STYLE, width: 140 }}>Accounting</span>
+          <NumberValue
+            value={-1234.56}
+            locale="en-US"
+            formatOptions={{ style: 'currency', currency: 'USD', currencySign: 'accounting' }}
+          />
+        </div>
       </DemoSection>
     );
   }
 
   if (variant === 'percent') {
     return (
-      <DemoSection label="percent">
-        <NumberValue value={0.4567} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
-        <NumberValue value={0.032} formatOptions={{ style: 'percent', signDisplay: 'exceptZero' }} />
+      <DemoSection label="percent" isColumn>
+        <NumberValue value={0.033} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
+        <NumberValue value={0.985} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
+        <NumberValue value={-0.02} formatOptions={{ style: 'percent', maximumFractionDigits: 1 }} />
       </DemoSection>
     );
   }
 
   if (variant === 'sign-display') {
     return (
-      <DemoSection label="sign display">
-        <NumberValue value={0.128} formatOptions={{ style: 'percent', signDisplay: 'always' }} />
-        <NumberValue value={-0.034} formatOptions={{ style: 'percent', signDisplay: 'always' }} />
-        <NumberValue value={0} formatOptions={{ signDisplay: 'exceptZero' }} />
+      <DemoSection label="sign display" isColumn>
+        {(['auto', 'always', 'exceptZero', 'never'] as const).map((signDisplay) => (
+          <div key={signDisplay} style={VARIANT_ROW_STYLE}>
+            <span style={{ ...VARIANT_MUTED_STYLE, width: 96 }}>{signDisplay}</span>
+            {[42, 0, -42].map((value) => (
+              <NumberValue
+                key={value}
+                value={value}
+                formatOptions={{ signDisplay }}
+                style={{ width: 48, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
+              />
+            ))}
+          </div>
+        ))}
       </DemoSection>
     );
   }
@@ -1218,13 +1191,13 @@ const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'tabular-nums') {
     return (
       <DemoSection label="tabular nums" isColumn>
-        {[1024, 998.5, 87.25].map((value) => (
+        {[228441, 71887, 156540, 1234, 98234].map((value) => (
           <NumberValue
             key={value}
             value={value}
-            suffix="ms"
-            style={{ fontVariantNumeric: 'tabular-nums', minWidth: 96 }}
-            formatOptions={{ minimumFractionDigits: 2, maximumFractionDigits: 2 }}
+            locale="en-US"
+            style={{ fontVariantNumeric: 'tabular-nums', minWidth: 140, textAlign: 'right' }}
+            formatOptions={{ style: 'currency', currency: 'USD' }}
           />
         ))}
       </DemoSection>
@@ -1233,17 +1206,22 @@ const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
 
   if (variant === 'with-prefix-suffix') {
     return (
-      <DemoSection label="prefix / suffix">
-        <NumberValue value={8472} prefix="ARR" suffix="/月" />
-        <NumberValue value={72} prefix="排名 #" suffix=" / 180" />
+      <DemoSection label="prefix / suffix" isColumn>
+        <NumberValue value={228441} locale="en-US" suffix="revenue" />
+        <NumberValue value={1234567} locale="zh-CN" formatOptions={{ notation: 'compact', maximumFractionDigits: 1 }} suffix="users" />
+        <NumberValue value={99.99} locale="en-US" formatOptions={{ style: 'currency', currency: 'USD' }} suffix="/month" />
       </DemoSection>
     );
   }
 
   return (
-    <DemoSection label="default">
-      <NumberValue value={1234567.89} />
-      <NumberValue value={-4200} />
+    <DemoSection label="default" isColumn>
+      {(['USD', 'EUR', 'JPY', 'GBP'] as const).map((currency) => (
+        <div key={currency} style={VARIANT_ROW_STYLE}>
+          <span style={{ ...VARIANT_MUTED_STYLE, width: 48 }}>{currency}</span>
+          <NumberValue value={228441} locale="en-US" formatOptions={{ style: 'currency', currency }} />
+        </div>
+      ))}
     </DemoSection>
   );
 };
@@ -1271,28 +1249,34 @@ const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'sizes') {
     return (
       <DemoSection label="sizes">
-        <TrendChip trend="up" value="4.8%" size="sm" />
-        <TrendChip trend="up" value="7.2%" />
-        <TrendChip trend="up" value="11.4%" size="lg" />
+        <TrendChip trend="up" value="+3.3%" size="sm" />
+        <TrendChip trend="up" value="+3.3%" />
+        <TrendChip trend="up" value="+3.3%" size="lg" />
       </DemoSection>
     );
   }
 
   if (variant === 'variants') {
     return (
-      <DemoSection label="variants">
-        <TrendChip trend="up" value="12%" variant="primary" />
-        <TrendChip trend="down" value="3%" variant="soft" />
-        <TrendChip trend="neutral" value="0%" variant="tertiary" />
+      <DemoSection label="variants" isColumn>
+        {(['primary', 'tertiary', 'soft'] as const).map((v) => (
+          <div key={v} style={VARIANT_ROW_STYLE}>
+            <span style={{ ...VARIANT_MUTED_STYLE, width: 80 }}>{v}</span>
+            <TrendChip trend="up" value="+3.3%" variant={v} />
+            <TrendChip trend="down" value="-2.1%" variant={v} />
+            <TrendChip trend="neutral" value="0.0%" variant={v} />
+          </div>
+        ))}
       </DemoSection>
     );
   }
 
   if (variant === 'prefix-and-suffix') {
     return (
-      <DemoSection label="prefix and suffix">
-        <TrendChip trend="up" prefix="营收" value="18.2%" suffix="环比" />
-        <TrendChip trend="down" prefix="流失" value="2.1%" suffix="较上周" />
+      <DemoSection label="prefix and suffix" isColumn>
+        <TrendChip trend="up" prefix="$" value=" 1,234" />
+        <TrendChip trend="down" value="-5.9%" suffix="vs last month" />
+        <TrendChip trend="up" prefix="+ " value="3.3%" suffix="MoM" />
       </DemoSection>
     );
   }
@@ -1300,32 +1284,30 @@ const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'tabular-nums') {
     return (
       <DemoSection label="tabular nums" isColumn>
-        {['+12.40%', '+8.05%', '-1.20%'].map((value) => (
-          <TrendChip
-            key={value}
-            trend={value.startsWith('-') ? 'down' : 'up'}
-            value={value}
-            style={{ fontVariantNumeric: 'tabular-nums', width: 112, justifyContent: 'center' }}
-          />
-        ))}
+        <TrendChip trend="up" value="+1.1%" style={{ fontVariantNumeric: 'tabular-nums' }} />
+        <TrendChip trend="up" value="+22.2%" style={{ fontVariantNumeric: 'tabular-nums' }} />
+        <TrendChip trend="down" value="-333.3%" style={{ fontVariantNumeric: 'tabular-nums' }} />
+        <TrendChip trend="neutral" value="0.0%" style={{ fontVariantNumeric: 'tabular-nums' }} />
       </DemoSection>
     );
   }
 
   if (variant === 'custom-indicator') {
     return (
-      <DemoSection label="custom indicator composition">
-        {/* icon 覆盖默认箭头，仍沿用趋势色（success / default） */}
-        <TrendChip trend="up" icon={<TargetIcon />} value="96%" suffix="达成" />
-        <TrendChip trend="neutral" icon={<ShieldIcon />} value="99.9%" />
+      <DemoSection label="custom indicator">
+        {/* icon 覆盖默认箭头，仍沿用趋势色 */}
+        <TrendChip trend="up" value="+3.3%" />
+        <TrendChip trend="down" value="-2.1%" />
+        <TrendChip trend="up" icon={<TargetIcon />} value="+12.5%" />
+        <TrendChip trend="neutral" icon={<ShieldIcon />} value="0.0%" />
       </DemoSection>
     );
   }
 
   return (
     <DemoSection label="default">
-      <TrendChip trend="up" value="12.5%" suffix="环比" />
-      <TrendChip trend="down" value="3.2%" suffix="较昨日" />
+      <TrendChip trend="up" value="+3.3%" />
+      <TrendChip trend="down" value="-2.1%" />
       <TrendChip trend="neutral" value="0.0%" />
     </DemoSection>
   );
@@ -1337,15 +1319,24 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'sizes') {
     return (
       <DemoSection label="sizes">
-        <Rating aria-label="小评分" size="sm" value={2} isReadOnly>
-          <RatingItems />
-        </Rating>
-        <Rating aria-label="中评分" value={3} isReadOnly>
-          <RatingItems />
-        </Rating>
-        <Rating aria-label="大评分" size="lg" value={4} isReadOnly>
-          <RatingItems />
-        </Rating>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span style={VARIANT_MUTED_STYLE}>sm</span>
+          <Rating aria-label="sm" size="sm" value={3} isReadOnly>
+            <RatingItems />
+          </Rating>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span style={VARIANT_MUTED_STYLE}>md</span>
+          <Rating aria-label="md" value={3} isReadOnly>
+            <RatingItems />
+          </Rating>
+        </div>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
+          <span style={VARIANT_MUTED_STYLE}>lg</span>
+          <Rating aria-label="lg" size="lg" value={3} isReadOnly>
+            <RatingItems />
+          </Rating>
+        </div>
       </DemoSection>
     );
   }
@@ -1353,7 +1344,7 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'disabled') {
     return (
       <DemoSection label="disabled">
-        <Rating aria-label="禁用评分" value={2} isDisabled>
+        <Rating aria-label="disabled" value={3} isDisabled>
           <RatingItems />
         </Rating>
       </DemoSection>
@@ -1362,28 +1353,41 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
 
   if (variant === 'read-only' || variant === 'read-only-fractional') {
     return (
-      <DemoSection label={variant}>
-        <Rating aria-label="只读评分" value={variant === 'read-only-fractional' ? 3.5 : 4} isReadOnly>
-          <RatingItems />
-        </Rating>
-        <span style={VARIANT_MUTED_STYLE}>
-          {variant === 'read-only-fractional' ? '小数值展示局部填充。' : '只读态保留分值展示。'}
-        </span>
+      <DemoSection label={variant} isColumn>
+        {[1.5, 2.3, 3.7, 4.2, 4.8].map((value) => (
+          <div key={value} style={VARIANT_ROW_STYLE}>
+            <Rating aria-label={`${value} out of 5 stars`} value={value} isReadOnly>
+              <RatingItems />
+            </Rating>
+            <NumberValue value={value} style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }} />
+          </div>
+        ))}
       </DemoSection>
     );
   }
 
   if (variant === 'custom-color' || variant === 'custom-color-vertical') {
     return (
-      <DemoSection label="custom color">
-        <Rating
-          aria-label="品牌评分"
-          value={4}
-          isReadOnly
-          style={{ color: 'var(--warning)' }}
-        >
-          <RatingItems />
-        </Rating>
+      <DemoSection label="custom color" isColumn>
+        {(
+          [
+            ['Accent', 'var(--accent)'],
+            ['Danger', 'var(--danger)'],
+            ['Success', 'var(--success)'],
+          ] as const
+        ).map(([label, color]) => (
+          <div key={label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={VARIANT_MUTED_STYLE}>{label}</span>
+            <Rating
+              aria-label={label}
+              value={4}
+              isReadOnly
+              style={{ '--rating-active-color': color } as CSSProperties}
+            >
+              <RatingItems />
+            </Rating>
+          </div>
+        ))}
       </DemoSection>
     );
   }
@@ -1391,7 +1395,7 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'custom-icon-heart') {
     return (
       <DemoSection label="custom icon heart">
-        <Rating aria-label="心形评分" value={4} icon={<span aria-hidden="true">♥</span>} isReadOnly>
+        <Rating aria-label="3 out of 5 hearts" value={3} icon={<span aria-hidden="true">♥</span>} isReadOnly>
           <RatingItems />
         </Rating>
       </DemoSection>
@@ -1401,8 +1405,13 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'custom-icon-per-item') {
     return (
       <DemoSection label="custom icon per item">
-        <Rating aria-label="分项图标评分" value={4} isReadOnly>
-          <RatingItems>{(value) => <span aria-hidden="true">{['○', '◐', '●', '◆', '★'][value - 1]}</span>}</RatingItems>
+        <Rating
+          aria-label="3 out of 5 hearts"
+          value={3}
+          isReadOnly
+          style={{ '--rating-active-color': 'var(--danger)' } as CSSProperties}
+        >
+          <RatingItems>{() => <span aria-hidden="true">♥</span>}</RatingItems>
         </Rating>
       </DemoSection>
     );
@@ -1410,53 +1419,67 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
 
   if (variant === 'render-function') {
     return (
-      <DemoSection label="render function">
-        <Rating aria-label="渲染函数评分" value={score} onValueChange={setScore}>
+      <DemoSection label="render function" isColumn>
+        <Rating aria-label="render function" value={score} onValueChange={setScore}>
           {RATING_VALUES.map((value) => (
             <Rating.Item key={value} value={value}>
-              {({ isActive, isPartial }) => (
-                <span aria-hidden="true">{isPartial ? '◒' : isActive ? '●' : '○'}</span>
-              )}
+              {({ isActive }) => <span aria-hidden="true">{isActive ? '★' : '☆'}</span>}
             </Rating.Item>
           ))}
         </Rating>
-        <span style={VARIANT_MUTED_STYLE}>{score} / 5</span>
+        <span style={VARIANT_MUTED_STYLE}>{score > 0 ? `${score} stars` : 'No rating'}</span>
       </DemoSection>
     );
   }
 
-  if (variant === 'product-review' || variant === 'with-label') {
+  if (variant === 'product-review') {
     return (
-      <DemoSection label={variant} isColumn>
-        <div style={VARIANT_ROW_STYLE}>
-          <strong>{variant === 'product-review' ? 'Vela Pro 组件库' : '满意度'}</strong>
-          <Rating aria-label="评分标签" value={4.5} isReadOnly>
-            <RatingItems />
-          </Rating>
-          <NumberValue value={4.8} suffix="/5" />
-        </div>
-        <span style={VARIANT_MUTED_STYLE}>128 条评价 · 最近 30 天</span>
+      <DemoSection label="product review" isColumn>
+        {(
+          [
+            ['Quality', 4.5],
+            ['Value for money', 3.7],
+            ['Design', 5],
+            ['Durability', 2.3],
+          ] as const
+        ).map(([label, value]) => (
+          <div key={label} style={VARIANT_ROW_STYLE}>
+            <span style={{ width: 140 }}>{label}</span>
+            <Rating aria-label={label} value={value} isReadOnly>
+              <RatingItems />
+            </Rating>
+            <NumberValue value={value} style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }} />
+          </div>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  if (variant === 'with-label') {
+    return (
+      <DemoSection label="with label" isColumn>
+        <span>How would you rate this product?</span>
+        <Rating aria-label="How would you rate this product?" defaultValue={0}>
+          <RatingItems />
+        </Rating>
       </DemoSection>
     );
   }
 
   if (variant === 'controlled') {
     return (
-      <DemoSection label="controlled">
-        <Rating aria-label="受控评分" value={score} onValueChange={setScore}>
+      <DemoSection label="controlled" isColumn>
+        <Rating aria-label="controlled" value={score} onValueChange={setScore}>
           <RatingItems />
         </Rating>
-        <Button size="sm" variant="secondary" onClick={() => setScore((score % 5) + 1)}>
-          下一档
-        </Button>
-        <span style={VARIANT_MUTED_STYLE}>{score} 分</span>
+        <span style={VARIANT_MUTED_STYLE}>{score > 0 ? `${score} stars` : 'No rating'}</span>
       </DemoSection>
     );
   }
 
   return (
     <DemoSection label="default">
-      <Rating aria-label="默认评分" defaultValue={3}>
+      <Rating aria-label="3 out of 5 stars" defaultValue={3}>
         <RatingItems />
       </Rating>
     </DemoSection>
@@ -2042,23 +2065,23 @@ const CommandVariantDemo = ({ variant }: VariantDemoProps) => {
 };
 
 const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
-  const [lastItem, setLastItem] = useState('尚未操作');
+  const [lastItem, setLastItem] = useState('Nothing selected');
   const [isOpen, setOpen] = useState(false);
 
-  const handleAction = (key: ReactKey) => setLastItem(`已选择：${String(key)}`);
+  const handleAction = (key: ReactKey) => setLastItem(`Selected: ${String(key)}`);
 
   const renderMenu = () => {
     if (variant === 'with-sections') {
       return (
-        <ContextMenu.Menu aria-label="文件操作" onAction={handleAction}>
+        <ContextMenu.Menu aria-label="File actions" onAction={handleAction}>
           <ContextMenu.Section>
-            <ContextMenu.Item id="copy" textValue="复制">复制</ContextMenu.Item>
-            <ContextMenu.Item id="paste" textValue="粘贴">粘贴</ContextMenu.Item>
+            <ContextMenu.Item id="copy" textValue="Copy">Copy</ContextMenu.Item>
+            <ContextMenu.Item id="paste" textValue="Paste">Paste</ContextMenu.Item>
           </ContextMenu.Section>
           <ContextMenu.Separator />
           <ContextMenu.Section>
-            <ContextMenu.Item id="rename" textValue="重命名">重命名</ContextMenu.Item>
-            <ContextMenu.Item id="delete" textValue="删除" variant="danger">删除</ContextMenu.Item>
+            <ContextMenu.Item id="rename" textValue="Rename">Rename</ContextMenu.Item>
+            <ContextMenu.Item id="delete" textValue="Delete" variant="danger">Delete</ContextMenu.Item>
           </ContextMenu.Section>
         </ContextMenu.Menu>
       );
@@ -2067,22 +2090,22 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
     if (variant === 'with-selection') {
       return (
         <ContextMenu.Menu
-          aria-label="视图选择"
+          aria-label="View"
           selectionMode="single"
           defaultSelectedKeys={['preview']}
           onAction={handleAction}
         >
-          <ContextMenu.Item id="preview" textValue="预览">
+          <ContextMenu.Item id="preview" textValue="Preview">
             <ContextMenu.ItemIndicator />
-            预览
+            Preview
           </ContextMenu.Item>
-          <ContextMenu.Item id="split" textValue="分屏">
+          <ContextMenu.Item id="split" textValue="Split">
             <ContextMenu.ItemIndicator />
-            分屏
+            Split
           </ContextMenu.Item>
-          <ContextMenu.Item id="source" textValue="源码">
+          <ContextMenu.Item id="source" textValue="Source">
             <ContextMenu.ItemIndicator />
-            源码
+            Source
           </ContextMenu.Item>
         </ContextMenu.Menu>
       );
@@ -2090,34 +2113,34 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
 
     if (variant === 'with-submenus') {
       return (
-        <ContextMenu.Menu aria-label="带子菜单" onAction={handleAction}>
-          <ContextMenu.Item id="open" textValue="打开">打开</ContextMenu.Item>
+        <ContextMenu.Menu aria-label="With submenus" onAction={handleAction}>
+          <ContextMenu.Item id="open" textValue="Open">Open</ContextMenu.Item>
           <ContextMenu.SubmenuTrigger delay={0}>
-            <ContextMenu.Item id="open-with" textValue="打开方式">
-              打开方式
+            <ContextMenu.Item id="open-with" textValue="Open with">
+              Open with
               <ContextMenu.SubmenuIndicator />
             </ContextMenu.Item>
             <ContextMenu.SubmenuPopover>
-              <ContextMenu.Menu aria-label="打开方式" onAction={handleAction}>
-                <ContextMenu.Item id="browser" textValue="浏览器">浏览器</ContextMenu.Item>
-                <ContextMenu.Item id="editor" textValue="编辑器">编辑器</ContextMenu.Item>
+              <ContextMenu.Menu aria-label="Open with" onAction={handleAction}>
+                <ContextMenu.Item id="browser" textValue="Browser">Browser</ContextMenu.Item>
+                <ContextMenu.Item id="editor" textValue="Editor">Editor</ContextMenu.Item>
               </ContextMenu.Menu>
             </ContextMenu.SubmenuPopover>
           </ContextMenu.SubmenuTrigger>
           <ContextMenu.Separator />
-          <ContextMenu.Item id="delete" textValue="删除" variant="danger">删除</ContextMenu.Item>
+          <ContextMenu.Item id="delete" textValue="Delete" variant="danger">Delete</ContextMenu.Item>
         </ContextMenu.Menu>
       );
     }
 
     return (
-      <ContextMenu.Menu aria-label="操作" onAction={handleAction}>
-        <ContextMenu.Item id="back" textValue="后退">后退</ContextMenu.Item>
-        <ContextMenu.Item id="forward" textValue="前进" isDisabled>
-          前进
+      <ContextMenu.Menu aria-label="Actions" onAction={handleAction}>
+        <ContextMenu.Item id="back" textValue="Back">Back</ContextMenu.Item>
+        <ContextMenu.Item id="forward" textValue="Forward" isDisabled>
+          Forward
         </ContextMenu.Item>
-        <ContextMenu.Item id="reload" textValue="重新加载">重新加载</ContextMenu.Item>
-        <ContextMenu.Item id="save" textValue="另存为">另存为…</ContextMenu.Item>
+        <ContextMenu.Item id="reload" textValue="Reload">Reload</ContextMenu.Item>
+        <ContextMenu.Item id="save" textValue="Save as">Save as…</ContextMenu.Item>
       </ContextMenu.Menu>
     );
   };
@@ -2125,9 +2148,7 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
   return (
     <DemoSection label={variant} isColumn>
       {variant === 'controlled' && (
-        <Button size="sm" variant="secondary" onClick={() => setOpen((open) => !open)}>
-          {isOpen ? '关闭受控菜单' : '打开受控菜单'}
-        </Button>
+        <span style={VARIANT_MUTED_STYLE}>{isOpen ? 'Menu is open' : 'Menu is closed'}</span>
       )}
       <ContextMenu
         open={variant === 'controlled' ? isOpen : undefined}
@@ -2136,7 +2157,13 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
       >
         <ContextMenu.Trigger longPressDelay={variant === 'long-press' ? 550 : undefined}>
           <div style={CONTEXT_MENU_TARGET_STYLE}>
-            {variant === 'disabled' ? '禁用：右键无响应' : variant === 'long-press' ? '长按或右键打开' : variant === 'with-selection' ? '右键单选（radio）' : '在此处右键'}
+            {variant === 'disabled'
+              ? 'Right-click here (disabled)'
+              : variant === 'long-press'
+                ? 'Long press or right-click'
+                : variant === 'controlled'
+                  ? 'Right-click here (controlled)'
+                  : 'Right-click here'}
           </div>
         </ContextMenu.Trigger>
         <ContextMenu.Popover>{renderMenu()}</ContextMenu.Popover>
@@ -2146,32 +2173,32 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
         // ItemIndicator 反映勾选态、且多选项点击后菜单不自动关闭（与单选 radio 对照）
         <ContextMenu>
           <ContextMenu.Trigger>
-            <div style={CONTEXT_MENU_TARGET_STYLE}>右键多选（checkbox）</div>
+            <div style={CONTEXT_MENU_TARGET_STYLE}>Right-click here (checkbox)</div>
           </ContextMenu.Trigger>
           <ContextMenu.Popover>
             <ContextMenu.Menu
-              aria-label="视图开关"
+              aria-label="View options"
               selectionMode="multiple"
               defaultSelectedKeys={['wrap']}
               onAction={handleAction}
             >
-              <ContextMenu.Item id="wrap" textValue="自动换行">
+              <ContextMenu.Item id="wrap" textValue="Word wrap">
                 <ContextMenu.ItemIndicator />
-                自动换行
+                Word wrap
               </ContextMenu.Item>
-              <ContextMenu.Item id="minimap" textValue="缩略图">
+              <ContextMenu.Item id="minimap" textValue="Minimap">
                 <ContextMenu.ItemIndicator />
-                缩略图
+                Minimap
               </ContextMenu.Item>
-              <ContextMenu.Item id="line-numbers" textValue="行号">
+              <ContextMenu.Item id="line-numbers" textValue="Line numbers">
                 <ContextMenu.ItemIndicator />
-                行号
+                Line numbers
               </ContextMenu.Item>
             </ContextMenu.Menu>
           </ContextMenu.Popover>
         </ContextMenu>
       )}
-      <span style={VARIANT_MUTED_STYLE}>{lastItem}</span>
+      {lastItem !== 'Nothing selected' && <span style={VARIANT_MUTED_STYLE}>{lastItem}</span>}
     </DemoSection>
   );
 };
@@ -2391,25 +2418,29 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
 };
 
 const SEGMENT_VARIANT_ITEMS = [
-  { id: 'overview', label: '概览' },
-  { id: 'analytics', label: '分析' },
-  { id: 'reports', label: '报表' },
+  { id: 'dashboard', label: 'Dashboard' },
+  { id: 'analytics', label: 'Analytics' },
+  { id: 'reports', label: 'Reports' },
+  { id: 'settings', label: 'Settings' },
 ];
 
 const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   const [selectedKey, setSelectedKey] = useState<DemoKey>('analytics');
-  const size = variant === 'sizes' ? 'lg' : variant === 'theme-switcher' ? 'sm' : 'md';
+  const size = variant === 'theme-switcher' ? 'sm' : 'md';
   const segmentVariant = variant === 'ghost' || variant === 'without-separators' ? 'ghost' : 'default';
 
   if (variant === 'sizes') {
     return (
-      <DemoSection label="sizes">
+      <DemoSection label="sizes" isColumn>
         {(['sm', 'md', 'lg'] as const).map((segmentSize) => (
-          <Segment key={segmentSize} aria-label={`尺寸 ${segmentSize}`} defaultSelectedKey="analytics" size={segmentSize}>
-            {SEGMENT_VARIANT_ITEMS.map((item) => (
-              <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
-            ))}
-          </Segment>
+          <div key={segmentSize} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+            <span style={VARIANT_MUTED_STYLE}>{segmentSize}</span>
+            <Segment aria-label={`size ${segmentSize}`} defaultSelectedKey="dashboard" size={segmentSize}>
+              {SEGMENT_VARIANT_ITEMS.map((item) => (
+                <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
+              ))}
+            </Segment>
+          </div>
         ))}
       </DemoSection>
     );
@@ -2418,9 +2449,9 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'two-items') {
     return (
       <DemoSection label="two items">
-        <Segment aria-label="账单周期" defaultSelectedKey="monthly">
-          <Segment.Item id="monthly">月付</Segment.Item>
-          <Segment.Item id="yearly">年付</Segment.Item>
+        <Segment aria-label="Billing period" defaultSelectedKey="monthly">
+          <Segment.Item id="monthly">Monthly</Segment.Item>
+          <Segment.Item id="yearly">Yearly</Segment.Item>
         </Segment>
       </DemoSection>
     );
@@ -2429,7 +2460,7 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'disabled') {
     return (
       <DemoSection label="disabled">
-        <Segment aria-label="禁用分段" defaultSelectedKey="overview" isDisabled>
+        <Segment aria-label="Disabled segment" defaultSelectedKey="dashboard" isDisabled>
           {SEGMENT_VARIANT_ITEMS.map((item) => (
             <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
           ))}
@@ -2441,10 +2472,10 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'disabled-item') {
     return (
       <DemoSection label="disabled item">
-        <Segment aria-label="含禁用项" defaultSelectedKey="overview">
-          <Segment.Item id="overview">概览</Segment.Item>
-          <Segment.Item id="analytics">分析</Segment.Item>
-          <Segment.Item id="reports" isDisabled>报表</Segment.Item>
+        <Segment aria-label="With disabled item" defaultSelectedKey="dashboard">
+          <Segment.Item id="dashboard">Dashboard</Segment.Item>
+          <Segment.Item id="analytics" isDisabled>Analytics</Segment.Item>
+          <Segment.Item id="reports">Reports</Segment.Item>
         </Segment>
       </DemoSection>
     );
@@ -2453,10 +2484,10 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'icon-expand') {
     return (
       <DemoSection label="icon expand">
-        <Segment aria-label="展开方式" selectedKey={selectedKey} onSelectionChange={setSelectedKey}>
-          <Segment.Item id="overview">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 概览</span>}</Segment.Item>
-          <Segment.Item id="analytics">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 分析</span>}</Segment.Item>
-          <Segment.Item id="reports">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} 报表</span>}</Segment.Item>
+        <Segment aria-label="View" selectedKey={selectedKey} onSelectionChange={setSelectedKey}>
+          <Segment.Item id="dashboard">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} Dashboard</span>}</Segment.Item>
+          <Segment.Item id="analytics">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} Analytics</span>}</Segment.Item>
+          <Segment.Item id="reports">{({ isSelected }) => <span>{isSelected ? '▾' : '▸'} Reports</span>}</Segment.Item>
         </Segment>
       </DemoSection>
     );
@@ -2465,10 +2496,10 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'theme-switcher') {
     return (
       <DemoSection label="theme switcher">
-        <Segment aria-label="主题" selectedKey={selectedKey} size="sm" variant="ghost" onSelectionChange={setSelectedKey}>
-          <Segment.Item id="light">☀ Light</Segment.Item>
-          <Segment.Item id="analytics">System</Segment.Item>
-          <Segment.Item id="dark">Dark</Segment.Item>
+        <Segment aria-label="Theme" selectedKey={selectedKey} size="sm" variant="ghost" onSelectionChange={setSelectedKey}>
+          <Segment.Item id="light" aria-label="Light">☀</Segment.Item>
+          <Segment.Item id="analytics" aria-label="Dark">☾</Segment.Item>
+          <Segment.Item id="system" aria-label="System">🖥</Segment.Item>
         </Segment>
       </DemoSection>
     );
@@ -2477,21 +2508,22 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'with-icons') {
     return (
       <DemoSection label="with icons">
-        <Segment aria-label="视图" defaultSelectedKey="grid">
-          <Segment.Item id="grid">▦ 网格</Segment.Item>
-          <Segment.Item id="list">☰ 列表</Segment.Item>
-          <Segment.Item id="chart">⌁ 图表</Segment.Item>
+        <Segment aria-label="View" defaultSelectedKey="dashboard">
+          <Segment.Item id="dashboard">▦ Dashboard</Segment.Item>
+          <Segment.Item id="analytics">▤ Analytics</Segment.Item>
+          <Segment.Item id="team">◉ Team</Segment.Item>
+          <Segment.Item id="settings">⚙ Settings</Segment.Item>
         </Segment>
       </DemoSection>
     );
   }
 
   return (
-    <DemoSection label={variant}>
+    <DemoSection label={variant} isColumn>
       <Segment
-        aria-label="统计范围"
+        aria-label="Statistics range"
         selectedKey={variant === 'controlled' ? selectedKey : undefined}
-        defaultSelectedKey={variant === 'controlled' ? undefined : 'analytics'}
+        defaultSelectedKey={variant === 'controlled' ? undefined : 'dashboard'}
         size={size}
         variant={segmentVariant}
         showSeparators={variant !== 'without-separators'}
@@ -2501,16 +2533,16 @@ const SegmentVariantDemo = ({ variant }: VariantDemoProps) => {
           <Segment.Item key={item.id} id={item.id}>{item.label}</Segment.Item>
         ))}
       </Segment>
-      {variant === 'controlled' && <span style={VARIANT_MUTED_STYLE}>当前：{String(selectedKey)}</span>}
+      {variant === 'controlled' && <span style={VARIANT_MUTED_STYLE}>Selected: <strong>{String(selectedKey)}</strong></span>}
     </DemoSection>
   );
 };
 
 const SIDEBAR_VARIANT_ITEMS = [
-  { id: 'dashboard', label: '仪表盘', icon: '⌂', chip: '12' },
-  { id: 'students', label: '学员', icon: '◉', chip: '4' },
-  { id: 'courses', label: '课程', icon: '◇' },
-  { id: 'settings', label: '设置', icon: '⚙' },
+  { id: 'dashboard', label: 'Dashboard', icon: '⌂', chip: '12' },
+  { id: 'analytics', label: 'Analytics', icon: '◉', chip: '4' },
+  { id: 'tracker', label: 'Tracker', icon: '◇' },
+  { id: 'settings', label: 'Settings', icon: '⚙' },
 ];
 
 const SIDEBAR_VARIANT_FRAME_STYLE: CSSProperties = {
@@ -3078,10 +3110,10 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
 };
 
 const STEPPER_VARIANT_STEPS = [
-  { title: '账户', description: '填写基本信息', icon: '1' },
-  { title: '方案', description: '选择订阅计划', icon: '2' },
-  { title: '支付', description: '确认付款方式', icon: '3' },
-  { title: '完成', description: '开始使用 Vela', icon: '4' },
+  { title: 'Cart', description: 'Review items', icon: '1' },
+  { title: 'Shipping', description: 'Delivery address', icon: '2' },
+  { title: 'Payment', description: 'Card details', icon: '3' },
+  { title: 'Confirmation', description: 'Order placed', icon: '4' },
 ];
 
 const StepperStatusIcon = ({ mode }: { mode: 'complete' | 'dynamic' }) => {
@@ -3207,7 +3239,7 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
         })}
       </Stepper>
       {isInteractive && (
-        <span style={VARIANT_MUTED_STYLE}>点击步骤切换 · 当前第 {currentStep + 1} 步</span>
+        <span style={VARIANT_MUTED_STYLE}>Step {currentStep + 1} of {STEPPER_VARIANT_STEPS.length}</span>
       )}
     </DemoSection>
   );

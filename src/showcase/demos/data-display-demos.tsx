@@ -1,4 +1,4 @@
-import { useCallback, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useState, type ReactNode } from 'react';
 import ActionBar from '../../components/action-bar';
 import Agenda, { useAgenda, type AgendaEvent } from '../../components/agenda';
 import Avatar from '../../components/avatar';
@@ -88,65 +88,55 @@ const KpiDemo = () => (
 
 const KpiGroupDemo = () => (
   <DemoSection isColumn>
-    <KpiGroup orientation="horizontal" style={{ width: 640 }}>
+    <KpiGroup orientation="horizontal" style={{ width: 680 }}>
       <Kpi>
         <Kpi.Header>
-          <Kpi.Title>今日新增学员</Kpi.Title>
+          <Kpi.Title>Total Subscribers</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value>328</Kpi.Value>
-          <Kpi.Trend>
-            <Chip color="success" size="sm">
-              +8.2%
-            </Chip>
-          </Kpi.Trend>
+          <Kpi.Value>71,897</Kpi.Value>
+          <Kpi.Trend>{kpiTrendPill('up', '12%')}</Kpi.Trend>
         </Kpi.Content>
       </Kpi>
       <KpiGroup.Separator />
       <Kpi>
         <Kpi.Header>
-          <Kpi.Title>课程续费率</Kpi.Title>
+          <Kpi.Title>Avg. Open Rate</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value value={76.5} format={(v) => `${v}%`} />
-          <Kpi.Trend trend="down">
-            <Chip color="danger" size="sm">
-              -1.3%
-            </Chip>
-          </Kpi.Trend>
+          <Kpi.Value>58.16%</Kpi.Value>
+          <Kpi.Trend>{kpiTrendPill('up', '2.02%')}</Kpi.Trend>
         </Kpi.Content>
       </Kpi>
       <KpiGroup.Separator />
       <Kpi>
         <Kpi.Header>
-          <Kpi.Title>待处理订单</Kpi.Title>
+          <Kpi.Title>Avg. Click Rate</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value>47</Kpi.Value>
+          <Kpi.Value>24.57%</Kpi.Value>
+          <Kpi.Trend>{kpiTrendPill('down', '4.05%')}</Kpi.Trend>
         </Kpi.Content>
       </Kpi>
     </KpiGroup>
     <KpiGroup orientation="vertical" style={{ width: 280 }}>
       <Kpi>
         <Kpi.Header>
-          <Kpi.Title>本月完课率</Kpi.Title>
+          <Kpi.Title>Revenue</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value>91.2%</Kpi.Value>
-          <Kpi.Trend>
-            <Chip color="success" size="sm">
-              +3.4%
-            </Chip>
-          </Kpi.Trend>
+          <Kpi.Value>US$228,451</Kpi.Value>
+          <Kpi.Trend>{kpiTrendPill('up', '+3.3%')}</Kpi.Trend>
         </Kpi.Content>
       </Kpi>
       <KpiGroup.Separator />
       <Kpi>
         <Kpi.Header>
-          <Kpi.Title>平均学习时长</Kpi.Title>
+          <Kpi.Title>Expenses</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value>42 分钟</Kpi.Value>
+          <Kpi.Value>US$25,108</Kpi.Value>
+          <Kpi.Trend>{kpiTrendPill('down', '-3.3%')}</Kpi.Trend>
         </Kpi.Content>
       </Kpi>
     </KpiGroup>
@@ -154,33 +144,35 @@ const KpiGroupDemo = () => (
 );
 
 const ItemCardDemo = () => {
-  const [message, setMessage] = useState('尚未打开课程');
-  const handleView = () => setMessage('已打开：雅思核心词汇 · 第 3 期');
+  const [message, setMessage] = useState('No card opened');
 
   return (
     <DemoSection isColumn>
-      <ItemCard style={{ width: 360 }}>
+      <ItemCard style={{ width: 420 }}>
         <ItemCard.Icon>
-          <BookIcon />
+          <GlobeIcon />
         </ItemCard.Icon>
         <ItemCard.Content>
-          <ItemCard.Title>雅思核心词汇 · 第 3 期</ItemCard.Title>
-          <ItemCard.Description>已报名 86 人 · 开课时间 6 月 20 日</ItemCard.Description>
+          <ItemCard.Title>Language</ItemCard.Title>
+          <ItemCard.Description>Choose your preferred language</ItemCard.Description>
         </ItemCard.Content>
         <ItemCard.Action>
-          <Button size="sm" variant="outline" onClick={handleView}>
-            查看
+          <Button size="sm" variant="outline" onClick={() => setMessage('Language changed')}>
+            English
           </Button>
         </ItemCard.Action>
       </ItemCard>
-      <ItemCard variant="outline" style={{ width: 360 }}>
+      <ItemCard variant="outline" style={{ width: 420 }}>
         <ItemCard.Icon>
-          <FileIcon />
+          <MoonIcon />
         </ItemCard.Icon>
         <ItemCard.Content>
-          <ItemCard.Title>四级真题精讲营</ItemCard.Title>
-          <ItemCard.Description>已报名 132 人 · 进行中</ItemCard.Description>
+          <ItemCard.Title>Dark mode</ItemCard.Title>
+          <ItemCard.Description>Use dark theme across the app</ItemCard.Description>
         </ItemCard.Content>
+        <ItemCard.Action>
+          <Switch aria-label="Dark mode" size="sm" />
+        </ItemCard.Action>
       </ItemCard>
       <span style={{ fontSize: 13, color: 'var(--foreground)' }}>{message}</span>
     </DemoSection>
@@ -195,73 +187,73 @@ const ItemCardGroupDemo = () => {
 
   return (
     <DemoSection isColumn>
-      <ItemCardGroup layout="list" style={{ width: 400 }}>
+      <ItemCardGroup layout="list" style={{ width: 460 }}>
         <ItemCardGroup.Header>
-          <ItemCardGroup.Title>本月热门课程</ItemCardGroup.Title>
-          <ItemCardGroup.Description>按报名人数排序</ItemCardGroup.Description>
+          <ItemCardGroup.Title>Account</ItemCardGroup.Title>
+          <ItemCardGroup.Description>Manage your account settings and preferences</ItemCardGroup.Description>
         </ItemCardGroup.Header>
         <ItemCard>
           <ItemCard.Icon>
-            <BookIcon />
+            <UserIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>考研英语冲刺班</ItemCard.Title>
-            <ItemCard.Description>报名 412 人</ItemCard.Description>
+            <ItemCard.Title>Profile</ItemCard.Title>
+            <ItemCard.Description>Update your personal information</ItemCard.Description>
           </ItemCard.Content>
           <ItemCard.Action>
-            <Badge color="accent">1</Badge>
+            <ChevronRightIcon />
           </ItemCard.Action>
         </ItemCard>
         <ItemCard>
           <ItemCard.Icon>
-            <BookIcon />
+            <ShieldIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>商务英语口语营</ItemCard.Title>
-            <ItemCard.Description>报名 298 人</ItemCard.Description>
+            <ItemCard.Title>Security</ItemCard.Title>
+            <ItemCard.Description>Manage passwords and 2FA</ItemCard.Description>
           </ItemCard.Content>
           <ItemCard.Action>
-            <Badge>2</Badge>
+            <ChevronRightIcon />
           </ItemCard.Action>
         </ItemCard>
       </ItemCardGroup>
       <ItemCardGroup
         layout="list"
         variant="outline"
-        style={{ width: 400 }}
+        style={{ width: 460 }}
         selectionMode="multiple"
         selectedKeys={notifyKeys}
         onSelectionChange={setNotifyKeys}
       >
         <ItemCardGroup.Header>
-          <ItemCardGroup.Title>通知偏好</ItemCardGroup.Title>
-          <ItemCardGroup.Description>可同时选择多种提醒渠道</ItemCardGroup.Description>
+          <ItemCardGroup.Title>Notification Preferences</ItemCardGroup.Title>
+          <ItemCardGroup.Description>Choose how you receive notifications</ItemCardGroup.Description>
         </ItemCardGroup.Header>
         <ItemCard id="email">
           <ItemCard.Icon>
-            <BookIcon />
+            <BellIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>邮件提醒</ItemCard.Title>
-            <ItemCard.Description>课程更新与作业截止</ItemCard.Description>
+            <ItemCard.Title>Email</ItemCard.Title>
+            <ItemCard.Description>Updates and deadlines</ItemCard.Description>
           </ItemCard.Content>
         </ItemCard>
         <ItemCard id="sms">
           <ItemCard.Icon>
-            <BookIcon />
+            <BellIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>短信提醒</ItemCard.Title>
-            <ItemCard.Description>开课前 30 分钟</ItemCard.Description>
+            <ItemCard.Title>SMS</ItemCard.Title>
+            <ItemCard.Description>30 minutes before events</ItemCard.Description>
           </ItemCard.Content>
         </ItemCard>
         <ItemCard id="push">
           <ItemCard.Icon>
-            <BookIcon />
+            <BellIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>App 推送</ItemCard.Title>
-            <ItemCard.Description>实时学习动态</ItemCard.Description>
+            <ItemCard.Title>Push Notification</ItemCard.Title>
+            <ItemCard.Description>Real-time activity</ItemCard.Description>
           </ItemCard.Content>
         </ItemCard>
       </ItemCardGroup>
@@ -286,30 +278,93 @@ const XmarkIcon = () => (
 );
 XmarkIcon.displayName = 'XmarkIcon';
 
+const ChevronRightIcon = () => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    height="16"
+    stroke="currentColor"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    strokeWidth="1.5"
+    viewBox="0 0 24 24"
+    width="16"
+  >
+    <path d="m9 6 6 6-6 6" />
+  </svg>
+);
+ChevronRightIcon.displayName = 'ChevronRightIcon';
+
+const GlobeIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <circle cx="8" cy="8" r="6" />
+    <path d="M2 8h12M8 2c1.8 1.6 2.8 3.8 2.8 6S9.8 12.4 8 14C6.2 12.4 5.2 10.2 5.2 8S6.2 3.6 8 2z" />
+  </svg>
+);
+GlobeIcon.displayName = 'GlobeIcon';
+
+const MoonIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <path d="M13 9.5A5.5 5.5 0 0 1 6.5 3 5.5 5.5 0 1 0 13 9.5z" />
+  </svg>
+);
+MoonIcon.displayName = 'MoonIcon';
+
+const ShieldIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <path d="M8 1.8 13 4v4c0 3.2-2.1 5-5 6.2C5.1 13 3 11.2 3 8V4l5-2.2z" />
+  </svg>
+);
+ShieldIcon.displayName = 'ShieldIcon';
+
+const UserIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <circle cx="8" cy="5.5" r="2.5" />
+    <path d="M3.5 13.5a4.5 4.5 0 0 1 9 0" />
+  </svg>
+);
+UserIcon.displayName = 'UserIcon';
+
+const BellIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <path d="M8 2a3.5 3.5 0 0 0-3.5 3.5c0 3-1.5 4-1.5 4h10s-1.5-1-1.5-4A3.5 3.5 0 0 0 8 2z" />
+    <path d="M6.5 12.5a1.5 1.5 0 0 0 3 0" />
+  </svg>
+);
+BellIcon.displayName = 'BellIcon';
+
+const CloudIcon = () => (
+  <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.3" aria-hidden="true">
+    <path d="M4.5 12a3 3 0 0 1-.2-6 4 4 0 0 1 7.7.9A2.5 2.5 0 0 1 11.5 12h-7z" />
+  </svg>
+);
+CloudIcon.displayName = 'CloudIcon';
+
 const LIST_VIEW_FILES = [
-  { id: '1', name: 'Project proposal.pdf', size: '2.4 MB' },
-  { id: '2', name: 'Q4 financial report.xlsx', size: '1.8 MB' },
-  { id: '3', name: 'Design assets.zip', size: '24 MB' },
-  { id: '4', name: 'Meeting notes.docx', size: '356 KB' },
-  { id: '5', name: 'Customer interviews.mp4', size: '512 MB' },
+  { id: '1', name: 'Documents', updated: 'Updated 2 days ago', kind: 'folder' as const },
+  { id: '2', name: 'Photos', updated: 'Updated 1 week ago', kind: 'folder' as const },
+  { id: '3', name: 'README.md', updated: 'Updated 3 hours ago', kind: 'file' as const },
+  { id: '4', name: 'package.json', updated: 'Updated Yesterday', kind: 'file' as const },
+  { id: '5', name: 'src', updated: 'Updated Just now', kind: 'folder' as const },
+  { id: '6', name: '.gitignore', updated: 'Updated 2 weeks ago', kind: 'file' as const },
 ];
 
 const summarizeNames = (names: string[]) => {
   if (names.length === 0) {
-    return '未选择文件';
+    return 'No files selected';
   }
   if (names.length <= 2) {
-    return names.join('、');
+    return names.join(', ');
   }
-  return `${names.slice(0, 2).join('、')} 等 ${names.length} 个文件`;
+  return `${names.slice(0, 2).join(', ')} and ${names.length} files`;
 };
 
 /** 参考「With Action Bar」联动：多选行 → ActionBar 浮出，清除按钮收起 */
 const ListViewDemo = () => {
   const [files, setFiles] = useState(LIST_VIEW_FILES);
   const [selected, setSelected] = useState<DemoSelection>(new Set());
-  const [actionMessage, setActionMessage] = useState('选择文件后可批量下载、移动或删除');
-  const [studentMessage, setStudentMessage] = useState('默认选中李子轩，陈雨桐不可选');
+  const [actionMessage, setActionMessage] = useState('Select files to download, move or delete');
+  const [studentMessage, setStudentMessage] = useState('README.md selected, src is disabled');
   const count = selected === 'all' ? files.length : selected.size;
   const selectedNames =
     selected === 'all'
@@ -317,19 +372,19 @@ const ListViewDemo = () => {
       : files.filter((file) => selected.has(file.id)).map((file) => file.name);
 
   const handleAction = (action: string) => {
-    setActionMessage(`已${action}：${summarizeNames(selectedNames)}`);
+    setActionMessage(`${action}: ${summarizeNames(selectedNames)}`);
   };
 
   const handleDelete = () => {
     const ids = selected === 'all' ? new Set(files.map((file) => file.id)) : selected;
     setFiles((current) => current.filter((file) => !ids.has(file.id)));
     setSelected(new Set());
-    setActionMessage(`已删除：${summarizeNames(selectedNames)}`);
+    setActionMessage(`Deleted: ${summarizeNames(selectedNames)}`);
   };
 
   const handleClear = () => {
     setSelected(new Set());
-    setActionMessage('已清除选择');
+    setActionMessage('Selection cleared');
   };
 
   return (
@@ -346,10 +401,10 @@ const ListViewDemo = () => {
           {(file) => (
             <ListView.Item id={file.id} textValue={file.name}>
               <ListView.ItemContent>
-                <FileIcon />
+                {file.kind === 'folder' ? <FolderIcon /> : <FileIcon />}
                 <div>
                   <ListView.Title>{file.name}</ListView.Title>
-                  <ListView.Description>{file.size}</ListView.Description>
+                  <ListView.Description>{file.updated}</ListView.Description>
                 </div>
               </ListView.ItemContent>
             </ListView.Item>
@@ -361,25 +416,25 @@ const ListViewDemo = () => {
             <Chip color="accent" size="sm">
               {count}
             </Chip>
-            <ActionBar.Label>已选择</ActionBar.Label>
+            <ActionBar.Label>Selected</ActionBar.Label>
           </ActionBar.Prefix>
           <Separator orientation="vertical" />
           <ActionBar.Content>
-            <Button size="sm" variant="ghost" onClick={() => handleAction('下载')}>
-              下载
+            <Button size="sm" variant="ghost" onClick={() => handleAction('Downloaded')}>
+              Download
             </Button>
-            <Button size="sm" variant="ghost" onClick={() => handleAction('移动')}>
-              移动
+            <Button size="sm" variant="ghost" onClick={() => handleAction('Moved')}>
+              Move
             </Button>
             <Button size="sm" variant="danger-soft" onClick={handleDelete}>
-              删除
+              Delete
             </Button>
           </ActionBar.Content>
           <Separator orientation="vertical" />
           <ActionBar.Suffix>
-            <Tooltip content="清除选择" placement="top">
+            <Tooltip content="Clear selection" placement="top">
               <Button
-                aria-label="清除选择"
+                aria-label="Clear selection"
                 isIconOnly
                 size="sm"
                 variant="ghost"
@@ -393,61 +448,36 @@ const ListViewDemo = () => {
       </DemoSection>
       <DemoSection isColumn label="secondary · single selection · disabled item">
         <ListView
-          aria-label="Students"
-          defaultSelectedKeys={['s2']}
-          disabledKeys={['s3']}
+          aria-label="Files"
+          defaultSelectedKeys={['3']}
+          disabledKeys={['5']}
           selectionMode="single"
-          style={{ width: 380 }}
+          style={{ width: 420 }}
           variant="secondary"
         >
-          <ListView.Item id="s1" textValue="王晓萌">
-            <ListView.ItemContent>
-              <div>
-                <ListView.Title>王晓萌</ListView.Title>
-                <ListView.Description>雅思 7 分计划 · 第 12 天</ListView.Description>
-              </div>
-            </ListView.ItemContent>
-            <ListView.ItemAction>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setStudentMessage('已安排王晓萌的辅导跟进');
-                }}
-              >
-                辅导
-              </Button>
-            </ListView.ItemAction>
-          </ListView.Item>
-          <ListView.Item id="s2" textValue="李子轩">
-            <ListView.ItemContent>
-              <div>
-                <ListView.Title>李子轩</ListView.Title>
-                <ListView.Description>考研词汇 · 第 45 天</ListView.Description>
-              </div>
-            </ListView.ItemContent>
-            <ListView.ItemAction>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  setStudentMessage('已安排李子轩的辅导跟进');
-                }}
-              >
-                辅导
-              </Button>
-            </ListView.ItemAction>
-          </ListView.Item>
-          <ListView.Item id="s3" textValue="陈雨桐">
-            <ListView.ItemContent>
-              <div>
-                <ListView.Title>陈雨桐</ListView.Title>
-                <ListView.Description>四级冲刺 · 第 8 天</ListView.Description>
-              </div>
-            </ListView.ItemContent>
-          </ListView.Item>
+          {LIST_VIEW_FILES.slice(0, 4).map((file) => (
+            <ListView.Item key={file.id} id={file.id} textValue={file.name}>
+              <ListView.ItemContent>
+                {file.kind === 'folder' ? <FolderIcon /> : <FileIcon />}
+                <div>
+                  <ListView.Title>{file.name}</ListView.Title>
+                  <ListView.Description>{file.updated}</ListView.Description>
+                </div>
+              </ListView.ItemContent>
+              <ListView.ItemAction>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    setStudentMessage(`Opened ${file.name}`);
+                  }}
+                >
+                  Open
+                </Button>
+              </ListView.ItemAction>
+            </ListView.Item>
+          ))}
         </ListView>
         <div style={{ fontSize: 13, color: 'var(--foreground)' }}>{studentMessage}</div>
       </DemoSection>
@@ -461,22 +491,27 @@ const EmptyStateDemo = () => {
 
   return (
     <DemoSection isColumn>
-      <EmptyState size="md" style={{ width: 320 }}>
+      <EmptyState size="md" style={{ width: 420 }}>
         <EmptyState.Header>
           <EmptyState.Media variant="icon">
-            <FileIcon />
+            <FolderIcon />
           </EmptyState.Media>
-          <EmptyState.Title>暂无待审核内容</EmptyState.Title>
-          <EmptyState.Description>新提交的课程内容会出现在这里</EmptyState.Description>
+          <EmptyState.Title>No Projects Yet</EmptyState.Title>
+          <EmptyState.Description>
+            You haven't created any projects yet. Get started by creating your first project.
+          </EmptyState.Description>
         </EmptyState.Header>
         <EmptyState.Content>
-          <Button size="sm" variant="secondary" onClick={handleRefresh}>
-            刷新列表
+          <Button size="sm" variant="primary" onClick={handleRefresh}>
+            Create Project
+          </Button>
+          <Button size="sm" variant="outline">
+            Import Project
           </Button>
         </EmptyState.Content>
       </EmptyState>
       <span style={{ fontSize: 13, color: 'var(--foreground)' }}>
-        已刷新 {refreshCount} 次
+        Created {refreshCount} project(s)
       </span>
     </DemoSection>
   );
@@ -1439,51 +1474,6 @@ const SparklineLine = ({
     />
   </LineChart>
 );
-
-const CompletionDonut = ({ value, label }: { value: number; label: string }) => {
-  const boundedValue = Math.max(0, Math.min(value, 100));
-  const data = [
-    { name: label, value: boundedValue, fill: 'var(--accent)' },
-    { name: '未完成', value: 100 - boundedValue, fill: 'var(--surface-secondary)' },
-  ];
-
-  return (
-    <div aria-label={`${label} ${boundedValue}%`} style={{ position: 'relative', width: 96, height: 96 }}>
-      <PieChart data={data} height={96} width={96}>
-        <PieChart.Pie
-          data={data}
-          dataKey="value"
-          nameKey="name"
-          innerRadius={31}
-          outerRadius={48}
-          startAngle={90}
-          endAngle={-270}
-          stroke="var(--surface)"
-          isAnimationActive={false}
-        >
-          {data.map((entry) => (
-            <PieChart.Cell key={entry.name} fill={entry.fill} />
-          ))}
-        </PieChart.Pie>
-        <PieChart.Tooltip cursor={false} content={<PieChart.TooltipContent />} />
-      </PieChart>
-      <span
-        style={{
-          position: 'absolute',
-          inset: 0,
-          display: 'grid',
-          placeItems: 'center',
-          color: 'var(--foreground)',
-          fontSize: 14,
-          fontWeight: 700,
-          pointerEvents: 'none',
-        }}
-      >
-        {boundedValue}%
-      </span>
-    </div>
-  );
-};
 
 const CourseCover = ({ title }: { title: string }) => (
   <div
@@ -2534,72 +2524,221 @@ type EmptyStateVariant =
   | 'with-avatar-group'
   | 'with-background';
 
-const EmptyStateVariantDemo = ({ variant }: { variant: EmptyStateVariant }) => {
-  const [count, setCount] = useState(0);
+/** Pro 风格渐变头像球：用于 with-avatar / with-avatar-group 空态 */
+const GradientAvatar = ({ gradient, size = 48 }: { gradient: string; size?: number }) => (
+  <span
+    aria-hidden="true"
+    style={{
+      display: 'inline-block',
+      width: size,
+      height: size,
+      borderRadius: '50%',
+      background: gradient,
+    }}
+  />
+);
 
+const EmptyStateVariantDemo = ({ variant }: { variant: EmptyStateVariant }) => {
+  // sizes 对齐 Pro：sm / md / lg 三个「No Projects Yet」并排
   if (variant === 'sizes') {
     return (
       <DemoSection>
         {(['sm', 'md', 'lg'] as const).map((size) => (
-          <EmptyState key={size} size={size} style={{ width: 220 }}>
-            <EmptyState.Header>
-              <EmptyState.Media variant="icon">
-                <FileIcon />
-              </EmptyState.Media>
-              <EmptyState.Title>{size.toUpperCase()} 空态</EmptyState.Title>
-              <EmptyState.Description>尺寸对比</EmptyState.Description>
-            </EmptyState.Header>
-          </EmptyState>
+          <div key={size} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={demoTextStyle}>{size}</span>
+            <EmptyState size={size} style={{ width: 280 }}>
+              <EmptyState.Header>
+                <EmptyState.Media variant="icon">
+                  <FolderIcon />
+                </EmptyState.Media>
+                <EmptyState.Title>No Projects Yet</EmptyState.Title>
+                <EmptyState.Description>
+                  You haven't created any projects yet. Get started by creating your first project.
+                </EmptyState.Description>
+              </EmptyState.Header>
+              <EmptyState.Content>
+                <Button size="sm" variant="primary">
+                  Create Project
+                </Button>
+                <Button size="sm" variant="outline">
+                  Import Project
+                </Button>
+              </EmptyState.Content>
+            </EmptyState>
+          </div>
         ))}
       </DemoSection>
     );
   }
 
-  const showMedia = variant !== 'minimal';
-  const style =
-    variant === 'full-height'
-      ? { width: 360, minHeight: 320 }
-      : variant === 'outline'
-        ? { width: 360, border: '1px dashed var(--border)', borderRadius: 8 }
-        : variant === 'with-background'
-          ? {
-              width: 360,
-              background: 'linear-gradient(135deg, var(--surface), var(--surface-secondary))',
-              borderRadius: 8,
-            }
-          : { width: 360 };
+  // minimal 对齐 Pro：仅标题 + 描述，无图标/按钮
+  if (variant === 'minimal') {
+    return (
+      <DemoSection isColumn label="minimal">
+        <EmptyState size="md" style={{ width: 480, minHeight: 200 }}>
+          <EmptyState.Header>
+            <EmptyState.Title>Nothing here yet</EmptyState.Title>
+            <EmptyState.Description>Content will appear here once it becomes available.</EmptyState.Description>
+          </EmptyState.Header>
+        </EmptyState>
+      </DemoSection>
+    );
+  }
 
-  return (
-    <DemoSection isColumn label={variant}>
-      <EmptyState size={variant === 'minimal' ? 'sm' : 'md'} style={style}>
-        <EmptyState.Header>
-          {showMedia && (
+  // outline 对齐 Pro：虚线边框 + 云图标 + Upload Files
+  if (variant === 'outline') {
+    return (
+      <DemoSection isColumn label="outline">
+        <EmptyState
+          size="md"
+          style={{ width: 420, border: '1px dashed var(--border)', borderRadius: 12 }}
+        >
+          <EmptyState.Header>
             <EmptyState.Media variant="icon">
-              {variant === 'with-avatar' ? (
-                <Avatar fallback="王" color="accent" />
-              ) : variant === 'with-avatar-group' ? (
-                <span style={{ display: 'inline-flex', marginLeft: 12 }}>
-                  <Avatar fallback="王" color="accent" size="sm" />
-                  <Avatar fallback="李" color="success" size="sm" style={{ marginLeft: -8 }} />
-                  <Avatar fallback="陈" color="warning" size="sm" style={{ marginLeft: -8 }} />
-                </span>
-              ) : (
-                <FileIcon />
-              )}
+              <CloudIcon />
             </EmptyState.Media>
-          )}
-          <EmptyState.Title>暂无匹配课程</EmptyState.Title>
-          <EmptyState.Description>
-            {variant === 'minimal' ? '精简空态，只保留关键文案。' : '调整筛选条件或刷新列表后重试。'}
-          </EmptyState.Description>
-        </EmptyState.Header>
-        {variant !== 'minimal' && (
+            <EmptyState.Title>Cloud Storage Empty</EmptyState.Title>
+            <EmptyState.Description>
+              Upload files to your cloud storage to access them anywhere.
+            </EmptyState.Description>
+          </EmptyState.Header>
           <EmptyState.Content>
-            <Button size="sm" variant="secondary" onClick={() => setCount((value) => value + 1)}>
-              刷新 {count}
+            <Button size="sm" variant="outline">
+              Upload Files
             </Button>
           </EmptyState.Content>
-        )}
+        </EmptyState>
+      </DemoSection>
+    );
+  }
+
+  // full-height 对齐 Pro：高容器内居中的「No Results Found」+ Clear Filters
+  if (variant === 'full-height') {
+    return (
+      <DemoSection isColumn label="full height">
+        <EmptyState
+          size="md"
+          style={{ width: 480, minHeight: 360, border: '1px dashed var(--border)', borderRadius: 12 }}
+        >
+          <EmptyState.Header>
+            <EmptyState.Media variant="icon">
+              <UserIcon />
+            </EmptyState.Media>
+            <EmptyState.Title>No Results Found</EmptyState.Title>
+            <EmptyState.Description>
+              We couldn't find anything matching your search. Try adjusting your filters.
+            </EmptyState.Description>
+          </EmptyState.Header>
+          <EmptyState.Content>
+            <Button size="sm" variant="outline">
+              Clear Filters
+            </Button>
+          </EmptyState.Content>
+        </EmptyState>
+      </DemoSection>
+    );
+  }
+
+  // with-avatar 对齐 Pro：渐变头像 + User Offline + Leave Message
+  if (variant === 'with-avatar') {
+    return (
+      <DemoSection isColumn label="with avatar">
+        <EmptyState size="md" style={{ width: 480 }}>
+          <EmptyState.Header>
+            <EmptyState.Media>
+              <GradientAvatar gradient="linear-gradient(135deg, #c4b5fd, #67e8f9)" />
+            </EmptyState.Media>
+            <EmptyState.Title>User Offline</EmptyState.Title>
+            <EmptyState.Description>
+              This user is currently offline. You can leave a message to notify them or try again later.
+            </EmptyState.Description>
+          </EmptyState.Header>
+          <EmptyState.Content>
+            <Button size="sm" variant="secondary">
+              Leave Message
+            </Button>
+          </EmptyState.Content>
+        </EmptyState>
+      </DemoSection>
+    );
+  }
+
+  // with-avatar-group 对齐 Pro：三个渐变头像球 + No Team Members + Invite Members
+  if (variant === 'with-avatar-group') {
+    return (
+      <DemoSection isColumn label="with avatar group">
+        <EmptyState size="md" style={{ width: 480 }}>
+          <EmptyState.Header>
+            <EmptyState.Media>
+              <span style={{ display: 'inline-flex' }}>
+                <GradientAvatar gradient="linear-gradient(135deg, #93c5fd, #67e8f9)" size={40} />
+                <span style={{ marginLeft: -10 }}>
+                  <GradientAvatar gradient="linear-gradient(135deg, #6ee7b7, #34d399)" size={40} />
+                </span>
+                <span style={{ marginLeft: -10 }}>
+                  <GradientAvatar gradient="linear-gradient(135deg, #c4b5fd, #f472b6)" size={40} />
+                </span>
+              </span>
+            </EmptyState.Media>
+            <EmptyState.Title>No Team Members</EmptyState.Title>
+            <EmptyState.Description>Invite your team to collaborate on this project.</EmptyState.Description>
+          </EmptyState.Header>
+          <EmptyState.Content>
+            <Button size="sm" variant="primary">
+              + Invite Members
+            </Button>
+          </EmptyState.Content>
+        </EmptyState>
+      </DemoSection>
+    );
+  }
+
+  // with-background 对齐 Pro：灰底容器 + 铃铛图标 + No Notifications + Refresh
+  if (variant === 'with-background') {
+    return (
+      <DemoSection isColumn label="with background">
+        <EmptyState
+          size="md"
+          style={{ width: 420, background: 'var(--surface-secondary)', borderRadius: 12 }}
+        >
+          <EmptyState.Header>
+            <EmptyState.Media variant="icon">
+              <BellIcon />
+            </EmptyState.Media>
+            <EmptyState.Title>No Notifications</EmptyState.Title>
+            <EmptyState.Description>You're all caught up. New notifications will appear here.</EmptyState.Description>
+          </EmptyState.Header>
+          <EmptyState.Content>
+            <Button size="sm" variant="secondary">
+              Refresh
+            </Button>
+          </EmptyState.Content>
+        </EmptyState>
+      </DemoSection>
+    );
+  }
+
+  // default 对齐 Pro Usage：文件夹图标 + No Projects Yet + Create/Import Project
+  return (
+    <DemoSection isColumn label="default">
+      <EmptyState size="md" style={{ width: 480 }}>
+        <EmptyState.Header>
+          <EmptyState.Media variant="icon">
+            <FolderIcon />
+          </EmptyState.Media>
+          <EmptyState.Title>No Projects Yet</EmptyState.Title>
+          <EmptyState.Description>
+            You haven't created any projects yet. Get started by creating your first project.
+          </EmptyState.Description>
+        </EmptyState.Header>
+        <EmptyState.Content>
+          <Button size="sm" variant="primary">
+            Create Project
+          </Button>
+          <Button size="sm" variant="outline">
+            Import Project
+          </Button>
+        </EmptyState.Content>
       </EmptyState>
     </DemoSection>
   );
@@ -3134,156 +3273,59 @@ type ItemCardVariantKey =
   | 'without-icon';
 
 const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
-  const [message, setMessage] = useState('尚未选择');
-  const [selectedCards, setSelectedCards] = useState<string[]>(['雅思 7 分计划']);
-  const [enabled, setEnabled] = useState(true);
+  const [message, setMessage] = useState('No card opened');
+  const [enabled, setEnabled] = useState(false);
+  const [selectedDevices, setSelectedDevices] = useState<string[]>([]);
 
-  if (variant === 'variants') {
+  // default 对齐 Pro Usage：Language 设置行 + 「English」操作按钮
+  if (variant === 'default') {
     return (
-      <DemoSection isColumn label="visual variants">
-        {(['default', 'secondary', 'tertiary', 'outline', 'transparent'] as const).map((item) => (
-          <ItemCard key={item} variant={item} style={{ width: 360 }}>
-            <ItemCard.Icon>
-              <BookIcon />
-            </ItemCard.Icon>
-            <ItemCard.Content>
-              <ItemCard.Title>{item}</ItemCard.Title>
-              <ItemCard.Description>课程卡片视觉层级</ItemCard.Description>
-            </ItemCard.Content>
-          </ItemCard>
-        ))}
-      </DemoSection>
-    );
-  }
-
-  if (variant === 'with-multi-select') {
-    const toggle = (name: string, selected: boolean) =>
-      setSelectedCards((current) =>
-        selected
-          ? current.includes(name) ? current : [...current, name]
-          : current.filter((item) => item !== name),
-      );
-
-    return (
-      <DemoSection isColumn label="multi select">
-        {SIMPLE_COURSES.map((course) => (
-          <ItemCard
-            key={course.id}
-            isSelected={selectedCards.includes(course.name)}
-            style={{ width: 400 }}
-            onSelectedChange={(selected) => toggle(course.name, selected)}
-          >
-            <ItemCard.Icon>
-              <BookIcon />
-            </ItemCard.Icon>
-            <ItemCard.Content>
-              <ItemCard.Title>{course.name}</ItemCard.Title>
-              <ItemCard.Description>{course.owner} · {course.progress}%</ItemCard.Description>
-            </ItemCard.Content>
-            <ItemCard.Action>
-              <Checkbox
-                aria-label={`选择 ${course.name}`}
-                isSelected={selectedCards.includes(course.name)}
-                onSelectedChange={(selected) => toggle(course.name, selected)}
-              />
-            </ItemCard.Action>
-          </ItemCard>
-        ))}
-        <span style={demoTextStyle}>已选：{selectedCards.join('、') || '无'}</span>
-      </DemoSection>
-    );
-  }
-
-  if (variant === 'with-select') {
-    return (
-      <DemoSection isColumn label="single select">
-        {SIMPLE_COURSES.map((course) => (
-          <ItemCard
-            key={course.id}
-            isSelected={message === course.name}
-            variant={message === course.name ? 'outline' : 'default'}
-            style={{ width: 400 }}
-            onSelectedChange={(selected) => {
-              if (selected) setMessage(course.name);
-            }}
-          >
-            <ItemCard.Icon>
-              <BookIcon />
-            </ItemCard.Icon>
-            <ItemCard.Content>
-              <ItemCard.Title>{course.name}</ItemCard.Title>
-              <ItemCard.Description>点击切换当前课程</ItemCard.Description>
-            </ItemCard.Content>
-            <ItemCard.Action>
-              <Chip color={message === course.name ? 'success' : 'default'} size="sm">
-                {message === course.name ? '当前' : '选择'}
-              </Chip>
-            </ItemCard.Action>
-          </ItemCard>
-        ))}
-        <span style={demoTextStyle}>当前：{message}</span>
-      </DemoSection>
-    );
-  }
-
-  if (variant === 'with-switch' || variant === 'email-setting') {
-    return (
-      <DemoSection isColumn label={variant}>
-        <ItemCard style={{ width: 420 }}>
+      <DemoSection isColumn label="default">
+        <ItemCard style={{ width: 480 }}>
           <ItemCard.Icon>
-            <FileIcon />
+            <GlobeIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>{variant === 'email-setting' ? '邮件学习报告' : '自动提醒'}</ItemCard.Title>
-            <ItemCard.Description>
-              {enabled ? '已开启，每日 20:00 发送' : '已关闭，暂停自动发送'}
-            </ItemCard.Description>
+            <ItemCard.Title>Language</ItemCard.Title>
+            <ItemCard.Description>Choose your preferred language</ItemCard.Description>
           </ItemCard.Content>
           <ItemCard.Action>
-            <Switch aria-label="切换提醒" isSelected={enabled} size="sm" onSelectedChange={setEnabled} />
+            <Button size="sm" variant="outline" onClick={() => setMessage('Language changed')}>
+              English
+            </Button>
           </ItemCard.Action>
-        </ItemCard>
-      </DemoSection>
-    );
-  }
-
-  if (variant === 'pressable') {
-    return (
-      <DemoSection isColumn label="pressable">
-        <ItemCard
-          isPressable
-          style={{ width: 380 }}
-          onPress={() => setMessage('已打开课程详情')}
-        >
-          <ItemCard.Icon>
-            <BookIcon />
-          </ItemCard.Icon>
-          <ItemCard.Content>
-            <ItemCard.Title>雅思核心词汇</ItemCard.Title>
-            <ItemCard.Description>整卡可点击</ItemCard.Description>
-          </ItemCard.Content>
         </ItemCard>
         <span style={demoTextStyle}>{message}</span>
       </DemoSection>
     );
   }
 
-  if (variant === 'device-list') {
+  // variants 对齐 Pro：Default / Secondary / Tertiary / Outline / Transparent
+  if (variant === 'variants') {
+    const variantRows: {
+      key: 'default' | 'secondary' | 'tertiary' | 'outline' | 'transparent';
+      title: string;
+      desc: string;
+    }[] = [
+      { key: 'default', title: 'Default', desc: 'Surface background with shadow' },
+      { key: 'secondary', title: 'Secondary', desc: 'Secondary surface, no shadow' },
+      { key: 'tertiary', title: 'Tertiary', desc: 'Tertiary surface, no shadow' },
+      { key: 'outline', title: 'Outline', desc: 'Transparent with border, no shadow' },
+      { key: 'transparent', title: 'Transparent', desc: 'No background, no border, no shadow' },
+    ];
     return (
-      <DemoSection isColumn label="device list">
-        {['iPhone 15', 'MacBook Air'].map((device, index) => (
-          <ItemCard key={device} style={{ width: 380 }}>
+      <DemoSection isColumn label="variants">
+        {variantRows.map((row) => (
+          <ItemCard key={row.key} variant={row.key} style={{ width: 440 }}>
             <ItemCard.Icon>
-              <FileIcon />
+              <GlobeIcon />
             </ItemCard.Icon>
             <ItemCard.Content>
-              <ItemCard.Title>{device}</ItemCard.Title>
-              <ItemCard.Description>{index === 0 ? '当前设备' : '上次登录：昨天'}</ItemCard.Description>
+              <ItemCard.Title>{row.title}</ItemCard.Title>
+              <ItemCard.Description>{row.desc}</ItemCard.Description>
             </ItemCard.Content>
             <ItemCard.Action>
-              <Chip color={index === 0 ? 'success' : 'default'} size="sm">
-                {index === 0 ? '在线' : '离线'}
-              </Chip>
+              <ChevronRightIcon />
             </ItemCard.Action>
           </ItemCard>
         ))}
@@ -3291,56 +3333,271 @@ const ItemCardVariantDemo = ({ variant }: { variant: ItemCardVariantKey }) => {
     );
   }
 
-  if (variant === 'wallet-card') {
+  // with-multi-select 对齐 Pro：Event Invites 设置行 + 多选触发的选择框
+  if (variant === 'with-multi-select') {
+    const channels = ['Email', 'Push Notifications', 'SMS'];
+    const toggle = (name: string, selected: boolean) =>
+      setSelectedDevices((current) =>
+        selected
+          ? current.includes(name)
+            ? current
+            : [...current, name]
+          : current.filter((item) => item !== name),
+      );
     return (
-      <DemoSection label="wallet card">
-        <ItemCard variant="outline" style={{ width: 380 }}>
+      <DemoSection isColumn label="with multi select">
+        <ItemCard style={{ width: 480 }}>
           <ItemCard.Icon>
-            <Badge color="accent">¥</Badge>
+            <BellIcon />
           </ItemCard.Icon>
           <ItemCard.Content>
-            <ItemCard.Title>课程余额</ItemCard.Title>
-            <ItemCard.Description>可用课时 18 节 · 优惠券 3 张</ItemCard.Description>
+            <ItemCard.Title>Event Invites</ItemCard.Title>
+            <ItemCard.Description>Choose how you receive invitations</ItemCard.Description>
           </ItemCard.Content>
           <ItemCard.Action>
-            <strong>¥2,680</strong>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+              {channels.map((channel) => (
+                <Checkbox
+                  key={channel}
+                  aria-label={channel}
+                  isSelected={selectedDevices.includes(channel)}
+                  onSelectedChange={(selected) => toggle(channel, selected)}
+                >
+                  {channel}
+                </Checkbox>
+              ))}
+            </div>
           </ItemCard.Action>
         </ItemCard>
       </DemoSection>
     );
   }
 
-  return (
-    <DemoSection label={variant}>
-      <ItemCard style={{ width: variant === 'vertical-stack' ? 280 : 380 }}>
-        {variant !== 'without-icon' && (
+  // with-select 对齐 Pro：Language 设置行 + 内联下拉(用 outline 按钮模拟选择器)
+  if (variant === 'with-select') {
+    const languages = ['English', 'Español', '中文'];
+    return (
+      <DemoSection isColumn label="with select">
+        <ItemCard style={{ width: 480 }}>
           <ItemCard.Icon>
-            <BookIcon />
+            <GlobeIcon />
           </ItemCard.Icon>
-        )}
-        <ItemCard.Content
-          style={
-            variant === 'vertical-stack'
-              ? { alignItems: 'flex-start', gap: 8 }
-              : undefined
-          }
-        >
-          <ItemCard.Title>
-            {variant === 'title-only' ? '雅思核心词汇' : '雅思核心词汇 · 第 3 期'}
-          </ItemCard.Title>
-          {variant !== 'title-only' && (
-            <ItemCard.Description>已报名 86 人 · 开课时间 6 月 20 日</ItemCard.Description>
-          )}
-        </ItemCard.Content>
-        {variant === 'default' && (
+          <ItemCard.Content>
+            <ItemCard.Title>Language</ItemCard.Title>
+            <ItemCard.Description>Choose your preferred language</ItemCard.Description>
+          </ItemCard.Content>
           <ItemCard.Action>
-            <Button size="sm" variant="outline" onClick={() => setMessage('已打开课程详情')}>
-              查看
+            <div style={{ display: 'flex', gap: 6 }}>
+              {languages.map((lang) => (
+                <Chip
+                  key={lang}
+                  color={message === lang ? 'accent' : 'default'}
+                  variant="soft"
+                  size="sm"
+                  onClick={() => setMessage(lang)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  {lang}
+                </Chip>
+              ))}
+            </div>
+          </ItemCard.Action>
+        </ItemCard>
+        <span style={demoTextStyle}>Selected: {message === 'No card opened' ? 'English' : message}</span>
+      </DemoSection>
+    );
+  }
+
+  // with-switch 对齐 Pro：Dark mode 设置行 + Switch
+  if (variant === 'with-switch') {
+    return (
+      <DemoSection isColumn label="with switch">
+        <ItemCard style={{ width: 480 }}>
+          <ItemCard.Icon>
+            <MoonIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>Dark mode</ItemCard.Title>
+            <ItemCard.Description>Use dark theme across the app</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <Switch aria-label="Dark mode" isSelected={enabled} size="sm" onSelectedChange={setEnabled} />
+          </ItemCard.Action>
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  // email-setting 对齐 Pro：邮箱地址 + Primary 标 + ⋯ 操作
+  if (variant === 'email-setting') {
+    return (
+      <DemoSection isColumn label="email setting">
+        <ItemCard style={{ width: 560 }}>
+          <ItemCard.Content>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <ItemCard.Title>junior@heroui.com</ItemCard.Title>
+              <Chip color="default" variant="soft" size="sm">
+                Primary
+              </Chip>
+            </div>
+            <ItemCard.Description>
+              Notifications and account updates will be sent to this address.
+            </ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <Button aria-label="More options" isIconOnly size="sm" variant="ghost">
+              ⋯
             </Button>
           </ItemCard.Action>
-        )}
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  // pressable 对齐 Pro：整卡可点击的导航行(Account settings / Security)
+  if (variant === 'pressable') {
+    const rows = [
+      { id: 'account', icon: <UserIcon />, title: 'Account settings', desc: 'Manage your account preferences' },
+      { id: 'security', icon: <ShieldIcon />, title: 'Security', desc: 'Passwords and two-factor authentication' },
+    ];
+    return (
+      <DemoSection isColumn label="pressable">
+        {rows.map((row) => (
+          <ItemCard key={row.id} isPressable style={{ width: 480 }} onPress={() => setMessage(`Opened ${row.title}`)}>
+            <ItemCard.Icon>{row.icon}</ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{row.title}</ItemCard.Title>
+              <ItemCard.Description>{row.desc}</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              <ChevronRightIcon />
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+        <span style={demoTextStyle}>{message}</span>
+      </DemoSection>
+    );
+  }
+
+  // device-list 对齐 Pro：MacBook Pro(Active) / iMac(Revoke) / iPhone 15 Pro(Revoke)
+  if (variant === 'device-list') {
+    const devices = [
+      { id: 'macbook', icon: <FileIcon />, name: 'MacBook Pro', last: 'Last active: 2 minutes ago', active: true },
+      { id: 'imac', icon: <FileIcon />, name: 'iMac', last: 'Last active: 3 days ago', active: false },
+      { id: 'iphone', icon: <ShieldIcon />, name: 'iPhone 15 Pro', last: 'Last active: 1 hour ago', active: false },
+    ];
+    return (
+      <DemoSection isColumn label="device list">
+        {devices.map((device) => (
+          <ItemCard key={device.id} style={{ width: 480 }}>
+            <ItemCard.Icon>{device.icon}</ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{device.name}</ItemCard.Title>
+              <ItemCard.Description>{device.last}</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              {device.active ? (
+                <Chip color="success" variant="soft" size="sm">
+                  Active
+                </Chip>
+              ) : (
+                <Button size="sm" variant="outline">
+                  Revoke
+                </Button>
+              )}
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  // wallet-card 对齐 Pro：NFT/钱包行(头像 + 地址 + 价格 + ⋯)
+  if (variant === 'wallet-card') {
+    return (
+      <DemoSection label="wallet card">
+        <ItemCard style={{ width: 460 }}>
+          <ItemCard.Icon>
+            <Avatar fallback="SL" />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>SLMobbin's</ItemCard.Title>
+            <ItemCard.Description>0x9DC5...621a</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <div style={{ textAlign: 'right' }}>
+                <div style={{ fontWeight: 600 }}>$34.99</div>
+                <div style={demoMutedStyle}>0.021 ETH</div>
+              </div>
+              <Button aria-label="More options" isIconOnly size="sm" variant="ghost">
+                ⋯
+              </Button>
+            </div>
+          </ItemCard.Action>
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  // vertical-stack 对齐 Pro：Profile / Security / Cloud sync 导航行
+  if (variant === 'vertical-stack') {
+    const rows = [
+      { id: 'profile', icon: <UserIcon />, title: 'Profile', desc: 'Update your personal information' },
+      { id: 'security', icon: <ShieldIcon />, title: 'Security', desc: 'Manage passwords and 2FA' },
+      { id: 'cloud', icon: <CloudIcon />, title: 'Cloud sync', desc: 'Sync data across your devices' },
+    ];
+    return (
+      <DemoSection isColumn label="vertical stack">
+        {rows.map((row) => (
+          <ItemCard key={row.id} isPressable style={{ width: 480 }} onPress={() => setMessage(`Opened ${row.title}`)}>
+            <ItemCard.Icon>{row.icon}</ItemCard.Icon>
+            <ItemCard.Content>
+              <ItemCard.Title>{row.title}</ItemCard.Title>
+              <ItemCard.Description>{row.desc}</ItemCard.Description>
+            </ItemCard.Content>
+            <ItemCard.Action>
+              <ChevronRightIcon />
+            </ItemCard.Action>
+          </ItemCard>
+        ))}
+      </DemoSection>
+    );
+  }
+
+  // title-only 对齐 Pro：仅标题(无描述) + chevron
+  if (variant === 'title-only') {
+    return (
+      <DemoSection isColumn label="title only">
+        <ItemCard style={{ width: 480 }}>
+          <ItemCard.Icon>
+            <GlobeIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>Appearance</ItemCard.Title>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <ChevronRightIcon />
+          </ItemCard.Action>
+        </ItemCard>
+      </DemoSection>
+    );
+  }
+
+  // without-icon 对齐 Pro：无前置图标的危险操作行(Delete account)
+  return (
+    <DemoSection isColumn label="without icon">
+      <ItemCard style={{ width: 480 }}>
+        <ItemCard.Content>
+          <ItemCard.Title>Delete account</ItemCard.Title>
+          <ItemCard.Description>Permanently remove your account and all data</ItemCard.Description>
+        </ItemCard.Content>
+        <ItemCard.Action>
+          <Button size="sm" variant="danger-soft">
+            Delete
+          </Button>
+        </ItemCard.Action>
       </ItemCard>
-      {variant === 'default' && <span style={demoTextStyle}>{message}</span>}
     </DemoSection>
   );
 };
@@ -3359,112 +3616,383 @@ type ItemCardGroupVariantKey =
   | 'wallet-list'
   | 'with-header';
 
-const GroupCourseCard = ({ name, meta }: { name: string; meta: string }) => (
-  <ItemCard>
-    <ItemCard.Icon>
-      <BookIcon />
-    </ItemCard.Icon>
+/** 通用设置行：icon + 标题 + 描述（+ 可选 action）；对齐 heroui Pro Item Card Group 各 section */
+const GroupSettingCard = ({
+  id,
+  icon,
+  title,
+  desc,
+  action,
+}: {
+  id?: string;
+  icon?: ReactNode;
+  title: string;
+  desc?: string;
+  action?: ReactNode;
+}) => (
+  <ItemCard id={id}>
+    {icon && <ItemCard.Icon>{icon}</ItemCard.Icon>}
     <ItemCard.Content>
-      <ItemCard.Title>{name}</ItemCard.Title>
-      <ItemCard.Description>{meta}</ItemCard.Description>
+      <ItemCard.Title>{title}</ItemCard.Title>
+      {desc && <ItemCard.Description>{desc}</ItemCard.Description>}
     </ItemCard.Content>
+    {action && <ItemCard.Action>{action}</ItemCard.Action>}
   </ItemCard>
 );
 
-const ItemCardGroupVariantDemo = ({ variant }: { variant: ItemCardGroupVariantKey }) => {
-  const [pressed, setPressed] = useState('未点击');
+const selectChip = (label: string) => (
+  <Chip color="default" variant="soft" size="sm">
+    {label} ⌄
+  </Chip>
+);
 
-  if (variant === 'variants') {
+const ItemCardGroupVariantDemo = ({ variant }: { variant: ItemCardGroupVariantKey }) => {
+  const [pressed, setPressed] = useState('No item pressed');
+
+  // grid / grid-three-columns 对齐 Pro：网格排布的设置入口
+  if (variant === 'grid' || variant === 'grid-three-columns') {
+    const isThree = variant === 'grid-three-columns';
     return (
-      <DemoSection isColumn label="group variants">
-        {(['default', 'secondary', 'tertiary', 'outline', 'transparent'] as const).map((item) => (
-          <ItemCardGroup key={item} layout="list" variant={item} style={{ width: 360 }}>
-            <GroupCourseCard meta="视觉变体" name={item} />
-          </ItemCardGroup>
-        ))}
+      <DemoSection isColumn label={variant}>
+        <ItemCardGroup layout="grid" columns={isThree ? 3 : 2} style={{ width: isThree ? 760 : 560 }}>
+          {isThree && (
+            <ItemCardGroup.Header>
+              <ItemCardGroup.Title>Devices</ItemCardGroup.Title>
+              <ItemCardGroup.Description>Manage your connected devices</ItemCardGroup.Description>
+            </ItemCardGroup.Header>
+          )}
+          {isThree ? (
+            <>
+              <GroupSettingCard icon={<FileIcon />} title="MacBook Pro" desc="Active now" />
+              <GroupSettingCard icon={<FileIcon />} title="iMac" desc="3 days ago" />
+              <GroupSettingCard icon={<ShieldIcon />} title="iPhone 15" desc="1 hour ago" />
+            </>
+          ) : (
+            <>
+              <GroupSettingCard icon={<UserIcon />} title="Profile" desc="Personal info" />
+              <GroupSettingCard icon={<ShieldIcon />} title="Security" desc="2FA & passwords" />
+              <GroupSettingCard icon={<GlobeIcon />} title="Language" desc="English (US)" />
+              <GroupSettingCard icon={<GlobeIcon />} title="Appearance" desc="Theme & colors" />
+            </>
+          )}
+        </ItemCardGroup>
       </DemoSection>
     );
   }
 
+  // linked-accounts 对齐 Pro：3 列账号网格，已连接显示对勾、未连接显示 +
+  if (variant === 'linked-accounts') {
+    const accounts = [
+      { id: 'google', title: 'Google', desc: 'junior@heroui.com', linked: true },
+      { id: 'apple', title: 'Apple', desc: 'Not Linked', linked: false },
+      { id: 'github', title: 'Github', desc: 'Not Linked', linked: false },
+      { id: 'linkedin', title: 'LinkedIn', desc: 'Account Linked', linked: true },
+      { id: 'notion', title: 'Notion', desc: 'Not Linked', linked: false },
+    ];
+    return (
+      <DemoSection isColumn label="linked accounts">
+        <ItemCardGroup layout="grid" columns={3} style={{ width: 760 }}>
+          {accounts.map((account) => (
+            <GroupSettingCard
+              key={account.id}
+              icon={<GlobeIcon />}
+              title={account.title}
+              desc={account.desc}
+              action={
+                account.linked ? (
+                  <Chip color="success" variant="soft" size="sm">
+                    ✓
+                  </Chip>
+                ) : (
+                  <Button aria-label={`Link ${account.title}`} isIconOnly size="sm" variant="ghost">
+                    +
+                  </Button>
+                )
+              }
+            />
+          ))}
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
+
+  // list 对齐 Pro：Profile / Security / Cloud sync + 行内操作按钮
+  if (variant === 'list') {
+    const rows = [
+      { id: 'profile', icon: <UserIcon />, title: 'Profile', desc: 'Update your personal information', cta: 'Update' },
+      { id: 'security', icon: <ShieldIcon />, title: 'Security', desc: 'Manage passwords and 2FA', cta: 'Manage' },
+      { id: 'cloud', icon: <CloudIcon />, title: 'Cloud sync', desc: 'Sync data across your devices', cta: 'Sync' },
+    ];
+    return (
+      <DemoSection isColumn label="list">
+        <ItemCardGroup layout="list" style={{ width: 520 }}>
+          {rows.map((row) => (
+            <GroupSettingCard
+              key={row.id}
+              icon={row.icon}
+              title={row.title}
+              desc={row.desc}
+              action={
+                <Button size="sm" variant="outline">
+                  {row.cta}
+                </Button>
+              }
+            />
+          ))}
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
+
+  // multiple-sections 对齐 Pro：Account 区(导航行) + Preferences 区(Language/Dark mode)
   if (variant === 'multiple-sections') {
     return (
       <DemoSection isColumn label="multiple sections">
-        {['热门课程', '待审核课程'].map((title) => (
-          <ItemCardGroup key={title} layout="list" style={{ width: 420 }}>
+        <ItemCardGroup layout="list" style={{ width: 520 }}>
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>Account</ItemCardGroup.Title>
+          </ItemCardGroup.Header>
+          <GroupSettingCard
+            icon={<UserIcon />}
+            title="Profile"
+            desc="Update your personal information"
+            action={<ChevronRightIcon />}
+          />
+          <GroupSettingCard
+            icon={<ShieldIcon />}
+            title="Security"
+            desc="Manage passwords and 2FA"
+            action={<ChevronRightIcon />}
+          />
+        </ItemCardGroup>
+        <ItemCardGroup layout="list" style={{ width: 520 }}>
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>Preferences</ItemCardGroup.Title>
+          </ItemCardGroup.Header>
+          <GroupSettingCard
+            icon={<GlobeIcon />}
+            title="Language"
+            desc="Choose your preferred language"
+            action={
+              <Button size="sm" variant="outline">
+                English
+              </Button>
+            }
+          />
+          <GroupSettingCard
+            icon={<MoonIcon />}
+            title="Dark mode"
+            desc="Use dark theme across the app"
+            action={<Switch aria-label="Dark mode" size="sm" />}
+          />
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
+
+  // notification-preferences 对齐 Pro：带头部 + 每个事件类型一个下拉
+  if (variant === 'notification-preferences') {
+    const events = [
+      { id: 'invites', icon: <BellIcon />, title: 'Event Invites', value: 'Email & Push Notification' },
+      { id: 'reminders', icon: <BellIcon />, title: 'Event Reminders', value: 'Email' },
+      { id: 'blasts', icon: <BellIcon />, title: 'Event Blasts', value: 'Email & Push Notification' },
+    ];
+    return (
+      <DemoSection isColumn label="notification preferences">
+        <ItemCardGroup layout="list" style={{ width: 560 }}>
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>Notification Preferences</ItemCardGroup.Title>
+            <ItemCardGroup.Description>
+              Choose how you receive notifications for each event type
+            </ItemCardGroup.Description>
+          </ItemCardGroup.Header>
+          {events.map((event) => (
+            <GroupSettingCard
+              key={event.id}
+              icon={event.icon}
+              title={event.title}
+              action={selectChip(event.value)}
+            />
+          ))}
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
+
+  // permission-levels 对齐 Pro：带头部 + 每个资源一个权限下拉
+  if (variant === 'permission-levels') {
+    const perms = [
+      { id: 'documents', icon: <FolderIcon />, title: 'Documents', desc: 'Access to shared files', value: 'Edit' },
+      { id: 'billing', icon: <FileIcon />, title: 'Billing', desc: 'Payment and invoices', value: 'View' },
+      { id: 'members', icon: <UserIcon />, title: 'Members', desc: 'Team member management', value: 'Manage' },
+    ];
+    return (
+      <DemoSection isColumn label="permission levels">
+        <ItemCardGroup layout="list" style={{ width: 560 }}>
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>Permissions</ItemCardGroup.Title>
+            <ItemCardGroup.Description>Control access levels for your team</ItemCardGroup.Description>
+          </ItemCardGroup.Header>
+          {perms.map((perm) => (
+            <GroupSettingCard
+              key={perm.id}
+              icon={perm.icon}
+              title={perm.title}
+              desc={perm.desc}
+              action={selectChip(perm.value)}
+            />
+          ))}
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
+
+  // pressable 对齐 Pro：带头部 + Profile / Security / Cloud sync 整行可点
+  if (variant === 'pressable') {
+    const rows = [
+      { id: 'profile', icon: <UserIcon />, title: 'Profile', desc: 'Update your personal information' },
+      { id: 'security', icon: <ShieldIcon />, title: 'Security', desc: 'Manage passwords and 2FA' },
+      { id: 'cloud', icon: <CloudIcon />, title: 'Cloud sync', desc: 'Sync data across your devices' },
+    ];
+    return (
+      <DemoSection isColumn label="pressable">
+        <ItemCardGroup
+          layout="list"
+          isPressable
+          style={{ width: 520 }}
+          onItemPress={(key) => {
+            const row = rows.find((item) => item.id === key);
+            setPressed(row ? `Opened ${row.title}` : String(key));
+          }}
+        >
+          <ItemCardGroup.Header>
+            <ItemCardGroup.Title>Account</ItemCardGroup.Title>
+            <ItemCardGroup.Description>Manage your account settings and preferences</ItemCardGroup.Description>
+          </ItemCardGroup.Header>
+          {rows.map((row) => (
+            <GroupSettingCard
+              key={row.id}
+              id={row.id}
+              icon={row.icon}
+              title={row.title}
+              desc={row.desc}
+              action={<ChevronRightIcon />}
+            />
+          ))}
+        </ItemCardGroup>
+        <span style={demoTextStyle}>{pressed}</span>
+      </DemoSection>
+    );
+  }
+
+  // variants 对齐 Pro：每个视觉变体一个分组(含描述头部 + Profile/Security 行)
+  if (variant === 'variants') {
+    const variantRows: {
+      key: 'default' | 'secondary' | 'tertiary' | 'outline' | 'transparent';
+      title: string;
+      desc: string;
+    }[] = [
+      { key: 'default', title: 'Default', desc: 'Surface background with shadow' },
+      { key: 'secondary', title: 'Secondary', desc: 'Secondary surface, no shadow' },
+      { key: 'tertiary', title: 'Tertiary', desc: 'Tertiary surface, no shadow' },
+      { key: 'outline', title: 'Outline', desc: 'Transparent with border, no shadow' },
+      { key: 'transparent', title: 'Transparent', desc: 'No background, no border, no shadow' },
+    ];
+    return (
+      <DemoSection isColumn label="variants">
+        {variantRows.map((row) => (
+          <ItemCardGroup key={row.key} layout="list" variant={row.key} style={{ width: 480 }}>
             <ItemCardGroup.Header>
-              <ItemCardGroup.Title>{title}</ItemCardGroup.Title>
+              <ItemCardGroup.Title>{row.title}</ItemCardGroup.Title>
+              <ItemCardGroup.Description>{row.desc}</ItemCardGroup.Description>
             </ItemCardGroup.Header>
-            <GroupCourseCard meta="本周更新" name="雅思核心词汇" />
-            <GroupCourseCard meta="教研待确认" name="四级真题精讲" />
+            <GroupSettingCard
+              icon={<UserIcon />}
+              title="Profile"
+              desc="Update your personal information"
+              action={<ChevronRightIcon />}
+            />
+            <GroupSettingCard
+              icon={<ShieldIcon />}
+              title="Security"
+              desc="Manage passwords and 2FA"
+              action={<ChevronRightIcon />}
+            />
           </ItemCardGroup>
         ))}
       </DemoSection>
     );
   }
 
-  const isGrid = variant === 'grid' || variant === 'grid-three-columns';
-  const columns = variant === 'grid-three-columns' ? 3 : 2;
-  const title =
-    variant === 'linked-accounts'
-      ? '已连接账号'
-      : variant === 'wallet-list'
-        ? '钱包列表'
-        : variant === 'developer-settings'
-          ? '开发者设置'
-          : variant === 'notification-preferences'
-            ? '通知偏好'
-            : variant === 'permission-levels'
-              ? '权限级别'
-              : '课程分组';
+  // wallet-list 对齐 Pro：头像 + 名称/地址 + 价格 + ⋯
+  if (variant === 'wallet-list') {
+    const wallets = [
+      { id: 'funds', name: 'Funds', addr: '0x34E6...6255', usd: '$0.00', eth: '0.0 ETH', grad: 'linear-gradient(135deg, #475569, #1e293b)' },
+      { id: 'd9ea', name: '0xD9EA...f40e', addr: '0xD9EA...f40e', usd: '$0.00', eth: '0.0 ETH', grad: 'linear-gradient(135deg, #60a5fa, #a78bfa)' },
+      { id: 'slmobbin', name: "SLMobbin's", addr: '0x9DC5...621a', usd: '$37.09', eth: '0.021 ETH', grad: 'linear-gradient(135deg, #6ee7b7, #f472b6)' },
+      { id: 'samlee', name: "Sam Lee's Wallet", addr: '0xa98b...4daa', usd: '$0.00', eth: '0.0 ETH', grad: 'linear-gradient(135deg, #fb923c, #facc15)' },
+    ];
+    return (
+      <DemoSection isColumn label="wallet list">
+        <ItemCardGroup layout="list" style={{ width: 520 }}>
+          {wallets.map((wallet) => (
+            <ItemCard key={wallet.id}>
+              <ItemCard.Icon>
+                <GradientAvatar gradient={wallet.grad} size={32} />
+              </ItemCard.Icon>
+              <ItemCard.Content>
+                <ItemCard.Title>{wallet.name}</ItemCard.Title>
+                <ItemCard.Description>{wallet.addr}</ItemCard.Description>
+              </ItemCard.Content>
+              <ItemCard.Action>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div style={{ textAlign: 'right' }}>
+                    <div style={{ fontWeight: 600 }}>{wallet.usd}</div>
+                    <div style={demoMutedStyle}>{wallet.eth}</div>
+                  </div>
+                  <Button aria-label="More options" isIconOnly size="sm" variant="ghost">
+                    ⋯
+                  </Button>
+                </div>
+              </ItemCard.Action>
+            </ItemCard>
+          ))}
+        </ItemCardGroup>
+      </DemoSection>
+    );
+  }
 
+  // with-header / developer-settings 对齐 Pro：带 General 头部的设置组
   return (
     <DemoSection isColumn label={variant}>
-      <ItemCardGroup
-        columns={columns}
-        isPressable={variant === 'pressable' ? true : undefined}
-        layout={isGrid ? 'grid' : 'list'}
-        style={{ width: isGrid ? 620 : 420 }}
-        variant={variant === 'wallet-list' ? 'outline' : 'default'}
-        onItemPress={
-          variant === 'pressable'
-            ? (key) => {
-                const course = SIMPLE_COURSES.find((item) => item.id === key);
-                setPressed(course?.name ?? String(key));
-              }
-            : undefined
-        }
-      >
-        {(variant === 'with-header' || variant !== 'list') && (
-          <ItemCardGroup.Header>
-            <ItemCardGroup.Title>{title}</ItemCardGroup.Title>
-            <ItemCardGroup.Description>组合不同卡片内容与动作</ItemCardGroup.Description>
-          </ItemCardGroup.Header>
-        )}
-        {SIMPLE_COURSES.map((course) => (
-          <ItemCard
-            id={course.id}
-            key={course.id}
-          >
-            <ItemCard.Icon>
-              {variant === 'wallet-list' ? <Badge color="accent">¥</Badge> : <BookIcon />}
-            </ItemCard.Icon>
-            <ItemCard.Content>
-              <ItemCard.Title>{course.name}</ItemCard.Title>
-              <ItemCard.Description>
-                {variant === 'permission-levels'
-                  ? course.progress > 70 ? '管理员' : '成员'
-                  : `${course.owner} · ${course.progress}%`}
-              </ItemCard.Description>
-            </ItemCard.Content>
-            {(variant === 'notification-preferences' || variant === 'developer-settings') && (
-              <ItemCard.Action>
-                <Switch aria-label={course.name} defaultSelected={course.progress > 60} size="sm" />
-              </ItemCard.Action>
-            )}
-          </ItemCard>
-        ))}
+      <ItemCardGroup layout="list" style={{ width: 520 }}>
+        <ItemCardGroup.Header>
+          <ItemCardGroup.Title>General</ItemCardGroup.Title>
+          <ItemCardGroup.Description>Manage your account preferences</ItemCardGroup.Description>
+        </ItemCardGroup.Header>
+        <GroupSettingCard
+          icon={<GlobeIcon />}
+          title="Language"
+          desc="Choose your preferred language"
+          action={
+            <Button size="sm" variant="outline">
+              English
+            </Button>
+          }
+        />
+        <GroupSettingCard
+          icon={<GlobeIcon />}
+          title="Theme"
+          desc="Choose your app's look"
+          action={selectChip('System')}
+        />
+        <GroupSettingCard
+          icon={<MoonIcon />}
+          title="Dark mode"
+          desc="Use dark theme across the app"
+          action={<Switch aria-label="Dark mode" size="sm" />}
+        />
       </ItemCardGroup>
-      {variant === 'pressable' && <span style={demoTextStyle}>已点击：{pressed}</span>}
     </DemoSection>
   );
 };
@@ -3573,57 +4101,127 @@ const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
   );
 };
 
-const KpiGroupVariantDemo = ({ variant }: { variant: 'horizontal' | 'vertical' | 'with-from-suffix' }) => (
-  <DemoSection label={variant}>
-    <KpiGroup orientation={variant === 'vertical' ? 'vertical' : 'horizontal'} style={{ width: variant === 'vertical' ? 280 : 680 }}>
-      <Kpi>
-        <Kpi.Header>
-          <Kpi.Title>新增学员</Kpi.Title>
-        </Kpi.Header>
-        <Kpi.Content>
-          <Kpi.Value>{variant === 'with-from-suffix' ? 'from 328' : '328'}</Kpi.Value>
-        </Kpi.Content>
-      </Kpi>
-      <KpiGroup.Separator />
-      <Kpi>
-        <Kpi.Header>
-          <Kpi.Title>续费率</Kpi.Title>
-        </Kpi.Header>
-        <Kpi.Content>
-          <Kpi.Value>{variant === 'with-from-suffix' ? '76.5% suffix' : '76.5%'}</Kpi.Value>
-        </Kpi.Content>
-      </Kpi>
-    </KpiGroup>
-  </DemoSection>
-);
+const KpiGroupVariantDemo = ({ variant }: { variant: 'horizontal' | 'vertical' | 'with-from-suffix' }) => {
+  // vertical 对齐 Pro：单列堆叠 Revenue / Expenses / Profit（US$ 金额 + soft 趋势标）
+  if (variant === 'vertical') {
+    const verticalCards = [
+      { title: 'Revenue', value: 'US$228,451', dir: 'up' as const, pct: '+3.3%' },
+      { title: 'Expenses', value: 'US$25,108', dir: 'down' as const, pct: '-3.3%' },
+      { title: 'Profit', value: 'US$203,133', dir: 'up' as const, pct: '+4.1%' },
+    ];
+    return (
+      <DemoSection label="vertical">
+        <KpiGroup orientation="vertical" style={{ width: 280 }}>
+          {verticalCards.map((card, index) => (
+            <Fragment key={card.title}>
+              {index > 0 && <KpiGroup.Separator />}
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>{card.title}</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>{card.value}</Kpi.Value>
+                  <Kpi.Trend>{kpiTrendPill(card.dir, card.pct)}</Kpi.Trend>
+                </Kpi.Content>
+              </Kpi>
+            </Fragment>
+          ))}
+        </KpiGroup>
+      </DemoSection>
+    );
+  }
+
+  // horizontal / with-from-suffix 对齐 Pro：Total Subscribers / Avg. Open Rate / Avg. Click Rate
+  const withFrom = variant === 'with-from-suffix';
+  const horizontalCards = [
+    { title: 'Total Subscribers', value: '71,897', from: '70,946', dir: 'up' as const, pct: '12%' },
+    { title: 'Avg. Open Rate', value: '58.16%', from: '56.14%', dir: 'up' as const, pct: '2.02%' },
+    { title: 'Avg. Click Rate', value: '24.57%', from: '28.62%', dir: 'down' as const, pct: '4.05%' },
+  ];
+  return (
+    <DemoSection label={variant}>
+      <KpiGroup orientation="horizontal" style={{ width: 680 }}>
+        {horizontalCards.map((card, index) => (
+          <Fragment key={card.title}>
+            {index > 0 && <KpiGroup.Separator />}
+            <Kpi>
+              <Kpi.Header>
+                <Kpi.Title>{card.title}</Kpi.Title>
+              </Kpi.Header>
+              <Kpi.Content>
+                <Kpi.Value>{card.value}</Kpi.Value>
+                {withFrom && (
+                  <span style={{ ...demoMutedStyle, fontSize: 12 }}>from {card.from}</span>
+                )}
+                <Kpi.Trend>{kpiTrendPill(card.dir, card.pct)}</Kpi.Trend>
+              </Kpi.Content>
+            </Kpi>
+          </Fragment>
+        ))}
+      </KpiGroup>
+    </DemoSection>
+  );
+};
 
 type ListViewVariantKey = 'default' | 'disabled-items' | 'secondary' | 'selection-modes' | 'with-actions';
 
-const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
-  const [selected, setSelected] = useState<DemoSelection>(new Set(['1']));
-  const [message, setMessage] = useState('尚未操作');
+/** 渲染单个文件行：folder/file 图标 + 标题 + 「Updated …」描述，对齐 heroui Pro List View */
+const renderListViewFile = (file: (typeof LIST_VIEW_FILES)[number]) => (
+  <ListView.Item id={file.id} textValue={file.name}>
+    <ListView.ItemContent>
+      {file.kind === 'folder' ? <FolderIcon /> : <FileIcon />}
+      <div>
+        <ListView.Title>{file.name}</ListView.Title>
+        <ListView.Description>{file.updated}</ListView.Description>
+      </div>
+    </ListView.ItemContent>
+  </ListView.Item>
+);
 
+const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
+  const [message, setMessage] = useState('No action yet');
+
+  // selection-modes 对齐 Pro：None / Single / Multiple 三列并排
   if (variant === 'selection-modes') {
+    const modes: { mode: 'none' | 'single' | 'multiple'; label: string }[] = [
+      { mode: 'none', label: 'None' },
+      { mode: 'single', label: 'Single' },
+      { mode: 'multiple', label: 'Multiple' },
+    ];
     return (
-      <DemoSection isColumn label="selection modes">
+      <DemoSection label="selection modes">
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          {modes.map(({ mode, label }) => (
+            <div key={mode} style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              <span style={demoTextStyle}>{label}</span>
+              <ListView
+                aria-label={`Files (${label})`}
+                items={LIST_VIEW_FILES.slice(0, 4)}
+                selectionMode={mode}
+                style={{ width: 220 }}
+              >
+                {renderListViewFile}
+              </ListView>
+            </div>
+          ))}
+        </div>
+      </DemoSection>
+    );
+  }
+
+  // disabled-items：禁用 README.md / src 两行（带锁定语义）
+  if (variant === 'disabled-items') {
+    return (
+      <DemoSection isColumn label="disabled items">
         <ListView
-          aria-label="多选文件"
-          items={LIST_VIEW_FILES.slice(0, 3)}
-          selectedKeys={selected}
+          aria-label="Files"
+          disabledKeys={['3', '5']}
+          items={LIST_VIEW_FILES}
           selectionMode="multiple"
           style={{ width: 420 }}
-          onSelectionChange={setSelected}
         >
-          {(file) => (
-            <ListView.Item id={file.id} textValue={file.name}>
-              <ListView.ItemContent>
-                <FileIcon />
-                <ListView.Title>{file.name}</ListView.Title>
-              </ListView.ItemContent>
-            </ListView.Item>
-          )}
+          {renderListViewFile}
         </ListView>
-        <span style={demoTextStyle}>已选择：{selected === 'all' ? '全部' : selected.size}</span>
       </DemoSection>
     );
   }
@@ -3631,9 +4229,8 @@ const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
   return (
     <DemoSection isColumn label={variant}>
       <ListView
-        aria-label="文件列表"
-        disabledKeys={variant === 'disabled-items' ? ['3'] : undefined}
-        items={LIST_VIEW_FILES.slice(0, 4)}
+        aria-label="Files"
+        items={LIST_VIEW_FILES}
         selectionMode={variant === 'default' ? 'none' : 'single'}
         style={{ width: 420 }}
         variant={variant === 'secondary' ? 'secondary' : 'primary'}
@@ -3641,10 +4238,10 @@ const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
         {(file) => (
           <ListView.Item id={file.id} textValue={file.name}>
             <ListView.ItemContent>
-              <FileIcon />
+              {file.kind === 'folder' ? <FolderIcon /> : <FileIcon />}
               <div>
                 <ListView.Title>{file.name}</ListView.Title>
-                <ListView.Description>{file.size}</ListView.Description>
+                <ListView.Description>{file.updated}</ListView.Description>
               </div>
             </ListView.ItemContent>
             {variant === 'with-actions' && (
@@ -3654,10 +4251,10 @@ const ListViewVariantDemo = ({ variant }: { variant: ListViewVariantKey }) => {
                   variant="ghost"
                   onClick={(event) => {
                     event.stopPropagation();
-                    setMessage(`已下载 ${file.name}`);
+                    setMessage(`Opened ${file.name}`);
                   }}
                 >
-                  下载
+                  Open
                 </Button>
               </ListView.ItemAction>
             )}
@@ -3679,47 +4276,146 @@ type WidgetVariantKey =
   | 'with-pie-chart'
   | 'with-table';
 
+/** Widget demo 用的 Pro 业务数据集 */
+const WIDGET_TOKENS = [
+  { day: '09/03', input: 180, output: 30 },
+  { day: '09/06', input: 90, output: 28 },
+  { day: '09/09', input: 70, output: 40 },
+  { day: '09/12', input: 95, output: 34 },
+  { day: '09/15', input: 60, output: 30 },
+  { day: '09/18', input: 50, output: 26 },
+  { day: '09/21', input: 42, output: 24 },
+  { day: '09/24', input: 38, output: 22 },
+  { day: '09/27', input: 34, output: 20 },
+  { day: '09/30', input: 32, output: 18 },
+];
+const WIDGET_REQUESTS = [
+  { day: '09/03', requests: 600 },
+  { day: '09/06', requests: 1050 },
+  { day: '09/09', requests: 900 },
+  { day: '09/12', requests: 1150 },
+  { day: '09/15', requests: 1700 },
+  { day: '09/18', requests: 1450 },
+  { day: '09/21', requests: 1180 },
+  { day: '09/24', requests: 1000 },
+  { day: '09/27', requests: 880 },
+  { day: '09/30', requests: 560 },
+];
+const WIDGET_TRAFFIC = [
+  { month: 'Jan', organic: 5000, paid: 1000 },
+  { month: 'Mar', organic: 9000, paid: 11000 },
+  { month: 'May', organic: 11000, paid: 12000 },
+  { month: 'Jul', organic: 13000, paid: 9000 },
+  { month: 'Sep', organic: 18000, paid: 7000 },
+  { month: 'Nov', organic: 21000, paid: 16000 },
+  { month: 'Dec', organic: 17000, paid: 11000 },
+];
+const WIDGET_BROWSERS = [
+  { name: 'Chrome', value: 62 },
+  { name: 'Safari', value: 19 },
+  { name: 'Firefox', value: 11 },
+  { name: 'Edge', value: 8 },
+];
+const WIDGET_TEAM = [
+  { id: 'kate', name: 'Kate Moore', role: 'CEO', status: 'Active', email: 'kate@acme.com' },
+  { id: 'john', name: 'John Smith', role: 'CTO', status: 'Active', email: 'john@acme.com' },
+  { id: 'sara', name: 'Sara Johnson', role: 'CMO', status: 'On Leave', email: 'sara@acme.com' },
+  { id: 'michael', name: 'Michael Brown', role: 'CFO', status: 'Active', email: 'michael@acme.com' },
+];
+type WidgetTeamRow = (typeof WIDGET_TEAM)[number];
+const WIDGET_TEAM_COLUMNS: DataGridColumn<WidgetTeamRow>[] = [
+  { id: 'name', header: 'Name', accessorKey: 'name', isRowHeader: true },
+  { id: 'role', header: 'Role', accessorKey: 'role' },
+  { id: 'status', header: 'Status', accessorKey: 'status' },
+  { id: 'email', header: 'Email', accessorKey: 'email' },
+];
+
 const WidgetVariantDemo = ({ variant }: { variant: WidgetVariantKey }) => {
+  // dashboard-grid 对齐 Pro：Overview KPI 行 + Revenue/Traffic 双图 + Monthly Sales 柱图
   if (variant === 'dashboard-grid') {
     return (
       <DemoSection label="dashboard grid">
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12, width: 720 }}>
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 12, width: 760 }}>
           <Widget>
             <Widget.Header>
-              <Widget.Title>关键指标</Widget.Title>
+              <Widget.Title>Overview</Widget.Title>
             </Widget.Header>
             <Widget.Content>
               <KpiGroup orientation="horizontal">
                 <Kpi>
                   <Kpi.Header>
-                    <Kpi.Title>活跃</Kpi.Title>
+                    <Kpi.Title>Revenue</Kpi.Title>
                   </Kpi.Header>
                   <Kpi.Content>
-                    <Kpi.Value>1,486</Kpi.Value>
+                    <Kpi.Value>$228K</Kpi.Value>
+                    <Kpi.Trend>{kpiTrendPill('up', '12.5%')}</Kpi.Trend>
                   </Kpi.Content>
                 </Kpi>
                 <KpiGroup.Separator />
                 <Kpi>
                   <Kpi.Header>
-                    <Kpi.Title>续费</Kpi.Title>
+                    <Kpi.Title>Orders</Kpi.Title>
                   </Kpi.Header>
                   <Kpi.Content>
-                    <Kpi.Value>76%</Kpi.Value>
+                    <Kpi.Value>1,234</Kpi.Value>
+                    <Kpi.Trend>{kpiTrendPill('up', '8.2%')}</Kpi.Trend>
+                  </Kpi.Content>
+                </Kpi>
+                <KpiGroup.Separator />
+                <Kpi>
+                  <Kpi.Header>
+                    <Kpi.Title>Customers</Kpi.Title>
+                  </Kpi.Header>
+                  <Kpi.Content>
+                    <Kpi.Value>8,921</Kpi.Value>
+                    <Kpi.Trend>{kpiTrendPill('up', '3.1%')}</Kpi.Trend>
+                  </Kpi.Content>
+                </Kpi>
+                <KpiGroup.Separator />
+                <Kpi>
+                  <Kpi.Header>
+                    <Kpi.Title>Conversion</Kpi.Title>
+                  </Kpi.Header>
+                  <Kpi.Content>
+                    <Kpi.Value>3.2%</Kpi.Value>
+                    <Kpi.Trend>{kpiTrendPill('down', '0.4%')}</Kpi.Trend>
                   </Kpi.Content>
                 </Kpi>
               </KpiGroup>
             </Widget.Content>
           </Widget>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 12 }}>
+            <Widget>
+              <Widget.Header>
+                <Widget.Title>Revenue</Widget.Title>
+                <Chip color="success" variant="soft" size="sm">
+                  ↑ 12.5%
+                </Chip>
+              </Widget.Header>
+              <Widget.Content>
+                <SparklineLine values={[40, 38, 52, 48, 60, 56, 70, 66, 78, 84]} />
+              </Widget.Content>
+            </Widget>
+            <Widget>
+              <Widget.Header>
+                <Widget.Title>Traffic</Widget.Title>
+                <Widget.Legend>
+                  <Widget.LegendItem color="var(--chart-4)">Organic</Widget.LegendItem>
+                  <Widget.LegendItem color="var(--chart-1)">Paid</Widget.LegendItem>
+                </Widget.Legend>
+              </Widget.Header>
+              <Widget.Content>
+                <SparklineLine values={[20, 34, 42, 56, 64, 78]} />
+              </Widget.Content>
+            </Widget>
+          </div>
           <Widget>
             <Widget.Header>
-              <Widget.Title>学习趋势</Widget.Title>
-              <Widget.Legend>
-                <Widget.LegendItem color="var(--accent)">阅读</Widget.LegendItem>
-                <Widget.LegendItem color="var(--success)">词汇</Widget.LegendItem>
-              </Widget.Legend>
+              <Widget.Title>Monthly Sales</Widget.Title>
+              <Widget.Description>Units sold — Jan to Dec 2025</Widget.Description>
             </Widget.Header>
             <Widget.Content>
-              <SparklineBars values={[18, 28, 42, 35, 52, 46, 60]} />
+              <SparklineBars values={[18, 26, 22, 40, 30, 52, 34, 48, 38, 60, 46, 58]} />
             </Widget.Content>
           </Widget>
         </div>
@@ -3727,75 +4423,180 @@ const WidgetVariantDemo = ({ variant }: { variant: WidgetVariantKey }) => {
     );
   }
 
+  // with-table 对齐 Pro：Team Members 表格(4 members)
   if (variant === 'with-table') {
     return (
-      <DemoSection label="widget table">
-        <Widget style={{ width: 620 }}>
+      <DemoSection label="with table">
+        <Widget style={{ width: 640 }}>
           <Widget.Header>
-            <Widget.Title>课程排行</Widget.Title>
-            <Widget.Description>按本周学习时长排序</Widget.Description>
+            <Widget.Title>Team Members</Widget.Title>
+            <Widget.Description>4 members</Widget.Description>
           </Widget.Header>
           <Widget.Content>
-            <DataGrid aria-label="课程排行" columns={COURSE_COLUMNS} data={SIMPLE_COURSES} getRowId={courseRowId} />
+            <DataGrid
+              aria-label="Team Members"
+              columns={WIDGET_TEAM_COLUMNS}
+              data={WIDGET_TEAM}
+              getRowId={(row) => row.id}
+            />
           </Widget.Content>
         </Widget>
       </DemoSection>
     );
   }
 
-  return (
-    <DemoSection label={variant}>
-      <Widget style={{ width: 420 }}>
-        <Widget.Header>
-          <Widget.Title>
-            {variant === 'usage-summary'
-              ? '使用摘要'
-              : variant === 'with-kpis'
-                ? '关键指标'
-                : '学习趋势'}
-          </Widget.Title>
-          {(variant === 'with-bar-chart' || variant === 'with-line-chart' || variant === 'with-pie-chart') && (
+  // with-bar-chart 对齐 Pro：Requests Over Time 柱图
+  if (variant === 'with-bar-chart') {
+    return (
+      <DemoSection label="with bar chart">
+        <Widget style={{ width: 560 }}>
+          <Widget.Header>
+            <Widget.Title>Requests Over Time</Widget.Title>
             <Widget.Legend>
-              <Widget.LegendItem color="var(--accent)">阅读</Widget.LegendItem>
-              <Widget.LegendItem color="var(--success)">词汇</Widget.LegendItem>
+              <Widget.LegendItem color="var(--chart-1)">Requests</Widget.LegendItem>
             </Widget.Legend>
-          )}
-        </Widget.Header>
-        <Widget.Content>
-          {variant === 'with-kpis' ? (
+          </Widget.Header>
+          <Widget.Content>
+            <BarChart data={WIDGET_REQUESTS} height={220}>
+              <BarChart.Grid vertical={false} />
+              <BarChart.XAxis dataKey="day" tickLine={false} axisLine={false} />
+              <BarChart.YAxis tickLine={false} axisLine={false} width={40} />
+              <BarChart.Tooltip cursor content={<BarChart.TooltipContent indicator="dot" />} />
+              <BarChart.Bar dataKey="requests" name="Requests" fill="var(--chart-1)" radius={[6, 6, 0, 0]} />
+            </BarChart>
+          </Widget.Content>
+        </Widget>
+      </DemoSection>
+    );
+  }
+
+  // with-line-chart 对齐 Pro：Traffic Sources 折线(Organic / Paid Ads)
+  if (variant === 'with-line-chart') {
+    return (
+      <DemoSection label="with line chart">
+        <Widget style={{ width: 560 }}>
+          <Widget.Header>
+            <Widget.Title>Traffic Sources</Widget.Title>
+            <Widget.Legend>
+              <Widget.LegendItem color="var(--chart-4)">Organic</Widget.LegendItem>
+              <Widget.LegendItem color="var(--chart-1)">Paid Ads</Widget.LegendItem>
+            </Widget.Legend>
+          </Widget.Header>
+          <Widget.Content>
+            <LineChart data={WIDGET_TRAFFIC} height={220}>
+              <LineChart.Grid vertical={false} />
+              <LineChart.XAxis dataKey="month" tickLine={false} axisLine={false} />
+              <LineChart.YAxis tickLine={false} axisLine={false} width={40} />
+              <LineChart.Tooltip cursor={{ strokeDasharray: '4 4' }} content={<LineChart.TooltipContent indicator="line" />} />
+              <LineChart.Line type="monotone" dataKey="organic" name="Organic" stroke="var(--chart-4)" strokeWidth={2} dot={false} />
+              <LineChart.Line type="monotone" dataKey="paid" name="Paid Ads" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
+            </LineChart>
+          </Widget.Content>
+        </Widget>
+      </DemoSection>
+    );
+  }
+
+  // with-pie-chart 对齐 Pro：Browser Usage 饼图(Chrome/Safari/Firefox/Edge)
+  if (variant === 'with-pie-chart') {
+    return (
+      <DemoSection label="with pie chart">
+        <Widget style={{ width: 420 }}>
+          <Widget.Header>
+            <Widget.Title>Browser Usage</Widget.Title>
+          </Widget.Header>
+          <Widget.Content>
+            <PieChart height={240} width={360}>
+              <PieChart.Tooltip content={<PieChart.TooltipContent />} />
+              <PieChart.Pie
+                data={WIDGET_BROWSERS}
+                dataKey="value"
+                nameKey="name"
+                outerRadius={92}
+                activeShape={<PieChart.ActiveShape />}
+              />
+            </PieChart>
+            <Widget.Legend style={{ justifyContent: 'center', flexWrap: 'wrap' }}>
+              {WIDGET_BROWSERS.map((item, index) => (
+                <Widget.LegendItem key={item.name} color={`var(--chart-${index + 1})`}>
+                  {item.name}
+                </Widget.LegendItem>
+              ))}
+            </Widget.Legend>
+          </Widget.Content>
+        </Widget>
+      </DemoSection>
+    );
+  }
+
+  // with-kpis / usage-summary 对齐 Pro：Key Metrics 三联指标 + 迷你趋势
+  if (variant === 'with-kpis' || variant === 'usage-summary') {
+    return (
+      <DemoSection label={variant}>
+        <Widget style={{ width: 640 }}>
+          <Widget.Header>
+            <Widget.Title>Key Metrics</Widget.Title>
+            <Widget.Description>Last 30 days</Widget.Description>
+          </Widget.Header>
+          <Widget.Content>
             <KpiGroup orientation="horizontal">
               <Kpi>
                 <Kpi.Header>
-                  <Kpi.Title>活跃</Kpi.Title>
+                  <Kpi.Title>Total Revenue</Kpi.Title>
                 </Kpi.Header>
                 <Kpi.Content>
-                  <Kpi.Value>1,486</Kpi.Value>
+                  <Kpi.Value>US$228,451</Kpi.Value>
+                  <Kpi.Trend>{kpiTrendPill('up', '3.3% last 30d')}</Kpi.Trend>
                 </Kpi.Content>
               </Kpi>
               <KpiGroup.Separator />
               <Kpi>
                 <Kpi.Header>
-                  <Kpi.Title>续费</Kpi.Title>
+                  <Kpi.Title>Bounce Rate</Kpi.Title>
                 </Kpi.Header>
                 <Kpi.Content>
-                  <Kpi.Value>76%</Kpi.Value>
+                  <Kpi.Value>42.3%</Kpi.Value>
+                  <Kpi.Trend>{kpiTrendPill('down', '5.9% vs last 7d')}</Kpi.Trend>
+                </Kpi.Content>
+              </Kpi>
+              <KpiGroup.Separator />
+              <Kpi>
+                <Kpi.Header>
+                  <Kpi.Title>Active Users</Kpi.Title>
+                </Kpi.Header>
+                <Kpi.Content>
+                  <Kpi.Value>100K</Kpi.Value>
+                  <Kpi.Trend>{kpiTrendPill('up', '10.9% this month')}</Kpi.Trend>
                 </Kpi.Content>
               </Kpi>
             </KpiGroup>
-          ) : variant === 'with-line-chart' ? (
-            <SparklineLine values={[18, 22, 31, 28, 44, 52, 58]} />
-          ) : variant === 'with-pie-chart' ? (
-            <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
-              <CompletionDonut label="课程完成率" value={72} />
-              <span style={demoMutedStyle}>72% 学员完成本周目标</span>
-            </div>
-          ) : (
-            <SparklineBars values={variant === 'usage-summary' ? [32, 46, 38, 58, 42, 64, 70] : [18, 28, 42, 35, 52, 46, 60]} />
-          )}
+          </Widget.Content>
+        </Widget>
+      </DemoSection>
+    );
+  }
+
+  // default 对齐 Pro Usage：Tokens Over Time 折线(Input / Output)
+  return (
+    <DemoSection label="default">
+      <Widget style={{ width: 560 }}>
+        <Widget.Header>
+          <Widget.Title>Tokens Over Time</Widget.Title>
+          <Widget.Legend>
+            <Widget.LegendItem color="var(--chart-1)">Input</Widget.LegendItem>
+            <Widget.LegendItem color="var(--chart-2)">Output</Widget.LegendItem>
+          </Widget.Legend>
+        </Widget.Header>
+        <Widget.Content>
+          <LineChart data={WIDGET_TOKENS} height={220}>
+            <LineChart.Grid vertical={false} />
+            <LineChart.XAxis dataKey="day" tickLine={false} axisLine={false} />
+            <LineChart.YAxis tickLine={false} axisLine={false} width={40} />
+            <LineChart.Tooltip cursor={{ strokeDasharray: '4 4' }} content={<LineChart.TooltipContent indicator="line" />} />
+            <LineChart.Line type="monotone" dataKey="input" name="Input" stroke="var(--chart-1)" strokeWidth={2} dot={false} />
+            <LineChart.Line type="monotone" dataKey="output" name="Output" stroke="var(--chart-2)" strokeWidth={2} dot={false} />
+          </LineChart>
         </Widget.Content>
-        <Widget.Footer>
-          <span style={demoMutedStyle}>数据每小时更新</span>
-        </Widget.Footer>
       </Widget>
     </DemoSection>
   );
@@ -3810,29 +4611,116 @@ type ChartTooltipVariantKey =
   | 'line-indicator'
   | 'no-header';
 
-const ChartTooltipVariantDemo = ({ variant }: { variant: ChartTooltipVariantKey }) => (
-  <DemoSection label={variant}>
-    {variant === 'inactive' ? (
-      <span style={demoMutedStyle}>暂无悬停数据点。</span>
-    ) : (
+const ChartTooltipVariantDemo = ({ variant }: { variant: ChartTooltipVariantKey }) => {
+  // inactive 对齐 Pro：active=false，无悬停数据点不渲染内容
+  if (variant === 'inactive') {
+    return (
+      <DemoSection isColumn label="inactive">
+        <span style={demoMutedStyle}>The tooltip below is inactive (active=false) — nothing should render:</span>
+        <div
+          style={{
+            display: 'grid',
+            placeItems: 'center',
+            width: 360,
+            height: 64,
+            borderRadius: 8,
+            background: 'var(--surface-secondary)',
+            color: 'var(--muted)',
+            fontSize: 13,
+          }}
+        >
+          (empty — tooltip hidden)
+        </div>
+      </DemoSection>
+    );
+  }
+
+  // chart-colors 对齐 Pro：四个 chart token 色阶
+  if (variant === 'chart-colors') {
+    const colors = [
+      { token: 'chart-1', label: 'Lightest' },
+      { token: 'chart-2', label: 'Light' },
+      { token: 'chart-3', label: 'Accent' },
+      { token: 'chart-4', label: 'Darkest' },
+    ];
+    return (
+      <DemoSection label="chart colors">
+        <ChartTooltip>
+          <ChartTooltip.Header>All Chart Colors</ChartTooltip.Header>
+          {colors.map((color) => (
+            <ChartTooltip.Item
+              key={color.token}
+              indicator="dot"
+              indicatorColor={`var(--${color.token})`}
+              label={color.token}
+              value={color.label}
+            />
+          ))}
+        </ChartTooltip>
+      </DemoSection>
+    );
+  }
+
+  // line-indicator / no-header 对齐 Pro：流量来源(竖线指示器)
+  if (variant === 'line-indicator' || variant === 'no-header') {
+    const rows = [
+      { label: 'Organic', value: '15,200', color: 'var(--chart-1)' },
+      { label: 'Paid Ads', value: '8,400', color: 'var(--chart-3)' },
+      { label: 'Referral', value: '3,100', color: 'var(--chart-4)' },
+    ];
+    return (
+      <DemoSection label={variant}>
+        <ChartTooltip>
+          {variant !== 'no-header' && <ChartTooltip.Header>March 2025</ChartTooltip.Header>}
+          {rows.map((row) => (
+            <ChartTooltip.Item
+              key={row.label}
+              indicator="line"
+              indicatorColor={row.color}
+              label={row.label}
+              value={row.value}
+            />
+          ))}
+        </ChartTooltip>
+      </DemoSection>
+    );
+  }
+
+  // custom-formatters 对齐 Pro：投资组合 vs 基准(货币格式)
+  if (variant === 'custom-formatters') {
+    return (
+      <DemoSection label="custom formatters">
+        <ChartTooltip>
+          <ChartTooltip.Header>January 15, 2025</ChartTooltip.Header>
+          <ChartTooltip.Item indicator="dot" indicatorColor="var(--chart-1)" label="Portfolio" value="$24,801.32" />
+          <ChartTooltip.Item indicator="dot" indicatorColor="var(--chart-4)" label="Benchmark" value="$21,500" />
+        </ChartTooltip>
+      </DemoSection>
+    );
+  }
+
+  // default / auto-content 对齐 Pro：月度营收 vs 支出
+  const isAuto = variant === 'auto-content';
+  return (
+    <DemoSection label={variant}>
       <ChartTooltip>
-        {variant !== 'no-header' && <ChartTooltip.Header>{variant === 'auto-content' ? '自动内容' : '6 月 11 日'}</ChartTooltip.Header>}
+        <ChartTooltip.Header>{isAuto ? 'February' : 'January'}</ChartTooltip.Header>
         <ChartTooltip.Item
-          indicator={variant === 'line-indicator' ? 'line' : 'dot'}
-          indicatorColor={variant === 'chart-colors' ? 'var(--chart-1)' : 'var(--accent)'}
-          label="新增学员"
-          value={variant === 'custom-formatters' ? '+328 人' : '328'}
+          indicator="dot"
+          indicatorColor="var(--chart-1)"
+          label="Revenue"
+          value={isAuto ? '18200' : '$12,400'}
         />
         <ChartTooltip.Item
-          indicator={variant === 'line-indicator' ? 'line' : 'dot'}
-          indicatorColor={variant === 'chart-colors' ? 'var(--chart-2)' : 'var(--success)'}
-          label="完课学员"
-          value={variant === 'custom-formatters' ? '1,286 人' : '1,286'}
+          indicator="dot"
+          indicatorColor="var(--chart-4)"
+          label="Expenses"
+          value={isAuto ? '9800' : '$8,200'}
         />
       </ChartTooltip>
-    )}
-  </DemoSection>
-);
+    </DemoSection>
+  );
+};
 
 type TimelineVariantKey =
   | 'default'

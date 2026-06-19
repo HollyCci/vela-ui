@@ -133,67 +133,22 @@ const SliderDemo = () => {
   );
 };
 
-const CAMPUS_NAMES: Record<string, string> = {
-  bj: '北京校区',
-  sh: '上海校区',
-  gz: '广州校区',
-};
-
 const NativeSelectDemo = () => {
-  const [campus, setCampus] = useState('bj');
-  const handleCampusChange = (event: ChangeEvent<HTMLSelectElement>) =>
-    setCampus(event.target.value);
+  const [status, setStatus] = useState('');
+  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) =>
+    setStatus(event.target.value);
 
   return (
-    <>
-      <DemoSection label="label + description + 受控回显" isColumn>
-        <NativeSelect fullWidth style={{ width: 240 }}>
-          <NativeSelect.Label>所属校区</NativeSelect.Label>
-          <NativeSelect.Trigger name="campus" value={campus} onChange={handleCampusChange}>
-            <NativeSelect.Option value="bj">北京校区</NativeSelect.Option>
-            <NativeSelect.Option value="sh">上海校区</NativeSelect.Option>
-            <NativeSelect.Option value="gz">广州校区</NativeSelect.Option>
-          </NativeSelect.Trigger>
-          <NativeSelect.Description>当前选择：{CAMPUS_NAMES[campus]}</NativeSelect.Description>
-        </NativeSelect>
-        <NativeSelect fullWidth style={{ width: 240 }}>
-          <NativeSelect.Label>所属教研组（分组 + 禁用项）</NativeSelect.Label>
-          <NativeSelect.Trigger name="department" defaultValue="">
-            <NativeSelect.Option value="">请选择教研组</NativeSelect.Option>
-            <NativeSelect.OptGroup label="教学">
-              <NativeSelect.Option value="english">英语教研组</NativeSelect.Option>
-              <NativeSelect.Option value="vocab" disabled>
-                词汇教研组（满员）
-              </NativeSelect.Option>
-            </NativeSelect.OptGroup>
-            <NativeSelect.OptGroup label="运营">
-              <NativeSelect.Option value="support">学员服务组</NativeSelect.Option>
-            </NativeSelect.OptGroup>
-          </NativeSelect.Trigger>
-        </NativeSelect>
-      </DemoSection>
-      <DemoSection label="variants + 验证态 + 禁用">
-        <NativeSelect variant="secondary" fullWidth style={{ width: 200 }}>
-          <NativeSelect.Trigger aria-label="次级样式" defaultValue="a">
-            <NativeSelect.Option value="a">次级选项 A</NativeSelect.Option>
-            <NativeSelect.Option value="b">次级选项 B</NativeSelect.Option>
-          </NativeSelect.Trigger>
-        </NativeSelect>
-        <NativeSelect aria-invalid="true" data-invalid="true" fullWidth style={{ width: 200 }}>
-          <NativeSelect.Label>验证失败</NativeSelect.Label>
-          <NativeSelect.Trigger defaultValue="">
-            <NativeSelect.Option value="">必选项未选择</NativeSelect.Option>
-            <NativeSelect.Option value="ok">合规选项</NativeSelect.Option>
-          </NativeSelect.Trigger>
-        </NativeSelect>
-        <NativeSelect fullWidth style={{ width: 200 }}>
-          <NativeSelect.Label>禁用</NativeSelect.Label>
-          <NativeSelect.Trigger disabled defaultValue="done">
-            <NativeSelect.Option value="done">已完成</NativeSelect.Option>
-          </NativeSelect.Trigger>
-        </NativeSelect>
-      </DemoSection>
-    </>
+    <DemoSection>
+      <NativeSelect style={{ width: 240 }}>
+        <NativeSelect.Trigger aria-label="Select status" value={status} onChange={handleStatusChange}>
+          <NativeSelect.Option value="">Select status</NativeSelect.Option>
+          <NativeSelect.Option value="active">Active</NativeSelect.Option>
+          <NativeSelect.Option value="inactive">Inactive</NativeSelect.Option>
+          <NativeSelect.Option value="pending">Pending</NativeSelect.Option>
+        </NativeSelect.Trigger>
+      </NativeSelect>
+    </DemoSection>
   );
 };
 
@@ -275,66 +230,41 @@ const TagDemo = () => {
 };
 
 const CheckboxButtonGroupDemo = () => {
-  const [modules, setModules] = useState<string[]>(['reading']);
-  const handleModulesChange = (value: string[]) => setModules(value);
-  // 校验态：未选任何模块即视为无效，由底座 FieldError 渲染 errorMessage
-  const modulesInvalid = modules.length === 0;
+  const [features, setFeatures] = useState<string[]>(['security', 'storage']);
+  const handleFeaturesChange = (value: string[]) => setFeatures(value);
 
   return (
     <DemoSection isColumn>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 4, width: 360 }}>
+        <strong className="text-sm">Select features</strong>
+        <span className="text-muted text-sm">Choose all that apply to your project</span>
+      </div>
       <CheckboxButtonGroup
-        aria-label="训练模块（受控）"
-        layout="grid"
-        value={modules}
-        onChange={handleModulesChange}
-        isInvalid={modulesInvalid}
-        errorMessage="请至少选择一个训练模块"
-        style={{ width: 480, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+        aria-label="Select features"
+        value={features}
+        onChange={handleFeaturesChange}
+        style={{ width: 360 }}
       >
-        <CheckboxButtonGroup.Item value="reading">
+        <CheckboxButtonGroup.Item value="security">
+          <CheckboxButtonGroup.ItemContent>
+            <strong>Security</strong>
+            <span>Real-time threat detection and prevention</span>
+          </CheckboxButtonGroup.ItemContent>
           <CheckboxButtonGroup.Indicator />
-          <CheckboxButtonGroup.ItemIcon>
-            <BookIcon />
-          </CheckboxButtonGroup.ItemIcon>
-          <CheckboxButtonGroup.ItemContent>
-            <strong>阅读训练</strong>
-            <span>精读与泛读结合</span>
-          </CheckboxButtonGroup.ItemContent>
         </CheckboxButtonGroup.Item>
-        <CheckboxButtonGroup.Item value="listening">
+        <CheckboxButtonGroup.Item value="storage">
+          <CheckboxButtonGroup.ItemContent>
+            <strong>Storage</strong>
+            <span>Cloud-based storage with automatic backups</span>
+          </CheckboxButtonGroup.ItemContent>
           <CheckboxButtonGroup.Indicator />
-          <CheckboxButtonGroup.ItemIcon>
-            <EarIcon />
-          </CheckboxButtonGroup.ItemIcon>
-          <CheckboxButtonGroup.ItemContent>
-            <strong>听力训练</strong>
-            <span>分级听写练习</span>
-          </CheckboxButtonGroup.ItemContent>
         </CheckboxButtonGroup.Item>
-      </CheckboxButtonGroup>
-      <CheckboxButtonGroup
-        aria-label="禁用组（自定义指示器）"
-        isDisabled
-        defaultValue={['spelling']}
-        style={{ width: 480 }}
-      >
-        <CheckboxButtonGroup.Item value="spelling">
-          <CheckboxButtonGroup.Indicator>
-            <CheckCircleIcon />
-          </CheckboxButtonGroup.Indicator>
+        <CheckboxButtonGroup.Item value="analytics">
           <CheckboxButtonGroup.ItemContent>
-            <strong>拼写训练</strong>
-            <span>禁用且选中</span>
+            <strong>Analytics</strong>
+            <span>Usage reports and performance dashboards</span>
           </CheckboxButtonGroup.ItemContent>
-        </CheckboxButtonGroup.Item>
-        <CheckboxButtonGroup.Item value="grammar">
-          <CheckboxButtonGroup.Indicator>
-            <CheckCircleIcon />
-          </CheckboxButtonGroup.Indicator>
-          <CheckboxButtonGroup.ItemContent>
-            <strong>语法训练</strong>
-            <span>禁用未选中</span>
-          </CheckboxButtonGroup.ItemContent>
+          <CheckboxButtonGroup.Indicator />
         </CheckboxButtonGroup.Item>
       </CheckboxButtonGroup>
     </DemoSection>
@@ -342,70 +272,43 @@ const CheckboxButtonGroupDemo = () => {
 };
 
 const RadioButtonGroupDemo = () => {
-  const [reportCycle, setReportCycle] = useState('weekly');
-  const handleReportCycleChange = (value: string) => setReportCycle(value);
+  const [plan, setPlan] = useState('pro');
+  const handlePlanChange = (value: string) => setPlan(value);
 
   return (
     <DemoSection isColumn>
+      <strong className="text-sm" style={{ width: 360 }}>
+        Select a plan
+      </strong>
       <RadioButtonGroup
-        aria-label="报告周期（受控）"
-        layout="grid"
-        value={reportCycle}
-        onChange={handleReportCycleChange}
-        style={{ width: 480, gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }}
+        aria-label="Select a plan"
+        value={plan}
+        onChange={handlePlanChange}
+        style={{ width: 360 }}
       >
-        <RadioButtonGroup.Item value="weekly">
+        <RadioButtonGroup.Item value="starter">
+          <RadioButtonGroup.ItemContent>
+            <strong>Starter</strong>
+            <span>For individuals and small projects</span>
+            <span>US$5/mo</span>
+          </RadioButtonGroup.ItemContent>
           <RadioButtonGroup.Indicator />
-          <RadioButtonGroup.ItemContent>
-            <strong>每周报告</strong>
-            <span>每周一汇总学习数据</span>
-          </RadioButtonGroup.ItemContent>
         </RadioButtonGroup.Item>
-        <RadioButtonGroup.Item value="monthly">
+        <RadioButtonGroup.Item value="pro">
+          <RadioButtonGroup.ItemContent>
+            <strong>Pro</strong>
+            <span>For growing teams and businesses</span>
+            <span>US$15/mo</span>
+          </RadioButtonGroup.ItemContent>
           <RadioButtonGroup.Indicator />
-          <RadioButtonGroup.ItemContent>
-            <strong>每月报告</strong>
-            <span>每月初汇总学习数据</span>
-          </RadioButtonGroup.ItemContent>
         </RadioButtonGroup.Item>
-      </RadioButtonGroup>
-      <RadioButtonGroup
-        aria-label="训练模式（自定义指示器 + 图标）"
-        defaultValue="reading"
-        style={{ width: 480 }}
-      >
-        <RadioButtonGroup.Item value="reading">
-          <RadioButtonGroup.Indicator>
-            <CheckCircleIcon />
-          </RadioButtonGroup.Indicator>
-          <RadioButtonGroup.ItemIcon>
-            <BookIcon />
-          </RadioButtonGroup.ItemIcon>
+        <RadioButtonGroup.Item value="enterprise">
           <RadioButtonGroup.ItemContent>
-            <strong>阅读模式</strong>
-            <span>精读与泛读结合</span>
+            <strong>Enterprise</strong>
+            <span>For large organizations at scale</span>
+            <span>US$45/mo</span>
           </RadioButtonGroup.ItemContent>
-        </RadioButtonGroup.Item>
-        <RadioButtonGroup.Item value="listening">
-          <RadioButtonGroup.Indicator>
-            <CheckCircleIcon />
-          </RadioButtonGroup.Indicator>
-          <RadioButtonGroup.ItemIcon>
-            <EarIcon />
-          </RadioButtonGroup.ItemIcon>
-          <RadioButtonGroup.ItemContent>
-            <strong>听力模式</strong>
-            <span>分级听写练习</span>
-          </RadioButtonGroup.ItemContent>
-        </RadioButtonGroup.Item>
-        <RadioButtonGroup.Item value="spelling" isDisabled>
-          <RadioButtonGroup.Indicator>
-            <CheckCircleIcon />
-          </RadioButtonGroup.Indicator>
-          <RadioButtonGroup.ItemContent>
-            <strong>拼写模式</strong>
-            <span>暂未开放（禁用项）</span>
-          </RadioButtonGroup.ItemContent>
+          <RadioButtonGroup.Indicator />
         </RadioButtonGroup.Item>
       </RadioButtonGroup>
     </DemoSection>
@@ -421,115 +324,43 @@ const STEPPER_PARTS = (
 );
 
 const NumberStepperDemo = () => (
-  <>
-    <DemoSection label="sizes + min/max/step">
-      <NumberStepper aria-label="数量（小）" size="sm" defaultValue={1} minValue={0} maxValue={9}>
-        {STEPPER_PARTS}
-      </NumberStepper>
-      <NumberStepper aria-label="数量" defaultValue={5} minValue={0} maxValue={20}>
-        {STEPPER_PARTS}
-      </NumberStepper>
-      <NumberStepper
-        aria-label="数量（大）"
-        size="lg"
-        defaultValue={10}
-        minValue={0}
-        maxValue={99}
-        step={5}
-      >
-        {STEPPER_PARTS}
-      </NumberStepper>
-    </DemoSection>
-    <DemoSection label="formatOptions（货币）+ disabled">
-      <NumberStepper
-        aria-label="价格"
-        defaultValue={99}
-        formatOptions={{ style: 'currency', currency: 'CNY' }}
-        minValue={0}
-        step={10}
-      >
-        {STEPPER_PARTS}
-      </NumberStepper>
-      <NumberStepper aria-label="禁用" defaultValue={3} isDisabled>
-        {STEPPER_PARTS}
-      </NumberStepper>
-    </DemoSection>
-  </>
+  <DemoSection>
+    <NumberStepper aria-label="Quantity" defaultValue={1} minValue={0} maxValue={99}>
+      {STEPPER_PARTS}
+    </NumberStepper>
+  </DemoSection>
 );
 
-const SORT_OPTIONS = [
-  { id: 'created', label: '按创建时间排序' },
-  { id: 'updated', label: '按更新时间排序' },
-  { id: 'name', label: '按名称排序' },
+const LANGUAGE_OPTIONS = [
+  { id: 'en', label: 'English' },
+  { id: 'es', label: 'Spanish' },
+  { id: 'fr', label: 'French' },
+  { id: 'de', label: 'German' },
 ];
 
 const InlineSelectDemo = () => {
-  const [sortKey, setSortKey] = useState<DemoKey | null>('created');
-  const handleSortChange = (value: DemoKey | null) => setSortKey(value);
-  const sortLabel = SORT_OPTIONS.find((option) => option.id === sortKey)?.label ?? '未选择';
+  const [language, setLanguage] = useState<DemoKey | null>('en');
+  const handleLanguageChange = (value: DemoKey | null) => setLanguage(value);
 
   return (
-    <>
-      <DemoSection label="受控单选（点击打开真实弹层）">
-        <InlineSelect aria-label="排序方式" value={sortKey} onChange={handleSortChange}>
-          <InlineSelect.Trigger>
-            <InlineSelect.Value />
-            <InlineSelect.Indicator />
-          </InlineSelect.Trigger>
-          <InlineSelect.Popover>
-            <InlineSelect.List>
-              {SORT_OPTIONS.map((option) => (
-                <InlineSelect.Item key={option.id} id={option.id} textValue={option.label}>
-                  {option.label}
-                  <InlineSelect.ItemIndicator />
-                </InlineSelect.Item>
-              ))}
-            </InlineSelect.List>
-          </InlineSelect.Popover>
-        </InlineSelect>
-        <span>当前：{sortLabel}</span>
-      </DemoSection>
-      <DemoSection label="多选 + 禁用项">
-        <InlineSelect aria-label="通知渠道" selectionMode="multiple" defaultValue={['email']}>
-          <InlineSelect.Trigger>
-            <InlineSelect.Value />
-            <InlineSelect.Indicator />
-          </InlineSelect.Trigger>
-          <InlineSelect.Popover>
-            <InlineSelect.List>
-              <InlineSelect.Item id="email" textValue="邮件">
-                邮件
+    <DemoSection>
+      <InlineSelect aria-label="Language" value={language} onChange={handleLanguageChange}>
+        <InlineSelect.Trigger>
+          <InlineSelect.Value />
+          <InlineSelect.Indicator />
+        </InlineSelect.Trigger>
+        <InlineSelect.Popover>
+          <InlineSelect.List>
+            {LANGUAGE_OPTIONS.map((option) => (
+              <InlineSelect.Item key={option.id} id={option.id} textValue={option.label}>
+                {option.label}
                 <InlineSelect.ItemIndicator />
               </InlineSelect.Item>
-              <InlineSelect.Item id="sms" textValue="短信" isDisabled>
-                短信（暂不可用）
-                <InlineSelect.ItemIndicator />
-              </InlineSelect.Item>
-              <InlineSelect.Item id="push" textValue="推送">
-                推送
-                <InlineSelect.ItemIndicator />
-              </InlineSelect.Item>
-            </InlineSelect.List>
-          </InlineSelect.Popover>
-        </InlineSelect>
-      </DemoSection>
-      <DemoSection label="整体禁用">
-        <InlineSelect aria-label="排序方式（禁用）" isDisabled defaultValue="locked">
-          <InlineSelect.Trigger>
-            <InlineSelect.Value />
-            <InlineSelect.Indicator />
-          </InlineSelect.Trigger>
-          <InlineSelect.Popover>
-            <InlineSelect.List>
-              <InlineSelect.Item id="locked" textValue="锁定中">
-                锁定中
-                <InlineSelect.ItemIndicator />
-              </InlineSelect.Item>
-            </InlineSelect.List>
-          </InlineSelect.Popover>
-        </InlineSelect>
-      </DemoSection>
-    </>
+            ))}
+          </InlineSelect.List>
+        </InlineSelect.Popover>
+      </InlineSelect>
+    </DemoSection>
   );
 };
 
@@ -590,46 +421,50 @@ const createDemoQueueItem = (
 
 const INITIAL_STATUS_FILES: DropZoneUploadQueueItem[] = [
   createDemoQueueItem(
-    { name: '学员名单-2026春季班.xlsx', size: 1.2 * 1024 * 1024 },
-    'spring-students',
-    'uploading',
-    { progress: 45 },
+    { name: 'Annual report 2025.pdf', size: 2.2 * 1024 * 1024 },
+    'annual-report',
+    'complete',
   ),
   createDemoQueueItem(
-    { name: '课件备份.zip', size: 18 * 1024 * 1024 },
-    'course-backup',
+    { name: 'Hero banner.png', size: 480 * 1024 },
+    'hero-banner',
+    'complete',
+  ),
+  createDemoQueueItem(
+    { name: 'Onboarding flow.mp4', size: 8 * 1024 * 1024 },
+    'onboarding-flow',
     'failed',
-    { error: '上传失败，请重试', canRetry: true },
+    { error: 'Failed', canRetry: true },
   ),
 ];
 
 const INITIAL_COMPACT_FILES: DropZoneUploadQueueItem[] = [
-  createDemoQueueItem({ name: '课程合同.pdf', size: 640 * 1024 }, 'compact-contract', 'complete'),
-  createDemoQueueItem({ name: '课堂记录.docx', size: 1.4 * 1024 * 1024 }, 'compact-notes', 'complete'),
+  createDemoQueueItem({ name: 'Annual report 2025.pdf', size: 2.2 * 1024 * 1024 }, 'compact-report', 'complete'),
+  createDemoQueueItem({ name: 'Hero banner.png', size: 480 * 1024 }, 'compact-banner', 'complete'),
 ];
 
 const INITIAL_MAX_SIZE_FILES: DropZoneUploadQueueItem[] = [
-  createDemoQueueItem({ name: '课程说明.pdf', size: 820 * 1024 }, 'max-size-valid', 'complete'),
+  createDemoQueueItem({ name: 'Annual report 2025.pdf', size: 820 * 1024 }, 'max-size-valid', 'complete'),
   createDemoQueueItem(
-    { name: '完整资料包.docx', size: 24.6 * 1024 * 1024 },
+    { name: 'Onboarding flow.mp4', size: 24.6 * 1024 * 1024 },
     'max-size-invalid',
     'failed',
-    { error: '文件大小不能超过 20 MB' },
+    { error: 'File exceeds the 10 MB limit' },
   ),
 ];
 
 const shouldFailBackupUpload = (item: DropZoneUploadQueueItem) =>
-  item.name.includes('备份') && item.attempt < 3;
+  item.name.includes('.mp4') && item.attempt < 3;
 
 const DropZoneDefaultVariantDemo = () => {
   return (
-    <DemoSection label="拖放高亮 + 文件选择回显" isColumn>
+    <DemoSection isColumn>
       <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
         <DropZone.Area>
           <DropZone.Icon />
-          <DropZone.Label>拖拽文件到此处上传</DropZone.Label>
-          <DropZone.Description>支持 PDF、Word，单个不超过 20MB</DropZone.Description>
-          <DropZone.Trigger>选择文件</DropZone.Trigger>
+          <DropZone.Label>Drag files here or click to browse</DropZone.Label>
+          <DropZone.Description>Supports JPEG, PNG, PDF up to 10MB.</DropZone.Description>
+          <DropZone.Trigger>Select File</DropZone.Trigger>
         </DropZone.Area>
         <DropZone.Input multiple />
         <DropZone.FileQueue />
@@ -639,13 +474,13 @@ const DropZoneDefaultVariantDemo = () => {
 };
 
 const DropZoneMultipleFilesVariantDemo = () => (
-  <DemoSection label="多文件上传" isColumn>
+  <DemoSection isColumn>
     <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon />
-        <DropZone.Label>一次拖入多个课件文件</DropZone.Label>
-        <DropZone.Description>支持批量选择，列表会持续追加</DropZone.Description>
-        <DropZone.Trigger>批量选择</DropZone.Trigger>
+        <DropZone.Label>Upload project assets</DropZone.Label>
+        <DropZone.Description>Documents, images, or videos up to 10 MB each.</DropZone.Description>
+        <DropZone.Trigger>Add Files</DropZone.Trigger>
       </DropZone.Area>
       <DropZone.Input multiple />
       <DropZone.FileQueue />
@@ -654,15 +489,15 @@ const DropZoneMultipleFilesVariantDemo = () => (
 );
 
 const DropZoneCustomIconVariantDemo = () => (
-  <DemoSection label="自定义图标" isColumn>
+  <DemoSection isColumn>
     <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon>
           <BookIcon />
         </DropZone.Icon>
-        <DropZone.Label>上传课程资料</DropZone.Label>
-        <DropZone.Description>课程图标会帮助区分资料类型</DropZone.Description>
-        <DropZone.Trigger>选择资料</DropZone.Trigger>
+        <DropZone.Label>Upload documents</DropZone.Label>
+        <DropZone.Description>A custom icon helps signal the expected file type.</DropZone.Description>
+        <DropZone.Trigger>Select File</DropZone.Trigger>
       </DropZone.Area>
       <DropZone.Input multiple />
       <DropZone.FileQueue />
@@ -671,15 +506,15 @@ const DropZoneCustomIconVariantDemo = () => (
 );
 
 const DropZoneCustomTriggersVariantDemo = () => (
-  <DemoSection label="自定义触发器" isColumn>
+  <DemoSection isColumn>
     <DropZone accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon />
-        <DropZone.Label>从多个入口选择文件</DropZone.Label>
-        <DropZone.Description>可从合同或附件入口选择文件</DropZone.Description>
+        <DropZone.Label>Upload from multiple sources</DropZone.Label>
+        <DropZone.Description>Pick files from documents or attachments.</DropZone.Description>
         <div style={{ display: 'flex', gap: 8 }}>
-          <DropZone.Trigger>上传合同</DropZone.Trigger>
-          <DropZone.Trigger>上传附件</DropZone.Trigger>
+          <DropZone.Trigger>Add Documents</DropZone.Trigger>
+          <DropZone.Trigger>Add Attachments</DropZone.Trigger>
         </div>
       </DropZone.Area>
       <DropZone.Input multiple />
@@ -689,13 +524,13 @@ const DropZoneCustomTriggersVariantDemo = () => (
 );
 
 const DropZoneImageOnlyVariantDemo = () => (
-  <DemoSection label="仅图片" isColumn>
+  <DemoSection isColumn>
     <DropZone accept={IMAGE_ACCEPT} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon />
-        <DropZone.Label>上传封面图</DropZone.Label>
-        <DropZone.Description>仅接收 PNG、JPG、WEBP、GIF</DropZone.Description>
-        <DropZone.Trigger>选择图片</DropZone.Trigger>
+        <DropZone.Label>Upload cover image</DropZone.Label>
+        <DropZone.Description>Accepts PNG, JPG, WEBP, and GIF only.</DropZone.Description>
+        <DropZone.Trigger>Select Image</DropZone.Trigger>
       </DropZone.Area>
       <DropZone.Input multiple />
       <DropZone.FileQueue />
@@ -704,7 +539,7 @@ const DropZoneImageOnlyVariantDemo = () => (
 );
 
 const DropZoneMaxSizeLimitVariantDemo = () => (
-  <DemoSection label="大小限制反馈" isColumn>
+  <DemoSection isColumn>
     <DropZone
       accept={DOCUMENT_ACCEPT}
       maxSize={UPLOAD_MAX_BYTES}
@@ -715,9 +550,9 @@ const DropZoneMaxSizeLimitVariantDemo = () => (
     >
       <DropZone.Area>
         <DropZone.Icon />
-        <DropZone.Label>上传小于 20MB 的文档</DropZone.Label>
-        <DropZone.Description>超过限制的文件会进入失败状态</DropZone.Description>
-        <DropZone.Trigger>选择文件</DropZone.Trigger>
+        <DropZone.Label>Upload files under 10 MB</DropZone.Label>
+        <DropZone.Description>Files over the limit move to a failed state.</DropZone.Description>
+        <DropZone.Trigger>Select File</DropZone.Trigger>
       </DropZone.Area>
       <DropZone.Input multiple />
       <DropZone.FileQueue />
@@ -726,7 +561,7 @@ const DropZoneMaxSizeLimitVariantDemo = () => (
 );
 
 const DropZoneCompactFileListVariantDemo = () => (
-  <DemoSection label="紧凑文件列表" isColumn>
+  <DemoSection isColumn>
     <DropZone defaultQueue={INITIAL_COMPACT_FILES} simulateUpload={false} style={{ width: 360 }}>
       <DropZone.FileQueue />
     </DropZone>
@@ -734,11 +569,11 @@ const DropZoneCompactFileListVariantDemo = () => (
 );
 
 const DropZoneUploadProgressVariantDemo = () => (
-  <DemoSection label="上传进度与失败重试">
+  <DemoSection>
     <DropZone
       defaultQueue={INITIAL_STATUS_FILES}
       uploadInterval={650}
-      uploadFailureMessage="上传失败，请重试"
+      uploadFailureMessage="Failed"
       shouldFailUpload={shouldFailBackupUpload}
       style={{ width: 420 }}
     >
@@ -748,13 +583,13 @@ const DropZoneUploadProgressVariantDemo = () => (
 );
 
 const DropZoneDisabledVariantDemo = () => (
-  <DemoSection label="整体禁用" isColumn>
+  <DemoSection isColumn>
     <DropZone isDisabled accept={DOCUMENT_ACCEPT} maxSize={UPLOAD_MAX_BYTES} style={{ width: 420 }}>
       <DropZone.Area>
         <DropZone.Icon />
-        <DropZone.Label>上传入口已锁定</DropZone.Label>
-        <DropZone.Description>禁用状态会同时阻止拖放与文件选择</DropZone.Description>
-        <DropZone.Trigger>选择文件</DropZone.Trigger>
+        <DropZone.Label>Uploads are disabled</DropZone.Label>
+        <DropZone.Description>The disabled state blocks both drag-and-drop and file selection.</DropZone.Description>
+        <DropZone.Trigger>Select File</DropZone.Trigger>
       </DropZone.Area>
       <DropZone.Input multiple />
     </DropZone>
@@ -770,31 +605,19 @@ const DropZoneDemo = () => (
 );
 
 const CellSwitchDemo = () => {
-  const [isReminderOn, setIsReminderOn] = useState(true);
-  const handleReminderChange = (isSelected: boolean) => setIsReminderOn(isSelected);
+  const [isOn, setIsOn] = useState(true);
+  const handleChange = (isSelected: boolean) => setIsOn(isSelected);
 
   return (
     <DemoSection isColumn>
       <CellSwitch
-        aria-label="开启课堂提醒"
-        isSelected={isReminderOn}
-        onChange={handleReminderChange}
+        aria-label="Animations"
+        isSelected={isOn}
+        onChange={handleChange}
         style={{ width: 320 }}
       >
         <CellSwitch.Trigger>
-          <CellSwitch.Label>开启课堂提醒（受控：{isReminderOn ? '开' : '关'}）</CellSwitch.Label>
-          <CellSwitch.Control />
-        </CellSwitch.Trigger>
-      </CellSwitch>
-      <CellSwitch aria-label="次级样式" variant="secondary" defaultSelected style={{ width: 320 }}>
-        <CellSwitch.Trigger>
-          <CellSwitch.Label>次级样式</CellSwitch.Label>
-          <CellSwitch.Control />
-        </CellSwitch.Trigger>
-      </CellSwitch>
-      <CellSwitch aria-label="禁用项" isDisabled style={{ width: 320 }}>
-        <CellSwitch.Trigger>
-          <CellSwitch.Label>禁用项</CellSwitch.Label>
+          <CellSwitch.Label>Animations</CellSwitch.Label>
           <CellSwitch.Control />
         </CellSwitch.Trigger>
       </CellSwitch>
@@ -802,76 +625,38 @@ const CellSwitchDemo = () => {
   );
 };
 
+const THEME_OPTIONS = [
+  { id: 'default', label: 'Default' },
+  { id: 'light', label: 'Light' },
+  { id: 'dark', label: 'Dark' },
+];
+
 const SLOT_OPTIONS = [
-  { id: 'morning', label: '上午 09:00–11:00' },
-  { id: 'afternoon', label: '下午 14:00–16:00' },
-  { id: 'evening', label: '晚上 19:00–21:00' },
+  { id: 'morning', label: 'Morning' },
+  { id: 'afternoon', label: 'Afternoon' },
+  { id: 'evening', label: 'Evening' },
 ];
 
 const CellSelectDemo = () => {
-  const [slot, setSlot] = useState<DemoKey | null>('evening');
-  const handleSlotChange = (value: DemoKey | null) => setSlot(value);
-  const slotLabel = SLOT_OPTIONS.find((option) => option.id === slot)?.label ?? '未设置';
+  const [theme, setTheme] = useState<DemoKey | null>('default');
+  const handleThemeChange = (value: DemoKey | null) => setTheme(value);
 
   return (
     <DemoSection isColumn>
-      <CellSelect aria-label="上课时段" value={slot} onChange={handleSlotChange} style={{ width: 320 }}>
+      <CellSelect aria-label="Theme" value={theme} onChange={handleThemeChange} style={{ width: 320 }}>
         <CellSelect.Trigger>
-          <CellSelect.Label>上课时段（受控：{slotLabel}）</CellSelect.Label>
+          <CellSelect.Label>Theme</CellSelect.Label>
           <CellSelect.Value />
           <CellSelect.Indicator />
         </CellSelect.Trigger>
         <CellSelect.Popover>
           <CellSelect.List>
-            {SLOT_OPTIONS.map((option) => (
+            {THEME_OPTIONS.map((option) => (
               <CellSelect.Item key={option.id} id={option.id} textValue={option.label}>
                 {option.label}
                 <CellSelect.ItemIndicator />
               </CellSelect.Item>
             ))}
-          </CellSelect.List>
-        </CellSelect.Popover>
-      </CellSelect>
-      <CellSelect
-        aria-label="提醒频率"
-        variant="secondary"
-        defaultValue="daily"
-        style={{ width: 320 }}
-      >
-        <CellSelect.Trigger>
-          <CellSelect.Label>提醒频率（次级 + 禁用项）</CellSelect.Label>
-          <CellSelect.Value />
-          <CellSelect.Indicator />
-        </CellSelect.Trigger>
-        <CellSelect.Popover>
-          <CellSelect.List>
-            <CellSelect.Item id="daily" textValue="每天">
-              每天
-              <CellSelect.ItemIndicator />
-            </CellSelect.Item>
-            <CellSelect.Item id="weekly" textValue="每周">
-              每周
-              <CellSelect.ItemIndicator />
-            </CellSelect.Item>
-            <CellSelect.Item id="never" textValue="从不" isDisabled>
-              从不（不可选）
-              <CellSelect.ItemIndicator />
-            </CellSelect.Item>
-          </CellSelect.List>
-        </CellSelect.Popover>
-      </CellSelect>
-      <CellSelect aria-label="禁用项" isDisabled defaultValue="fixed" style={{ width: 320 }}>
-        <CellSelect.Trigger>
-          <CellSelect.Label>禁用整体</CellSelect.Label>
-          <CellSelect.Value />
-          <CellSelect.Indicator />
-        </CellSelect.Trigger>
-        <CellSelect.Popover>
-          <CellSelect.List>
-            <CellSelect.Item id="fixed" textValue="固定时段">
-              固定时段
-              <CellSelect.ItemIndicator />
-            </CellSelect.Item>
           </CellSelect.List>
         </CellSelect.Popover>
       </CellSelect>
@@ -890,7 +675,7 @@ const CellSliderDemo = () => {
   return (
     <DemoSection isColumn>
       <CellSlider
-        aria-label="字间距"
+        aria-label="Spacing"
         value={spacing}
         onChange={handleSpacingChange}
         minValue={0}
@@ -901,54 +686,7 @@ const CellSliderDemo = () => {
         <CellSlider.Track>
           <CellSlider.Fill />
           <CellSlider.Thumb />
-          <CellSlider.Label>字间距（受控：{spacing.toFixed(2)}）</CellSlider.Label>
-          <CellSlider.Output />
-        </CellSlider.Track>
-      </CellSlider>
-      <CellSlider
-        aria-label="音量"
-        defaultValue={75}
-        minValue={0}
-        maxValue={100}
-        step={1}
-        style={{ width: 320 }}
-      >
-        <CellSlider.Track>
-          <CellSlider.Fill />
-          <CellSlider.Thumb />
-          <CellSlider.Label>音量（整数步进）</CellSlider.Label>
-          <CellSlider.Output />
-        </CellSlider.Track>
-      </CellSlider>
-      <CellSlider
-        aria-label="次级样式"
-        variant="secondary"
-        defaultValue={0.5}
-        minValue={0}
-        maxValue={1}
-        step={0.01}
-        style={{ width: 320 }}
-      >
-        <CellSlider.Track>
-          <CellSlider.Fill />
-          <CellSlider.Thumb />
-          <CellSlider.Label>次级样式</CellSlider.Label>
-          <CellSlider.Output />
-        </CellSlider.Track>
-      </CellSlider>
-      <CellSlider
-        aria-label="禁用项"
-        isDisabled
-        defaultValue={0.3}
-        minValue={0}
-        maxValue={1}
-        step={0.01}
-        style={{ width: 320 }}
-      >
-        <CellSlider.Track>
-          <CellSlider.Fill />
-          <CellSlider.Thumb />
-          <CellSlider.Label>禁用项</CellSlider.Label>
+          <CellSlider.Label>Spacing</CellSlider.Label>
           <CellSlider.Output />
         </CellSlider.Track>
       </CellSlider>
@@ -974,7 +712,7 @@ const CellColorPickerDemo = () => {
       <div style={{ width: 320 }}>
         <CellColorPicker value={accent} onChange={handleAccentChange}>
           <CellColorPicker.Trigger>
-            <CellColorPicker.Label>主题色（受控）</CellColorPicker.Label>
+            <CellColorPicker.Label>Accent</CellColorPicker.Label>
             <CellColorPicker.ValueDisplay />
             <CellColorPicker.Swatch />
           </CellColorPicker.Trigger>
@@ -983,55 +721,15 @@ const CellColorPickerDemo = () => {
               <CellColorPicker.Area colorSpace="hsb" xChannel="saturation" yChannel="brightness">
                 <CellColorPicker.Area.Thumb />
               </CellColorPicker.Area>
-              <CellColorPicker.Slider aria-label="色相" channel="hue" colorSpace="hsb">
+              <CellColorPicker.Slider aria-label="Hue" channel="hue" colorSpace="hsb">
                 <CellColorPicker.Slider.Track>
                   <CellColorPicker.Slider.Thumb />
                 </CellColorPicker.Slider.Track>
               </CellColorPicker.Slider>
-              <CellColorPicker.Field aria-label="十六进制色值">
+              <CellColorPicker.Field aria-label="Hex value">
                 <CellColorPicker.Field.Input />
               </CellColorPicker.Field>
-              <CellColorPicker.SwatchPicker aria-label="预设色板">
-                {PRESET_COLORS.map((preset) => (
-                  <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
-                    <CellColorPicker.SwatchPicker.Swatch />
-                  </CellColorPicker.SwatchPicker.Item>
-                ))}
-              </CellColorPicker.SwatchPicker>
-            </div>
-          </CellColorPicker.Popover>
-        </CellColorPicker>
-      </div>
-      <div style={{ width: 320 }}>
-        <CellColorPicker variant="secondary" defaultValue="#22C55E">
-          <CellColorPicker.Trigger>
-            <CellColorPicker.Label>次级样式（仅预设色板）</CellColorPicker.Label>
-            <CellColorPicker.ValueDisplay />
-            <CellColorPicker.Swatch />
-          </CellColorPicker.Trigger>
-          <CellColorPicker.Popover>
-            <div style={colorPanelStyle}>
-              <CellColorPicker.SwatchPicker aria-label="预设色板">
-                {PRESET_COLORS.map((preset) => (
-                  <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
-                    <CellColorPicker.SwatchPicker.Swatch />
-                  </CellColorPicker.SwatchPicker.Item>
-                ))}
-              </CellColorPicker.SwatchPicker>
-            </div>
-          </CellColorPicker.Popover>
-        </CellColorPicker>
-      </div>
-      <div style={{ width: 320 }}>
-        <CellColorPicker defaultValue="#EF4444" isDisabled>
-          <CellColorPicker.Trigger>
-            <CellColorPicker.Label>禁用项</CellColorPicker.Label>
-            <CellColorPicker.ValueDisplay />
-            <CellColorPicker.Swatch />
-          </CellColorPicker.Trigger>
-          <CellColorPicker.Popover>
-            <div style={colorPanelStyle}>
-              <CellColorPicker.SwatchPicker aria-label="预设色板">
+              <CellColorPicker.SwatchPicker aria-label="Presets">
                 {PRESET_COLORS.map((preset) => (
                   <CellColorPicker.SwatchPicker.Item key={preset} color={preset}>
                     <CellColorPicker.SwatchPicker.Swatch />
@@ -1578,21 +1276,21 @@ type ChoiceGroupVariantSlug =
 type ChoiceIconName = 'book' | 'ear' | 'check';
 
 const MODULE_OPTIONS: ChoiceOption[] = [
-  { id: 'reading', title: '阅读训练', description: '精读与泛读结合', icon: 'book' },
-  { id: 'listening', title: '听力训练', description: '分级听写练习', icon: 'ear' },
-  { id: 'grammar', title: '语法巩固', description: '错题规则复盘', icon: 'check' },
+  { id: 'security', title: 'Security', description: 'Real-time threat detection and prevention', icon: 'check' },
+  { id: 'storage', title: 'Storage', description: 'Cloud-based storage with automatic backups', icon: 'book' },
+  { id: 'analytics', title: 'Analytics', description: 'Usage reports and performance dashboards', icon: 'ear' },
 ];
 
 const PLAN_OPTIONS: ChoiceOption[] = [
-  { id: 'starter', title: 'Starter', description: '适合小班试用', icon: 'book' },
-  { id: 'team', title: 'Team', description: '多人协作与报表', icon: 'ear' },
-  { id: 'business', title: 'Business', description: '权限、审计与支持', icon: 'check' },
+  { id: 'starter', title: 'Starter', description: 'For individuals and small projects', icon: 'book' },
+  { id: 'pro', title: 'Pro', description: 'For growing teams and businesses', icon: 'ear' },
+  { id: 'enterprise', title: 'Enterprise', description: 'For large organizations at scale', icon: 'check' },
 ];
 
 const PAYMENT_OPTIONS: ChoiceOption[] = [
-  { id: 'card', title: '银行卡', description: '尾号 1024 的默认卡', icon: 'check' },
-  { id: 'invoice', title: '企业月结', description: '开票后统一结算', icon: 'book' },
-  { id: 'transfer', title: '银行转账', description: '需财务人工确认', icon: 'ear' },
+  { id: 'card', title: 'Credit card', description: 'Visa ending in 4242', icon: 'check' },
+  { id: 'paypal', title: 'PayPal', description: 'Pay with your PayPal balance', icon: 'book' },
+  { id: 'bank', title: 'Bank transfer', description: 'Direct debit from your account', icon: 'ear' },
 ];
 
 type ChoiceOption = {
@@ -1675,7 +1373,7 @@ const CheckboxRenderPropItem = ({ option }: { option: ChoiceOption }) => (
         <CheckboxButtonGroup.Indicator />
         <CheckboxButtonGroup.ItemContent>
           <strong>{option.title}</strong>
-          <span>{isSelected ? '已加入训练计划' : option.description}</span>
+          <span>{isSelected ? 'Enabled for your project' : option.description}</span>
         </CheckboxButtonGroup.ItemContent>
       </>
     )}
@@ -1689,7 +1387,7 @@ const RadioRenderPropItem = ({ option }: { option: ChoiceOption }) => (
         <RadioButtonGroup.Indicator />
         <RadioButtonGroup.ItemContent>
           <strong>{option.title}</strong>
-          <span>{isSelected ? '当前首选方案' : option.description}</span>
+          <span>{isSelected ? 'Your selected plan' : option.description}</span>
         </RadioButtonGroup.ItemContent>
       </>
     )}
@@ -1697,7 +1395,7 @@ const RadioRenderPropItem = ({ option }: { option: ChoiceOption }) => (
 );
 
 const CheckboxButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVariantSlug }) => {
-  const [modules, setModules] = useState<string[]>(['reading']);
+  const [modules, setModules] = useState<string[]>(['security']);
   const handleModulesChange = (value: string[]) => setModules(value);
   const options = variant === 'subscription-plans' ? PLAN_OPTIONS : MODULE_OPTIONS;
   const useGrid =
@@ -1734,10 +1432,10 @@ const CheckboxButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVaria
       isColumn
     >
       <CheckboxButtonGroup
-        aria-label="训练模块"
+        aria-label="Select features"
         value={variant === 'controlled' ? modules : undefined}
         onChange={variant === 'controlled' ? handleModulesChange : undefined}
-        defaultValue={variant === 'controlled' ? undefined : ['reading']}
+        defaultValue={variant === 'controlled' ? undefined : ['security']}
         isDisabled={variant === 'disabled-group'}
         layout={useGrid ? 'grid' : 'flex'}
         style={{
@@ -1761,13 +1459,13 @@ const CheckboxButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVaria
           ),
         )}
       </CheckboxButtonGroup>
-      {variant === 'controlled' && <span className="text-muted text-sm">已选择：{modules.join(', ')}</span>}
+      {variant === 'controlled' && <span className="text-muted text-sm">Selected: {modules.join(', ')}</span>}
     </DemoSection>
   );
 };
 
 const RadioButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVariantSlug }) => {
-  const [plan, setPlan] = useState('team');
+  const [plan, setPlan] = useState('pro');
   const handlePlanChange = (value: string) => setPlan(value);
   const options =
     variant === 'delivery-and-payment'
@@ -1812,7 +1510,7 @@ const RadioButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVariantS
       isColumn
     >
       <RadioButtonGroup
-        aria-label="方案选择"
+        aria-label="Select a plan"
         value={variant === 'controlled' ? plan : undefined}
         onChange={variant === 'controlled' ? handlePlanChange : undefined}
         defaultValue={variant === 'controlled' ? undefined : options[0]?.id}
@@ -1843,7 +1541,7 @@ const RadioButtonGroupVariantDemo = ({ variant }: { variant: ChoiceGroupVariantS
           ),
         )}
       </RadioButtonGroup>
-      {variant === 'controlled' && <span className="text-muted text-sm">当前方案：{plan}</span>}
+      {variant === 'controlled' && <span className="text-muted text-sm">Selected plan: {plan}</span>}
     </DemoSection>
   );
 };
@@ -1962,24 +1660,30 @@ type NativeSelectVariantSlug =
   | 'with-groups'
   | 'with-label';
 
+const STATUS_NAMES: Record<string, string> = {
+  active: 'Active',
+  inactive: 'Inactive',
+  pending: 'Pending',
+};
+
 const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug }) => {
-  const [campus, setCampus] = useState('bj');
-  const [savedCampus, setSavedCampus] = useState('未提交');
-  const handleCampusChange = (event: ChangeEvent<HTMLSelectElement>) => setCampus(event.target.value);
+  const [status, setStatus] = useState('active');
+  const [savedStatus, setSavedStatus] = useState('Not submitted');
+  const handleStatusChange = (event: ChangeEvent<HTMLSelectElement>) => setStatus(event.target.value);
   const handleFormSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    setSavedCampus(CAMPUS_NAMES[campus]);
+    setSavedStatus(STATUS_NAMES[status]);
   };
   const width = variant === 'full-width' ? '100%' : 260;
 
   const selectOptions = (
     <>
-      <NativeSelect.Option value="bj">北京校区</NativeSelect.Option>
-      <NativeSelect.Option value="sh">上海校区</NativeSelect.Option>
-      <NativeSelect.Option value="gz">广州校区</NativeSelect.Option>
+      <NativeSelect.Option value="active">Active</NativeSelect.Option>
+      <NativeSelect.Option value="inactive">Inactive</NativeSelect.Option>
+      <NativeSelect.Option value="pending">Pending</NativeSelect.Option>
       {variant === 'with-disabled-options' && (
-        <NativeSelect.Option value="hz" disabled>
-          杭州校区（满员）
+        <NativeSelect.Option value="archived" disabled>
+          Archived (unavailable)
         </NativeSelect.Option>
       )}
     </>
@@ -1989,14 +1693,14 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
     return (
       <DemoSection label="Grouped options">
         <NativeSelect fullWidth style={{ width: 280 }}>
-          <NativeSelect.Label>所属教研组</NativeSelect.Label>
-          <NativeSelect.Trigger defaultValue="english">
-            <NativeSelect.OptGroup label="教学">
-              <NativeSelect.Option value="english">英语教研组</NativeSelect.Option>
-              <NativeSelect.Option value="vocab">词汇教研组</NativeSelect.Option>
+          <NativeSelect.Label>Status</NativeSelect.Label>
+          <NativeSelect.Trigger defaultValue="active">
+            <NativeSelect.OptGroup label="Live">
+              <NativeSelect.Option value="active">Active</NativeSelect.Option>
+              <NativeSelect.Option value="pending">Pending</NativeSelect.Option>
             </NativeSelect.OptGroup>
-            <NativeSelect.OptGroup label="运营">
-              <NativeSelect.Option value="support">学员服务组</NativeSelect.Option>
+            <NativeSelect.OptGroup label="Closed">
+              <NativeSelect.Option value="inactive">Inactive</NativeSelect.Option>
             </NativeSelect.OptGroup>
           </NativeSelect.Trigger>
         </NativeSelect>
@@ -2008,10 +1712,10 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
     return (
       <DemoSection label="Primary + secondary variants">
         <NativeSelect style={{ width: 220 }}>
-          <NativeSelect.Trigger defaultValue="bj">{selectOptions}</NativeSelect.Trigger>
+          <NativeSelect.Trigger defaultValue="active">{selectOptions}</NativeSelect.Trigger>
         </NativeSelect>
         <NativeSelect variant="secondary" style={{ width: 220 }}>
-          <NativeSelect.Trigger defaultValue="sh">{selectOptions}</NativeSelect.Trigger>
+          <NativeSelect.Trigger defaultValue="inactive">{selectOptions}</NativeSelect.Trigger>
         </NativeSelect>
       </DemoSection>
     );
@@ -2026,24 +1730,24 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
       style={{ width }}
     >
       {(variant === 'with-label' || variant === 'with-description' || variant === 'form-example') && (
-        <NativeSelect.Label>所属校区</NativeSelect.Label>
+        <NativeSelect.Label>Status</NativeSelect.Label>
       )}
       <NativeSelect.Trigger
-        name="campus"
-        value={variant === 'controlled' || variant === 'form-example' ? campus : undefined}
+        name="status"
+        value={variant === 'controlled' || variant === 'form-example' ? status : undefined}
         defaultValue={variant === 'controlled' || variant === 'form-example' ? undefined : ''}
         disabled={variant === 'disabled-select'}
-        onChange={variant === 'controlled' || variant === 'form-example' ? handleCampusChange : undefined}
+        onChange={variant === 'controlled' || variant === 'form-example' ? handleStatusChange : undefined}
       >
-        <NativeSelect.Option value="">请选择校区</NativeSelect.Option>
+        <NativeSelect.Option value="">Select status</NativeSelect.Option>
         {selectOptions}
         {variant === 'custom-indicator' && <NativeSelect.Indicator>⌄</NativeSelect.Indicator>}
       </NativeSelect.Trigger>
       {variant === 'with-description' && (
-        <NativeSelect.Description>用于匹配班级、老师和课程表。</NativeSelect.Description>
+        <NativeSelect.Description>Used to filter records across the workspace.</NativeSelect.Description>
       )}
       {variant === 'invalid-state' && (
-        <NativeSelect.Description>请选择一个可用校区。</NativeSelect.Description>
+        <NativeSelect.Description>Please select a valid status.</NativeSelect.Description>
       )}
     </NativeSelect>
   );
@@ -2053,9 +1757,9 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
       <DemoSection label="Form example" isColumn>
         <form onSubmit={handleFormSubmit} style={{ display: 'grid', gap: 12, width: 280 }}>
           {selectControl}
-          <Button type="submit" size="sm">保存</Button>
+          <Button type="submit" size="sm">Save</Button>
         </form>
-        <span className="text-muted text-sm">已保存：{savedCampus}</span>
+        <span className="text-muted text-sm">Saved: {savedStatus}</span>
       </DemoSection>
     );
   }
@@ -2064,7 +1768,7 @@ const NativeSelectVariantDemo = ({ variant }: { variant: NativeSelectVariantSlug
     <DemoSection
       label={
         variant === 'controlled'
-          ? `Controlled select (${CAMPUS_NAMES[campus]})`
+          ? `Controlled select (${STATUS_NAMES[status]})`
           : variant === 'custom-indicator'
             ? 'Custom indicator'
             : variant === 'disabled-select'
