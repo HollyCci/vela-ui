@@ -51,6 +51,25 @@
   width: 1px;
 }
 
+/*
+ * responsive-layout 契约：横排在移动端断点以下由 JS(matchMedia) 置 data-collapsed，
+ * 此处接管堆叠——方向改为纵向，分隔线由竖线变为横线，卡片不再等宽撑满。
+ * orientation 类名保持权威不变，仅靠 data-collapsed 覆盖布局。
+ */
+.kpi-group--horizontal[data-collapsed='true'] {
+  flex-direction: column;
+}
+
+.kpi-group--horizontal[data-collapsed='true']>[data-slot=kpi] {
+  flex: none;
+}
+
+.kpi-group--horizontal[data-collapsed='true']>.kpi-group__separator {
+  margin-block: 0;
+  width: auto;
+  height: 1px;
+}
+
 .kpi-group--vertical>.kpi-group__separator {
   align-self: stretch;
   height: 1px;

@@ -1,8 +1,29 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { axe } from 'vitest-axe';
 import KpiGroup from './index';
 import Kpi from '../kpi';
+
+/** 与 sidebar 测试一致：jsdom 无 matchMedia，按断点命中与否打桩 */
+function stubMatchMedia(matches: boolean) {
+  vi.stubGlobal(
+    'matchMedia',
+    vi.fn().mockImplementation((query: string) => ({
+      matches,
+      media: query,
+      onchange: null,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      dispatchEvent: () => false,
+    })),
+  );
+}
+
+afterEach(() => {
+  vi.unstubAllGlobals();
+});
 
 describe('KpiGroup', () => {
   it('renders role=group with default horizontal modifier and data-slot', () => {
@@ -47,6 +68,57 @@ describe('KpiGroup', () => {
     // 装饰性：aria-hidden，且不暴露 separator 角色
     expect(sep).toHaveAttribute('aria-hidden', 'true');
     expect(sep).toHaveClass('kpi-group__separator');
+  });
+
+  it('collapses horizontal layout below the mobile breakpoint via data-collapsed', () => {
+    stubMatchMedia(true);
+    render(
+      <KpiGroup>
+        <Kpi>
+          <Kpi.Value>1</Kpi.Value>
+        </Kpi>
+      </KpiGroup>,
+    );
+    const group = screen.getByRole('group');
+    // orientation 类名保持权威不变，仅靠 data-collapsed 接管堆叠
+    expect(group).toHaveClass('kpi-group--horizontal');
+    expect(group).toHaveAttribute('data-collapsed', 'true');
+  });
+
+  it('keeps horizontal layout above the breakpoint (no data-collapsed)', () => {
+    stubMatchMedia(false);
+    render(
+      <KpiGroup>
+        <Kpi>
+          <Kpi.Value>1</Kpi.Value>
+        </Kpi>
+      </KpiGroup>,
+    );
+    expect(screen.getByRole('group')).not.toHaveAttribute('data-collapsed');
+  });
+
+  it('does not auto-collapse an explicit vertical group', () => {
+    stubMatchMedia(true);
+    render(
+      <KpiGroup orientation="vertical">
+        <Kpi>
+          <Kpi.Value>1</Kpi.Value>
+        </Kpi>
+      </KpiGroup>,
+    );
+    expect(screen.getByRole('group')).not.toHaveAttribute('data-collapsed');
+  });
+
+  it('respects collapseBelow={false} to opt out of auto-collapse', () => {
+    stubMatchMedia(true);
+    render(
+      <KpiGroup collapseBelow={false}>
+        <Kpi>
+          <Kpi.Value>1</Kpi.Value>
+        </Kpi>
+      </KpiGroup>,
+    );
+    expect(screen.getByRole('group')).not.toHaveAttribute('data-collapsed');
   });
 
   it('has no axe a11y violations', async () => {

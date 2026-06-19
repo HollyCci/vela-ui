@@ -187,40 +187,87 @@ const ItemCardDemo = () => {
   );
 };
 
-const ItemCardGroupDemo = () => (
-  <DemoSection isColumn>
-    <ItemCardGroup layout="list" style={{ width: 400 }}>
-      <ItemCardGroup.Header>
-        <ItemCardGroup.Title>本月热门课程</ItemCardGroup.Title>
-        <ItemCardGroup.Description>按报名人数排序</ItemCardGroup.Description>
-      </ItemCardGroup.Header>
-      <ItemCard>
-        <ItemCard.Icon>
-          <BookIcon />
-        </ItemCard.Icon>
-        <ItemCard.Content>
-          <ItemCard.Title>考研英语冲刺班</ItemCard.Title>
-          <ItemCard.Description>报名 412 人</ItemCard.Description>
-        </ItemCard.Content>
-        <ItemCard.Action>
-          <Badge color="accent">1</Badge>
-        </ItemCard.Action>
-      </ItemCard>
-      <ItemCard>
-        <ItemCard.Icon>
-          <BookIcon />
-        </ItemCard.Icon>
-        <ItemCard.Content>
-          <ItemCard.Title>商务英语口语营</ItemCard.Title>
-          <ItemCard.Description>报名 298 人</ItemCard.Description>
-        </ItemCard.Content>
-        <ItemCard.Action>
-          <Badge>2</Badge>
-        </ItemCard.Action>
-      </ItemCard>
-    </ItemCardGroup>
-  </DemoSection>
-);
+const ItemCardGroupDemo = () => {
+  // 多选示例：selectionMode="multiple" 时多张卡片可同时选中（如通知偏好），状态以 Set 承载
+  const [notifyKeys, setNotifyKeys] = useState<Set<string | number>>(
+    () => new Set(['email']),
+  );
+
+  return (
+    <DemoSection isColumn>
+      <ItemCardGroup layout="list" style={{ width: 400 }}>
+        <ItemCardGroup.Header>
+          <ItemCardGroup.Title>本月热门课程</ItemCardGroup.Title>
+          <ItemCardGroup.Description>按报名人数排序</ItemCardGroup.Description>
+        </ItemCardGroup.Header>
+        <ItemCard>
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>考研英语冲刺班</ItemCard.Title>
+            <ItemCard.Description>报名 412 人</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <Badge color="accent">1</Badge>
+          </ItemCard.Action>
+        </ItemCard>
+        <ItemCard>
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>商务英语口语营</ItemCard.Title>
+            <ItemCard.Description>报名 298 人</ItemCard.Description>
+          </ItemCard.Content>
+          <ItemCard.Action>
+            <Badge>2</Badge>
+          </ItemCard.Action>
+        </ItemCard>
+      </ItemCardGroup>
+      <ItemCardGroup
+        layout="list"
+        variant="outline"
+        style={{ width: 400 }}
+        selectionMode="multiple"
+        selectedKeys={notifyKeys}
+        onSelectionChange={setNotifyKeys}
+      >
+        <ItemCardGroup.Header>
+          <ItemCardGroup.Title>通知偏好</ItemCardGroup.Title>
+          <ItemCardGroup.Description>可同时选择多种提醒渠道</ItemCardGroup.Description>
+        </ItemCardGroup.Header>
+        <ItemCard id="email">
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>邮件提醒</ItemCard.Title>
+            <ItemCard.Description>课程更新与作业截止</ItemCard.Description>
+          </ItemCard.Content>
+        </ItemCard>
+        <ItemCard id="sms">
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>短信提醒</ItemCard.Title>
+            <ItemCard.Description>开课前 30 分钟</ItemCard.Description>
+          </ItemCard.Content>
+        </ItemCard>
+        <ItemCard id="push">
+          <ItemCard.Icon>
+            <BookIcon />
+          </ItemCard.Icon>
+          <ItemCard.Content>
+            <ItemCard.Title>App 推送</ItemCard.Title>
+            <ItemCard.Description>实时学习动态</ItemCard.Description>
+          </ItemCard.Content>
+        </ItemCard>
+      </ItemCardGroup>
+    </DemoSection>
+  );
+};
 
 const XmarkIcon = () => (
   <svg

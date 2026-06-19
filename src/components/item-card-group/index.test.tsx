@@ -105,6 +105,89 @@ describe('ItemCardGroup', () => {
     expect(cards[1]).toHaveAttribute('data-selected', 'true');
   });
 
+  // 多选语义：selectionMode="multiple" 时两次点击两张不同卡片，二者同时保持选中（不互斥）
+  it('toggles multiple items in multiple selection mode', async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+    render(
+      <ItemCardGroup selectionMode="multiple" onSelectionChange={onSelectionChange}>
+        <ItemCard id="x">
+          <ItemCard.Title>X</ItemCard.Title>
+        </ItemCard>
+        <ItemCard id="y">
+          <ItemCard.Title>Y</ItemCard.Title>
+        </ItemCard>
+      </ItemCardGroup>,
+    );
+
+    await user.click(screen.getByText('X'));
+    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['x']));
+
+    await user.click(screen.getByText('Y'));
+    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['x', 'y']));
+
+    const cards = document.querySelectorAll('[data-slot="item-card"]');
+    expect(cards[0]).toHaveAttribute('data-selected', 'true');
+    expect(cards[1]).toHaveAttribute('data-selected', 'true');
+
+    // 再次点击 X 仅把它移出集合，Y 仍选中
+    await user.click(screen.getByText('X'));
+    expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['y']));
+    expect(cards[0]).not.toHaveAttribute('data-selected');
+    expect(cards[1]).toHaveAttribute('data-selected', 'true');
+  });
+
+  // 多选受控 selectedKeys 同时点亮多张卡片
+  it('honors controlled selectedKeys in multiple mode', () => {
+    render(
+      <ItemCardGroup
+        selectionMode="multiple"
+        selectedKeys={new Set(['x', 'y'])}
+        onSelectionChange={() => {}}
+      >
+        <ItemCard id="x">
+          <ItemCard.Title>X</ItemCard.Title>
+        </ItemCard>
+        <ItemCard id="y">
+          <ItemCard.Title>Y</ItemCard.Title>
+        </ItemCard>
+        <ItemCard id="z">
+          <ItemCard.Title>Z</ItemCard.Title>
+        </ItemCard>
+      </ItemCardGroup>,
+    );
+    const cards = document.querySelectorAll('[data-slot="item-card"]');
+    expect(cards[0]).toHaveAttribute('data-selected', 'true');
+    expect(cards[1]).toHaveAttribute('data-selected', 'true');
+    expect(cards[2]).not.toHaveAttribute('data-selected');
+  });
+
+  // 回归：单选模式不受多选改动影响 —— 点第二张会清掉第一张
+  it('keeps single selection exclusive (unchanged)', async () => {
+    const user = userEvent.setup();
+    const onSelectionChange = vi.fn();
+    render(
+      <ItemCardGroup onSelectionChange={onSelectionChange}>
+        <ItemCard id="x">
+          <ItemCard.Title>X</ItemCard.Title>
+        </ItemCard>
+        <ItemCard id="y">
+          <ItemCard.Title>Y</ItemCard.Title>
+        </ItemCard>
+      </ItemCardGroup>,
+    );
+
+    await user.click(screen.getByText('X'));
+    expect(onSelectionChange).toHaveBeenLastCalledWith('x');
+
+    await user.click(screen.getByText('Y'));
+    expect(onSelectionChange).toHaveBeenLastCalledWith('y');
+
+    const cards = document.querySelectorAll('[data-slot="item-card"]');
+    expect(cards[0]).not.toHaveAttribute('data-selected');
+    expect(cards[1]).toHaveAttribute('data-selected', 'true');
+  });
+
   it('has no axe a11y violations', async () => {
     // role=group 配可访问名（aria-label），每张可选卡片的名字取自标题文本
     const { container } = render(
