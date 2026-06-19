@@ -140,11 +140,17 @@
 
 .app-layout__menu-toggle {
   margin-left: -.5rem;
+}
+
+/* 触发器是基础 .button(display:inline-flex,0,1,0,button.css 后导入)，原 .app-layout__menu-toggle{display:none}
+   同特指度被它盖过 → 桌面端误显示。加 [data-app-layout] 提到 0,2,0;移动端显示规则同步提特指度，
+   否则桌面 hide(0,2,0)会连移动端一起盖掉 */
+[data-app-layout] .app-layout__menu-toggle {
   display: none;
 }
 
 @media (max-width:768px) {
-  .app-layout__menu-toggle {
+  [data-app-layout] .app-layout__menu-toggle {
     display: inline-flex;
   }
 }
@@ -214,7 +220,8 @@
 }
 
 @media (max-width:1024px) {
-  .app-layout__aside-trigger {
+  /* 同 menu-toggle：基础 .button 后导入盖过单类 display:none，致 ≤1024px 误显示；加 [data-app-layout] 提特指度 */
+  [data-app-layout] .app-layout__aside-trigger {
     display: none;
   }
 }
