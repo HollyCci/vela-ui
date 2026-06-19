@@ -2878,5 +2878,16 @@
     "kpi-group",
     "item-card-group",
     "chain-of-thought"
-  ]
+  ],
+  "batch6Fixed": [
+    "kanban(keyboard DnD+cross-col)",
+    "chat-tool(group)",
+    "app-layout(mobile sheet)"
+  ],
+  "batch7Fixed": [
+    "chat-source(sourceType+confidence+dead-slot;group partial)",
+    "cell-color-picker(disabled+hex Field)",
+    "context-menu(checkbox demo+submenu aria)"
+  ],
+  "smokeNote": "2026-06-19: browser smoke 之前被 | tail 管道掩盖退出码，实际 agenda/chat-attachment fail；已修 smoke(filechooser+Esc)，现 64 checks 真 green(REAL_EXIT=0)"
 }
