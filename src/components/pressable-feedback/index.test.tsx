@@ -34,6 +34,34 @@ describe('PressableFeedback', () => {
     expect(onPress).toHaveBeenCalledTimes(1);
   });
 
+  it('Ripple grows and shows --press on keyboard activation (Space/Enter)', async () => {
+    // WAAPI 在 jsdom 无实现，桩出 animate 以观测扩散是否触发（同既有桩策略）
+    const animateSpy = vi.fn(() => ({ cancel() {}, finish() {} }));
+    (Element.prototype as unknown as { animate: typeof animateSpy }).animate = animateSpy;
+    const user = userEvent.setup();
+    render(
+      <PressableFeedback aria-label="press">
+        <PressableFeedback.Ripple minimumPressDuration={0} />
+        Tap
+      </PressableFeedback>,
+    );
+    const btn = screen.getByRole('button', { name: 'press' });
+    const surface = btn.querySelector('.pressable-feedback__ripple-surface') as HTMLElement;
+
+    btn.focus();
+    animateSpy.mockClear();
+
+    // 键盘按下：宿主获得 RAC 的 data-pressed，波纹应居中扩散并加 --press 类
+    await user.keyboard('{Enter>}');
+    expect(animateSpy).toHaveBeenCalledTimes(1);
+    expect(surface.classList.contains('--press')).toBe(true);
+    expect(btn).toHaveAttribute('data-pressed', 'true');
+
+    // 松开后 --press 解除（minimumPressDuration=0 立即移除）
+    await user.keyboard('{/Enter}');
+    expect(surface.classList.contains('--press')).toBe(false);
+  });
+
   it('renders feedback sub-layers with correct data-slot and aria-hidden', () => {
     render(
       <PressableFeedback aria-label="press">

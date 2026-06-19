@@ -101,7 +101,8 @@ const Ripple = ({
 
     const handleEnter = () => surface.classList.add('--hover');
 
-    const handleDown = (event: PointerEvent) => {
+    // 公共扩散：originX/originY 为相对宿主左上角的波纹中心；指针态取落点，键盘态取宿主中心
+    const grow = (originX: number, originY: number) => {
       window.clearTimeout(releaseTimer);
       pressedAt = performance.now();
       surface.classList.add('--press');
@@ -112,8 +113,8 @@ const Ripple = ({
         1,
       );
       const endScale = (Math.hypot(rect.width, rect.height) + RIPPLE_PADDING) / initialSize;
-      const startX = event.clientX - rect.left - initialSize / 2;
-      const startY = event.clientY - rect.top - initialSize / 2;
+      const startX = originX - initialSize / 2;
+      const startY = originY - initialSize / 2;
       const endX = (rect.width - initialSize) / 2;
       const endY = (rect.height - initialSize) / 2;
 
@@ -138,6 +139,11 @@ const Ripple = ({
       );
     };
 
+    const handleDown = (event: PointerEvent) => {
+      const rect = host.getBoundingClientRect();
+      grow(event.clientX - rect.left, event.clientY - rect.top);
+    };
+
     const handleRelease = () => {
       const remaining = Math.max(
         shapingRef.current.minimumPressDuration - (performance.now() - pressedAt),
@@ -152,11 +158,30 @@ const Ripple = ({
       handleRelease();
     };
 
+    // 键盘激活（Space/Enter）在 react-aria 中同样视作按压（usePress 触发 onPressStart，
+    // 宿主获得 data-pressed），与 Highlight 的 data-pressed 行为对齐：从宿主中心居中扩散
+    const isActivationKey = (key: string) => key === 'Enter' || key === ' ' || key === 'Spacebar';
+    let keyPressed = false;
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (keyPressed || event.repeat || !isActivationKey(event.key)) return;
+      keyPressed = true;
+      const rect = host.getBoundingClientRect();
+      grow(rect.width / 2, rect.height / 2);
+    };
+
+    const handleKeyUp = (event: KeyboardEvent) => {
+      if (!isActivationKey(event.key)) return;
+      keyPressed = false;
+      handleRelease();
+    };
+
     host.addEventListener('pointerenter', handleEnter);
     host.addEventListener('pointerleave', handleLeave);
     host.addEventListener('pointerdown', handleDown);
     host.addEventListener('pointerup', handleRelease);
     host.addEventListener('pointercancel', handleRelease);
+    host.addEventListener('keydown', handleKeyDown);
+    host.addEventListener('keyup', handleKeyUp);
 
     return () => {
       window.clearTimeout(releaseTimer);
@@ -167,6 +192,8 @@ const Ripple = ({
       host.removeEventListener('pointerdown', handleDown);
       host.removeEventListener('pointerup', handleRelease);
       host.removeEventListener('pointercancel', handleRelease);
+      host.removeEventListener('keydown', handleKeyDown);
+      host.removeEventListener('keyup', handleKeyUp);
     };
   }, [isDisabled]);
 
