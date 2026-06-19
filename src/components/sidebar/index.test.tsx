@@ -111,6 +111,75 @@ describe('Sidebar', () => {
     expect(current).not.toBeNull();
   });
 
+  // 内层真锚点渲染当前测试集合（href 公共渲染）
+  const renderHrefSidebar = (
+    itemProps?: Record<string, unknown>,
+    providerProps?: Record<string, unknown>,
+  ) =>
+    render(
+      <Sidebar.Provider {...providerProps}>
+        <Sidebar>
+          <Sidebar.Content>
+            <Sidebar.Menu aria-label="导航">
+              <Sidebar.MenuItem id="home" textValue="首页" href="/app/home" {...itemProps}>
+                <Sidebar.MenuItemContent>
+                  <Sidebar.MenuLabel>首页</Sidebar.MenuLabel>
+                </Sidebar.MenuItemContent>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Content>
+        </Sidebar>
+      </Sidebar.Provider>,
+    );
+
+  // 真锚点：带 href 的项在内容区渲染真实 <a href>，承担原生新标签/复制链接/状态栏 URL
+  it('renders a real <a href> for MenuItem with href', () => {
+    renderHrefSidebar();
+    const anchor = document.querySelector('a[data-slot="sidebar-menu-item-content"]');
+    expect(anchor).not.toBeNull();
+    expect(anchor).toHaveAttribute('href', '/app/home');
+    // 锚点沿用同一 slot/class，原有布局/态样式不变
+    expect(anchor).toHaveClass('sidebar__menu-item-content');
+  });
+
+  // 无 href 项仍渲染普通 <div>（向后兼容，不引入多余锚点）
+  it('renders a plain <div> content for MenuItem without href', () => {
+    renderSidebar();
+    const content = document.querySelector('[data-slot="sidebar-menu-item-content"]');
+    expect(content?.tagName).toBe('DIV');
+    expect(document.querySelector('a[data-slot="sidebar-menu-item-content"]')).toBeNull();
+  });
+
+  // 普通左键激活：阻止整页跳转、仍经 onAction → navigate 走 SPA
+  it('plain activation navigates via onAction/navigate (no full reload)', async () => {
+    const user = userEvent.setup();
+    const navigate = vi.fn();
+    const onAction = vi.fn();
+    renderHrefSidebar({ onAction }, { navigate });
+
+    const anchor = document.querySelector('a[data-slot="sidebar-menu-item-content"]') as HTMLElement;
+    await user.click(anchor);
+
+    expect(onAction).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledTimes(1);
+    expect(navigate).toHaveBeenCalledWith('/app/home');
+  });
+
+  // 修饰键点击：交给浏览器原生（新标签等），不再命令式 navigate，避免双跳
+  it('modifier-click falls through to the browser without client navigation', async () => {
+    const user = userEvent.setup();
+    const navigate = vi.fn();
+    renderHrefSidebar(undefined, { navigate });
+
+    const anchor = document.querySelector('a[data-slot="sidebar-menu-item-content"]') as HTMLElement;
+    // 按住 Meta(⌘) 点击 → "在新标签打开"语义，组件应放行不调 navigate
+    await user.keyboard('{Meta>}');
+    await user.click(anchor);
+    await user.keyboard('{/Meta}');
+
+    expect(navigate).not.toHaveBeenCalled();
+  });
+
   // 回归（deferred a11y）：移动端抽屉打开后焦点移入对话框，关闭后还回触发按钮
   it('mobile drawer moves focus inside on open and restores it on close', async () => {
     // 模拟移动端视口：matchMedia(max-width:768) 命中

@@ -379,10 +379,27 @@ const Menu = MenuInner as <T extends object>(props: SidebarMenuProps<T>) => Reac
 
 const isExternalHref = (href: string) => href.startsWith('http://') || href.startsWith('https://');
 
+/**
+ * MenuItem 把 href 与点击处理下发给 MenuItemContent，让其内容区渲染为真实 <a>。
+ * RAC TreeItem 本身只渲染 <div role="row">（即便类型上 extends LinkDOMProps 也不切换成 <a>），
+ * 因此原生「在新标签打开 / 复制链接地址 / 状态栏 URL 预览」必须靠内层真锚点提供。
+ */
+type MenuItemLinkContextValue = {
+  href: string;
+  /** 内层 <a> 的点击拦截：仅普通左键 preventDefault 走 SPA，带修饰键/中键放行给浏览器 */
+  onAnchorClick: (event: MouseEvent<HTMLAnchorElement>) => void;
+};
+
+const MenuItemLinkContext = createContext<MenuItemLinkContextValue | null>(null);
+
+/** 修饰键或非左键 → 让浏览器原生处理（新标签/下载等），不走客户端导航 */
+const isModifiedEvent = (event: MouseEvent) =>
+  event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.button !== 0;
+
 export type SidebarMenuItemProps = Omit<TreeItemProps, 'className' | 'style'> & {
   /** 标记为当前页（aria-current="page" + data-current 高亮） */
   isCurrent?: boolean;
-  /** 客户端路由目标，经 Provider.navigate 跳转（RAC TreeItem 不能渲染为 <a>） */
+  /** 客户端路由目标；内容区渲染真实 <a href> 以支持原生新标签/复制链接，普通左键仍经 navigate SPA 跳转 */
   href?: string;
   /** 整页刷新跳转，跳过 navigate */
   forceReload?: boolean;
@@ -400,11 +417,15 @@ const MenuItem = forwardRef<HTMLDivElement, SidebarMenuItemProps>(
     const { navigate, isMobile, setMobileOpen } = useSidebarContext();
     const menuClose = useContext(MenuContext);
     const shouldClose = closeMobileOnAction ?? menuClose;
+    // 内层 <a> 上若发生「带修饰键/中键」点击，浏览器已原生处理，置位让本次 onAction 跳过命令式导航避免双跳
+    const skipActionNavRef = useRef(false);
 
     const handleAction = useCallback(() => {
       onAction?.();
       if (isMobile && shouldClose) setMobileOpen(false);
-      if (href === undefined) return;
+      const skipNav = skipActionNavRef.current;
+      skipActionNavRef.current = false;
+      if (href === undefined || skipNav) return;
       if (isExternalHref(href)) {
         window.open(href, '_blank', 'noopener,noreferrer');
         return;
@@ -416,19 +437,36 @@ const MenuItem = forwardRef<HTMLDivElement, SidebarMenuItemProps>(
       navigate(href);
     }, [onAction, isMobile, shouldClose, setMobileOpen, href, forceReload, navigate]);
 
+    // 内层真锚点的点击拦截：普通左键 preventDefault 交给 onAction 走 SPA；带修饰键/中键放行给浏览器原生新标签
+    const handleAnchorClick = useCallback((event: MouseEvent<HTMLAnchorElement>) => {
+      if (isModifiedEvent(event)) {
+        skipActionNavRef.current = true;
+        return;
+      }
+      // 普通左键：阻止整页跳转，导航交由 RAC 行的 onAction（亦覆盖键盘 Enter 激活）
+      event.preventDefault();
+    }, []);
+
+    const linkContext = useMemo<MenuItemLinkContextValue | null>(
+      () => (href === undefined ? null : { href, onAnchorClick: handleAnchorClick }),
+      [href, handleAnchorClick],
+    );
+
     return (
-      <TreeItem
-        ref={ref}
-        data-slot="sidebar-menu-item"
-        data-current={isCurrent ? 'true' : undefined}
-        data-href={href}
-        aria-current={isCurrent ? 'page' : undefined}
-        onAction={handleAction}
-        className={clsx('sidebar__menu-item', className)}
-        {...rest}
-      >
-        {children}
-      </TreeItem>
+      <MenuItemLinkContext.Provider value={linkContext}>
+        <TreeItem
+          ref={ref}
+          data-slot="sidebar-menu-item"
+          data-current={isCurrent ? 'true' : undefined}
+          data-href={href}
+          aria-current={isCurrent ? 'page' : undefined}
+          onAction={handleAction}
+          className={clsx('sidebar__menu-item', className)}
+          {...rest}
+        >
+          {children}
+        </TreeItem>
+      </MenuItemLinkContext.Provider>
     );
   },
 );
@@ -436,14 +474,38 @@ MenuItem.displayName = 'Sidebar.MenuItem';
 
 export type SidebarMenuItemContentProps = HTMLAttributes<HTMLDivElement>;
 
-/** 包裹 RAC TreeItemContent：RAC 在此处理 chevron slot 与 row 渲染上下文 */
-const MenuItemContent = ({ className, children, ...rest }: SidebarMenuItemContentProps) => (
-  <TreeItemContent>
-    <div data-slot="sidebar-menu-item-content" className={clsx('sidebar__menu-item-content', className)} {...rest}>
-      {children}
-    </div>
-  </TreeItemContent>
-);
+/**
+ * 包裹 RAC TreeItemContent：RAC 在此处理 chevron slot 与 row 渲染上下文。
+ * 当所属 MenuItem 带 href 时，内容区渲染为真实 <a>（同 slot/class，CSS 不变），
+ * 以获得原生「新标签/复制链接/状态栏 URL」；普通左键仍 preventDefault 交回 onAction 走 SPA。
+ */
+const MenuItemContent = ({ className, children, ...rest }: SidebarMenuItemContentProps) => {
+  const link = useContext(MenuItemLinkContext);
+
+  if (link !== null) {
+    return (
+      <TreeItemContent>
+        <a
+          href={link.href}
+          data-slot="sidebar-menu-item-content"
+          className={clsx('sidebar__menu-item-content', className)}
+          {...(rest as HTMLAttributes<HTMLAnchorElement>)}
+          onClick={link.onAnchorClick}
+        >
+          {children}
+        </a>
+      </TreeItemContent>
+    );
+  }
+
+  return (
+    <TreeItemContent>
+      <div data-slot="sidebar-menu-item-content" className={clsx('sidebar__menu-item-content', className)} {...rest}>
+        {children}
+      </div>
+    </TreeItemContent>
+  );
+};
 MenuItemContent.displayName = 'Sidebar.MenuItemContent';
 
 export type SidebarMenuIconProps = HTMLAttributes<HTMLSpanElement>;

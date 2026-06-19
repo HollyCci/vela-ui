@@ -711,7 +711,8 @@ const CommandDemo = () => {
         </Kbd>
       </Button>
       <span>{lastAction ? `已执行：${lastAction}` : '尚未执行命令'}</span>
-      <Command>
+      {/* openShortcut 开启全局 Cmd+K / Ctrl+K：命中即 onOpen 打开面板（开合仍由下方 Backdrop 受控） */}
+      <Command openShortcut="mod+k" onOpen={handleOpen}>
         <Command.Backdrop variant="blur" isOpen={isOpen} onOpenChange={handleOpenChange}>
           <Command.Container size="md">
             <Command.Dialog aria-label="命令面板">

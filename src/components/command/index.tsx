@@ -3,6 +3,7 @@
 import {
   createContext,
   useContext,
+  useEffect,
   type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
@@ -34,8 +35,22 @@ import clsx from 'clsx';
 export type CommandSize = 'sm' | 'md' | 'lg';
 export type CommandBackdropVariant = 'opaque' | 'blur' | 'transparent';
 
-/** 根 provider 仅透传 children，不渲染 DOM；开合由 Command.Backdrop 受控驱动 */
-export type CommandProps = { children?: ReactNode };
+/**
+ * 根 provider 仅透传 children，不渲染 DOM；开合由 Command.Backdrop 受控驱动。
+ * 可选挂载全局 openShortcut（默认关闭）：命中 Cmd+K / Ctrl+K 时调用 onOpen 打开面板。
+ */
+export type CommandProps = {
+  children?: ReactNode;
+  /**
+   * 全局打开热键，默认关闭。传 true 等价 'mod+k'（Cmd+K / Ctrl+K）；
+   * 当前仅识别 mod+k，命中即 preventDefault 并触发 onOpen。开合状态仍由 Backdrop 受控/非受控驱动。
+   */
+  openShortcut?: boolean | 'mod+k';
+  /** openShortcut 命中时回调（一般接 setOpen(true) / onOpenChange(true)）；缺省则热键无效 */
+  onOpen?: () => void;
+  /** 为 true 时不安装监听，热键不触发（对齐 disabled 不响应键盘） */
+  isDisabled?: boolean;
+};
 
 /** ModalOverlay 已含遮罩全部 props，这里加 variant 并收窄 className/style */
 export type CommandBackdropProps = Omit<ModalOverlayProps, 'className' | 'style'> & {
@@ -140,8 +155,32 @@ export type CommandCollectionProps<TItem extends CommandCollectionItem = Command
 /** Container → Dialog 透传尺寸（二者非直接父子，用 context 串联，对齐 command__dialog--<size>） */
 const CommandSizeContext = createContext<CommandSize>('md');
 
-/** 根 provider 只透传 children，不渲染 DOM；开合由 Command.Backdrop 的 isOpen/onOpenChange 受控驱动 */
-const CommandRoot = ({ children }: CommandProps) => <>{children}</>;
+/**
+ * 根 provider 只透传 children，不渲染 DOM；开合由 Command.Backdrop 的 isOpen/onOpenChange 受控驱动。
+ * 当 openShortcut 开启且未 disabled 时，挂一个 document keydown 监听：命中 (meta||ctrl)+k 即打开面板。
+ */
+const CommandRoot = ({ children, openShortcut = false, onOpen, isDisabled = false }: CommandProps) => {
+  // 仅在显式开启热键、未禁用且提供了 onOpen 时安装监听；其余分支 effect 直接返回，监听不存在
+  const shortcutEnabled = openShortcut !== false && !isDisabled && onOpen !== undefined;
+
+  useEffect(() => {
+    if (!shortcutEnabled) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      // 当前仅识别 mod+k：Cmd+K(metaKey) / Ctrl+K(ctrlKey)，与触发器上的 <Kbd>K</Kbd> 视觉一致
+      if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === 'k') {
+        event.preventDefault();
+        onOpen?.();
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+    // 卸载/依赖变化时移除监听，避免重复绑定与泄漏
+    return () => document.removeEventListener('keydown', handleKeyDown);
+  }, [shortcutEnabled, onOpen]);
+
+  return <>{children}</>;
+};
 CommandRoot.displayName = 'Command';
 
 /** 全屏遮罩（RAC ModalOverlay）：isEntering/isExiting 由底座输出 data-entering/data-exiting，对齐参考实现动画 */

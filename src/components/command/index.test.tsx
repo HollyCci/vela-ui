@@ -1,7 +1,8 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { axe } from 'vitest-axe';
+import { useState } from 'react';
 import Command from './index';
 
 // 完整合法结构（对齐 src/showcase/demos/feedback-nav-demos.tsx 的 CommandDemo）：
@@ -93,5 +94,100 @@ describe('Command', () => {
     await screen.findByRole('dialog', { name: '命令面板' });
     // 浮层经 portal 渲染，对 document.body 跑 axe 覆盖命令面板内容。
     expect(await axe(document.body)).toHaveNoViolations();
+  });
+
+  it('openShortcut 开启时 Cmd+K / Ctrl+K 触发 onOpen', () => {
+    const onOpen = vi.fn();
+    render(
+      <Command openShortcut="mod+k" onOpen={onOpen}>
+        <Command.Backdrop isOpen={false} onOpenChange={() => {}}>
+          <Command.Container>
+            <Command.Dialog aria-label="命令面板">
+              <Command.InputGroup>
+                <Command.InputGroup.Input />
+              </Command.InputGroup>
+              <Command.Collection aria-label="命令列表" groups={COMMAND_GROUPS} />
+            </Command.Dialog>
+          </Command.Container>
+        </Command.Backdrop>
+      </Command>,
+    );
+
+    // Cmd+K（metaKey）命中
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(onOpen).toHaveBeenCalledTimes(1);
+    // Ctrl+K（ctrlKey）同样命中
+    fireEvent.keyDown(document, { key: 'k', ctrlKey: true });
+    expect(onOpen).toHaveBeenCalledTimes(2);
+    // 无修饰键的 k 不应触发
+    fireEvent.keyDown(document, { key: 'k' });
+    expect(onOpen).toHaveBeenCalledTimes(2);
+  });
+
+  it('openShortcut 打开非受控面板：Cmd+K 后 dialog 出现', async () => {
+    const ShortcutHarness = () => {
+      const [open, setOpen] = useState(false);
+      return (
+        <Command openShortcut onOpen={() => setOpen(true)}>
+          <Command.Backdrop isOpen={open} onOpenChange={setOpen}>
+            <Command.Container>
+              <Command.Dialog aria-label="命令面板">
+                <Command.InputGroup>
+                  <Command.InputGroup.Input />
+                </Command.InputGroup>
+                <Command.Collection aria-label="命令列表" groups={COMMAND_GROUPS} />
+              </Command.Dialog>
+            </Command.Container>
+          </Command.Backdrop>
+        </Command>
+      );
+    };
+
+    render(<ShortcutHarness />);
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(await screen.findByRole('dialog', { name: '命令面板' })).toBeInTheDocument();
+  });
+
+  it('未开启 openShortcut 时 Cmd+K 不触发任何回调', () => {
+    const onOpen = vi.fn();
+    render(
+      <Command onOpen={onOpen}>
+        <Command.Backdrop isOpen={false} onOpenChange={() => {}}>
+          <Command.Container>
+            <Command.Dialog aria-label="命令面板">
+              <Command.InputGroup>
+                <Command.InputGroup.Input />
+              </Command.InputGroup>
+              <Command.Collection aria-label="命令列表" groups={COMMAND_GROUPS} />
+            </Command.Dialog>
+          </Command.Container>
+        </Command.Backdrop>
+      </Command>,
+    );
+
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(onOpen).not.toHaveBeenCalled();
+  });
+
+  it('isDisabled 时即便 openShortcut 开启也不触发 onOpen', () => {
+    const onOpen = vi.fn();
+    render(
+      <Command openShortcut="mod+k" onOpen={onOpen} isDisabled>
+        <Command.Backdrop isOpen={false} onOpenChange={() => {}}>
+          <Command.Container>
+            <Command.Dialog aria-label="命令面板">
+              <Command.InputGroup>
+                <Command.InputGroup.Input />
+              </Command.InputGroup>
+              <Command.Collection aria-label="命令列表" groups={COMMAND_GROUPS} />
+            </Command.Dialog>
+          </Command.Container>
+        </Command.Backdrop>
+      </Command>,
+    );
+
+    fireEvent.keyDown(document, { key: 'k', metaKey: true });
+    expect(onOpen).not.toHaveBeenCalled();
   });
 });
