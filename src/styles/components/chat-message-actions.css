@@ -18,3 +18,14 @@
 .chat-message-actions [data-slot=chat-message-action][data-copy-status=failed] {
   color: var(--danger-soft-foreground);
 }
+
+/*
+ * 复制图标外层 motion.span：AnimatePresence(mode=popLayout) 切换时新旧 span 短暂并存，
+ * 退场 span 由 motion/react 自动绝对定位脱流，交叉淡入淡出靠内联 style 插帧（opacity + blur）。
+ * 系统减少动态效果时由 JS 关闭动画，此处兜底去除可能残留的 blur，避免图标发虚。
+ */
+@media (prefers-reduced-motion: reduce) {
+  [data-slot=chat-message-actions-copy-icon-motion] {
+    filter: none !important;
+  }
+}

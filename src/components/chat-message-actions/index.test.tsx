@@ -117,6 +117,59 @@ describe('ChatMessageActions', () => {
       await waitFor(() => expect(btn).toHaveAttribute('data-copy-status', 'failed'));
       expect(btn).toHaveAccessibleName('Copy failed');
     });
+
+    // 动画图标切换：图标外层是 AnimatePresence(mode=popLayout) 下按 copyStatus 计 key 的 motion.span。
+    // jsdom 无动画循环：旧 span 的退场动画不会完成、不会卸载，新 span 以「最后一个」入场，承载终态图标。
+    // 故断言「最后一个 motion span」内的图标——即当前状态应呈现的那一个（CopyIcon/CheckIcon 唯一路径片段）。
+    const lastMotionIconPath = (btn: HTMLElement) => {
+      const spans = btn.querySelectorAll(
+        '[data-slot="chat-message-actions-copy-icon-motion"]',
+      );
+      const last = spans[spans.length - 1];
+      return last?.querySelector('svg[data-slot="chat-message-actions-copy-icon"] path');
+    };
+
+    it('wraps the per-status icon in the animated motion span', async () => {
+      const writeText = vi.fn().mockResolvedValue(undefined);
+      const user = userEvent.setup();
+      setClipboard(writeText);
+      render(<ChatMessageActions.Copy content="x" timeout={100000} />);
+      const btn = screen.getByRole('button', { name: 'Copy' });
+
+      // idle 终态：唯一 motion span 内为复制图标（CopyIcon 唯一路径片段）
+      expect(
+        btn.querySelector('[data-slot="chat-message-actions-copy-icon-motion"]'),
+      ).toBeInTheDocument();
+      expect(lastMotionIconPath(btn)).toHaveAttribute(
+        'd',
+        expect.stringContaining('M12 2.5H8'),
+      );
+
+      // copied 终态：入场 motion span 承载对勾图标（CheckIcon 唯一路径片段）
+      await user.click(btn);
+      await waitFor(() => expect(btn).toHaveAttribute('data-copy-status', 'copied'));
+      expect(lastMotionIconPath(btn)).toHaveAttribute(
+        'd',
+        expect.stringContaining('M13.78 4.22'),
+      );
+    });
+
+    // failed 终态：入场 motion span 承载失败图标（ErrorIcon 唯一路径片段）
+    it('wraps the failed icon in the animated motion span', async () => {
+      const writeText = vi.fn().mockRejectedValue(new Error('blocked'));
+      const user = userEvent.setup();
+      setClipboard(writeText);
+      render(<ChatMessageActions.Copy content="x" timeout={100000} />);
+      const btn = screen.getByRole('button', { name: 'Copy' });
+
+      await user.click(btn);
+      await waitFor(() => expect(btn).toHaveAttribute('data-copy-status', 'failed'));
+
+      expect(lastMotionIconPath(btn)).toHaveAttribute(
+        'd',
+        expect.stringContaining('M8 1.25a6.75'),
+      );
+    });
   });
 
   it('ThumbsUp is a toggle button reflecting controlled selection via aria-pressed', () => {

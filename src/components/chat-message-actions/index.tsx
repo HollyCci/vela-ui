@@ -13,10 +13,15 @@ import {
 } from 'react';
 import { Button, type ButtonProps } from '@heroui/react';
 import { ToggleButton, type ToggleButtonProps } from 'react-aria-components';
+import { AnimatePresence, motion, useReducedMotion, type Transition } from 'motion/react';
 import clsx from 'clsx';
 
-/** 基准快照中复制图标外层 Motion span 的终态内联样式（本仓无动画库，静态对齐） */
-const ICON_MOTION_STYLE: CSSProperties = { filter: 'blur(0px)', opacity: 1, transform: 'none' };
+/** 复制图标切换的进出场关键帧：与参考一致做 opacity + blur 交叉淡入淡出 */
+const ICON_MOTION_INITIAL = { opacity: 0, filter: 'blur(4px)' } as const;
+const ICON_MOTION_ANIMATE = { opacity: 1, filter: 'blur(0px)' } as const;
+const ICON_MOTION_EXIT = { opacity: 0, filter: 'blur(4px)' } as const;
+/** 与 chat-conversation 进场曲线同源，保持库内动画手感一致 */
+const ICON_MOTION_TRANSITION: Transition = { duration: 0.18, ease: [0.16, 1, 0.3, 1] };
 
 /** Action 按钮固定类名（与快照一致：icon-only / sm / ghost） */
 const ACTION_BUTTON_CLASS = 'button button--icon-only button--sm button--ghost chat-message__action';
@@ -215,7 +220,8 @@ Action.displayName = 'ChatMessageActions.Action';
 
 /**
  * 复制动作：navigator.clipboard 写入成功后切换对勾图标约 2 秒，失败时短暂展示失败图标。
- * 图标外层 motion span 与快照一致（data-slot=chat-message-actions-copy-icon-motion）。
+ * 图标外层用真 framer-motion（motion/react）的 AnimatePresence(mode=popLayout) + motion.span 按 copyStatus
+ * 交叉淡入淡出（data-slot=chat-message-actions-copy-icon-motion），与参考一致；prefers-reduced-motion 时退化为静态切换。
  */
 export type ChatMessageActionsCopyProps = Omit<ButtonProps, 'className' | 'style' | 'children'> & {
   /** 点击时写入剪贴板的文本（参考 API） */
@@ -250,6 +256,8 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
     const [copyStatus, setCopyStatus] = useState<CopyStatus>('idle');
     const resetTimerRef = useRef<number | null>(null);
     const mountedRef = useRef(true);
+    // 系统开启「减少动态效果」时关闭交叉淡入淡出，仅做静态切换（与 motion/react 约定一致）
+    const prefersReducedMotion = useReducedMotion();
 
     const clearResetTimer = useCallback(() => {
       if (resetTimerRef.current !== null) {
@@ -318,13 +326,19 @@ const Copy = forwardRef<HTMLButtonElement, ChatMessageActionsCopyProps>(
         onPress={handlePress}
         {...rest}
       >
-        <span
-          className="flex size-4 items-center justify-center"
-          data-slot="chat-message-actions-copy-icon-motion"
-          style={ICON_MOTION_STYLE}
-        >
-          {currentIcon}
-        </span>
+        <AnimatePresence initial={false} mode="popLayout">
+          <motion.span
+            key={copyStatus}
+            className="flex size-4 items-center justify-center"
+            data-slot="chat-message-actions-copy-icon-motion"
+            initial={prefersReducedMotion ? false : ICON_MOTION_INITIAL}
+            animate={ICON_MOTION_ANIMATE}
+            exit={prefersReducedMotion ? ICON_MOTION_ANIMATE : ICON_MOTION_EXIT}
+            transition={prefersReducedMotion ? { duration: 0 } : ICON_MOTION_TRANSITION}
+          >
+            {currentIcon}
+          </motion.span>
+        </AnimatePresence>
       </Button>
     );
   },

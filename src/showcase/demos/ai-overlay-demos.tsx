@@ -508,6 +508,20 @@ const PromptInputDemo = () => {
     setAttachments((prev) => [...prev, `参考资料-${attachmentSeqRef.current}.pdf`]);
   }, []);
 
+  // 文件拖入 shell 时入队附件（取拖放文件名，去重后追加）
+  const handleFilesDrop = useCallback((files: File[]) => {
+    setAttachments((prev) => {
+      const names = files.map((file) => file.name);
+      const merged = [...prev];
+      names.forEach((name) => {
+        if (!merged.includes(name)) {
+          merged.push(name);
+        }
+      });
+      return merged;
+    });
+  }, []);
+
   const handleInlineAttach = useCallback(() => {
     attachmentSeqRef.current += 1;
     setInlineAttachments((prev) => [...prev, `inline-资料-${attachmentSeqRef.current}.pdf`]);
@@ -544,6 +558,7 @@ const PromptInputDemo = () => {
         onValueChange={handleValueChange}
         onSubmit={handleSubmit}
         onStop={handleStop}
+        onFilesDrop={handleFilesDrop}
         status={status}
       >
         {queuedPrompts.length > 0 && (

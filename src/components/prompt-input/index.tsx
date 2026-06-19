@@ -11,8 +11,9 @@ import {
   useState,
   type ChangeEvent,
   type CSSProperties,
+  type DragEvent as ReactDragEvent,
   type HTMLAttributes,
-  type KeyboardEvent,
+  type KeyboardEvent as ReactKeyboardEvent,
   type LiHTMLAttributes,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -52,6 +53,11 @@ export type PromptInputProps = Omit<HTMLAttributes<HTMLDivElement>, 'onSubmit'> 
   maxHeight?: number | string;
   size?: PromptInputSize;
   variant?: PromptInputVariant;
+  /**
+   * 提供时 Shell 接通原生文件拖放：拖入时 shell 输出 data-dragging（命中 CSS 虚线放置区高亮），
+   * 松手回调 dropped File[]（参考 API，可选/向后兼容；未提供时不绑定拖放事件，保持原行为）。
+   */
+  onFilesDrop?: (files: File[]) => void;
 };
 
 export type PromptInputTextAreaProps = Omit<
@@ -148,6 +154,8 @@ type PromptInputContextValue = {
   size: PromptInputSize;
   variant: PromptInputVariant;
   setExpanded: (expanded: boolean) => void;
+  /** 根 onFilesDrop（缺省 null 时 Shell 不绑定拖放，保持原行为） */
+  onFilesDrop: ((files: File[]) => void) | null;
 };
 
 const PromptInputContext = createContext<PromptInputContextValue>({
@@ -162,24 +170,37 @@ const PromptInputContext = createContext<PromptInputContextValue>({
   size: 'md',
   variant: 'primary',
   setExpanded: () => undefined,
+  onFilesDrop: null,
 });
 
 type QueueListContextValue = {
   /** values+onReorder 同传时为真，开启 Reorder.Group 拖拽 */
   hasReorder: boolean;
+  /**
+   * 键盘排序入口：把某项上移/下移一位（'prev'/'next'）或移到端点（'start'/'end'），
+   * 经 onReorder 提交新顺序。拖拽未开启时为 null（Handle 不绑定 onKeyDown）。
+   */
+  moveItem: ((value: unknown, target: 'prev' | 'next' | 'start' | 'end') => void) | null;
+  /** Reorder 轴向，决定键盘排序响应 Up/Down 还是 Left/Right */
+  axis: 'x' | 'y';
 };
 
 const QueueListContext = createContext<QueueListContextValue>({
   hasReorder: false,
+  moveItem: null,
+  axis: 'y',
 });
 
 type QueueItemContextValue = {
   /** 该行的 Motion 拖拽控制器；Handle 按下时 start() 启动拖拽（dragListener=false 时唯一入口） */
   dragControls: DragControls | null;
+  /** 该行在 values 中的对应项；Handle 键盘排序时据此定位（拖拽未开启时为 undefined） */
+  value: unknown;
 };
 
 const QueueItemContext = createContext<QueueItemContextValue>({
   dragControls: null,
+  value: undefined,
 });
 
 /** 基准快照中 textarea 自带的工具类串（压平 OSS textarea 的边框/底色，使其融入 shell） */
@@ -278,17 +299,80 @@ const useButtonSize = (): PromptInputSize => {
   return variant === 'inline' ? 'sm' : size;
 };
 
-const Shell = forwardRef<HTMLDivElement, PromptInputSectionProps>(({ className, ...rest }, ref) => {
-  const { variant } = useContext(PromptInputContext);
-  return (
-    <div
-      ref={ref}
-      data-slot="prompt-input-shell"
-      className={clsx('prompt-input__shell', `prompt-input__shell--${variant}`, className)}
-      {...rest}
-    />
-  );
-});
+/**
+ * Shell 底座：variant 决定外观分支；根传 onFilesDrop 时接通原生文件拖放——
+ * 拖入设 data-dragging=true（命中 CSS 虚线放置区高亮），松手把 dataTransfer.files 透传给回调。
+ * 未传 onFilesDrop 时不绑定任何拖放事件，保持原有行为（向后兼容）。
+ */
+const Shell = forwardRef<HTMLDivElement, PromptInputSectionProps>(
+  ({ className, onDragOver, onDragLeave, onDrop, ...rest }, ref) => {
+    const { variant, isDisabled, onFilesDrop } = useContext(PromptInputContext);
+    const [isDragging, setIsDragging] = useState(false);
+    // 嵌套子元素的 dragenter/dragleave 会冒泡乱跳，用计数器只在真正离开 shell 时熄灭
+    const dragDepthRef = useRef(0);
+    const isDropEnabled = onFilesDrop !== null && !isDisabled;
+
+    const handleDragOver = useCallback(
+      (event: ReactDragEvent<HTMLDivElement>) => {
+        onDragOver?.(event);
+        if (!isDropEnabled) {
+          return;
+        }
+        // 仅文件拖放才高亮；阻止默认以允许 drop
+        if (Array.from(event.dataTransfer.types).includes('Files')) {
+          event.preventDefault();
+          dragDepthRef.current = 1;
+          setIsDragging(true);
+        }
+      },
+      [onDragOver, isDropEnabled],
+    );
+
+    const handleDragLeave = useCallback(
+      (event: ReactDragEvent<HTMLDivElement>) => {
+        onDragLeave?.(event);
+        if (!isDropEnabled) {
+          return;
+        }
+        dragDepthRef.current = Math.max(0, dragDepthRef.current - 1);
+        if (dragDepthRef.current === 0) {
+          setIsDragging(false);
+        }
+      },
+      [onDragLeave, isDropEnabled],
+    );
+
+    const handleDrop = useCallback(
+      (event: ReactDragEvent<HTMLDivElement>) => {
+        onDrop?.(event);
+        if (!isDropEnabled) {
+          return;
+        }
+        event.preventDefault();
+        dragDepthRef.current = 0;
+        setIsDragging(false);
+        const files = Array.from(event.dataTransfer.files);
+        if (files.length > 0) {
+          onFilesDrop(files);
+        }
+      },
+      [onDrop, isDropEnabled, onFilesDrop],
+    );
+
+    return (
+      <div
+        ref={ref}
+        data-slot="prompt-input-shell"
+        data-dragging={isDragging ? 'true' : undefined}
+        className={clsx('prompt-input__shell', `prompt-input__shell--${variant}`, className)}
+        onDragOver={isDropEnabled ? handleDragOver : onDragOver}
+        onDragLeave={isDropEnabled ? handleDragLeave : onDragLeave}
+        onDrop={isDropEnabled ? handleDrop : onDrop}
+        {...rest}
+      />
+    );
+  },
+);
 Shell.displayName = 'PromptInput.Shell';
 
 const Content = forwardRef<HTMLDivElement, PromptInputSectionProps>(({ className, ...rest }, ref) => (
@@ -390,7 +474,7 @@ const TextAreaSlot = ({
   );
 
   const handleKeyDown = useCallback(
-    (event: KeyboardEvent<HTMLTextAreaElement>) => {
+    (event: ReactKeyboardEvent<HTMLTextAreaElement>) => {
       onKeyDown?.(event);
       if (event.defaultPrevented) {
         return;
@@ -602,7 +686,40 @@ const QueueList = <T,>({
 }: PromptInputQueueListProps<T>) => {
   const hasReorder = values !== undefined && onReorder !== undefined;
 
-  const contextValue = useMemo<QueueListContextValue>(() => ({ hasReorder }), [hasReorder]);
+  // 键盘排序：按当前项算出目标索引，输出与 Motion 拖拽一致的重排数组交给 onReorder。
+  const moveItem = useCallback(
+    (value: unknown, target: 'prev' | 'next' | 'start' | 'end') => {
+      if (values === undefined || onReorder === undefined) {
+        return;
+      }
+      const from = values.indexOf(value as T);
+      if (from === -1) {
+        return;
+      }
+      const rawTo =
+        target === 'start'
+          ? 0
+          : target === 'end'
+            ? values.length - 1
+            : target === 'prev'
+              ? from - 1
+              : from + 1;
+      const to = Math.min(values.length - 1, Math.max(0, rawTo));
+      if (to === from) {
+        return;
+      }
+      const next = values.slice();
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      onReorder(next);
+    },
+    [values, onReorder],
+  );
+
+  const contextValue = useMemo<QueueListContextValue>(
+    () => ({ hasReorder, moveItem: hasReorder ? moveItem : null, axis }),
+    [hasReorder, moveItem, axis],
+  );
 
   const items = <AnimatePresence initial={false}>{children}</AnimatePresence>;
 
@@ -643,8 +760,8 @@ const QueueItemRoot = <T,>({ value, className, ...rest }: PromptInputQueueItemPr
   const isReorderEnabled = hasReorder && value !== undefined;
 
   const itemContext = useMemo<QueueItemContextValue>(
-    () => ({ dragControls: isReorderEnabled ? dragControls : null }),
-    [isReorderEnabled, dragControls],
+    () => ({ dragControls: isReorderEnabled ? dragControls : null, value }),
+    [isReorderEnabled, dragControls, value],
   );
 
   const sharedProps = {
@@ -682,16 +799,21 @@ QueueItemRoot.displayName = 'PromptInput.Queue.Item';
 /**
  * 拖拽手柄：开启排序时按下经该行 dragControls.start() 启动 Motion 拖拽
  * （Reorder.Item dragListener=false 时的唯一拖拽入口）；无 children 时渲染默认网点图标。
+ * 排序开启时手柄支持键盘排序：方向键（按 axis 选上下/左右）移一位、Home/End 移到端点。
+ * 注：底座 OSS Button（react-aria）只放行 aria-label 等白名单 ARIA，会过滤 aria-roledescription/
+ * aria-keyshortcuts，故可拖拽语义沿用既有 data-reorder-enabled 标记（保真铁律：不伪造底座不支持的 ARIA）。
  */
 const QueueItemHandle = ({
   className,
   children,
   onPointerDown,
+  onKeyDown,
   'aria-label': ariaLabel = 'Reorder queued prompt',
   ...rest
 }: PromptInputQueueButtonProps) => {
-  const { hasReorder } = useContext(QueueListContext);
-  const { dragControls } = useContext(QueueItemContext);
+  const { hasReorder, moveItem, axis } = useContext(QueueListContext);
+  const { dragControls, value } = useContext(QueueItemContext);
+  const canKeyboardReorder = moveItem !== null && value !== undefined;
 
   const handlePointerDown = useCallback(
     (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -706,6 +828,34 @@ const QueueItemHandle = ({
     [onPointerDown, dragControls],
   );
 
+  const handleKeyDown = useCallback<NonNullable<PromptInputQueueButtonProps['onKeyDown']>>(
+    (event) => {
+      onKeyDown?.(event);
+      if (event.defaultPrevented || moveItem === null || value === undefined) {
+        return;
+      }
+      // axis=y 用上下键，axis=x 用左右键；Home/End 始终移到端点
+      const prevKey = axis === 'x' ? 'ArrowLeft' : 'ArrowUp';
+      const nextKey = axis === 'x' ? 'ArrowRight' : 'ArrowDown';
+      let target: 'prev' | 'next' | 'start' | 'end' | null = null;
+      if (event.key === prevKey) {
+        target = 'prev';
+      } else if (event.key === nextKey) {
+        target = 'next';
+      } else if (event.key === 'Home') {
+        target = 'start';
+      } else if (event.key === 'End') {
+        target = 'end';
+      }
+      if (target === null) {
+        return;
+      }
+      event.preventDefault();
+      moveItem(value, target);
+    },
+    [onKeyDown, moveItem, value, axis],
+  );
+
   return (
     <Button
       data-slot="prompt-input-queue-item-handle"
@@ -715,6 +865,7 @@ const QueueItemHandle = ({
       aria-label={ariaLabel}
       className={clsx('prompt-input__queue-item-handle', className)}
       onPointerDown={handlePointerDown}
+      onKeyDown={canKeyboardReorder ? handleKeyDown : onKeyDown}
       {...rest}
     >
       {children ?? <GripIcon />}
@@ -880,6 +1031,7 @@ const PromptInputRoot = ({
   maxHeight = 240,
   size = 'md',
   variant = 'primary',
+  onFilesDrop,
   className,
   ...rest
 }: PromptInputProps) => {
@@ -925,8 +1077,9 @@ const PromptInputRoot = ({
       size,
       variant,
       setExpanded: setIsExpanded,
+      onFilesDrop: onFilesDrop ?? null,
     }),
-    [value, setValue, submit, stop, status, isDisabled, lockInputOnRun, maxHeight, size, variant],
+    [value, setValue, submit, stop, status, isDisabled, lockInputOnRun, maxHeight, size, variant, onFilesDrop],
   );
 
   return (
