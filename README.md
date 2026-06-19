@@ -15,10 +15,12 @@ Vela UI 是一套面向产品界面的 React 组件库，以 [HeroUI](https://ww
 ```bash
 pnpm add @hollycci/vela-ui
 # peer 依赖（由宿主应用提供，确保单实例）
-pnpm add react react-dom @heroui/react react-aria-components@1.18.0
+pnpm add react react-dom @heroui/react@^3.2.1 react-aria-components@1.18.0
 ```
 
 > `react-aria-components` 必须与 `@heroui/react` 内部实例同版本（钉死 `1.18.0`），否则上下文会静默失效。
+>
+> `@heroui/react` 需 `>=3.2.1`：3.2.0 是缺陷发布（dist 误打包第二份 react-aria，导致 tooltip/calendar 焦点在 runtime 失效），3.2.1 已修复。
 
 ## 使用
 
@@ -61,6 +63,26 @@ pnpm build:demo   # 构建 showcase 静态站
 pnpm preview      # 预览构建产物
 pnpm type-check   # TypeScript 检查
 ```
+
+## 发布与升级版本
+
+发布走 **GitHub Release 触发 → CI 自动发到 GitHub Packages**（`.github/workflows/publish.yml`，用仓库内置 `GITHUB_TOKEN`，无需手动 PAT）。发布前 `prepublishOnly` 会自动 `build + smoke` 把关。
+
+出新版本流程：
+
+```bash
+# 1) 确保 main 绿：type-check / test / lint / audit:all 全过
+# 2) 按 semver 提升 package.json 的 version（patch 修复 / minor 新增 / major 破坏性）
+npm version patch   # 或 minor / major；会改 package.json 并打本地 git tag vX.Y.Z
+git push && git push --tags
+# 3) 在 GitHub 切一个 Release，tag 用 vX.Y.Z（必须与 package.json 的 version 一致）
+gh release create vX.Y.Z --title vX.Y.Z --generate-notes
+# → publish.yml 自动触发，build + smoke 通过后发布到 GitHub Packages
+```
+
+> Release 的 tag 版本务必与 `package.json` 的 `version` 一致，否则发出去的版本号会对不上。
+
+消费方升级：在其 semver range 内 `pnpm update @hollycci/vela-ui`，或先抬高依赖范围再 `pnpm install`。破坏性变更请发 major 版本，并在 Release notes 写明迁移点。
 
 ## 构建产物
 
