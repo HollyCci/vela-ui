@@ -22,6 +22,7 @@ import { Button } from '@heroui/react';
 import type { Key } from 'react-aria-components';
 import clsx from 'clsx';
 import Segment from '../segment';
+import Popover from '../popover';
 
 export type AgendaView = 'day' | 'week' | 'month';
 
@@ -836,6 +837,15 @@ const ChevronDownIcon = () => (
 );
 ChevronDownIcon.displayName = 'Agenda.ChevronDownIcon';
 
+const TrashIcon = () => (
+  <svg fill="none" height="14" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="14">
+    <path d="M3 6h18" strokeLinecap="round" />
+    <path d="M8 6V4a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v2" strokeLinecap="round" />
+    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+TrashIcon.displayName = 'Agenda.TrashIcon';
+
 export type AgendaAllDaySectionProps = Omit<AgendaSectionProps, 'children'> & {
   /** 折叠时每天的事件计数标签（参考 API，默认 "N events"） */
   collapsedLabel?: (count: number) => string;
@@ -1250,6 +1260,74 @@ const DayColumn = forwardRef<HTMLDivElement, AgendaDayColumnProps>(
 );
 DayColumn.displayName = 'Agenda.DayColumn';
 
+type AgendaEventDetailPopoverProps = {
+  event: AgendaEvent;
+  /** 锚定到的事件元素 ref */
+  triggerRef: MutableRefObject<HTMLElement | null>;
+  isOpen: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+/**
+ * 事件详情浮层：点击事件后锚定到事件元素弹出，承载只读信息 + 删除按钮，
+ * 让删除可经指针触达（参考实现的事件卡片点击亦弹出详情/删除）。键盘 Delete 仍在事件本体生效。
+ * 复用仓库 Popover（受控 isOpen + triggerRef），不改变事件本体的拖拽/选中/键盘逻辑。
+ */
+const EventDetailPopover = ({
+  event,
+  triggerRef,
+  isOpen,
+  onOpenChange,
+}: AgendaEventDetailPopoverProps) => {
+  const { locale, onEventDelete } = useAgendaContext();
+  const timeFormat = useMemo(
+    () => new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
+    [locale],
+  );
+  const canDelete = !event.isReadOnly && onEventDelete !== undefined;
+
+  const handleDelete = useCallback(() => {
+    onEventDelete?.(event.id);
+    onOpenChange(false);
+  }, [event.id, onEventDelete, onOpenChange]);
+
+  if (!isOpen) return null;
+
+  return (
+    <Popover.Content
+      // RAC Popover：受控 isOpen + triggerRef 时自行锚定，无需 DialogTrigger
+      triggerRef={triggerRef as MutableRefObject<HTMLElement>}
+      isOpen={isOpen}
+      onOpenChange={onOpenChange}
+      placement="bottom"
+    >
+      <Popover.Dialog
+        data-slot="agenda-event-detail"
+        className="agenda__event-detail"
+        aria-label={`${event.title} details`}
+      >
+        <Popover.Heading className="agenda__event-detail-title">{event.title}</Popover.Heading>
+        <p data-slot="agenda-event-detail-time" className="agenda__event-detail-time">
+          {timeFormat.format(event.start)} – {timeFormat.format(event.end)}
+        </p>
+        {canDelete && (
+          <Button
+            size="sm"
+            variant="ghost"
+            data-slot="agenda-event-delete"
+            onPress={handleDelete}
+            className="agenda__event-delete"
+          >
+            <TrashIcon />
+            Delete
+          </Button>
+        )}
+      </Popover.Dialog>
+    </Popover.Content>
+  );
+};
+EventDetailPopover.displayName = 'Agenda.EventDetailPopover';
+
 export type AgendaEventProps = {
   event: AgendaEvent;
   className?: string;
@@ -1274,6 +1352,8 @@ const Event = ({ event, className }: AgendaEventProps) => {
   const interactionCleanupRef = useRef<(() => void) | null>(null);
   const skipClickRef = useRef(false);
   const [draft, setDraft] = useState<AgendaTimedEventDraft | null>(null);
+  // 点击事件打开详情浮层（承载指针可触达的删除）；拖拽/调整结束后 skipClick 抑制本次 click，故不会误开
+  const [detailOpen, setDetailOpen] = useState(false);
 
   const displayStart = draft?.start ?? event.start;
   const displayEnd = draft?.end ?? event.end;
@@ -1514,6 +1594,7 @@ const Event = ({ event, className }: AgendaEventProps) => {
         return;
       }
       setSelectedEventId(event.id);
+      setDetailOpen(true);
     },
     [event.id, setSelectedEventId],
   );
@@ -1535,43 +1616,51 @@ const Event = ({ event, className }: AgendaEventProps) => {
   );
 
   return (
-    <div
-      ref={eventRef}
-      role="button"
-      tabIndex={0}
-      data-slot="agenda-event"
-      data-event-id={event.id}
-      data-status={event.status ?? 'confirmed'}
-      data-readonly={event.isReadOnly ? 'true' : undefined}
-      data-selected={selectedEventId === event.id ? 'true' : undefined}
-      data-dragging={draft?.mode === 'move' ? 'true' : undefined}
-      data-resizing={draft?.mode === 'resize' ? 'true' : undefined}
-      onClick={handleClick}
-      onKeyDown={handleKeyDown}
-      onPointerDown={(pointerEvent) => startInteraction('move', pointerEvent)}
-      className={clsx('agenda__event', className)}
-      style={{
-        top,
-        height,
-        transform: draft?.translateX ? `translateX(${draft.translateX}px)` : undefined,
-        touchAction: canInteract ? 'none' : undefined,
-        ...eventColorStyle(event.color),
-      }}
-    >
-      <span data-slot="agenda-event-title" className="agenda__event-title">
-        {event.title}
-      </span>
-      <span data-slot="agenda-event-time" className="agenda__event-time">
-        {timeFormat.format(displayStart)} – {timeFormat.format(displayEnd)}
-      </span>
-      {canResize && (
-        <div
-          data-slot="agenda-resize-handle"
-          className="agenda__resize-handle"
-          onPointerDown={(pointerEvent) => startInteraction('resize', pointerEvent)}
-        />
-      )}
-    </div>
+    <>
+      <div
+        ref={eventRef}
+        role="button"
+        tabIndex={0}
+        data-slot="agenda-event"
+        data-event-id={event.id}
+        data-status={event.status ?? 'confirmed'}
+        data-readonly={event.isReadOnly ? 'true' : undefined}
+        data-selected={selectedEventId === event.id ? 'true' : undefined}
+        data-dragging={draft?.mode === 'move' ? 'true' : undefined}
+        data-resizing={draft?.mode === 'resize' ? 'true' : undefined}
+        onClick={handleClick}
+        onKeyDown={handleKeyDown}
+        onPointerDown={(pointerEvent) => startInteraction('move', pointerEvent)}
+        className={clsx('agenda__event', className)}
+        style={{
+          top,
+          height,
+          transform: draft?.translateX ? `translateX(${draft.translateX}px)` : undefined,
+          touchAction: canInteract ? 'none' : undefined,
+          ...eventColorStyle(event.color),
+        }}
+      >
+        <span data-slot="agenda-event-title" className="agenda__event-title">
+          {event.title}
+        </span>
+        <span data-slot="agenda-event-time" className="agenda__event-time">
+          {timeFormat.format(displayStart)} – {timeFormat.format(displayEnd)}
+        </span>
+        {canResize && (
+          <div
+            data-slot="agenda-resize-handle"
+            className="agenda__resize-handle"
+            onPointerDown={(pointerEvent) => startInteraction('resize', pointerEvent)}
+          />
+        )}
+      </div>
+      <EventDetailPopover
+        event={event}
+        triggerRef={eventRef}
+        isOpen={detailOpen}
+        onOpenChange={setDetailOpen}
+      />
+    </>
   );
 };
 Event.displayName = 'Agenda.Event';
@@ -1723,8 +1812,12 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
       [locale],
     );
 
+    const moreRef = useRef<HTMLButtonElement | null>(null);
+    const [moreOpen, setMoreOpen] = useState(false);
+
     const events = Array.isArray(children) ? children : children !== undefined ? [children] : [];
     const visibleEvents = events.slice(0, maxEvents);
+    const hiddenEvents = events.slice(maxEvents);
     const overflow = events.length - visibleEvents.length;
     const labelFor = moreLabel ?? ((count: number) => `${count} more`);
 
@@ -1736,11 +1829,8 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
       setView('day');
     }, [date, setDate, setView, pendingViewFocusRef]);
 
-    const handleMoreClick = useCallback(() => {
-      pendingViewFocusRef.current = true;
-      setDate(date);
-      setView('day');
-    }, [date, setDate, setView, pendingViewFocusRef]);
+    // 溢出 chip 点击展开剩余事件浮层（参考实现行为），不再跳日视图
+    const handleMoreClick = useCallback(() => setMoreOpen((prev) => !prev), []);
 
     return (
       <div
@@ -1767,14 +1857,36 @@ const MonthCell = forwardRef<HTMLDivElement, AgendaMonthCellProps>(
         </button>
         {visibleEvents}
         {overflow > 0 && (
-          <button
-            type="button"
-            data-slot="agenda-month-cell-more"
-            onClick={handleMoreClick}
-            className="agenda__month-cell-more"
-          >
-            {labelFor(overflow)}
-          </button>
+          <>
+            <button
+              ref={moreRef}
+              type="button"
+              data-slot="agenda-month-cell-more"
+              aria-haspopup="dialog"
+              aria-expanded={moreOpen}
+              onClick={handleMoreClick}
+              className="agenda__month-cell-more"
+            >
+              {labelFor(overflow)}
+            </button>
+            {moreOpen && (
+              <Popover.Content
+                // RAC Popover：受控 isOpen + triggerRef 锚定到 chip，无需 DialogTrigger
+                triggerRef={moreRef as MutableRefObject<HTMLElement>}
+                isOpen={moreOpen}
+                onOpenChange={setMoreOpen}
+                placement="bottom"
+              >
+                <Popover.Dialog
+                  data-slot="agenda-month-overflow"
+                  className="agenda__month-overflow"
+                  aria-label={monthDayFormat.format(date)}
+                >
+                  {hiddenEvents}
+                </Popover.Dialog>
+              </Popover.Content>
+            )}
+          </>
         )}
       </div>
     );

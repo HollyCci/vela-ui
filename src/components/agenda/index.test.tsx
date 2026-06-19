@@ -99,6 +99,48 @@ function UncontrolledAgenda() {
   );
 }
 
+// 月视图 harness：同一天放多个单日事件，制造溢出以测 "N more" 浮层
+const MONTH_EVENTS: AgendaEvent[] = [
+  { id: 'm1', title: 'Office Hours', start: at(0, 9, 0), end: at(0, 9, 45), color: '#06b6d4' },
+  { id: 'm2', title: 'Mentor Sync', start: at(0, 10, 0), end: at(0, 10, 45), color: '#8b5cf6' },
+  { id: 'm3', title: 'Content QA', start: at(0, 11, 0), end: at(0, 12, 0), color: '#f59e0b' },
+];
+
+function MonthAgenda({ maxEvents = 1 }: { maxEvents?: number }) {
+  const agenda = useAgenda({ events: MONTH_EVENTS, defaultView: 'month', date: monday });
+  return (
+    <Agenda {...agenda}>
+      <Agenda.Body>
+        <Agenda.MonthGrid>
+          {agenda.visibleWeeks.map((week, weekIndex) => {
+            const rowLayout = agenda.getMonthRowLayout(week);
+            return (
+              <Agenda.MonthRow
+                // eslint-disable-next-line react/no-array-index-key -- 周序号在视图内稳定
+                key={weekIndex}
+                spanningRowCount={rowLayout.rowCount}
+              >
+                {week.map((day, colIndex) => (
+                  <Agenda.MonthCell
+                    key={day.toISOString()}
+                    date={day}
+                    maxEvents={maxEvents}
+                    spanningRowCount={rowLayout.rowCountPerCol[colIndex] ?? 0}
+                  >
+                    {agenda.getPerCellEvents(day, week).map((event) => (
+                      <Agenda.MonthEvent key={event.id} event={event} />
+                    ))}
+                  </Agenda.MonthCell>
+                ))}
+              </Agenda.MonthRow>
+            );
+          })}
+        </Agenda.MonthGrid>
+      </Agenda.Body>
+    </Agenda>
+  );
+}
+
 describe('Agenda', () => {
   it('renders root with data-slot and data-view', () => {
     render(<UncontrolledAgenda />);
@@ -179,6 +221,60 @@ describe('Agenda', () => {
 
     await user.keyboard('{Delete}');
     expect(onEventDelete).toHaveBeenCalledWith('e1');
+  });
+
+  // 指针可达删除：点击事件弹出详情浮层，浮层内的 Delete 按钮调用 onEventDelete（保留键盘删除）
+  it('opens an event-detail popover on click with a pointer-reachable Delete button', async () => {
+    const user = userEvent.setup();
+    const onEventDelete = vi.fn();
+    render(
+      <ControlledAgenda
+        selectedEventId={null}
+        onEventDelete={onEventDelete}
+        onEventSelect={() => {}}
+      />,
+    );
+
+    const standup = document.querySelector('[data-event-id="e1"]') as HTMLElement;
+    expect(standup).not.toBeNull();
+    // 浮层默认不挂载
+    expect(document.querySelector('[data-slot="agenda-event-detail"]')).not.toBeInTheDocument();
+
+    await user.click(standup);
+
+    // 点击后浮层出现，承载删除按钮
+    const detail = await screen.findByRole('button', { name: 'Delete' });
+    expect(document.querySelector('[data-slot="agenda-event-detail"]')).toBeInTheDocument();
+    expect(detail).toHaveAttribute('data-slot', 'agenda-event-delete');
+
+    await user.click(detail);
+    expect(onEventDelete).toHaveBeenCalledWith('e1');
+  });
+
+  // 月视图溢出："N more" chip 弹出剩余事件浮层（不再跳日视图）
+  it('reveals hidden month events in a popover from the "N more" chip without switching to day view', async () => {
+    const user = userEvent.setup();
+    render(<MonthAgenda maxEvents={1} />);
+
+    const root = document.querySelector('[data-slot="agenda"]');
+    expect(root).toHaveAttribute('data-view', 'month');
+
+    // 三个单日事件、maxEvents=1 → 至少一个 cell 出现溢出 chip
+    const more = document.querySelector('[data-slot="agenda-month-cell-more"]') as HTMLElement;
+    expect(more).not.toBeNull();
+    expect(more).toHaveAttribute('aria-expanded', 'false');
+    // 浮层默认不挂载
+    expect(document.querySelector('[data-slot="agenda-month-overflow"]')).not.toBeInTheDocument();
+
+    await user.click(more);
+
+    // chip 展开浮层，列出被折叠的事件（MonthEvent 文案带时间前缀，用子串匹配）；视图仍为 month
+    expect(await screen.findByText(/Content QA/)).toBeInTheDocument();
+    const overflow = document.querySelector('[data-slot="agenda-month-overflow"]');
+    expect(overflow).toBeInTheDocument();
+    expect(overflow?.querySelector('[data-event-id="m3"]')).not.toBeNull();
+    expect(more).toHaveAttribute('aria-expanded', 'true');
+    expect(root).toHaveAttribute('data-view', 'month');
   });
 
   // a11y：完整周历（Header 含带 aria-label 的导航/视图选择器 + TimeGrid + 事件），axe 应无违规。
