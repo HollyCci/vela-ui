@@ -164,7 +164,32 @@ const ChatConversationRoot = forwardRef<HTMLDivElement, ChatConversationProps>(
         updateAtBottom();
       });
       observer.observe(node, { childList: true, subtree: true, characterData: true });
-      return () => observer.disconnect();
+
+      // 尺寸变化跟随：视口/容器 resize、异步图片或 iframe 撑高都不改 DOM 结构，
+      // MutationObserver 捕获不到——必须额外用 ResizeObserver，否则贴底快照与 scroll-button
+      // 显隐会在这些场景下变陈旧（参考实现 stick-to-bottom 同样跟踪尺寸变化）。
+      // jsdom 无 ResizeObserver：feature-detect 后再构造，缺失环境则静默跳过。
+      let resizeObserver: ResizeObserver | null = null;
+      if (typeof ResizeObserver !== 'undefined') {
+        resizeObserver = new ResizeObserver(() => {
+          // 与 MutationObserver 分支同构：增高前已贴底则跟随（instant，理由同上），随后重评估贴底。
+          if (followOutput && wasAtBottomRef.current) {
+            scrollToBottom('auto');
+          }
+          updateAtBottom();
+        });
+        resizeObserver.observe(node);
+        // 同时观测内层内容节点：视口本身尺寸不变、内部内容撑高时（如图片加载完）也能跟随。
+        const content = node.firstElementChild;
+        if (content !== null) {
+          resizeObserver.observe(content);
+        }
+      }
+
+      return () => {
+        observer.disconnect();
+        resizeObserver?.disconnect();
+      };
     }, [followOutput, scrollToBottom, updateAtBottom]);
 
     const registerAnchor = useCallback((node: HTMLDivElement | null) => {

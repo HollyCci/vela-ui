@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { axe } from 'vitest-axe';
 import ChatConversation from './index';
@@ -11,6 +11,11 @@ beforeEach(() => {
   Element.prototype.scrollIntoView = vi.fn();
   // @ts-expect-error jsdom 未实现 scrollTo
   Element.prototype.scrollTo = vi.fn();
+});
+
+afterEach(() => {
+  // 清除按用例注入的 ResizeObserver stub，让“缺失环境”用例看到真实 jsdom（无 RO）
+  vi.unstubAllGlobals();
 });
 
 describe('ChatConversation', () => {
@@ -83,6 +88,74 @@ describe('ChatConversation', () => {
       /必须在 <ChatConversation> 内使用/,
     );
     spy.mockRestore();
+  });
+
+  it('wires a ResizeObserver on the viewport + content to keep at-bottom fresh on resize', () => {
+    // jsdom 无 ResizeObserver：用可观测的 stub 注入，断言 effect 在可用时把它接到视口与内容节点上
+    // （尺寸变化驱动贴底重评估 / 跟随，对照 MutationObserver 分支）。
+    const instances: Array<{ cb: ResizeObserverCallback; observed: Element[]; disconnected: boolean }> =
+      [];
+    vi.stubGlobal(
+      'ResizeObserver',
+      class {
+        observed: Element[] = [];
+        disconnected = false;
+        constructor(public cb: ResizeObserverCallback) {
+          instances.push(this);
+        }
+        observe(el: Element) {
+          this.observed.push(el);
+        }
+        unobserve() {}
+        disconnect() {
+          this.disconnected = true;
+        }
+      },
+    );
+
+    const { unmount } = render(
+      <ChatConversation>
+        <ChatConversation.Content>
+          <ChatConversation.Messages>
+            <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
+          </ChatConversation.Messages>
+          <ChatConversation.ScrollAnchor />
+        </ChatConversation.Content>
+        <ChatConversation.ScrollButton />
+      </ChatConversation>,
+    );
+
+    expect(instances.length).toBe(1);
+    const ro = instances[0];
+    const viewport = screen.getByRole('log');
+    const content = document.querySelector('[data-slot="chat-conversation-content"]');
+    // 观测视口本身（容器 resize）与内层内容（内容撑高，如图片加载）。
+    expect(ro.observed).toContain(viewport);
+    expect(ro.observed).toContain(content);
+
+    // 回调可被驱动（手动触发 resize 等价物）而不抛错——jsdom 下布局恒为 0 视为贴底，仅验证管线连通。
+    expect(() => ro.cb([], ro as unknown as ResizeObserver)).not.toThrow();
+
+    // 卸载时随 effect 清理一并断开。
+    unmount();
+    expect(ro.disconnected).toBe(true);
+  });
+
+  it('does not throw when ResizeObserver is unavailable (jsdom default)', () => {
+    // 不注入 stub：确认 feature-detect 在缺失环境下静默跳过，不破坏挂载。
+    expect(typeof ResizeObserver).toBe('undefined');
+    expect(() =>
+      render(
+        <ChatConversation>
+          <ChatConversation.Content>
+            <ChatConversation.Messages>
+              <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
+            </ChatConversation.Messages>
+            <ChatConversation.ScrollAnchor />
+          </ChatConversation.Content>
+        </ChatConversation>,
+      ),
+    ).not.toThrow();
   });
 
   it('has no axe a11y violations', async () => {
