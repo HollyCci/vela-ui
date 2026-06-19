@@ -720,33 +720,33 @@ const FileTreeDemo = () => {
   };
 
   const selectedLabel =
-    selectedKeys === 'all' ? '全部' : ([...selectedKeys].map(String).join('、') || '（未选择）');
+    selectedKeys === 'all' ? 'All' : ([...selectedKeys].map(String).join(', ') || '(none)');
 
   return (
     <DemoSection isColumn>
       <div style={{ width: 320 }}>
         <FileTree
-          aria-label="课程资料"
+          aria-label="Project files"
           selectionMode="single"
           expandedKeys={expandedKeys}
           onExpandedChange={handleExpandedChange}
           selectedKeys={selectedKeys}
           onSelectionChange={handleSelectionChange}
         >
-          <FileTree.Item id="course" title="课程资料" icon={<FolderIcon />}>
-            <FileTree.Item id="ielts" title="雅思" icon={<FolderIcon />}>
-              <FileTree.Item id="ielts-words" title="核心词汇表.xlsx" icon={<FileIcon />} />
-              <FileTree.Item id="ielts-listening" title="听力素材清单.docx" icon={<FileIcon />} />
+          <FileTree.Item id="course" title="apps" icon={<FolderIcon />}>
+            <FileTree.Item id="ielts" title="frontend" icon={<FolderIcon />}>
+              <FileTree.Item id="ielts-words" title="package.json" icon={<FileIcon />} />
+              <FileTree.Item id="ielts-listening" title="tsconfig.json" icon={<FileIcon />} />
             </FileTree.Item>
-            <FileTree.Item id="cet4" title="四级真题合集.pdf" icon={<FileIcon />} />
+            <FileTree.Item id="cet4" title="api" icon={<FileIcon />} />
           </FileTree.Item>
-          <FileTree.Item id="ops" title="运营物料" icon={<FolderIcon />}>
-            <FileTree.Item id="poster" title="暑期活动海报.png" icon={<FileIcon />} />
+          <FileTree.Item id="ops" title="packages" icon={<FolderIcon />}>
+            <FileTree.Item id="poster" title="README.md" icon={<FileIcon />} />
           </FileTree.Item>
         </FileTree>
       </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
-        当前选中：{selectedLabel}（已展开 {expandedKeys.size} 个目录）
+        Selected: {selectedLabel} ({expandedKeys.size} folders expanded)
       </div>
     </DemoSection>
   );
@@ -760,24 +760,24 @@ type KanbanTask = {
 };
 
 const KANBAN_TASKS: KanbanTask[] = [
-  { id: 't1', title: '学员「王晓萌」连续 3 天未打卡', status: 'todo', priority: 'high' },
-  { id: 't2', title: '订单 #20260611 申请退费待审核', status: 'todo', priority: 'normal' },
-  { id: 't3', title: '雅思口语班课件待补充', status: 'todo', priority: 'low' },
-  { id: 't4', title: '考研班排课冲突，与教务沟通中', status: 'doing', priority: 'high' },
-  { id: 't5', title: '暑期活动海报终稿设计', status: 'doing', priority: 'normal' },
-  { id: 't6', title: '六月续费名单已导出', status: 'done', priority: 'low' },
+  { id: 't1', title: 'Develop API for User Profiles', status: 'todo', priority: 'high' },
+  { id: 't2', title: 'Login Page Redesign', status: 'todo', priority: 'normal' },
+  { id: 't3', title: 'Feature: Dark Mode', status: 'todo', priority: 'low' },
+  { id: 't4', title: 'Component Library Setup', status: 'doing', priority: 'high' },
+  { id: 't5', title: 'Database Connection Error', status: 'doing', priority: 'normal' },
+  { id: 't6', title: 'Performance Optimization', status: 'done', priority: 'low' },
 ];
 
 const KANBAN_COLUMNS: { id: string; title: string; color: string }[] = [
-  { id: 'todo', title: '待跟进', color: 'var(--warning)' },
-  { id: 'doing', title: '处理中', color: 'var(--accent)' },
-  { id: 'done', title: '已完成', color: 'var(--success)' },
+  { id: 'todo', title: 'Open', color: 'var(--warning)' },
+  { id: 'doing', title: 'In Progress', color: 'var(--accent)' },
+  { id: 'done', title: 'Closed', color: 'var(--success)' },
 ];
 
 const KANBAN_PRIORITY: Record<KanbanTask['priority'], { label: string; color: 'danger' | 'warning' | 'success' }> = {
-  high: { label: '高优', color: 'danger' },
-  normal: { label: '常规', color: 'warning' },
-  low: { label: '低优', color: 'success' },
+  high: { label: 'High', color: 'danger' },
+  normal: { label: 'Medium', color: 'warning' },
+  low: { label: 'Low', color: 'success' },
 };
 
 const getKanbanColumn = (task: KanbanTask) => task.status;
@@ -831,7 +831,7 @@ const KanbanColumnView = ({ kanban, column, actions }: KanbanColumnViewProps) =>
               <Kanban.Card id={task.id} textValue={task.title} data-kanban-task-id={task.id}>
                 <Kanban.CardContent>
                   <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
-                    <Kanban.DragHandle aria-label={`拖拽 ${task.title}`} />
+                    <Kanban.DragHandle aria-label={`Drag ${task.title}`} />
                     <span style={{ flex: 1, fontWeight: 600, lineHeight: 1.4 }}>{task.title}</span>
                     <Chip size="sm" color={KANBAN_PRIORITY[task.priority].color}>
                       {KANBAN_PRIORITY[task.priority].label}
@@ -842,7 +842,7 @@ const KanbanColumnView = ({ kanban, column, actions }: KanbanColumnViewProps) =>
                       size="sm"
                       variant="ghost"
                       data-kanban-card-action="priority"
-                      aria-label={`调整 ${task.title} 优先级`}
+                      aria-label={`Change priority of ${task.title}`}
                       onClick={(event) => {
                         event.stopPropagation();
                         kanban.updateItem(task.id, { ...task, priority: nextPriority });
@@ -861,7 +861,7 @@ const KanbanColumnView = ({ kanban, column, actions }: KanbanColumnViewProps) =>
   );
 };
 
-const renderKanbanEmpty = () => <Kanban.Empty>拖拽卡片到此</Kanban.Empty>;
+const renderKanbanEmpty = () => <Kanban.Empty>Drop cards here</Kanban.Empty>;
 
 const KanbanDemo = () => {
   const [nextTaskIndex, setNextTaskIndex] = useState(7);
@@ -874,7 +874,7 @@ const KanbanDemo = () => {
   const handleAddTask = () => {
     kanban.addItem({
       id: `t${nextTaskIndex}`,
-      title: `新跟进事项 #${nextTaskIndex}`,
+      title: `New task #${nextTaskIndex}`,
       status: 'todo',
       priority: 'normal',
     });
@@ -887,7 +887,7 @@ const KanbanDemo = () => {
   const order = getKanbanBoardOrder(kanban.list.items);
 
   return (
-    <DemoSection isColumn label="多列 · 拖拽换列 / 列内排序 / 键盘排序 / 新增任务（回显各列数量）">
+    <DemoSection isColumn label="multi-column · drag between columns / reorder / keyboard sorting / add task (live counts)">
       <Kanban size="sm" style={{ width: 820 }}>
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumnView
@@ -897,7 +897,7 @@ const KanbanDemo = () => {
             actions={
               column.id === 'todo' ? (
                 <Button size="sm" variant="ghost" onClick={handleAddTask}>
-                  新增
+                  Add a task
                 </Button>
               ) : undefined
             }
@@ -905,13 +905,13 @@ const KanbanDemo = () => {
         ))}
       </Kanban>
       <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-keyboard-hint>
-        键盘排序：聚焦卡片拖拽手柄，按 空格/回车 抓取，方向键移动（上下列内、左右换列），Esc 取消。
+        Keyboard sorting: focus a card drag handle, press Space/Enter to grab, arrow keys to move (up/down within a column, left/right between columns), Esc to cancel.
       </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }} data-kanban-distribution>
-        当前分布：{distribution}
+        Distribution: {distribution}
       </div>
       <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-order>
-        当前顺序：{order}
+        Order: {order}
       </div>
     </DemoSection>
   );
@@ -926,14 +926,14 @@ type OrderRow = {
 };
 
 const ORDER_ROWS: OrderRow[] = [
-  { id: '20260612001', student: '王晓萌', course: '雅思 7 分计划', amount: 3980, status: '已支付' },
-  { id: '20260612002', student: '李子轩', course: '考研英语冲刺班', amount: 2680, status: '待支付' },
-  { id: '20260612003', student: '陈雨桐', course: '四级真题精讲营', amount: 1280, status: '已退款' },
-  { id: '20260612004', student: '赵梓涵', course: '商务英语口语营', amount: 4680, status: '已支付' },
+  { id: '20260612001', student: 'Olivia Martin', course: 'Enterprise Plan', amount: 3980, status: 'Paid' },
+  { id: '20260612002', student: 'Jackson Lee', course: 'Team Plan', amount: 2680, status: 'Pending' },
+  { id: '20260612003', student: 'Isabella Nguyen', course: 'Starter Plan', amount: 1280, status: 'Refunded' },
+  { id: '20260612004', student: 'Liam Johnson', course: 'Business Plan', amount: 4680, status: 'Paid' },
 ];
 
 const renderOrderStatus = (row: OrderRow) => {
-  const color = row.status === '已支付' ? 'success' : row.status === '待支付' ? 'warning' : 'danger';
+  const color = row.status === 'Paid' ? 'success' : row.status === 'Pending' ? 'warning' : 'danger';
   return (
     <Chip size="sm" color={color}>
       {row.status}
@@ -941,14 +941,14 @@ const renderOrderStatus = (row: OrderRow) => {
   );
 };
 
-const renderOrderAmount = (row: OrderRow) => `¥${row.amount.toLocaleString('zh-CN')}`;
+const renderOrderAmount = (row: OrderRow) => `$${row.amount.toLocaleString('en-US')}`;
 
 const ORDER_COLUMNS: DataGridColumn<OrderRow>[] = [
-  { id: 'id', header: '订单号', accessorKey: 'id', isRowHeader: true, width: 150 },
-  { id: 'student', header: '学员', accessorKey: 'student', allowsSorting: true, width: 100 },
-  { id: 'course', header: '课程', accessorKey: 'course' },
-  { id: 'amount', header: '金额', accessorKey: 'amount', allowsSorting: true, align: 'end', cell: renderOrderAmount },
-  { id: 'status', header: '状态', accessorKey: 'status', cell: renderOrderStatus },
+  { id: 'id', header: 'Order ID', accessorKey: 'id', isRowHeader: true, width: 150 },
+  { id: 'student', header: 'Customer', accessorKey: 'student', allowsSorting: true, width: 140 },
+  { id: 'course', header: 'Plan', accessorKey: 'course' },
+  { id: 'amount', header: 'Amount', accessorKey: 'amount', allowsSorting: true, align: 'end', cell: renderOrderAmount },
+  { id: 'status', header: 'Status', accessorKey: 'status', cell: renderOrderStatus },
 ];
 
 const orderRowId = (row: OrderRow) => row.id;
@@ -975,22 +975,22 @@ const DataGridDemo = () => {
     direction: 'descending',
   });
   const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001']));
-  const [rowMessage, setRowMessage] = useState('双击行或按 Enter 可打开订单');
+  const [rowMessage, setRowMessage] = useState('Double-click a row or press Enter to open an order');
 
   // 受控排序：调用方据 descriptor 自行重排数据（服务端排序的本地等价）
   const rows = sortOrderRows(ORDER_ROWS, sortDescriptor);
 
   const selectedLabel =
-    selectedKeys === 'all' ? '全部' : [...selectedKeys].map(String).join('、') || '（未选择）';
-  const sortLabel = `${String(sortDescriptor.column)}（${
-    sortDescriptor.direction === 'ascending' ? '升序' : '降序'
-  }）`;
+    selectedKeys === 'all' ? 'All' : [...selectedKeys].map(String).join(', ') || '(none)';
+  const sortLabel = `${String(sortDescriptor.column)} (${
+    sortDescriptor.direction === 'ascending' ? 'ascending' : 'descending'
+  })`;
 
   return (
-    <DemoSection isColumn label="受控/非受控排序（点列头切换 aria-sort）+ 多选回显">
+    <DemoSection isColumn label="controlled/uncontrolled sorting (click headers to toggle aria-sort) + multi-select readout">
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="订单"
+          aria-label="Orders"
           columns={ORDER_COLUMNS}
           data={rows}
           getRowId={orderRowId}
@@ -1000,15 +1000,15 @@ const DataGridDemo = () => {
           onSelectionChange={setSelectedKeys}
           sortDescriptor={sortDescriptor}
           onSortChange={setSortDescriptor}
-          onRowAction={(key) => setRowMessage(`已打开订单 ${String(key)}`)}
+          onRowAction={(key) => setRowMessage(`Opened order ${String(key)}`)}
         />
       </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }}>
-        排序：{sortLabel} · 已选：{selectedLabel} · {rowMessage}
+        Sort: {sortLabel} · Selected: {selectedLabel} · {rowMessage}
       </div>
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="默认排序订单"
+          aria-label="Default sorted orders"
           columns={ORDER_COLUMNS}
           data={ORDER_ROWS}
           getRowId={orderRowId}
@@ -1030,34 +1030,34 @@ type CarouselSlideData = {
 
 const CAROUSEL_SLIDES: CarouselSlideData[] = [
   {
-    id: 'summer',
-    title: '暑期班招生海报',
-    meta: '投放中 · 328 条线索',
+    id: 'slide-1',
+    title: 'Slide 1',
+    meta: 'Nike Free RN',
     accent: 'var(--accent)',
     secondary: 'var(--success)',
-    stats: ['转化 +18%', '预算 62%'],
+    stats: ['Running', 'Lightweight'],
   },
   {
-    id: 'teacher-day',
-    title: '教师节活动物料',
-    meta: '待发布 · 9 张素材',
+    id: 'slide-2',
+    title: 'Slide 2',
+    meta: 'Nike Air Zoom',
     accent: 'var(--warning)',
     secondary: 'var(--accent)',
-    stats: ['预约 126', '完稿 7/9'],
+    stats: ['Training', 'Responsive'],
   },
   {
-    id: 'app-launch',
-    title: '新版 App 上线公告',
-    meta: '灰度中 · 4 个渠道',
+    id: 'slide-3',
+    title: 'Slide 3',
+    meta: 'Nike Pegasus',
     accent: 'var(--success)',
     secondary: 'var(--danger)',
-    stats: ['打开率 42%', '反馈 31'],
+    stats: ['Road', 'Cushioned'],
   },
 ];
 
 const CarouselDemo = () => (
   <DemoSection isColumn>
-    <Carousel aria-label="运营物料轮播" style={{ width: 420 }}>
+    <Carousel aria-label="Product carousel" style={{ width: 420 }}>
       <Carousel.Content>
         {CAROUSEL_SLIDES.map((slide) => (
           <Carousel.Item key={slide.id}>
@@ -1089,11 +1089,11 @@ const CarouselDemo = () => (
 type TocEntry = { key: string; label: string; level?: number };
 
 const TOC_ITEMS: TocEntry[] = [
-  { key: 'overview', label: '运营概览', level: 1 },
-  { key: 'students', label: '学员数据', level: 2 },
-  { key: 'orders', label: '订单数据', level: 2 },
-  { key: 'courses', label: '课程安排', level: 1 },
-  { key: 'faq', label: '常见问题', level: 1 },
+  { key: 'overview', label: 'Introduction', level: 1 },
+  { key: 'students', label: 'Getting Started', level: 2 },
+  { key: 'orders', label: 'API Reference', level: 2 },
+  { key: 'courses', label: 'Examples', level: 1 },
+  { key: 'faq', label: 'FAQ', level: 1 },
 ];
 
 type TocDemoItemProps = {
@@ -1116,7 +1116,7 @@ const TocDemoItem = ({ entry, isActive, onSelect }: TocDemoItemProps) => {
 const FloatingTocDemo = () => {
   const [activeKey, setActiveKey] = useState('students');
   return (
-    <DemoSection label="hover 展开 · 点击高亮当前章节">
+    <DemoSection label="hover to expand · click to highlight the active section">
       <div style={{ padding: '8px 160px 8px 8px' }}>
         <FloatingToc placement="left" openDelay={200} closeDelay={300}>
           <FloatingToc.Trigger>
@@ -1145,24 +1145,25 @@ const FloatingTocDemo = () => {
 };
 
 const HoverCardDemo = () => (
-  <DemoSection label="hover 触发（300ms 打开 / 200ms 关闭）· 含箭头">
+  <DemoSection label="hover trigger (300ms open / 200ms close) · with arrow">
     <p style={{ margin: 0, fontSize: 14, lineHeight: '32px' }}>
-      本周之星：
+      Check out{' '}
       <HoverCard openDelay={300} closeDelay={200}>
         <HoverCard.Trigger>
-          <Chip color="accent">学员：王晓萌</Chip>
+          <Chip color="accent">@hero_ui</Chip>
         </HoverCard.Trigger>
         <HoverCard.Content placement="bottom">
           <HoverCard.Arrow />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 4, minWidth: 200 }}>
-            <strong style={{ fontSize: 14 }}>王晓萌</strong>
+            <strong style={{ fontSize: 14 }}>@hero_ui</strong>
             <span style={{ fontSize: 12, color: 'var(--muted)' }}>
-              雅思 7 分计划 · 学习第 12 天
+              Beautiful, fast and modern React UI library.
             </span>
-            <span style={{ fontSize: 12, color: 'var(--muted)' }}>带班老师：周老师</span>
+            <span style={{ fontSize: 12, color: 'var(--muted)' }}>Joined December 2021</span>
           </div>
         </HoverCard.Content>
       </HoverCard>
+      {' '}for beautiful React components.
     </p>
   </DemoSection>
 );
@@ -1362,7 +1363,7 @@ const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
   const [events, setEvents] = useState(
     variant === 'month-view-features' ? AGENDA_MONTH_FEATURE_EVENTS : AGENDA_EVENTS,
   );
-  const [message, setMessage] = useState('点击事件选中；可拖拽移动并拖动底部调整时长。');
+  const [message, setMessage] = useState('Click an event to select it; drag to move, drag the bottom edge to resize.');
   const now = new Date();
   const isMonth = variant === 'month-view-features';
   const startHour = variant === 'current-time-indicator' ? Math.max(0, now.getHours() - 2) : 8;
@@ -1372,7 +1373,7 @@ const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
     setEvents((current) =>
       current.map((event) => (event.id === id ? { ...event, start, end } : event)),
     );
-    setMessage(`已更新 ${id}: ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
+    setMessage(`Updated ${id}: ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
   }, []);
   const agenda = useAgenda({
     events,
@@ -1395,13 +1396,13 @@ const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
           color: '#14b8a6',
         },
       ]);
-      setMessage(`已创建事件 ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
+      setMessage(`Created event ${start.toLocaleTimeString()} - ${end.toLocaleTimeString()}`);
     },
     onEventDelete: (id) => {
       setEvents((current) => current.filter((event) => event.id !== id));
-      setMessage(`已删除事件 ${id}`);
+      setMessage(`Deleted event ${id}`);
     },
-    onEventSelect: (id) => setMessage(id === null ? '未选中事件' : `已选中事件 ${id}`),
+    onEventSelect: (id) => setMessage(id === null ? 'No event selected' : `Selected event ${id}`),
   });
 
   return (
@@ -1409,9 +1410,9 @@ const AgendaVariantDemo = ({ variant }: { variant: AgendaVariant }) => {
       <AgendaCanvas agenda={agenda} monthMaxEvents={variant === 'month-view-features' ? 1 : 2} />
       <span style={demoMutedStyle}>
         {variant === 'current-time-indicator'
-          ? '当前时间线每分钟刷新；今日列高亮。'
+          ? 'The current time line refreshes every minute; today\'s column is highlighted.'
           : variant === 'weekend-highlighting'
-            ? '周末列和月视图周末单元格输出 data-weekend。'
+            ? 'Weekend columns and month-view weekend cells emit data-weekend.'
             : message}
       </span>
     </DemoSection>
@@ -1495,9 +1496,9 @@ const CourseCover = ({ title }: { title: string }) => (
 );
 
 const SIMPLE_COURSES = [
-  { id: 'c1', name: '雅思 7 分计划', owner: '王晓萌', progress: 86 },
-  { id: 'c2', name: '考研英语冲刺班', owner: '李子轩', progress: 64 },
-  { id: 'c3', name: '商务英语口语营', owner: '赵梓涵', progress: 42 },
+  { id: 'c1', name: 'Marketing Website', owner: 'Lindsay Walton', progress: 86 },
+  { id: 'c2', name: 'Mobile App', owner: 'Courtney Henry', progress: 64 },
+  { id: 'c3', name: 'Design System', owner: 'Tom Cook', progress: 42 },
 ];
 
 type StudentRow = {
@@ -1509,17 +1510,17 @@ type StudentRow = {
 };
 
 const STUDENT_ROWS: StudentRow[] = [
-  { id: 'u1', name: '王晓萌', group: '雅思 7 分计划', active: '今天', score: 92 },
-  { id: 'u2', name: '李子轩', group: '考研英语冲刺班', active: '昨天', score: 86 },
-  { id: 'u3', name: '陈雨桐', group: '四级真题精讲营', active: '3 天前', score: 74 },
-  { id: 'u4', name: '赵梓涵', group: '商务英语口语营', active: '今天', score: 88 },
+  { id: 'u1', name: 'Lindsay Walton', group: 'Front-end Developer', active: 'Today', score: 92 },
+  { id: 'u2', name: 'Courtney Henry', group: 'Designer', active: 'Yesterday', score: 86 },
+  { id: 'u3', name: 'Tom Cook', group: 'Director of Product', active: '3 days ago', score: 74 },
+  { id: 'u4', name: 'Whitney Francis', group: 'Copywriter', active: 'Today', score: 88 },
 ];
 
 const STUDENT_COLUMNS: DataGridColumn<StudentRow>[] = [
-  { id: 'name', header: '学员', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
-  { id: 'group', header: '课程', accessorKey: 'group', width: 180 },
-  { id: 'active', header: '最近学习', accessorKey: 'active', width: 110 },
-  { id: 'score', header: '掌握度', accessorKey: 'score', allowsSorting: true, align: 'end' },
+  { id: 'name', header: 'Name', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
+  { id: 'group', header: 'Title', accessorKey: 'group', width: 180 },
+  { id: 'active', header: 'Last active', accessorKey: 'active', width: 110 },
+  { id: 'score', header: 'Score', accessorKey: 'score', allowsSorting: true, align: 'end' },
 ];
 
 type TransactionStatus = 'Succeeded' | 'Processing' | 'Refunded' | 'Failed';
@@ -1646,16 +1647,16 @@ const TRANSACTION_COLUMNS: DataGridColumn<TransactionRow>[] = [
 ];
 
 const COURSE_COLUMNS: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
-  { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true },
-  { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
+  { id: 'name', header: 'Project', accessorKey: 'name', isRowHeader: true },
+  { id: 'owner', header: 'Owner', accessorKey: 'owner', width: 120 },
   {
     id: 'progress',
-    header: '进度',
+    header: 'Progress',
     accessorKey: 'progress',
     width: 160,
     cell: (row) => (
       <ProgressBar
-        aria-label={`${row.name} 进度`}
+        aria-label={`${row.name} progress`}
         color={row.progress > 80 ? 'success' : 'accent'}
         isShowValue={false}
         size="sm"
@@ -1670,25 +1671,25 @@ const courseRowId = (row: (typeof SIMPLE_COURSES)[number]) => row.id;
 
 const ActionBarDefaultVariantDemo = () => {
   const [open, setOpen] = useState(true);
-  const [action, setAction] = useState('等待操作');
+  const [action, setAction] = useState('Waiting for an action');
 
   return (
     <DemoSection isColumn label="default · controlled visibility">
       <Button size="sm" variant="secondary" onClick={() => setOpen((value) => !value)}>
-        {open ? '收起操作条' : '显示操作条'}
+        {open ? 'Hide action bar' : 'Show action bar'}
       </Button>
       <ActionBar isOpen={open}>
         <ActionBar.Prefix>
           <Badge color="accent">3</Badge>
-          <ActionBar.Label>待处理课程</ActionBar.Label>
+          <ActionBar.Label>Selected</ActionBar.Label>
         </ActionBar.Prefix>
         <Separator orientation="vertical" />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost" onClick={() => setAction('已标记 3 门课程完成')}>
-            标记完成
+          <Button size="sm" variant="ghost" onClick={() => setAction('Marked 3 items as complete')}>
+            Mark complete
           </Button>
-          <Button size="sm" variant="danger-soft" onClick={() => setAction('已忽略待处理课程')}>
-            忽略
+          <Button size="sm" variant="danger-soft" onClick={() => setAction('Dismissed selected items')}>
+            Dismiss
           </Button>
         </ActionBar.Content>
       </ActionBar>
@@ -1699,14 +1700,14 @@ const ActionBarDefaultVariantDemo = () => {
 
 const ActionBarWithDataGridVariantDemo = () => {
   const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001']));
-  const [action, setAction] = useState('选择订单后执行批量操作');
+  const [action, setAction] = useState('Select orders to run a bulk action');
   const count = selectedKeys === 'all' ? ORDER_ROWS.length : selectedKeys.size;
 
   return (
     <DemoSection isColumn label="data grid selection drives action bar">
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="批量订单"
+          aria-label="Bulk orders"
           columns={ORDER_COLUMNS}
           data={ORDER_ROWS}
           getRowId={orderRowId}
@@ -1721,22 +1722,22 @@ const ActionBarWithDataGridVariantDemo = () => {
           <Chip color="accent" size="sm">
             {count}
           </Chip>
-          <ActionBar.Label>已选择订单</ActionBar.Label>
+          <ActionBar.Label>selected</ActionBar.Label>
         </ActionBar.Prefix>
         <Separator orientation="vertical" />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost" onClick={() => setAction(`已导出 ${count} 条订单`)}>
-            导出
+          <Button size="sm" variant="ghost" onClick={() => setAction(`Exported ${count} orders`)}>
+            Export
           </Button>
           <Button
             size="sm"
             variant="danger-soft"
             onClick={() => {
-              setAction(`已批量关闭 ${count} 条订单`);
+              setAction(`Closed ${count} orders`);
               setSelectedKeys(new Set());
             }}
           >
-            批量关闭
+            Close
           </Button>
         </ActionBar.Content>
       </ActionBar>
@@ -1747,14 +1748,14 @@ const ActionBarWithDataGridVariantDemo = () => {
 
 const ActionBarResponsiveLabelsVariantDemo = () => {
   const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['20260612001', '20260612003']));
-  const [action, setAction] = useState('已选择 2 条订单');
+  const [action, setAction] = useState('Selected 2 orders');
   const count = selectedKeys === 'all' ? ORDER_ROWS.length : selectedKeys.size;
 
   return (
     <DemoSection isColumn label="responsive labels">
       <div style={{ width: 560, maxWidth: '100%' }}>
         <DataGrid
-          aria-label="响应式操作条订单"
+          aria-label="Responsive action bar orders"
           columns={ORDER_COLUMNS.slice(0, 3)}
           data={ORDER_ROWS.slice(0, 4)}
           getRowId={orderRowId}
@@ -1769,26 +1770,26 @@ const ActionBarResponsiveLabelsVariantDemo = () => {
           <Chip color="accent" size="sm">
             {count}
           </Chip>
-          <ActionBar.Label>已选择订单</ActionBar.Label>
+          <ActionBar.Label>selected</ActionBar.Label>
         </ActionBar.Prefix>
         <Separator orientation="vertical" />
         <ActionBar.Content>
-          <Button size="sm" variant="ghost" aria-label="归档所选订单" onClick={() => setAction(`已归档 ${count} 条订单`)}>
-            归档
+          <Button size="sm" variant="ghost" aria-label="Archive selected orders" onClick={() => setAction(`Archived ${count} orders`)}>
+            Archive
           </Button>
-          <Button size="sm" variant="ghost" aria-label="分配所选订单" onClick={() => setAction(`已分配 ${count} 条订单`)}>
-            分配
+          <Button size="sm" variant="ghost" aria-label="Assign selected orders" onClick={() => setAction(`Assigned ${count} orders`)}>
+            Assign
           </Button>
           <Button
             size="sm"
             variant="danger-soft"
-            aria-label="清除所选订单"
+            aria-label="Clear selected orders"
             onClick={() => {
-              setAction('已清除选择');
+              setAction('Cleared selection');
               setSelectedKeys(new Set());
             }}
           >
-            清除
+            Clear
           </Button>
         </ActionBar.Content>
       </ActionBar>
@@ -1825,7 +1826,7 @@ type CarouselVariant =
 
 const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
   const [api, setApi] = useState<CarouselApi | null>(null);
-  const [apiMessage, setApiMessage] = useState('尚未跳转');
+  const [apiMessage, setApiMessage] = useState('Not scrolled yet');
   const [isPlaying, setIsPlaying] = useState(variant === 'autoplay');
 
   const isMultiple = variant === 'multiple-slides';
@@ -1834,13 +1835,13 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
 
   const handleApiJump = () => {
     api?.scrollTo(2);
-    setApiMessage('已跳到第 3 张');
+    setApiMessage('Scrolled to slide 3');
   };
 
   return (
     <DemoSection isColumn label={variant}>
       <Carousel
-        aria-label="课程运营轮播"
+        aria-label="Product carousel"
         autoplay={variant === 'autoplay' && isPlaying ? { delay: 1800 } : false}
         opts={opts}
         setApi={setApi}
@@ -1853,7 +1854,7 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
               key={slide.id}
               style={isMultiple ? { flex: '0 0 58%', paddingRight: 12 } : undefined}
             >
-              <CarouselSlide meta={`${slide.meta} · 第 ${index + 1} 张`} title={slide.title} />
+              <CarouselSlide meta={`${slide.meta} · ${index + 1} of ${CAROUSEL_SLIDES.length}`} title={slide.title} />
             </Carousel.Item>
           ))}
         </Carousel.Content>
@@ -1865,7 +1866,7 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
               ? ({ index, isSelected }) => (
                   <Carousel.Dot
                     key={index}
-                    aria-label={`跳到第 ${index + 1} 张`}
+                    aria-label={`Go to slide ${index + 1}`}
                     data-selected={isSelected || undefined}
                     index={index}
                     isSelected={isSelected}
@@ -1885,14 +1886,14 @@ const CarouselVariantDemo = ({ variant }: { variant: CarouselVariant }) => {
       {variant === 'api-access' && (
         <>
           <Button size="sm" variant="secondary" onClick={handleApiJump}>
-            跳到第 3 张
+            Scroll to slide 3
           </Button>
           <span style={demoTextStyle}>{apiMessage}</span>
         </>
       )}
       {variant === 'autoplay' && (
         <Switch isSelected={isPlaying} size="sm" onSelectedChange={setIsPlaying}>
-          自动轮播
+          Autoplay
         </Switch>
       )}
     </DemoSection>
@@ -1919,7 +1920,7 @@ const DataGridDefaultVariantDemo = () => {
 };
 
 const DataGridColumnDefinitionsVariantDemo = () => {
-  const [message, setMessage] = useState('双击一行或按 Enter 打开交易详情');
+  const [message, setMessage] = useState('Double-click a row or press Enter to open transaction details');
   const columns: DataGridColumn<TransactionRow>[] = [
     {
       id: 'customer',
@@ -1967,7 +1968,7 @@ const DataGridColumnDefinitionsVariantDemo = () => {
           data={TRANSACTION_ROWS.slice(0, 5)}
           defaultSortDescriptor={{ column: 'customer', direction: 'ascending' }}
           getRowId={transactionRowId}
-          onRowAction={(key) => setMessage(`已打开交易 ${String(key)}`)}
+          onRowAction={(key) => setMessage(`Opened transaction ${String(key)}`)}
         />
       </div>
       <span style={demoMutedStyle}>{message}</span>
@@ -2057,7 +2058,7 @@ const DataGridColumnResizingVariantDemo = () => {
     balance: 110,
     actions: 52,
   });
-  const [message, setMessage] = useState('拖动表头分隔线调整列宽');
+  const [message, setMessage] = useState('Drag the header dividers to resize columns');
 
   return (
     <DemoSection isColumn label="column resizing">
@@ -2092,17 +2093,17 @@ const DataGridAsyncLoadingVariantDemo = () => {
   return (
     <DemoSection isColumn label="async loading state">
       <Button size="sm" variant="secondary" onClick={() => setIsLoading((value) => !value)}>
-        {isLoading ? '加载数据' : '显示加载态'}
+        {isLoading ? 'Load data' : 'Show loading state'}
       </Button>
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="异步学员"
+          aria-label="Async users"
           columns={STUDENT_COLUMNS}
           data={rows}
           getRowId={studentRowId}
           renderEmptyState={() => (
             <div className="data-grid__empty-state">
-              {isLoading ? '正在加载学员数据…' : '暂无学员'}
+              {isLoading ? 'Loading users…' : 'No users'}
             </div>
           )}
         />
@@ -2113,16 +2114,16 @@ const DataGridAsyncLoadingVariantDemo = () => {
 
 const DataGridBulkActionsVariantDemo = () => {
   const [selectedKeys, setSelectedKeys] = useState<DemoSelection>(new Set(['u1', 'u2']));
-  const [action, setAction] = useState('选择学员后可执行批量操作');
+  const [action, setAction] = useState('Select users to run a bulk action');
   const count = selectedKeys === 'all' ? STUDENT_ROWS.length : selectedKeys.size;
-  const handleAssignClass = () => setAction(`已将 ${count} 名学员加入冲刺班`);
-  const handleNotify = () => setAction(`已向 ${count} 名学员发送通知`);
+  const handleAssignClass = () => setAction(`Assigned ${count} users to a team`);
+  const handleNotify = () => setAction(`Notified ${count} users`);
 
   return (
     <DemoSection isColumn label="bulk actions">
       <div style={{ width: 720 }}>
         <DataGrid
-          aria-label="批量学员"
+          aria-label="Bulk users"
           columns={STUDENT_COLUMNS}
           data={STUDENT_ROWS}
           getRowId={studentRowId}
@@ -2137,15 +2138,15 @@ const DataGridBulkActionsVariantDemo = () => {
           <Chip color="accent" size="sm">
             {count}
           </Chip>
-          <ActionBar.Label>已选学员</ActionBar.Label>
+          <ActionBar.Label>selected</ActionBar.Label>
         </ActionBar.Prefix>
         <Separator orientation="vertical" />
         <ActionBar.Content>
           <Button size="sm" variant="ghost" onClick={handleAssignClass}>
-            分班
+            Assign
           </Button>
           <Button size="sm" variant="ghost" onClick={handleNotify}>
-            发通知
+            Notify
           </Button>
         </ActionBar.Content>
       </ActionBar>
@@ -2167,22 +2168,22 @@ const DataGridDragAndDropVariantDemo = () => {
   const columns: DataGridColumn<ReorderRow>[] = [
     {
       id: 'order',
-      header: '顺序',
+      header: 'Order',
       width: 56,
       accessorKey: 'order',
       align: 'end',
     },
-    { id: 'name', header: '学员', accessorKey: 'name', isRowHeader: true },
-    { id: 'group', header: '课程', accessorKey: 'group', width: 180 },
-    { id: 'active', header: '最近学习', accessorKey: 'active', width: 110 },
-    { id: 'score', header: '掌握度', accessorKey: 'score', align: 'end' },
+    { id: 'name', header: 'Name', accessorKey: 'name', isRowHeader: true },
+    { id: 'group', header: 'Title', accessorKey: 'group', width: 180 },
+    { id: 'active', header: 'Last active', accessorKey: 'active', width: 110 },
+    { id: 'score', header: 'Score', accessorKey: 'score', align: 'end' },
   ];
 
   return (
     <DemoSection isColumn label="drag and drop row reorder">
       <div style={{ width: 760 }}>
         <DataGrid
-          aria-label="可重排学员"
+          aria-label="Reorderable users"
           columns={columns}
           data={rows}
           enableRowReordering
@@ -2193,20 +2194,20 @@ const DataGridDragAndDropVariantDemo = () => {
           }}
         />
       </div>
-      <span style={demoTextStyle}>当前顺序：{rows.map((row) => row.name).join(' / ')}</span>
+      <span style={demoTextStyle}>Order: {rows.map((row) => row.name).join(' / ')}</span>
     </DemoSection>
   );
 };
 
 const DataGridEditableCellsVariantDemo = () => {
   const [rows, setRows] = useState(SIMPLE_COURSES);
-  const [editMessage, setEditMessage] = useState('Enter 或失焦提交，Escape 取消。');
+  const [editMessage, setEditMessage] = useState('Press Enter or blur to commit, Escape to cancel.');
 
   const parseProgress = (value: string) => {
     const parsed = Number(value.trim().replace(/%$/, ''));
 
     if (!Number.isFinite(parsed)) {
-      throw new Error('请输入 0-100 的数字');
+      throw new Error('Enter a number between 0 and 100');
     }
 
     return Math.min(100, Math.max(0, Math.round(parsed)));
@@ -2239,19 +2240,19 @@ const DataGridEditableCellsVariantDemo = () => {
       }),
     );
 
-    const label = columnId === 'progress' ? '掌握度' : columnId === 'owner' ? '负责人' : '课程';
+    const label = columnId === 'progress' ? 'Progress' : columnId === 'owner' ? 'Owner' : 'Project';
     const displayValue = columnId === 'progress' ? `${String(value)}%` : String(value);
     setEditMessage(
-      `已${reason === 'blur' ? '失焦' : '回车'}提交：${row.name} 的${label}为 ${displayValue}`,
+      `Committed on ${reason === 'blur' ? 'blur' : 'Enter'}: ${row.name} ${label} is ${displayValue}`,
     );
   };
 
   const columns: DataGridColumn<(typeof SIMPLE_COURSES)[number]>[] = [
-    { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true, editable: true },
-    { id: 'owner', header: '负责人', accessorKey: 'owner', editable: true },
+    { id: 'name', header: 'Project', accessorKey: 'name', isRowHeader: true, editable: true },
+    { id: 'owner', header: 'Owner', accessorKey: 'owner', editable: true },
     {
       id: 'progress',
-      header: '掌握度',
+      header: 'Progress',
       accessorKey: 'progress',
       align: 'end',
       editable: true,
@@ -2264,7 +2265,7 @@ const DataGridEditableCellsVariantDemo = () => {
     <DemoSection isColumn label="editable cells">
       <div style={{ width: 640 }}>
         <DataGrid
-          aria-label="可编辑课程"
+          aria-label="Editable projects"
           columns={columns}
           data={rows}
           getRowId={courseRowId}
@@ -2280,7 +2281,7 @@ const DataGridEmptyStateVariantDemo = () => (
   <DemoSection label="empty state">
     <div style={{ width: 640 }}>
       <DataGrid
-        aria-label="空课程表"
+        aria-label="Empty projects"
         columns={COURSE_COLUMNS}
         data={[]}
         getRowId={courseRowId}
@@ -2288,8 +2289,8 @@ const DataGridEmptyStateVariantDemo = () => (
           <div className="data-grid__empty-state">
             <EmptyState size="sm">
               <EmptyState.Header>
-                <EmptyState.Title>暂无课程数据</EmptyState.Title>
-                <EmptyState.Description>筛选条件下没有可展示的课程</EmptyState.Description>
+                <EmptyState.Title>No Projects Yet</EmptyState.Title>
+                <EmptyState.Description>No projects match the current filters.</EmptyState.Description>
               </EmptyState.Header>
             </EmptyState>
           </div>
@@ -2303,7 +2304,7 @@ type ExpandableCourse = (typeof SIMPLE_COURSES)[number] & { detail: string };
 
 const EXPANDABLE_ROWS: ExpandableCourse[] = SIMPLE_COURSES.map((course) => ({
   ...course,
-  detail: `${course.owner} 正在跟进 ${course.progress}% 的课程节点。`,
+  detail: `${course.owner} is tracking ${course.progress}% of the project milestones.`,
 }));
 
 const DataGridExpandableRowsVariantDemo = () => {
@@ -2311,19 +2312,19 @@ const DataGridExpandableRowsVariantDemo = () => {
   const columns: DataGridColumn<ExpandableCourse>[] = [
     {
       id: 'name',
-      header: '课程',
+      header: 'Project',
       isRowHeader: true,
       accessorKey: 'name',
     },
-    { id: 'owner', header: '负责人', accessorKey: 'owner', width: 120 },
-    { id: 'progress', header: '进度', accessorKey: 'progress', align: 'end' },
+    { id: 'owner', header: 'Owner', accessorKey: 'owner', width: 120 },
+    { id: 'progress', header: 'Progress', accessorKey: 'progress', align: 'end' },
   ];
 
   return (
     <DemoSection isColumn label="expandable rows">
       <div style={{ width: 680 }}>
         <DataGrid
-          aria-label="展开课程表"
+          aria-label="Expandable projects"
           columns={columns}
           data={EXPANDABLE_ROWS}
           expandedKeys={expandedKeys}
@@ -2331,10 +2332,10 @@ const DataGridExpandableRowsVariantDemo = () => {
           onExpandedChange={(keys) => setExpandedKeys(new Set(keys as Set<DemoKey>))}
           renderExpandedContent={(row) => (
             <div style={{ display: 'grid', gap: 6 }}>
-              <strong>{row.name} 跟进说明</strong>
+              <strong>{row.name} details</strong>
               <span style={demoMutedStyle}>{row.detail}</span>
               <ProgressBar
-                aria-label={`${row.name} 展开行进度`}
+                aria-label={`${row.name} expanded row progress`}
                 color={row.progress > 80 ? 'success' : 'accent'}
                 isShowValue={false}
                 size="sm"
@@ -2364,21 +2365,21 @@ const DataGridPinnedColumnsVariantDemo = () => {
       pin: 'left',
       cell: (row) => (
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-          <Badge color="accent">固定</Badge>
+          <Badge color="accent">Pinned</Badge>
           {row.id}
         </span>
       ),
     },
     ...ORDER_COLUMNS.slice(1),
-    { id: 'teacher', header: '顾问', cell: (row) => (row.status === '已支付' ? '周老师' : '李老师'), width: 120 },
-    { id: 'campus', header: '校区', cell: () => '线上', width: 120, pin: 'right' },
+    { id: 'teacher', header: 'Rep', cell: (row) => (row.status === 'Paid' ? 'Avery Stone' : 'Jordan Reed'), width: 140 },
+    { id: 'campus', header: 'Channel', cell: () => 'Online', width: 120, pin: 'right' },
   ];
 
   return (
     <DemoSection isColumn label="pinned columns">
       <div style={{ width: 620 }}>
         <DataGrid
-          aria-label="固定列订单"
+          aria-label="Pinned column orders"
           columns={columns}
           columnWidths={columnWidths}
           contentClassName="min-w-[1040px]"
@@ -2391,25 +2392,25 @@ const DataGridPinnedColumnsVariantDemo = () => {
           }
         />
       </div>
-      <span style={demoMutedStyle}>拖动列边界可调整宽度，固定列会持续保持可见。</span>
+      <span style={demoMutedStyle}>Drag column borders to resize; pinned columns stay visible while scrolling.</span>
     </DemoSection>
   );
 };
 
 const SERVER_ROWS = [
-  { id: 'srv-1', name: 'api-gateway', region: '华东', status: 'healthy', cpu: 48 },
-  { id: 'srv-2', name: 'lesson-worker', region: '华北', status: 'warming', cpu: 72 },
-  { id: 'srv-3', name: 'billing-sync', region: '华南', status: 'healthy', cpu: 35 },
+  { id: 'srv-1', name: 'api-gateway', region: 'US-East', status: 'healthy', cpu: 48 },
+  { id: 'srv-2', name: 'worker-pool', region: 'US-West', status: 'warming', cpu: 72 },
+  { id: 'srv-3', name: 'billing-sync', region: 'EU-West', status: 'healthy', cpu: 35 },
 ];
 
 type ServerRow = (typeof SERVER_ROWS)[number];
 
 const SERVER_COLUMNS: DataGridColumn<ServerRow>[] = [
-  { id: 'name', header: '服务', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
-  { id: 'region', header: '区域', accessorKey: 'region', width: 100 },
+  { id: 'name', header: 'Service', accessorKey: 'name', isRowHeader: true, allowsSorting: true },
+  { id: 'region', header: 'Region', accessorKey: 'region', width: 100 },
   {
     id: 'status',
-    header: '状态',
+    header: 'Status',
     accessorKey: 'status',
     cell: (row) => (
       <Chip color={row.status === 'healthy' ? 'success' : 'warning'} size="sm">
@@ -2424,7 +2425,7 @@ const DataGridServersVariantDemo = () => (
   <DemoSection label="servers">
     <div style={{ width: 680 }}>
       <DataGrid
-        aria-label="服务状态"
+        aria-label="Server status"
         columns={SERVER_COLUMNS}
         data={SERVER_ROWS}
         defaultSortDescriptor={{ column: 'cpu', direction: 'descending' }}
@@ -2438,11 +2439,11 @@ const DataGridTeamMembersVariantDemo = () => (
   <DemoSection label="team members">
     <div style={{ width: 680 }}>
       <DataGrid
-        aria-label="团队成员"
+        aria-label="Team members"
         columns={[
           {
             id: 'name',
-            header: '成员',
+            header: 'Member',
             isRowHeader: true,
             cell: (row: StudentRow) => (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
@@ -2451,8 +2452,8 @@ const DataGridTeamMembersVariantDemo = () => (
               </span>
             ),
           },
-          { id: 'group', header: '负责课程', accessorKey: 'group' },
-          { id: 'score', header: '满意度', accessorKey: 'score', align: 'end' },
+          { id: 'group', header: 'Role', accessorKey: 'group' },
+          { id: 'score', header: 'Score', accessorKey: 'score', align: 'end' },
         ]}
         data={STUDENT_ROWS}
         getRowId={studentRowId}
@@ -2465,7 +2466,7 @@ const DataGridUsersVariantDemo = () => (
   <DemoSection label="users">
     <div style={{ width: 680 }}>
       <DataGrid
-        aria-label="用户列表"
+        aria-label="Users"
         columns={STUDENT_COLUMNS}
         data={STUDENT_ROWS}
         getRowId={studentRowId}
@@ -2477,9 +2478,9 @@ const DataGridUsersVariantDemo = () => (
 
 const VIRTUAL_ROWS = Array.from({ length: 40 }, (_, index) => ({
   id: `v${index + 1}`,
-  name: `学员 ${index + 1}`,
-  group: index % 2 === 0 ? '雅思 7 分计划' : '考研英语冲刺班',
-  active: index % 3 === 0 ? '今天' : '本周',
+  name: `User ${index + 1}`,
+  group: index % 2 === 0 ? 'Front-end Developer' : 'Designer',
+  active: index % 3 === 0 ? 'Today' : 'This week',
   score: 60 + ((index * 7) % 38),
 }));
 
@@ -2496,7 +2497,7 @@ const DataGridVirtualizedVariantDemo = () => {
     <DemoSection isColumn label="virtualized rows">
       <div style={{ width: 680 }}>
         <DataGrid
-          aria-label="大数据学员窗口"
+          aria-label="Virtualized users"
           columns={STUDENT_COLUMNS}
           data={VIRTUAL_ROWS}
           getRowId={studentRowId}
@@ -2508,7 +2509,7 @@ const DataGridVirtualizedVariantDemo = () => {
         />
       </div>
       <span style={demoTextStyle}>
-        可见窗口：{range.visibleStartIndex + 1}-{range.visibleEndIndex} / {range.total}
+        Visible window: {range.visibleStartIndex + 1}-{range.visibleEndIndex} / {range.total}
       </span>
     </DemoSection>
   );
@@ -2761,20 +2762,20 @@ type DemoTreeNode = {
 const FILE_TREE_ITEMS: DemoFileNode[] = [
   {
     id: 'courses',
-    name: 'courses',
+    name: 'apps',
     type: 'folder',
     children: [
-      { id: 'ielts-plan', name: 'ielts-plan.md', type: 'file', status: 'modified' },
-      { id: 'cet4-paper', name: 'cet4-paper.pdf', type: 'file', status: 'added' },
+      { id: 'ielts-plan', name: 'package.json', type: 'file', status: 'modified' },
+      { id: 'cet4-paper', name: 'tsconfig.json', type: 'file', status: 'added' },
     ],
   },
   {
     id: 'ops',
-    name: 'operations',
+    name: 'packages',
     type: 'folder',
     children: [
-      { id: 'poster', name: 'summer-poster.fig', type: 'file' },
-      { id: 'brief', name: 'campaign-brief.docx', type: 'file', status: 'review' },
+      { id: 'poster', name: 'button.tsx', type: 'file' },
+      { id: 'brief', name: 'card.tsx', type: 'file', status: 'review' },
     ],
   },
 ];
@@ -2812,9 +2813,9 @@ type FileTreeVariant =
   | 'with-icons';
 
 const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
-  const [query, setQuery] = useState('course');
+  const [query, setQuery] = useState('package');
   const [expandedKeys, setExpandedKeys] = useState<Set<DemoKey>>(new Set(['courses']));
-  const [lastMove, setLastMove] = useState('尚未移动文件');
+  const [lastMove, setLastMove] = useState('No files moved yet');
   const tree = useFileTreeData<DemoFileNode>({
     initialItems: FILE_TREE_ITEMS,
     getKey: (item) => item.id,
@@ -2823,7 +2824,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
   const drag = useFileTreeDrag({
     tree,
     onMove: (keys, target) => {
-      setLastMove(`已移动 ${[...keys].join(', ')} ${target.dropPosition} ${String(target.key)}`);
+      setLastMove(`Moved ${[...keys].join(', ')} ${target.dropPosition} ${String(target.key)}`);
     },
   });
   const helpers = useFileTree({ items: FILE_TREE_ITEMS });
@@ -2858,15 +2859,15 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
       <DemoSection label="custom indicator">
         <div style={{ width: 300 }}>
           <FileTree
-            aria-label="自定义展开图标"
+            aria-label="Custom expand indicator"
             expandedKeys={expandedKeys}
             onExpandedChange={setExpandedKeys}
           >
-            <FileTree.Item id="courses" icon={<FolderIcon />} title="courses">
+            <FileTree.Item id="courses" icon={<FolderIcon />} title="src">
               <FileTree.Indicator>
                 <span style={{ fontSize: 12 }}>{isCoursesOpen ? '-' : '+'}</span>
               </FileTree.Indicator>
-              <FileTree.Item id="course-outline" icon={<FileIcon />} title="outline.md" />
+              <FileTree.Item id="course-outline" icon={<FileIcon />} title="index.tsx" />
             </FileTree.Item>
           </FileTree>
         </div>
@@ -2881,7 +2882,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
       <DemoSection isColumn label="drag and drop">
         <div style={{ width: 320 }}>
           <FileTree
-            aria-label="可拖拽文件树"
+            aria-label="Draggable file tree"
             defaultExpandedKeys={['courses', 'ops']}
             dragAndDropHooks={drag.dragAndDropHooks}
             selectionMode="multiple"
@@ -2890,7 +2891,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
           </FileTree>
         </div>
         <span data-file-tree-dnd-status style={demoMutedStyle}>{lastMove}</span>
-        <span data-file-tree-dnd-order style={demoMutedStyle}>当前顺序：{treeOrder.join(' > ')}</span>
+        <span data-file-tree-dnd-order style={demoMutedStyle}>Order: {treeOrder.join(' > ')}</span>
       </DemoSection>
     );
   }
@@ -2899,7 +2900,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
     return (
       <DemoSection isColumn label="dynamic collection">
         <div style={{ display: 'flex', gap: 6 }}>
-          {['course', 'poster', 'brief'].map((value) => (
+          {['package', 'button', 'card'].map((value) => (
             <Button key={value} size="sm" variant={query === value ? 'secondary' : 'ghost'} onClick={() => setQuery(value)}>
               {value}
             </Button>
@@ -2907,7 +2908,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
         </div>
         <div style={{ width: 320 }}>
           <FileTree
-            aria-label="动态文件树"
+            aria-label="Dynamic file tree"
             defaultExpandedKeys={helpers.expandableKeys}
             selectionMode="single"
           >
@@ -2922,7 +2923,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
     return (
       <DemoSection label="pull request review">
         <div style={{ width: 360 }}>
-          <FileTree aria-label="PR 文件评审" defaultExpandedKeys={['courses', 'ops']} selectionMode="multiple">
+          <FileTree aria-label="Pull request file review" defaultExpandedKeys={['courses', 'ops']} selectionMode="multiple">
             {FILE_TREE_ITEMS.map((node) => (
               <FileTree.Item key={node.id} id={node.id} icon={<FolderIcon />} title={node.name}>
                 {node.children?.map((child) => (
@@ -2955,7 +2956,7 @@ const FileTreeVariantDemo = ({ variant }: { variant: FileTreeVariant }) => {
     <DemoSection label={variant}>
       <div style={{ width: 320 }}>
         <FileTree
-          aria-label="课程文件树"
+          aria-label="Project file tree"
           defaultExpandedKeys={['courses']}
           defaultSelectedKeys={variant === 'multiple-selection' ? ['ielts-plan', 'poster'] : ['ielts-plan']}
           reduceMotion={variant === 'reduced-motion'}
@@ -2990,7 +2991,7 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
   const [active, setActive] = useState('students');
   const manyItems = Array.from({ length: 24 }, (_, index) => ({
     key: `section-${index + 1}`,
-    label: `章节 ${index + 1}`,
+    label: `Section ${index + 1}`,
     level: index % 4 === 0 ? 1 : 2,
   }));
   const items = variant === 'virtualized' ? manyItems : TOC_ITEMS;
@@ -3049,8 +3050,8 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
             background: 'var(--surface)',
           }}
         >
-          <strong>课程运营报告</strong>
-          <p style={demoMutedStyle}>右侧目录会跟随当前章节同步高亮。</p>
+          <strong>Documentation</strong>
+          <p style={demoMutedStyle}>The table of contents highlights the active section as you scroll.</p>
           <div style={{ display: 'grid', gap: 8 }}>
             {TOC_ITEMS.slice(0, 3).map((entry) => (
               <div key={entry.key} style={{ padding: 10, borderRadius: 8, background: 'var(--surface-secondary)' }}>
@@ -3068,11 +3069,11 @@ const FloatingTocVariantDemo = ({ variant }: { variant: FloatingTocVariant }) =>
     <DemoSection isColumn label={variant}>
       {variant === 'controlled' && (
         <Button size="sm" variant="secondary" onClick={() => setOpen((value) => !value)}>
-          {open ? '关闭目录' : '打开目录'}
+          {open ? 'Close TOC' : 'Open TOC'}
         </Button>
       )}
       <div style={{ padding: '8px 160px 8px 8px' }}>{toc}</div>
-      <span style={demoTextStyle}>当前章节：{active}</span>
+      <span style={demoTextStyle}>Active section: {active}</span>
     </DemoSection>
   );
 };
@@ -3087,9 +3088,9 @@ type HoverCardVariant =
 
 const HoverCardContentBox = ({ withImage = false }: { withImage?: boolean }) => (
   <div style={{ display: 'grid', gap: 8, minWidth: 220 }}>
-    {withImage && <CourseCover title="IELTS" />}
-    <strong style={{ fontSize: 14 }}>王晓萌</strong>
-    <span style={demoMutedStyle}>雅思 7 分计划 · 连续学习 12 天</span>
+    {withImage && <CourseCover title="HeroUI" />}
+    <strong style={{ fontSize: 14 }}>@hero_ui</strong>
+    <span style={demoMutedStyle}>Beautiful, fast and modern React UI library.</span>
     <ProgressBar color="success" isShowValue={false} size="sm" value={86} />
   </div>
 );
@@ -3110,7 +3111,7 @@ const HoverCardVariantDemo = ({ variant }: { variant: HoverCardVariant }) => {
         </div>
         <HoverCard open>
           <HoverCard.Trigger>
-            <Chip color="accent">切换浮层方向</Chip>
+            <Chip color="accent">@hero_ui</Chip>
           </HoverCard.Trigger>
           <HoverCard.Content placement={placement}>
             <HoverCardContentBox />
@@ -3124,7 +3125,7 @@ const HoverCardVariantDemo = ({ variant }: { variant: HoverCardVariant }) => {
     <DemoSection isColumn label={variant}>
       {variant === 'controlled' && (
         <Switch isSelected={open} size="sm" onSelectedChange={setOpen}>
-          受控打开
+          Controlled open
         </Switch>
       )}
       <HoverCard
@@ -3134,7 +3135,7 @@ const HoverCardVariantDemo = ({ variant }: { variant: HoverCardVariant }) => {
         defaultOpen={variant !== 'controlled'}
       >
         <HoverCard.Trigger>
-          <Chip color="accent">学员档案</Chip>
+          <Chip color="accent">@hero_ui</Chip>
         </HoverCard.Trigger>
         <HoverCard.Content placement="bottom">
           {variant === 'with-arrow' && <HoverCard.Arrow />}
@@ -3187,26 +3188,26 @@ const KanbanDefaultVariantDemo = () => {
         ))}
       </Kanban>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }} data-kanban-distribution>
-        当前分布：{distribution}
+        Distribution: {distribution}
       </div>
       <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-order>
-        当前顺序：{order}
+        Order: {order}
       </div>
     </DemoSection>
   );
 };
 
 const PROJECT_KANBAN_TASKS: KanbanTask[] = [
-  { id: 'p1', title: '定义组件验收清单', status: 'todo', priority: 'high' },
-  { id: 'p2', title: '补齐浏览器 smoke test', status: 'todo', priority: 'normal' },
-  { id: 'p3', title: '实现变体级 demo resolver', status: 'doing', priority: 'high' },
-  { id: 'p4', title: '发布 Vela UI beta', status: 'done', priority: 'low' },
+  { id: 'p1', title: 'Research competitor onboarding patterns', status: 'todo', priority: 'high' },
+  { id: 'p2', title: 'Audit analytics event naming', status: 'todo', priority: 'normal' },
+  { id: 'p3', title: 'Design empty states for dashboard widgets', status: 'doing', priority: 'high' },
+  { id: 'p4', title: 'Set up CI/CD for staging environment', status: 'done', priority: 'low' },
 ];
 
 const PROJECT_KANBAN_COLUMNS = [
   { id: 'todo', title: 'Backlog', color: 'var(--warning)' },
-  { id: 'doing', title: 'In progress', color: 'var(--accent)' },
-  { id: 'done', title: 'Shipped', color: 'var(--success)' },
+  { id: 'doing', title: 'To Do', color: 'var(--accent)' },
+  { id: 'done', title: 'In Progress', color: 'var(--success)' },
 ];
 
 const KanbanProjectBoardVariantDemo = () => {
@@ -3237,7 +3238,7 @@ const KanbanSizesVariantDemo = () => (
     {(['sm', 'md', 'lg'] as const).map((size) => (
       <Kanban key={size} size={size} style={{ width: 560 }}>
         <Kanban.Column>
-          <Kanban.ColumnHeader indicatorColor="var(--accent)" title={`${size} 待办`} count={2} />
+          <Kanban.ColumnHeader indicatorColor="var(--accent)" title={`${size} To Do`} count={2} />
           <Kanban.ColumnBody>
             <Kanban.CardList
               aria-label={`${size} tasks`}
@@ -4781,7 +4782,7 @@ const TIMELINE_VARIANT_ITEMS: Record<TimelineVariantKey, Array<{
 };
 
 const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
-  const [message, setMessage] = useState('尚未选择时间线事件');
+  const [message, setMessage] = useState('No timeline event selected yet');
   const axis = variant === 'centered-milestones' || variant === 'split-content' ? 'center' : 'start';
   const placement = variant === 'centered-milestones' ? 'alternate' : variant === 'split-content' ? 'alternate' : 'end';
   const density = variant === 'compact-log' ? 'compact' : variant === 'incident-response' ? 'spacious' : 'default';
@@ -4816,11 +4817,11 @@ const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
               <Timeline.Description>{item.description}</Timeline.Description>
               {(variant === 'studio-review' || variant === 'incident-response' || variant === 'repository-activity') && (
                 <Timeline.Actions>
-                  <Button size="sm" variant="secondary" onClick={() => setMessage(`已打开：${item.title}`)}>
-                    打开
+                  <Button size="sm" variant="secondary" onClick={() => setMessage(`Opened: ${item.title}`)}>
+                    Open
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={() => setMessage(`已复制链接：${item.title}`)}>
-                    复制链接
+                  <Button size="sm" variant="ghost" onClick={() => setMessage(`Copied link: ${item.title}`)}>
+                    Copy link
                   </Button>
                 </Timeline.Actions>
               )}

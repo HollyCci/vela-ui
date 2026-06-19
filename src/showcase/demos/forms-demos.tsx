@@ -1972,12 +1972,32 @@ const EarIcon = () => (
 
 const RICH_TEXT_DEFAULT_VALUE: RichTextEditorJSONContent = {
   type: 'doc',
-  html: '<h2>Launch brief</h2><p>Summarize the new onboarding flow, call out risk areas, and list the next owner actions.</p><blockquote>Keep the update short enough for the weekly product review.</blockquote>',
+  html: '<h2>Controlled JSON value</h2><p>This demo keeps the editor document in React state. The buttons above replace the value prop, and the JSON preview below updates after every edit.</p><ul><li>Edit this paragraph and watch the JSON mirror change.</li><li>The footer reads character and word counts from Tiptap storage.</li></ul><blockquote>Controlled mode should feel editable, not fragile: external updates only replace content when the incoming JSON differs.</blockquote>',
 };
 
 const RICH_TEXT_REVIEW_VALUE: RichTextEditorJSONContent = {
   type: 'doc',
-  html: '<p><strong>Review note:</strong> The empty state is clear, but the CTA copy should better explain the next step.</p>',
+  html: '<h3>Read-only review</h3><p>Read-only mode keeps the same visual surface and selectable text while preventing document mutations.</p><ul><li>Best for review screens, previews, and archived records.</li></ul>',
+};
+
+const RICH_TEXT_DISABLED_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<h3>Disabled state</h3><p>Use disabled mode when the entire field is unavailable. Toolbar actions, editing, and link changes are all blocked.</p><ul><li>Best for locked forms or pending permissions.</li></ul>',
+};
+
+const RICH_TEXT_CHARACTER_COUNT_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<h2>Character count</h2><p>This editor has a 240 character limit. Keep typing to see the footer update in real time and flag when the document crosses the configured ceiling.</p><ul><li>Short notes stay green.</li></ul>',
+};
+
+const RICH_TEXT_CUSTOM_COMPOSITION_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<h3>Custom composition</h3><p>This demo moves a compact toolbar into the footer. The editor keeps the same Tiptap instance, but you decide where controls live.</p><ul><li>Only bold, italic, list, and link controls are exposed here.</li><li>The content area remains the same reusable slot.</li></ul><blockquote>Compound parts make layout a product decision instead of a component limitation.</blockquote>',
+};
+
+const RICH_TEXT_EXTENSIBLE_VALUE: RichTextEditorJSONContent = {
+  type: 'doc',
+  html: '<h2>Extensible commands</h2><p>This demo adds custom commands, a floating insert menu, and a slash command menu. Type / to open the command list, then filter with h, list, quote, or action.</p><blockquote>Each item runs your own Tiptap command; the component only supplies the accessible menu shell.</blockquote><p><strong>Try it</strong></p><ul><li>Press the date button to insert today\'s date.</li><li>Use the sparkle button to insert a launch checklist.</li><li>Move to the empty line below to reveal the floating menu.</li></ul>',
 };
 
 const RichTextToolbar = () => (
@@ -2014,23 +2034,23 @@ type RichTextEditorVariantKey =
 
 const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariantKey }) => {
   const [value, setValue] = useState<RichTextEditorJSONContent>(RICH_TEXT_DEFAULT_VALUE);
-  const [status, setStatus] = useState('等待编辑');
+  const [status, setStatus] = useState('Empty state');
 
   if (variant === 'disabled-and-read-only') {
     return (
       <DemoSection label="rich-text-editor-disabled-and-read-only" isColumn>
-        <RichTextEditor defaultValue={RICH_TEXT_DEFAULT_VALUE} isDisabled style={{ width: 640 }}>
+        <RichTextEditor defaultValue={RICH_TEXT_DISABLED_VALUE} isDisabled style={{ width: 640 }}>
           <RichTextEditor.Shell>
             <RichTextToolbar />
             <RichTextEditor.Content />
-            <RichTextEditor.Footer>Disabled editor</RichTextEditor.Footer>
+            <RichTextEditor.Footer>Disabled</RichTextEditor.Footer>
           </RichTextEditor.Shell>
         </RichTextEditor>
         <RichTextEditor defaultValue={RICH_TEXT_REVIEW_VALUE} isReadOnly style={{ width: 640 }}>
           <RichTextEditor.Shell>
             <RichTextToolbar />
             <RichTextEditor.Content />
-            <RichTextEditor.Footer>Read-only editor keeps selection readable but blocks commands.</RichTextEditor.Footer>
+            <RichTextEditor.Footer>Read only</RichTextEditor.Footer>
           </RichTextEditor.Shell>
         </RichTextEditor>
       </DemoSection>
@@ -2041,8 +2061,8 @@ const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariant
     return (
       <DemoSection label="rich-text-editor-custom-composition" isColumn>
         <RichTextEditor
-          defaultValue={RICH_TEXT_REVIEW_VALUE}
-          onValueChange={(_, details) => setStatus(`正文 ${details.characterCount} 字符`)}
+          defaultValue={RICH_TEXT_CUSTOM_COMPOSITION_VALUE}
+          onValueChange={(_, details) => setStatus(`${details.characterCount} characters`)}
           style={{ width: 680 }}
         >
           <RichTextEditor.BubbleMenu>
@@ -2053,12 +2073,13 @@ const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariant
           <RichTextEditor.Shell>
             <RichTextEditor.Toolbar>
               <RichTextEditor.ToolbarGroup>
-                <RichTextEditor.ToggleButton command="heading2" aria-label="Heading" />
-                <RichTextEditor.ToggleButton command="blockquote" aria-label="Quote" />
+                <RichTextEditor.ToggleButton command="bold" aria-label="Bold" />
+                <RichTextEditor.ToggleButton command="italic" aria-label="Italic" />
                 <RichTextEditor.ToggleButton command="bulletList" aria-label="Bullets" />
+                <RichTextEditor.LinkPopover />
               </RichTextEditor.ToolbarGroup>
             </RichTextEditor.Toolbar>
-            <RichTextEditor.Content placeholder="记录这次设计 review 的结论…" />
+            <RichTextEditor.Content placeholder="Add your custom composition notes…" />
             <RichTextEditor.Footer>
               <span>{status}</span>
               <RichTextEditor.CharacterCount />
@@ -2073,33 +2094,33 @@ const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariant
     return (
       <DemoSection label="rich-text-editor-extensible-commands" isColumn>
         <RichTextEditor
-          defaultValue={RICH_TEXT_DEFAULT_VALUE}
-          onValueChange={(_, details) => setStatus(`已同步 ${details.characterCount} 字符`)}
+          defaultValue={RICH_TEXT_EXTENSIBLE_VALUE}
+          onValueChange={(_, details) => setStatus(`${details.characterCount} characters`)}
           style={{ width: 680 }}
         >
           <RichTextEditor.Shell>
             <RichTextToolbar />
-            <RichTextEditor.Content />
+            <RichTextEditor.Content placeholder="Write notes…" />
             <RichTextEditor.Footer>
               <RichTextEditor.FloatingMenu>
                 <RichTextEditor.CommandButton
                   command={(editor) => {
                     editor.runCommand('heading2');
-                    setStatus('已运行自定义命令：标题');
+                    setStatus('Ran custom command: Heading');
                   }}
                 >
-                  标题
+                  Heading
                 </RichTextEditor.CommandButton>
                 <RichTextEditor.CommandButton
                   command={(editor) => {
                     editor.setLink('https://vela-ui.local/docs/rich-text-editor');
-                    setStatus('已插入参考链接');
+                    setStatus('Inserted reference link');
                   }}
                 >
-                  参考链接
+                  Reference link
                 </RichTextEditor.CommandButton>
               </RichTextEditor.FloatingMenu>
-              <span>{status}</span>
+              <span>Extensible command surface</span>
             </RichTextEditor.Footer>
           </RichTextEditor.Shell>
         </RichTextEditor>
@@ -2111,12 +2132,20 @@ const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariant
     <DemoSection label={`rich-text-editor-${variant}`} isColumn>
       <RichTextEditor
         value={variant === 'controlled' ? value : undefined}
-        defaultValue={variant === 'controlled' ? undefined : variant === 'placeholder' ? { type: 'doc', html: '' } : RICH_TEXT_DEFAULT_VALUE}
-        placeholder={variant === 'placeholder' ? 'Write a product update…' : undefined}
-        maxLength={variant === 'character-count' ? 180 : undefined}
+        defaultValue={
+          variant === 'controlled'
+            ? undefined
+            : variant === 'placeholder'
+              ? { type: 'doc', html: '' }
+              : variant === 'character-count'
+                ? RICH_TEXT_CHARACTER_COUNT_VALUE
+                : RICH_TEXT_DEFAULT_VALUE
+        }
+        placeholder={variant === 'placeholder' ? 'Start a component note: describe the editor, type **bold**, then select text for the bubble menu…' : undefined}
+        maxLength={variant === 'character-count' ? 240 : undefined}
         onValueChange={(nextValue, details) => {
           if (variant === 'controlled') setValue(nextValue);
-          setStatus(`更新：${details.characterCount} 字符`);
+          setStatus(`${details.characterCount} characters`);
         }}
         style={{ width: 680 }}
       >
@@ -2125,12 +2154,12 @@ const RichTextEditorVariantDemo = ({ variant }: { variant: RichTextEditorVariant
           <RichTextEditor.Content />
           {variant === 'character-count' ? (
             <RichTextEditor.Footer>
-              <span>{status}</span>
+              <span>240 character limit</span>
               <RichTextEditor.CharacterCount />
             </RichTextEditor.Footer>
           ) : (
             <RichTextEditor.Footer>
-              <span>{variant === 'controlled' ? 'Controlled JSON value updates on every edit.' : status}</span>
+              <span>{variant === 'controlled' ? 'Controlled JSON value' : variant === 'placeholder' ? 'Empty state' : status}</span>
               {variant === 'placeholder' && (
                 <RichTextEditor.SuggestionMenu>
                   <RichTextEditor.CommandButton command={(editor) => editor.runCommand('heading2')}>

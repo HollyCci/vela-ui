@@ -1492,6 +1492,26 @@ const CONVERSATION_VARIANT_TURNS: ConversationTurn[] = [
   },
 ];
 
+const SCROLL_BUTTON_VARIANT_TURNS: ConversationTurn[] = [
+  { id: 1, role: 'user', text: 'What changed for long conversations?' },
+  {
+    id: 2,
+    role: 'assistant',
+    text: 'Long threads keep their message column centered while the viewport owns scrolling. The optional jump button can be added when an app wants an explicit return-to-bottom control.',
+  },
+  { id: 3, role: 'user', text: 'Show me the button treatment.' },
+  {
+    id: 4,
+    role: 'assistant',
+    text: 'Scroll away from the latest response and the button appears over the lower edge of the conversation. Pressing it returns the viewport to the newest message.',
+  },
+  {
+    id: 5,
+    role: 'assistant',
+    text: 'The default conversation examples omit this control so teams can choose whether the extra affordance belongs in their product.',
+  },
+];
+
 const FULL_CHAT_DEFAULT_PROMPT = 'Turn this settings page into a responsive layout.';
 
 const FULL_CHAT_RESPONSE_TOKENS = [
@@ -1945,14 +1965,7 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
 
   const messages =
     variant === 'scroll-button'
-      ? Array.from({ length: 12 }, (_, index) => ({
-          id: index,
-          role: (index % 2 === 0 ? 'user' : 'assistant') as 'user' | 'assistant',
-          text:
-            index % 2 === 0
-              ? `Follow-up ${index / 2 + 1}`
-              : 'Scroll away from the bottom and the jump-to-latest button appears.',
-        }))
+      ? SCROLL_BUTTON_VARIANT_TURNS
       : turns;
 
   return (
@@ -2512,9 +2525,12 @@ const PromptInputVariantDemo = ({
   if (variant === 'with-suggestions') {
     return (
       <DemoSection label="prompt-input-with-suggestions" isColumn>
-        <PromptSuggestion title="Build something useful with HeroUI Pro AI">
+        <PromptSuggestion
+          title="Build something useful with HeroUI Pro AI"
+          description="Start with a prompt, add files, or pick a suggestion to shape the first response."
+        >
           <PromptSuggestion.Items variant="pill">
-            {['Design a launch page', 'Summarize meeting notes', 'Plan a data model'].map(
+            {['Design a launch page', 'Summarize meeting notes', 'Generate a sound brief', 'Plan a data model'].map(
               (suggestion) => (
                 <PromptSuggestion.Item key={suggestion} onClick={() => setValue(suggestion)}>
                   {suggestion}

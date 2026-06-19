@@ -844,8 +844,12 @@ const AppLayoutDemo = () => {
           </div>
         }
       >
-        <div style={{ padding: 24, color: 'var(--muted)' }}>
-          Main content area. Resize to mobile to see the sidebar collapse into a sheet.
+        <div style={{ padding: 24 }}>
+          <h2 style={{ margin: '0 0 8px', fontSize: 20, fontWeight: 600 }}>Dashboard</h2>
+          <p style={{ margin: 0, color: 'var(--muted)' }}>
+            The sidebar fills the full viewport height while the navbar and main content live in the
+            right column. Resize to mobile to see the sidebar collapse into a sheet.
+          </p>
         </div>
       </AppLayout>
     </DemoSection>
@@ -1764,19 +1768,19 @@ const ResizableTwoPanel = ({
     }}
   >
     <Resizable.Panel defaultSize={36} minSize={18} style={RESIZABLE_PANEL_STYLE}>
-      面板 A
+      Left
     </Resizable.Panel>
     <Resizable.Handle type={handleType} variant={handleVariant} withIndicator={withIndicator} />
     <Resizable.Panel defaultSize={64} minSize={24} style={RESIZABLE_PANEL_STYLE}>
-      面板 B
+      Right
     </Resizable.Panel>
   </Resizable>
 );
 
 const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
   const [layout, setLayout] = useState<number[]>([36, 64]);
-  const [collapseState, setCollapseState] = useState('拖拽到最小宽度可折叠');
-  const [persistedStatus, setPersistedStatus] = useState('已保存布局');
+  const [collapseState, setCollapseState] = useState('Drag to minimum width to collapse');
+  const [persistedStatus, setPersistedStatus] = useState('Layout saved');
   const [handleSize, setHandleSize] = useState(6);
 
   if (variant === 'size-units') {
@@ -1787,14 +1791,14 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
           style={{ ...RESIZABLE_VARIANT_FRAME_STYLE, width: 560 }}
         >
           <Resizable.Panel defaultSize={25} minSize={15} maxSize={45} style={RESIZABLE_PANEL_STYLE}>
-            辅助栏 · 25%
+            Sidebar · 25%
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
           <Resizable.Panel defaultSize={75} minSize={40} style={RESIZABLE_PANEL_STYLE}>
-            内容区 · 75%
+            Main content · 75%
           </Resizable.Panel>
         </Resizable>
-        <span style={VARIANT_MUTED_STYLE}>当前尺寸：{layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+        <span style={VARIANT_MUTED_STYLE}>Sizes: {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
       </DemoSection>
     );
   }
@@ -1806,11 +1810,11 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
       <DemoSection label="persisted sizes" isColumn>
         <Resizable autoSaveId={autoSaveId} onLayout={setLayout} style={RESIZABLE_VARIANT_FRAME_STYLE}>
           <Resizable.Panel id="navigator" defaultSize={28} minSize={18} style={RESIZABLE_PANEL_STYLE}>
-            导航面板
+            Sidebar
           </Resizable.Panel>
           <Resizable.Handle type="drag" />
           <Resizable.Panel id="editor" defaultSize={72} minSize={36} style={RESIZABLE_PANEL_STYLE}>
-            编辑面板
+            Editor
           </Resizable.Panel>
         </Resizable>
         <div style={VARIANT_ROW_STYLE}>
@@ -1819,10 +1823,10 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
             variant="secondary"
             onClick={() => {
               window.localStorage.removeItem(`react-resizable-panels:${autoSaveId}`);
-              setPersistedStatus('已重置保存尺寸');
+              setPersistedStatus('Sizes reset');
             }}
           >
-            重置尺寸
+            Reset sizes
           </Button>
           <span style={VARIANT_MUTED_STYLE}>{persistedStatus} · {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
         </div>
@@ -1852,14 +1856,14 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
           } as CSSProperties}
         >
           <Resizable.Panel defaultSize={42} minSize={24} style={RESIZABLE_PANEL_STYLE}>
-            变量面板
+            Editor
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
           <Resizable.Panel defaultSize={58} minSize={30} style={RESIZABLE_PANEL_STYLE}>
-            预览面板
+            Preview
           </Resizable.Panel>
         </Resizable>
-        <span style={VARIANT_MUTED_STYLE}>握柄 {handleSize}px · {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+        <span style={VARIANT_MUTED_STYLE}>Handle {handleSize}px · {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
       </DemoSection>
     );
   }
@@ -1869,17 +1873,17 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
       <DemoSection label="nested" isColumn>
         <Resizable style={{ ...RESIZABLE_VARIANT_FRAME_STYLE, height: 260 }}>
           <Resizable.Panel defaultSize={34} minSize={20} style={RESIZABLE_PANEL_STYLE}>
-            导航
+            Sidebar
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
           <Resizable.Panel defaultSize={66} minSize={30} style={{ padding: 0 }}>
             <Resizable orientation="vertical" style={{ width: '100%', height: '100%' }}>
               <Resizable.Panel defaultSize={42} minSize={20} style={RESIZABLE_PANEL_STYLE}>
-                详情
+                Editor
               </Resizable.Panel>
               <Resizable.Handle type="drag" />
               <Resizable.Panel defaultSize={58} minSize={20} style={RESIZABLE_PANEL_STYLE}>
-                日志
+                Terminal
               </Resizable.Panel>
             </Resizable>
           </Resizable.Panel>
@@ -1925,15 +1929,15 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
             minSize={12}
             collapsible
             collapsedSize={0}
-            onCollapse={() => setCollapseState('侧栏已折叠')}
-            onExpand={() => setCollapseState('侧栏已展开')}
+            onCollapse={() => setCollapseState('Sidebar collapsed')}
+            onExpand={() => setCollapseState('Sidebar expanded')}
             style={RESIZABLE_PANEL_STYLE}
           >
-            可折叠侧栏
+            Sidebar
           </Resizable.Panel>
           <Resizable.Handle type="line" withIndicator />
           <Resizable.Panel defaultSize={70} minSize={30} style={RESIZABLE_PANEL_STYLE}>
-            内容区
+            Main content
           </Resizable.Panel>
         </Resizable>
         <span style={VARIANT_MUTED_STYLE}>{collapseState}</span>
@@ -1952,7 +1956,7 @@ const ResizableVariantDemo = ({ variant }: VariantDemoProps) => {
   return (
     <DemoSection label="default" isColumn>
       <ResizableTwoPanel onLayout={setLayout} />
-      <span style={VARIANT_MUTED_STYLE}>当前布局：{layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
+      <span style={VARIANT_MUTED_STYLE}>Layout: {layout.map((size) => `${Math.round(size)}%`).join(' / ')}</span>
     </DemoSection>
   );
 };
@@ -2218,7 +2222,7 @@ const NavbarProgrammaticStatus = () => {
   return (
     <>
       <Button size="sm" variant="ghost" onClick={() => setMenuOpen(!isMenuOpen)}>
-        {isMenuOpen ? '关闭菜单' : '打开菜单'}
+        {isMenuOpen ? 'Close menu' : 'Open menu'}
       </Button>
       <Navbar.Label>
         {height} · {isHidden ? 'hidden' : 'visible'} · {isMenuOpen ? 'open' : 'closed'}
@@ -2235,7 +2239,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
       variant === 'programmatic-control',
   );
   const [activeHref, setActiveHref] = useState('/app/dashboard');
-  const [routeLog, setRouteLog] = useState('等待导航');
+  const [routeLog, setRouteLog] = useState('Waiting for navigation');
   const isCompact = variant === 'compact';
 
   const handleNavigate = (href: string) => {
@@ -2270,7 +2274,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
               <Navbar.Spacer />
               <Navbar.Content>
                 <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
-                  设置
+                  Settings
                 </Navbar.Item>
                 <Navbar.MenuToggle srLabel="Toggle compact menu" />
               </Navbar.Content>
@@ -2284,7 +2288,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
             </Navbar.Menu>
           </Navbar>
           <div style={{ padding: 16, color: 'var(--muted)' }}>
-            当前：{activeHref.replace('/app/', '')} · height 2.75rem
+            Current: {activeHref.replace('/app/', '')} · height 2.75rem
           </div>
         </div>
       </DemoSection>
@@ -2302,11 +2306,11 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
                   <strong>{position}</strong>
                 </Navbar.Brand>
                 <Navbar.Content>
-                  <Navbar.Item href="/app/dashboard" isCurrent={activeHref === '/app/dashboard'}>
-                    工作台
+                  <Navbar.Item href="/features" isCurrent={activeHref === '/features'}>
+                    Features
                   </Navbar.Item>
-                  <Navbar.Item href="/app/schedule" isCurrent={activeHref === '/app/schedule'}>
-                    排班
+                  <Navbar.Item href="/pricing" isCurrent={activeHref === '/pricing'}>
+                    Pricing
                   </Navbar.Item>
                 </Navbar.Content>
                 <Navbar.Spacer />
@@ -2349,14 +2353,14 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
         {variant === 'with-dropdowns' && (
           <Navbar.Content>
             <Dropdown>
-              <Dropdown.Trigger>更多 ▾</Dropdown.Trigger>
+              <Dropdown.Trigger>More ▾</Dropdown.Trigger>
               <Dropdown.Popover placement="bottom end">
-                <Dropdown.Menu aria-label="更多导航" onAction={handleDropdownAction}>
-                  <MenuItem id="reports" textValue="报表">
-                    <MenuItem.Label>报表</MenuItem.Label>
+                <Dropdown.Menu aria-label="More navigation" onAction={handleDropdownAction}>
+                  <MenuItem id="reports" textValue="Reports">
+                    <MenuItem.Label>Reports</MenuItem.Label>
                   </MenuItem>
-                  <MenuItem id="billing" textValue="账单">
-                    <MenuItem.Label>账单</MenuItem.Label>
+                  <MenuItem id="billing" textValue="Billing">
+                    <MenuItem.Label>Billing</MenuItem.Label>
                   </MenuItem>
                 </Dropdown.Menu>
               </Dropdown.Popover>
@@ -2367,7 +2371,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
         <Navbar.Content>
           <Navbar.Separator />
           <Navbar.Item href="/app/settings" isCurrent={activeHref === '/app/settings'}>
-            设置
+            Settings
           </Navbar.Item>
           {variant === 'programmatic-control' ? (
             <NavbarProgrammaticStatus />
@@ -2397,7 +2401,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
       <DemoSection label="hide on scroll" isColumn>
         <div ref={scrollContainerRef} style={{ ...NAVBAR_VARIANT_FRAME_STYLE, height: 250, overflowY: 'auto' }}>
           {navbar}
-          <div style={NAVBAR_SCROLL_FILLER_STYLE}>向下滚动隐藏导航，向上滚动恢复。</div>
+          <div style={NAVBAR_SCROLL_FILLER_STYLE}>Scroll down to hide the navbar, scroll up to reveal it.</div>
         </div>
       </DemoSection>
     );
@@ -2408,7 +2412,7 @@ const NavbarVariantDemo = ({ variant }: VariantDemoProps) => {
       <div style={NAVBAR_VARIANT_FRAME_STYLE}>
         {navbar}
         <div style={{ padding: 16, color: 'var(--muted)' }}>
-          当前：{activeHref.replace('/app/', '')} · 菜单{isMenuOpen ? '展开' : '收起'}
+          Current: {activeHref.replace('/app/', '')} · Menu {isMenuOpen ? 'open' : 'closed'}
           {variant === 'client-side-routing' ? ` · ${routeLog}` : ''}
           {variant === 'accessibility' ? ' · aria-current=page' : ''}
         </div>
@@ -2582,7 +2586,7 @@ const SidebarVariantMenuRows = ({
           {withChips && item.chip !== undefined && <Sidebar.MenuChip>{item.chip}</Sidebar.MenuChip>}
           {withActions && (
             <Sidebar.MenuActions>
-              <Sidebar.MenuAction aria-label={`${item.label} 更多操作`}>⋯</Sidebar.MenuAction>
+              <Sidebar.MenuAction aria-label={`${item.label} more actions`}>⋯</Sidebar.MenuAction>
             </Sidebar.MenuActions>
           )}
         </Sidebar.MenuItemContent>
@@ -2643,7 +2647,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
               </Sidebar.Header>
               <Sidebar.Content>
                 <Sidebar.Group>
-                  <Sidebar.Menu aria-label="持久化导航">
+                  <Sidebar.Menu aria-label="Persisted navigation">
                     <SidebarVariantMenuRows current={current} onSelect={handleSelect} />
                   </Sidebar.Menu>
                 </Sidebar.Group>
@@ -2656,7 +2660,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                 <span style={VARIANT_MUTED_STYLE}>{persistedMessage}</span>
               </div>
               <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>
-                非受控开合会写入 cookie，下一次用 defaultOpen 还原。
+                Uncontrolled toggling writes to a cookie and restores via defaultOpen next time.
               </div>
             </Sidebar.Main>
           </Sidebar.Provider>
@@ -2682,7 +2686,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
               <Sidebar.Content>
                 <Sidebar.Group>
                   <Sidebar.GroupLabel>Routes</Sidebar.GroupLabel>
-                  <Sidebar.Menu aria-label="客户端路由">
+                  <Sidebar.Menu aria-label="Client-side routing">
                     {SIDEBAR_VARIANT_ITEMS.map((item) => {
                       const href = `/app/${item.id}`;
                       return (
@@ -2710,7 +2714,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                 <Sidebar.Trigger />
                 <span style={VARIANT_MUTED_STYLE}>navigate({routePath})</span>
               </div>
-              <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>当前路径：{routePath}</div>
+              <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>Current path: {routePath}</div>
             </Sidebar.Main>
           </Sidebar.Provider>
         </div>
@@ -2745,7 +2749,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                     fontWeight: 700,
                   }}
                 >
-                  {withAvatar ? '吴' : 'V'}
+                  {withAvatar ? 'SM' : 'V'}
                 </div>
                 <span className="sidebar__menu-label-text" style={{ fontWeight: 600 }}>
                   {variant === 'agent-hub' ? 'Agent Hub' : variant === 'meeting-notes' ? 'Meeting Notes' : 'Vela'}
@@ -2756,8 +2760,8 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
               {showGroups ? (
                 <>
                   <Sidebar.Group>
-                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? '本周会议' : '工作区'}</Sidebar.GroupLabel>
-                    <Sidebar.Menu aria-label="工作区" showGuideLines={variant === 'complex' ? 'hover' : true}>
+                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? 'This Week' : 'Workspace'}</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="Workspace" showGuideLines={variant === 'complex' ? 'hover' : true}>
                       <SidebarVariantMenuRows
                         current={current}
                         onSelect={handleSelect}
@@ -2767,8 +2771,8 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                     </Sidebar.Menu>
                   </Sidebar.Group>
                   <Sidebar.Group>
-                    <Sidebar.GroupLabel>收藏</Sidebar.GroupLabel>
-                    <Sidebar.Menu aria-label="收藏">
+                    <Sidebar.GroupLabel>Favorites</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="Favorites">
                       <Sidebar.MenuItem id="playbooks" textValue="Playbooks" onAction={handleSelect('playbooks')}>
                         <Sidebar.MenuItemContent>
                           <Sidebar.MenuIcon>✦</Sidebar.MenuIcon>
@@ -2780,7 +2784,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                 </>
               ) : (
                 <Sidebar.Group>
-                  <Sidebar.Menu aria-label="导航" showGuideLines={variant !== 'reduced-motion'}>
+                  <Sidebar.Menu aria-label="Navigation" showGuideLines={variant !== 'reduced-motion'}>
                     <SidebarVariantMenuRows
                       current={current}
                       onSelect={handleSelect}
@@ -2793,11 +2797,11 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
             </Sidebar.Content>
             {(variant === 'compact-with-user-menu' || withAvatar) && (
               <Sidebar.Footer>
-                <Sidebar.Menu aria-label="用户">
-                  <Sidebar.MenuItem id="profile" textValue="个人设置" onAction={handleSelect('profile')}>
+                <Sidebar.Menu aria-label="User">
+                  <Sidebar.MenuItem id="profile" textValue="Account settings" onAction={handleSelect('profile')}>
                     <Sidebar.MenuItemContent>
                       <Sidebar.MenuIcon>●</Sidebar.MenuIcon>
-                      <Sidebar.MenuLabel>吴老师</Sidebar.MenuLabel>
+                      <Sidebar.MenuLabel>Sam Miller</Sidebar.MenuLabel>
                       <Sidebar.MenuChip>Pro</Sidebar.MenuChip>
                     </Sidebar.MenuItemContent>
                   </Sidebar.MenuItem>
@@ -2821,7 +2825,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                     fontWeight: 700,
                   }}
                 >
-                  {withAvatar ? '吴' : 'V'}
+                  {withAvatar ? 'SM' : 'V'}
                 </div>
                 <span className="sidebar__menu-label-text" style={{ fontWeight: 600 }}>
                   {variant === 'agent-hub' ? 'Agent Hub' : variant === 'meeting-notes' ? 'Meeting Notes' : 'Vela'}
@@ -2832,8 +2836,8 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
               {showGroups ? (
                 <>
                   <Sidebar.Group>
-                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? '本周会议' : '工作区'}</Sidebar.GroupLabel>
-                    <Sidebar.Menu aria-label="移动端工作区" showGuideLines={variant === 'complex' ? 'hover' : true}>
+                    <Sidebar.GroupLabel>{variant === 'meeting-notes' ? 'This Week' : 'Workspace'}</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="Mobile workspace" showGuideLines={variant === 'complex' ? 'hover' : true}>
                       <SidebarVariantMenuRows
                         current={current}
                         onSelect={handleSelect}
@@ -2843,8 +2847,8 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                     </Sidebar.Menu>
                   </Sidebar.Group>
                   <Sidebar.Group>
-                    <Sidebar.GroupLabel>收藏</Sidebar.GroupLabel>
-                    <Sidebar.Menu aria-label="移动端收藏">
+                    <Sidebar.GroupLabel>Favorites</Sidebar.GroupLabel>
+                    <Sidebar.Menu aria-label="Mobile favorites">
                       <Sidebar.MenuItem id="playbooks-mobile" textValue="Playbooks" onAction={handleSelect('playbooks')}>
                         <Sidebar.MenuItemContent>
                           <Sidebar.MenuIcon>✦</Sidebar.MenuIcon>
@@ -2856,7 +2860,7 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
                 </>
               ) : (
                 <Sidebar.Group>
-                  <Sidebar.Menu aria-label="移动端导航" showGuideLines={variant !== 'reduced-motion'}>
+                  <Sidebar.Menu aria-label="Mobile navigation" showGuideLines={variant !== 'reduced-motion'}>
                     <SidebarVariantMenuRows
                       current={current}
                       onSelect={handleSelect}
@@ -2869,11 +2873,11 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
             </Sidebar.Content>
             {(variant === 'compact-with-user-menu' || withAvatar) && (
               <Sidebar.Footer>
-                <Sidebar.Menu aria-label="移动端用户">
-                  <Sidebar.MenuItem id="profile-mobile" textValue="个人设置" onAction={handleSelect('profile')}>
+                <Sidebar.Menu aria-label="Mobile user">
+                  <Sidebar.MenuItem id="profile-mobile" textValue="Account settings" onAction={handleSelect('profile')}>
                     <Sidebar.MenuItemContent>
                       <Sidebar.MenuIcon>●</Sidebar.MenuIcon>
-                      <Sidebar.MenuLabel>吴老师</Sidebar.MenuLabel>
+                      <Sidebar.MenuLabel>Sam Miller</Sidebar.MenuLabel>
                       <Sidebar.MenuChip>Pro</Sidebar.MenuChip>
                     </Sidebar.MenuItemContent>
                   </Sidebar.MenuItem>
@@ -2885,16 +2889,16 @@ const SidebarVariantDemo = ({ variant }: VariantDemoProps) => {
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, padding: 16 }}>
               <Sidebar.Trigger />
               <span style={VARIANT_MUTED_STYLE}>
-                当前：{current} · {open ? '展开' : '收起'} · {side === 'right' ? '右侧' : sidebarVariant}
+                Current: {current} · {open ? 'expanded' : 'collapsed'} · {side === 'right' ? 'right' : sidebarVariant}
                 {variant === 'keyboard-shortcut' ? ' · Ctrl/Cmd+B' : ''}
               </span>
             </div>
             <div style={{ padding: 16, ...VARIANT_MUTED_STYLE }}>
               {variant === 'agent-workspace'
-                ? 'Agent 运行队列、工具调用和工作区文件。'
+                ? 'Agent run queue, tool calls and workspace files.'
                 : variant === 'meeting-notes'
-                  ? '会议纪要、待办和发言摘要。'
-                  : '主内容区跟随侧栏状态调整。'}
+                  ? 'Meeting notes, action items and speaker summaries.'
+                  : 'The main content area adapts to the sidebar state.'}
             </div>
           </Sidebar.Main>
         </Sidebar.Provider>
@@ -2912,7 +2916,7 @@ const APP_LAYOUT_VARIANT_STYLE: CSSProperties = {
   overflow: 'hidden',
 };
 
-const APP_LAYOUT_VARIANT_ROWS = Array.from({ length: 8 }, (_, index) => `内容块 ${index + 1}`);
+const APP_LAYOUT_VARIANT_ROWS = Array.from({ length: 8 }, (_, index) => `Content block ${index + 1}`);
 
 const AppLayoutSidebarContent = ({
   active,
@@ -2984,9 +2988,9 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
   );
   const aside = hasAside ? (
     <div style={{ padding: 16, ...VARIANT_COLUMN_STYLE }}>
-      <strong>上下文</strong>
-      <span style={VARIANT_MUTED_STYLE}>当前模块：{active}</span>
-      <TrendChip trend="up" value="8.2%" suffix="活跃" size="sm" />
+      <strong>Context</strong>
+      <span style={VARIANT_MUTED_STYLE}>Current module: {active}</span>
+      <TrendChip trend="up" value="8.2%" suffix="active" size="sm" />
     </div>
   ) : null;
   const navbar =
@@ -3015,13 +3019,13 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
       </Navbar>
     ) : (
     <div style={{ display: 'flex', alignItems: 'center', gap: 10, minHeight: 52, padding: '0 16px' }}>
-      <AppLayout.MenuToggle tooltip="打开导航" />
+      <AppLayout.MenuToggle tooltip="Open navigation" />
       <Button size="sm" variant="ghost" onClick={() => setSidebarOpen((open) => !open)}>
-        {sidebarOpen ? '收起侧栏' : '展开侧栏'}
+        {sidebarOpen ? 'Collapse sidebar' : 'Expand sidebar'}
       </Button>
       <strong>{variant === 'docs-site' ? 'Vela Docs' : 'Vela Console'}</strong>
       <span style={{ flex: 1 }} />
-      {hasAside && <AppLayout.AsideTrigger closedTooltip="打开详情" openTooltip="关闭详情" />}
+      {hasAside && <AppLayout.AsideTrigger closedTooltip="Open details" openTooltip="Close details" />}
     </div>
     );
   const toolbar = showToolbar ? (
@@ -3033,9 +3037,9 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
           <Breadcrumbs.Item label="AppLayout" isCurrent />
         </Breadcrumbs>
       ) : (
-        <Segment aria-label="视图" size="sm" defaultSelectedKey="overview">
-          <Segment.Item id="overview">概览</Segment.Item>
-          <Segment.Item id="timeline">时间线</Segment.Item>
+        <Segment aria-label="View" size="sm" defaultSelectedKey="overview">
+          <Segment.Item id="overview">Overview</Segment.Item>
+          <Segment.Item id="timeline">Timeline</Segment.Item>
         </Segment>
       )}
     </div>
@@ -3048,7 +3052,7 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
         navbar={navbar}
         aside={aside}
         toolbar={toolbar}
-        footer={variant === 'complex' || variant === 'with-toolbar' ? <div style={{ padding: 12, ...VARIANT_MUTED_STYLE }}>已同步 · 3 个任务待处理</div> : undefined}
+        footer={variant === 'complex' || variant === 'with-toolbar' ? <div style={{ padding: 12, ...VARIANT_MUTED_STYLE }}>Synced · 3 tasks pending</div> : undefined}
         sidebarOpen={isPersistedState ? undefined : sidebarOpen}
         defaultSidebarOpen={sidebarOpen}
         onSidebarOpenChange={setSidebarOpen}
@@ -3075,10 +3079,10 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
         {isControlledState && (
           <div style={{ ...VARIANT_PANEL_STYLE, margin: '12px 16px', display: 'flex', gap: 8, flexWrap: 'wrap' }}>
             <Button size="sm" variant="secondary" onClick={() => setSidebarOpen((open) => !open)}>
-              {sidebarOpen ? '关闭侧栏' : '打开侧栏'}
+              {sidebarOpen ? 'Close sidebar' : 'Open sidebar'}
             </Button>
             <Button size="sm" variant="secondary" onClick={() => setAsideOpen((open) => !open)}>
-              {asideOpen ? '关闭详情' : '打开详情'}
+              {asideOpen ? 'Close details' : 'Open details'}
             </Button>
             <span style={VARIANT_MUTED_STYLE}>
               sidebar={String(sidebarOpen)} · aside={String(asideOpen)}
@@ -3090,19 +3094,19 @@ const AppLayoutVariantDemo = ({ variant }: VariantDemoProps) => {
             <strong>{row}</strong>
             <p style={{ ...VARIANT_MUTED_STYLE, margin: '6px 0 0' }}>
               {variant === 'content-scroll'
-                ? '主内容区域独立滚动。'
+                ? 'The main content area scrolls independently.'
                 : variant === 'aside-keyboard-shortcut'
-                  ? `按 Ctrl/Cmd+. 切换详情 · ${asideOpen ? '打开' : '关闭'}`
+                  ? `Press Ctrl/Cmd+. to toggle details · ${asideOpen ? 'open' : 'closed'}`
                   : variant === 'persisted-state'
-                    ? `sidebar_state / aside_state 会随非受控开合写入 cookie。`
+                    ? `sidebar_state / aside_state are written to a cookie on uncontrolled toggling.`
                     : variant === 'client-side-routing' || variant === 'navbar-adaptation'
-                      ? `当前路径 ${routePath}`
-                      : `当前 ${active} 模块的工作内容。`}
+                      ? `Current path ${routePath}`
+                      : `Work content for the ${active} module.`}
             </p>
           </div>
         ))}
         <AppLayout.MobileAside>
-          <div style={{ padding: 16 }}>移动端详情面板</div>
+          <div style={{ padding: 16 }}>Mobile details panel</div>
         </AppLayout.MobileAside>
       </AppLayout>
     </DemoSection>
@@ -3114,6 +3118,50 @@ const STEPPER_VARIANT_STEPS = [
   { title: 'Shipping', description: 'Delivery address', icon: '2' },
   { title: 'Payment', description: 'Card details', icon: '3' },
   { title: 'Confirmation', description: 'Order placed', icon: '4' },
+];
+
+const STEPPER_ONBOARDING_STEPS = [
+  {
+    title: 'Account created',
+    description: "Your workspace is ready. Invite your team whenever you're set.",
+    icon: '1',
+  },
+  {
+    title: 'Set up integrations',
+    description: 'Connect your tools — Slack, GitHub, Figma — to keep everything in sync.',
+    icon: '2',
+  },
+  {
+    title: 'Create a project',
+    description: 'Launch your first project and see the magic happen.',
+    icon: '3',
+  },
+];
+
+const STEPPER_FREE_TRIAL_STEPS = [
+  {
+    title: 'Today',
+    description: 'Get instant access to all premium features, no credit card required.',
+    icon: '1',
+  },
+  {
+    title: 'In 12 days',
+    description: "We'll send you a friendly reminder that your trial is wrapping up.",
+    icon: '2',
+  },
+  {
+    title: 'In 14 days',
+    description: 'Your plan activates automatically. Cancel anytime before — no questions asked.',
+    icon: '3',
+  },
+];
+
+const STEPPER_PACKAGE_STEPS = [
+  { title: 'Order Placed', description: 'Payment verified successfully', icon: '1' },
+  { title: 'Shipment Picked Up', description: 'Picked up from warehouse', icon: '2' },
+  { title: 'In Transit', description: 'Cleared customs in Leipzig, DE', icon: '3' },
+  { title: 'Out for Delivery', description: 'Pending', icon: '4' },
+  { title: 'Delivered', description: 'Pending', icon: '5' },
 ];
 
 const StepperStatusIcon = ({ mode }: { mode: 'complete' | 'dynamic' }) => {
@@ -3132,12 +3180,14 @@ const StepperStatusLabel = () => {
 const renderStepperVariantSteps = ({
   variant,
   withDescriptions,
+  steps = STEPPER_VARIANT_STEPS,
 }: {
   variant: string;
   withDescriptions?: boolean;
+  steps?: { title: string; description: string; icon: string }[];
 }) => (
   <>
-    {STEPPER_VARIANT_STEPS.map((step) => (
+    {steps.map((step) => (
       <Stepper.Step key={step.title}>
         <Stepper.Indicator>
           {variant === 'bullet-steps' ? (
@@ -3187,6 +3237,20 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
           '--stepper-complete-fg': 'var(--success-foreground)',
         } as CSSProperties)
       : undefined;
+  const variantSteps =
+    variant === 'onboarding-timeline'
+      ? STEPPER_ONBOARDING_STEPS
+      : variant === 'free-trial-timeline'
+        ? STEPPER_FREE_TRIAL_STEPS
+        : variant === 'package-tracking'
+          ? STEPPER_PACKAGE_STEPS
+          : STEPPER_VARIANT_STEPS;
+  const variantHeading =
+    variant === 'onboarding-timeline'
+      ? 'Getting started'
+      : variant === 'free-trial-timeline'
+        ? 'Start your 14-day free trial'
+        : undefined;
 
   if (variant === 'sizes') {
     return (
@@ -3214,6 +3278,9 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
 
   return (
     <DemoSection label={variant} isColumn>
+      {variantHeading && (
+        <strong style={{ fontSize: 16 }}>{variantHeading}</strong>
+      )}
       <Stepper
         orientation={isVertical ? 'vertical' : 'horizontal'}
         size={size}
@@ -3236,10 +3303,11 @@ const StepperVariantDemo = ({ variant }: VariantDemoProps) => {
                       ? 'render-function'
                       : 'default',
           withDescriptions,
+          steps: variantSteps,
         })}
       </Stepper>
       {isInteractive && (
-        <span style={VARIANT_MUTED_STYLE}>Step {currentStep + 1} of {STEPPER_VARIANT_STEPS.length}</span>
+        <span style={VARIANT_MUTED_STYLE}>Step {currentStep + 1} of {variantSteps.length}</span>
       )}
     </DemoSection>
   );
