@@ -141,7 +141,9 @@
   border-radius: 0;
 }
 
-.kpi__separator {
+/* 基础 .separator(0,1,0)且 separator.css 后导入会重置 width/margin，致全宽分隔线失效。
+   加 .kpi 祖先提到 0,2,0 保住负边距全出血 */
+.kpi .kpi__separator {
   margin-right: calc(var(--spacing) * -4);
   margin-left: calc(var(--spacing) * -4);
   width: calc(100% + var(--spacing) * 8);

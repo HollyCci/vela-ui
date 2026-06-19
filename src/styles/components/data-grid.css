@@ -132,30 +132,32 @@
   text-align: right;
 }
 
-.data-grid__selection-column {
+/* 选择/拖拽列复用基础 .table__column/.table__cell 类，基础的内边距与列分隔 :after 同/低特指度且后导入而胜出，
+   致 40/32px 工具列没贴住勾选框/抓手、还多出竖分隔条。加 [data-slot=data-grid] 祖先提特指度覆盖 */
+[data-slot=data-grid] .data-grid__selection-column {
   width: var(--data-grid-selection-column-width);
   padding-right: calc(var(--spacing) * 0);
 }
 
-.data-grid__selection-column:after {
+[data-slot=data-grid] .data-grid__selection-column:after {
   content: none;
 }
 
-.data-grid__selection-cell {
+[data-slot=data-grid] .data-grid__selection-cell {
   width: var(--data-grid-selection-column-width);
   padding-right: calc(var(--spacing) * 0);
 }
 
-.data-grid__drag-handle-column {
+[data-slot=data-grid] .data-grid__drag-handle-column {
   width: var(--data-grid-drag-handle-column-width);
   padding-inline: calc(var(--spacing) * 0);
 }
 
-.data-grid__drag-handle-column:after {
+[data-slot=data-grid] .data-grid__drag-handle-column:after {
   content: none;
 }
 
-.data-grid__drag-handle-cell {
+[data-slot=data-grid] .data-grid__drag-handle-cell {
   width: var(--data-grid-drag-handle-column-width);
   padding-inline: calc(var(--spacing) * 0);
 }
