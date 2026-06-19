@@ -1,6 +1,7 @@
 {
   "name": "@hollycci/vela-ui",
   "version": "0.2.0",
+  "packageManager": "pnpm@10.33.2",
   "type": "module",
   "license": "UNLICENSED",
   "description": "Vela UI — 基于 HeroUI + React Aria Components 的企业级组件库",
