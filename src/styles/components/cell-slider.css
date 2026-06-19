@@ -121,7 +121,10 @@
   background-color: var(--color-default);
 }
 
-.cell-slider .cell-slider__thumb {
+/* 基础 .slider .slider__thumb 用 var(--accent)(蓝)+radius 1.5× 渲染实心圆把手，与 .cell-slider .cell-slider__thumb
+   同特指度(0,2,0)且 slider.css 后导入而胜出 → 出现蓝色椭圆把手。提升至 0,3,0(加 .cell-slider__track)
+   覆盖回透明(仅 ::after 细条在交互时显示)，对齐 heroui.pro 静息态无突出把手 */
+.cell-slider .cell-slider__track .cell-slider__thumb {
   top: calc(var(--spacing) * 0);
   --tw-translate-y: calc(1 / 2 * 100%);
   height: 100%;
@@ -131,7 +134,9 @@
   width: calc(var(--cell-slider-thumb-width) * 2);
   box-shadow: none;
   cursor: var(--cursor-interactive);
-  background: 0 0;
+  /* 显式 background-color:transparent；原 `background:0 0` 简写经 lightningcss 优化后只剩
+     background-position，不再重置 background-color，致基础蓝色把手透下来 */
+  background-color: transparent;
   border: none;
   border-radius: 0;
   outline-style: none;
