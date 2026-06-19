@@ -8,8 +8,32 @@ const entry = fileURLToPath(new URL('./src/index.ts', import.meta.url));
 /**
  * 把自有样式分片 + 字体声明合成单一 dist/styles.css，
  * 并随包发布字体文件（fonts.css 用 ./fonts/*.woff2 相对路径）。
- * 不过 Tailwind —— 组件 CSS 已是预编译产物，消费方无需安装 Tailwind。
+ * 不跑 Tailwind —— 组件 CSS 已是预编译产物，消费方无需安装 Tailwind。
  */
+const tailwindPreflightStart = '@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px)';
+const scrollbarUtilitiesStart = '[data-scrollbar=thin]';
+
+function stripPublishOnlyGlobals(css: string) {
+  const start = css.indexOf(tailwindPreflightStart);
+  const end = css.indexOf(scrollbarUtilitiesStart);
+
+  if (start === -1 || end === -1 || end <= start) return css;
+
+  return `${css.slice(0, start)}${css.slice(end)}`;
+}
+
+function scopeTailwindRuntimeVars(css: string) {
+  return css
+    .replaceAll('Tailwind 内部变量注册', 'Vela 内部变量注册')
+    .replaceAll('@layer properties', '@layer vela-properties')
+    .replaceAll('--tw-', '--vela-tw-');
+}
+
+function readPublishCss(file: string) {
+  const css = readFileSync(file, 'utf8');
+  return scopeTailwindRuntimeVars(file.endsWith('/base.css') ? stripPublishOnlyGlobals(css) : css);
+}
+
 function copyStyles() {
   return {
     name: 'vela-copy-styles',
@@ -24,7 +48,7 @@ function copyStyles() {
         ...blocks.map((block) => `src/styles/${block.file}`),
         'src/styles/fonts.css',
       ]
-        .map((p) => readFileSync(p, 'utf8'))
+        .map((p) => readPublishCss(p))
         .join('\n');
       writeFileSync('dist/styles.css', css);
       cpSync('src/styles/fonts', 'dist/fonts', { recursive: true });
