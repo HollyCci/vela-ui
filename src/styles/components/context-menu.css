@@ -97,6 +97,9 @@
 
 .context-menu__popover [data-slot=context-menu-menu] {
   padding: calc(var(--spacing) * 1.5);
+  /* 基础 .menu{gap:--spacing*1=4px}(0,1,0) 与 .context-menu__menu(0,1,0) 同特指度且 menu.css 后导入而胜出，
+     致项间距 4px 而非 Pro 的 2px。把 gap 提到这条 (0,2,0) 作用域规则覆盖 */
+  gap: calc(var(--spacing) * .5);
   --tw-outline-style: none;
   outline-style: none;
 }
