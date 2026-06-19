@@ -2,19 +2,18 @@
 
 import {
   forwardRef,
-  useState,
-  type ChangeEvent,
-  type InputHTMLAttributes,
+  type CSSProperties,
+  type MouseEvent,
   type ReactNode,
+  type RefObject,
 } from 'react';
-import clsx from 'clsx';
-import { VISUALLY_HIDDEN } from '../_internal/visually-hidden';
+import { Switch as HeroSwitch, type SwitchProps as HeroSwitchProps } from '@heroui/react';
 
 export type SwitchSize = 'sm' | 'md' | 'lg';
 
 export type SwitchProps = Omit<
-  InputHTMLAttributes<HTMLInputElement>,
-  'type' | 'checked' | 'defaultChecked' | 'onChange' | 'size' | 'children'
+  HeroSwitchProps,
+  'size' | 'children' | 'className' | 'style' | 'onChange'
 > & {
   size?: SwitchSize;
   isSelected?: boolean;
@@ -22,59 +21,45 @@ export type SwitchProps = Omit<
   onSelectedChange?: (isSelected: boolean) => void;
   isDisabled?: boolean;
   children?: ReactNode;
+  className?: string;
+  style?: CSSProperties;
+  /**
+   * 事件桥接：消费方习惯传 onClick，而 RAC 在 label/根上删除 onClick。
+   * 这里把 onClick 透传到底座的 Content（可见 label），click 仍会冒泡触发，事件不丢。
+   */
+  onClick?: (event: MouseEvent<HTMLElement>) => void;
 };
 
+/**
+ * 包装 @heroui/react 的 Switch（基于 react-aria-components，真 a11y/键盘/焦点/按压态）。
+ * 公共契约保持不变：
+ * - size/isSelected/defaultSelected/isDisabled 透传给底座；
+ * - onSelectedChange 映射为底座 onChange(isSelected: boolean)；
+ * - ref 经 inputRef 落在真实的 <input role="switch">（保留 forwardRef<HTMLInputElement>）；
+ * - className/style 落在根 .switch 元素；
+ * - children 渲染为 .switch__label；control/thumb 由底座 compound 组件组装，
+ *   产出 .switch / .switch--<size> / .switch__control / .switch__thumb / .switch__content
+ *   类，沿用同一 CSS 分片。
+ */
 const Switch = forwardRef<HTMLInputElement, SwitchProps>(
-  (
-    {
-      size = 'md',
-      isSelected,
-      defaultSelected = false,
-      onSelectedChange,
-      isDisabled = false,
-      children,
-      className,
-      style,
-      ...rest
-    },
-    ref,
-  ) => {
-    const [innerSelected, setInnerSelected] = useState(defaultSelected);
-    const selected = isSelected ?? innerSelected;
-
-    const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-      if (isSelected === undefined) setInnerSelected(event.target.checked);
-      onSelectedChange?.(event.target.checked);
-    };
-
-    return (
-      <label
-        className={clsx('switch', size !== 'md' && `switch--${size}`, className)}
-        style={style}
-        data-selected={selected || undefined}
-        data-disabled={isDisabled || undefined}
-      >
-        <input
-          ref={ref}
-          type="checkbox"
-          role="switch"
-          style={VISUALLY_HIDDEN}
-          checked={selected}
-          onChange={handleChange}
-          disabled={isDisabled}
-          {...rest}
-        />
-        <span className="switch__control" aria-hidden="true">
-          <span className="switch__thumb" />
-        </span>
-        {children !== undefined && (
-          <span className="switch__content">
-            <span className="switch__label">{children}</span>
-          </span>
-        )}
-      </label>
-    );
-  },
+  ({ size = 'md', onSelectedChange, isDisabled = false, children, onClick, ...rest }, ref) => (
+    <HeroSwitch
+      // 底座 inputRef 把 ref 落到真实 <input>；RAC 内部 useObjectRef(mergeRefs)
+      // 运行时同时接受 callback ref 与 object ref，这里仅做类型收窄。
+      inputRef={ref as RefObject<HTMLInputElement | null>}
+      size={size}
+      isDisabled={isDisabled}
+      onChange={onSelectedChange}
+      {...rest}
+    >
+      <HeroSwitch.Content onClick={onClick}>
+        <HeroSwitch.Control>
+          <HeroSwitch.Thumb />
+        </HeroSwitch.Control>
+        {children !== undefined && <span className="switch__label">{children}</span>}
+      </HeroSwitch.Content>
+    </HeroSwitch>
+  ),
 );
 
 Switch.displayName = 'Switch';

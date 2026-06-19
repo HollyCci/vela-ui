@@ -2,6 +2,16 @@
 
 import { forwardRef, type HTMLAttributes, type ReactNode } from 'react';
 import clsx from 'clsx';
+import {
+  Pagination as HeroPagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+  PaginationSummary,
+} from '@heroui/react';
 
 export type PaginationSize = 'sm' | 'md' | 'lg';
 
@@ -22,26 +32,17 @@ type PageButtonProps = {
   onSelect?: (page: number) => void;
 };
 
-const PageButton = ({ page, isActive, onSelect }: PageButtonProps) => {
-  const handleClick = () => {
-    onSelect?.(page);
-  };
-
-  return (
-    <li className="pagination__item">
-      <button
-        type="button"
-        className="pagination__link"
-        data-active={isActive || undefined}
-        aria-current={isActive ? 'page' : undefined}
-        aria-label={`第 ${page} 页`}
-        onClick={handleClick}
-      >
-        {page}
-      </button>
-    </li>
-  );
-};
+const PageButton = ({ page, isActive, onSelect }: PageButtonProps) => (
+  <PaginationItem>
+    <PaginationLink
+      isActive={isActive}
+      aria-label={`第 ${page} 页`}
+      onPress={() => onSelect?.(page)}
+    >
+      {page}
+    </PaginationLink>
+  </PaginationItem>
+);
 
 PageButton.displayName = 'Pagination.PageButton';
 
@@ -49,27 +50,19 @@ type NavButtonProps = {
   label: string;
   targetPage: number;
   isDisabled: boolean;
+  direction: 'previous' | 'next';
   onSelect?: (page: number) => void;
   children: ReactNode;
 };
 
-const NavButton = ({ label, targetPage, isDisabled, onSelect, children }: NavButtonProps) => {
-  const handleClick = () => {
-    onSelect?.(targetPage);
-  };
-
+const NavButton = ({ label, targetPage, isDisabled, direction, onSelect, children }: NavButtonProps) => {
+  const NavLink = direction === 'previous' ? PaginationPrevious : PaginationNext;
   return (
-    <li className="pagination__item">
-      <button
-        type="button"
-        className="pagination__link pagination__link--nav"
-        aria-label={label}
-        disabled={isDisabled}
-        onClick={handleClick}
-      >
+    <PaginationItem>
+      <NavLink aria-label={label} isDisabled={isDisabled} onPress={() => onSelect?.(targetPage)}>
         {children}
-      </button>
-    </li>
+      </NavLink>
+    </PaginationItem>
   );
 };
 
@@ -92,44 +85,56 @@ const getPageItems = (count: number, page: number): Array<number | null> => {
   return items;
 };
 
+/**
+ * 包裹 @heroui/react 的真实 Pagination 复合组件（其 Link/Previous/Next 基于
+ * react-aria-components 的 Button，真 a11y / 键盘 / 焦点 / 按压态）。slots 复用
+ * @heroui/styles 的 paginationVariants，输出 .pagination / .pagination__* 类匹配
+ * CSS 分片。高层 count/page/onPageChange/summary 契约由本包装维持不变。
+ */
 const Pagination = forwardRef<HTMLElement, PaginationProps>(
   ({ count, page, onPageChange, size = 'md', summary, className, ...rest }, ref) => {
     const pageItems = getPageItems(count, page).map((item, index) =>
       item === null ? (
         // eslint-disable-next-line react/no-array-index-key
-        <li key={`ellipsis-${index}`} className="pagination__item">
-          <span className="pagination__ellipsis" aria-hidden="true">
-            …
-          </span>
-        </li>
+        <PaginationItem key={`ellipsis-${index}`}>
+          <PaginationEllipsis />
+        </PaginationItem>
       ) : (
         <PageButton key={item} page={item} isActive={item === page} onSelect={onPageChange} />
       ),
     );
 
     return (
-      <nav
+      <HeroPagination
         ref={ref}
         aria-label="分页"
-        className={clsx('pagination', size !== 'md' && `pagination--${size}`, className)}
+        size={size}
+        className={clsx('pagination', className)}
         {...rest}
       >
-        {summary !== undefined && <div className="pagination__summary">{summary}</div>}
-        <ul className="pagination__content" style={{ listStyle: 'none', margin: 0, padding: 0 }}>
-          <NavButton label="上一页" targetPage={page - 1} isDisabled={page <= 1} onSelect={onPageChange}>
+        {summary !== undefined && <PaginationSummary>{summary}</PaginationSummary>}
+        <PaginationContent>
+          <NavButton
+            label="上一页"
+            direction="previous"
+            targetPage={page - 1}
+            isDisabled={page <= 1}
+            onSelect={onPageChange}
+          >
             ‹ 上一页
           </NavButton>
           {pageItems}
           <NavButton
             label="下一页"
+            direction="next"
             targetPage={page + 1}
             isDisabled={page >= count}
             onSelect={onPageChange}
           >
             下一页 ›
           </NavButton>
-        </ul>
-      </nav>
+        </PaginationContent>
+      </HeroPagination>
     );
   },
 );

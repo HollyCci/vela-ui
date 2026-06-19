@@ -12,15 +12,15 @@ describe('Checkbox', () => {
     expect(input).toHaveAttribute('type', 'checkbox');
     // 可见标签内容渲染在 .label slot 上
     expect(screen.getByText('同意条款')).toHaveAttribute('data-slot', 'label');
-    // 根节点是带 .checkbox 类的 <label>
-    const label = input.closest('label');
-    expect(label).toHaveClass('checkbox');
+    // 根节点（react-aria CheckboxField）是带 .checkbox 类的 [data-slot="checkbox"] 容器
+    const root = input.closest('[data-slot="checkbox"]');
+    expect(root).toHaveClass('checkbox');
   });
 
   it('applies secondary variant class', () => {
     render(<Checkbox variant="secondary">x</Checkbox>);
-    const label = screen.getByRole('checkbox').closest('label');
-    expect(label).toHaveClass('checkbox--secondary');
+    const root = screen.getByRole('checkbox').closest('[data-slot="checkbox"]');
+    expect(root).toHaveClass('checkbox--secondary');
   });
 
   // 回归：isIndeterminate 时原生 input.indeterminate 必须为 true
@@ -41,24 +41,26 @@ describe('Checkbox', () => {
     expect(input.indeterminate).toBe(false);
   });
 
-  // 回归：style 落在可见 <label>，而隐藏 <input> 仍保留 VISUALLY_HIDDEN(position:absolute) 且不含 marginTop
-  it('[regression] style lands on visible <label>, not on the visually-hidden <input>', () => {
+  // 回归：style 落在 .checkbox 根容器（react-aria CheckboxField），真 <input> 由底座
+  // 包在 react-aria VisuallyHidden 的 <span>（position:absolute, margin:-1px）里，不承载用户 style
+  it('[regression] style lands on the .checkbox root, input stays in a visually-hidden wrapper', () => {
     render(
       <Checkbox style={{ marginTop: 9 }} data-testid="cb">
         带样式
       </Checkbox>,
     );
     const input = screen.getByRole('checkbox') as HTMLInputElement;
-    const label = input.closest('label') as HTMLLabelElement;
+    const root = input.closest('[data-slot="checkbox"]') as HTMLElement;
+    const hiddenWrapper = input.parentElement as HTMLElement;
 
-    // 可见 label 承载了用户传入的 marginTop
-    expect(label.style.marginTop).toBe('9px');
+    // 根容器承载了用户传入的 marginTop
+    expect(root.style.marginTop).toBe('9px');
 
-    // 隐藏 input 仍是 VISUALLY_HIDDEN：position absolute；且未被用户的 marginTop:9 覆盖
-    // （VISUALLY_HIDDEN 自带 margin:-1，序列化为 -1px，而非用户传入的 9px）
-    expect(input.style.position).toBe('absolute');
+    // 真 input 被底座 VisuallyHidden 包裹：包裹 <span> 为 position:absolute、margin:-1px，
+    // 用户的 marginTop:9 未泄漏到隐藏控件
+    expect(hiddenWrapper.style.position).toBe('absolute');
+    expect(hiddenWrapper.style.marginTop).toBe('-1px');
     expect(input.style.marginTop).not.toBe('9px');
-    expect(input.style.marginTop).toBe('-1px');
   });
 
   it('fires onSelectedChange and toggles in uncontrolled mode', async () => {
@@ -70,6 +72,22 @@ describe('Checkbox', () => {
     await user.click(input);
     expect(onSelectedChange).toHaveBeenCalledWith(true);
     expect(input.checked).toBe(true);
+  });
+
+  // 事件模型桥接：旧契约 onClick / onPress 在点击真 <input> 时触发（底座偏好 onPress，这里桥接到原生 click）
+  it('bridges onClick and onPress to the real input click', async () => {
+    const user = userEvent.setup();
+    const onClick = vi.fn();
+    const onPress = vi.fn();
+    render(
+      <Checkbox onClick={onClick} onPress={onPress}>
+        桥接
+      </Checkbox>,
+    );
+    const input = screen.getByRole('checkbox') as HTMLInputElement;
+    await user.click(input);
+    expect(onClick).toHaveBeenCalledTimes(1);
+    expect(onPress).toHaveBeenCalledTimes(1);
   });
 
   it('respects controlled isSelected (does not flip internally)', async () => {

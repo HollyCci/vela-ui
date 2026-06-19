@@ -10,7 +10,8 @@ describe('Radio', () => {
     const input = screen.getByRole('radio');
     expect(input).toBeInTheDocument();
     expect(input).toHaveAttribute('type', 'radio');
-    expect(input.closest('label')).toHaveClass('radio');
+    // 真 RAC DOM：.radio 是 RadioField <div> 包裹层；<label> 是 RadioButton(.radio__content)
+    expect(input.closest('[data-slot="radio"]')).toHaveClass('radio');
     expect(screen.getByText('选项 A')).toHaveAttribute('data-slot', 'label');
   });
 
@@ -19,17 +20,19 @@ describe('Radio', () => {
     expect(screen.getByText('说明文本')).toHaveAttribute('data-slot', 'description');
   });
 
-  // 回归：style 落在可见 <label>，而隐藏 <input> 仍保留 VISUALLY_HIDDEN(position:absolute) 且不含 marginTop
-  it('[regression] style lands on visible <label>, not on the visually-hidden <input>', () => {
+  // 回归：style 落在可见的 .radio(RadioField) 包裹层，而真 input 由 RAC 包在 VisuallyHidden <span>
+  // 内（position:absolute / margin:-1px），用户的 9px 不会污染隐藏 input
+  it('[regression] style lands on visible .radio wrapper, not on the visually-hidden input', () => {
     render(<Radio style={{ marginTop: 9 }}>单选</Radio>);
     const input = screen.getByRole('radio') as HTMLInputElement;
-    const label = input.closest('label') as HTMLLabelElement;
+    const root = input.closest('[data-slot="radio"]') as HTMLElement;
+    const hiddenWrap = input.parentElement as HTMLElement;
 
-    expect(label.style.marginTop).toBe('9px');
-    // 隐藏 input 仍是 VISUALLY_HIDDEN（margin:-1 => -1px），未被用户的 9px 覆盖
-    expect(input.style.position).toBe('absolute');
+    expect(root.style.marginTop).toBe('9px');
+    // RAC 的 VisuallyHidden 包裹 span：position:absolute、margin:-1px，未被用户 9px 覆盖
+    expect(hiddenWrap.style.position).toBe('absolute');
+    expect(hiddenWrap.style.marginTop).toBe('-1px');
     expect(input.style.marginTop).not.toBe('9px');
-    expect(input.style.marginTop).toBe('-1px');
   });
 
   it('selects on click and fires onSelectedChange (uncontrolled)', async () => {
@@ -77,9 +80,11 @@ describe('Radio', () => {
       </Radio>,
     );
     const input = screen.getByRole('radio') as HTMLInputElement;
+    const root = input.closest('[data-slot="radio"]') as HTMLElement;
     expect(input).toBeDisabled();
-    expect(input).toHaveAttribute('aria-invalid', 'true');
-    expect(input.closest('label')).toHaveAttribute('data-disabled', 'true');
+    // RAC 在 field/group 层用 data-invalid 表达无效态（真状态），不再是 input 上的 aria-invalid 假属性
+    expect(root).toHaveAttribute('data-invalid', 'true');
+    expect(root).toHaveAttribute('data-disabled', 'true');
   });
 
   it('has no axe a11y violations', async () => {
