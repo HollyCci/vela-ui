@@ -3478,35 +3478,72 @@ type KpiVariantKey =
   | 'with-icon'
   | 'with-progress';
 
+/** Pro 风格软趋势标：淡底 pill + ↑/↓ 箭头（neutral 用中性色无箭头），对齐 heroui Pro KPI.Trend */
+const kpiTrendPill = (direction: 'up' | 'down' | 'neutral', percent: string) =>
+  direction === 'neutral' ? (
+    <Chip color="default" variant="soft" size="sm">
+      {percent}
+    </Chip>
+  ) : (
+    <Chip color={direction === 'up' ? 'success' : 'danger'} variant="soft" size="sm">
+      {direction === 'up' ? '↑' : '↓'} {percent}
+    </Chip>
+  );
+
 const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
-  const [period, setPeriod] = useState<'week' | 'month'>('week');
-  const value = period === 'week' ? '1,286' : '5,214';
+  // default 对齐 Pro「Usage」：2×2 四卡业务网格
+  if (variant === 'default') {
+    const cards = [
+      { title: 'Total Revenue', value: 'US$228,451', dir: 'up' as const, pct: '+33%' },
+      { title: 'Total Expenses', value: 'US$71,887', dir: 'down' as const, pct: '13.0%' },
+      { title: 'Total Profit', value: 'US$156,540', dir: 'neutral' as const, pct: '0.0%' },
+      { title: 'New Customers', value: '1,234', dir: 'up' as const, pct: '+1.0%' },
+    ];
+    return (
+      <DemoSection isColumn label="default">
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 248px)', gap: 16 }}>
+          {cards.map((card) => (
+            <Kpi key={card.title} className="card">
+              <Kpi.Header>
+                <Kpi.Title>{card.title}</Kpi.Title>
+              </Kpi.Header>
+              <Kpi.Content>
+                <Kpi.Value>{card.value}</Kpi.Value>
+                <Kpi.Trend>{kpiTrendPill(card.dir, card.pct)}</Kpi.Trend>
+              </Kpi.Content>
+            </Kpi>
+          ))}
+        </div>
+      </DemoSection>
+    );
+  }
+
+  // 单卡变体对齐 Pro 各 section 的业务示例
+  const isProgress = variant === 'with-progress';
+  const title = isProgress ? 'Load Time' : 'Conversion Rate';
+  const value = isProgress ? '856' : '3.8%';
 
   return (
     <DemoSection isColumn label={variant}>
-      <Kpi style={{ width: 320 }}>
+      <Kpi className="card" style={{ width: 320 }}>
         <Kpi.Header>
-          {variant === 'with-icon' && (
+          {(variant === 'with-icon' || variant === 'with-actions') && (
             <Kpi.Icon status="success">
               <BookIcon />
             </Kpi.Icon>
           )}
-          <Kpi.Title>完课学员</Kpi.Title>
+          <Kpi.Title>{title}</Kpi.Title>
           {variant === 'with-actions' && (
             <Kpi.Actions>
-              <Button size="sm" variant="ghost" onClick={() => setPeriod(period === 'week' ? 'month' : 'week')}>
-                {period === 'week' ? '本周' : '本月'}
+              <Button size="sm" variant="ghost" isIconOnly aria-label="More options">
+                ⋮
               </Button>
             </Kpi.Actions>
           )}
         </Kpi.Header>
         <Kpi.Content>
           <Kpi.Value>{value}</Kpi.Value>
-          <Kpi.Trend>
-            <Chip color="success" size="sm">
-              +12.4%
-            </Chip>
-          </Kpi.Trend>
+          {!isProgress && <Kpi.Trend>{kpiTrendPill('up', '+1.7%')}</Kpi.Trend>}
           {variant === 'with-chart-inline' && (
             <Kpi.Chart style={{ width: 96 }}>
               <SparklineLine values={[20, 32, 28, 44, 52, 48]} />
@@ -3515,7 +3552,7 @@ const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
         </Kpi.Content>
         {variant === 'with-progress' && (
           <Kpi.Progress>
-            <ProgressBar color="success" label="目标完成" size="sm" value={76} />
+            <ProgressBar color="warning" label="Load budget" size="sm" value={62} />
           </Kpi.Progress>
         )}
         {variant === 'with-chart-bottom' && (
@@ -3527,7 +3564,7 @@ const KpiVariantDemo = ({ variant }: { variant: KpiVariantKey }) => {
           <>
             <Kpi.Separator />
             <Kpi.Footer>
-              <span style={demoMutedStyle}>较上周同期增长 142 人</span>
+              <span style={demoMutedStyle}>vs last week +1.7%</span>
             </Kpi.Footer>
           </>
         )}
