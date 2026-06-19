@@ -852,7 +852,7 @@ const KanbanDemo = () => {
   const order = getKanbanBoardOrder(kanban.list.items);
 
   return (
-    <DemoSection isColumn label="多列 · 拖拽换列 / 列内排序 / 新增任务（回显各列数量）">
+    <DemoSection isColumn label="多列 · 拖拽换列 / 列内排序 / 键盘排序 / 新增任务（回显各列数量）">
       <Kanban size="sm" style={{ width: 820 }}>
         {KANBAN_COLUMNS.map((column) => (
           <KanbanColumnView
@@ -869,6 +869,9 @@ const KanbanDemo = () => {
           />
         ))}
       </Kanban>
+      <div style={{ fontSize: 13, color: 'var(--muted)' }} data-kanban-keyboard-hint>
+        键盘排序：聚焦卡片拖拽手柄，按 空格/回车 抓取，方向键移动（上下列内、左右换列），Esc 取消。
+      </div>
       <div style={{ fontSize: 13, color: 'var(--foreground)' }} data-kanban-distribution>
         当前分布：{distribution}
       </div>

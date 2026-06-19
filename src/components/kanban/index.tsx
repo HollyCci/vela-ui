@@ -326,9 +326,15 @@ const CardList = CardListImpl as typeof CardListImpl & { displayName?: string };
 type CardContextValue = {
   dragControls: DragControls | null;
   isDragging: boolean;
+  /** 键盘排序：抓取后方向键移动一格，返回是否真正发生移动（无 dnd 适配器时为 null） */
+  onKeyboardMove: ((direction: KanbanKeyboardDirection) => boolean) | null;
 };
 
-const CardContext = createContext<CardContextValue>({ dragControls: null, isDragging: false });
+const CardContext = createContext<CardContextValue>({
+  dragControls: null,
+  isDragging: false,
+  onKeyboardMove: null,
+});
 
 const CARD_DRAGGING = { boxShadow: '0 8px 24px -6px rgba(0,0,0,0.18)', zIndex: 1 } as const;
 const CARD_TRANSITION = { type: 'spring', stiffness: 600, damping: 42 } as const;
@@ -364,6 +370,12 @@ function KanbanCardImpl<T extends object>({
     [dnd, value],
   );
 
+  const handleKeyboardMove = useCallback(
+    (direction: KanbanKeyboardDirection): boolean =>
+      value !== undefined ? (dnd?.onKeyboardMove?.(value, direction) ?? false) : false,
+    [dnd, value],
+  );
+
   // 没有拖拽适配器时退化为真实静态列表，避免出现拖动但不写回的伪交互。
   if (ctx === null || value === undefined || dnd === undefined) {
     return (
@@ -379,7 +391,11 @@ function KanbanCardImpl<T extends object>({
     );
   }
 
-  const cardContext: CardContextValue = { dragControls, isDragging };
+  const cardContext: CardContextValue = {
+    dragControls,
+    isDragging,
+    onKeyboardMove: handleKeyboardMove,
+  };
 
   return (
     <CardContext.Provider value={cardContext}>
@@ -466,13 +482,29 @@ const GripVerticalIcon = () => (
 );
 GripVerticalIcon.displayName = 'Kanban.GripVerticalIcon';
 
+const KEYBOARD_DIRECTIONS: Record<string, KanbanKeyboardDirection> = {
+  ArrowUp: 'up',
+  ArrowDown: 'down',
+  ArrowLeft: 'left',
+  ArrowRight: 'right',
+};
+
 /**
- * 拖拽手柄：按下经本卡 dragControls.start() 启动 Motion 拖拽
- * （Reorder.Item dragListener=false 时的唯一拖拽入口）；默认 sr-only，聚焦时显形（CSS 控制）。
+ * 拖拽手柄：
+ * - 指针：按下经本卡 dragControls.start() 启动 Motion 拖拽（Reorder.Item dragListener=false 时的唯一入口）；
+ * - 键盘：Space/Enter 抓取，方向键移动一格（复用 onKeyboardMove），Esc/再次 Space/Enter 落下。
+ * 默认 sr-only，聚焦时显形（CSS 控制）。
+ *
+ * 注意：手柄渲染为 react-aria-components 的 Button，其 filterDOMProps 仅透传 data-* 与全局事件，
+ * 会吞掉自定义 onKeyDown 与 aria-roledescription（已核对 RAC 源码）。因此键盘逻辑与
+ * aria-roledescription/抓取态都挂在外层 wrapper（display:contents 不影响布局与既有
+ * 后代选择器），按键在 capture 阶段拦截并 stopPropagation，避免被 Button 内部 usePress 当作点击。
  */
 const DragHandle = forwardRef<HTMLButtonElement, Parameters<typeof Button>[0]>(
   ({ className, children, onPointerDown, ...rest }, ref) => {
-    const { dragControls } = useContext(CardContext);
+    const { dragControls, onKeyboardMove } = useContext(CardContext);
+    const [isGrabbed, setGrabbed] = useState(false);
+    const [announcement, setAnnouncement] = useState('');
 
     const handlePointerDown = useCallback(
       (event: ReactPointerEvent<HTMLButtonElement>) => {
@@ -487,17 +519,90 @@ const DragHandle = forwardRef<HTMLButtonElement, Parameters<typeof Button>[0]>(
       [onPointerDown, dragControls],
     );
 
+    // 键盘可达性：无 dnd 适配器（静态列表）时不接管按键，回退到 Button 默认行为。
+    const keyboardEnabled = onKeyboardMove !== null;
+
+    const handleKeyDownCapture = useCallback(
+      (event: React.KeyboardEvent<HTMLSpanElement>) => {
+        if (!keyboardEnabled) {
+          return;
+        }
+        const { key } = event;
+        if (key === ' ' || key === 'Enter') {
+          // 抓取 / 落下，拦住 Button 内部 usePress 把它当点击
+          event.preventDefault();
+          event.stopPropagation();
+          setGrabbed((grabbed) => {
+            setAnnouncement(grabbed ? '已放下，拖拽结束' : '已抓取，使用方向键移动，按 Esc 取消');
+            return !grabbed;
+          });
+          return;
+        }
+        if (key === 'Escape' && isGrabbed) {
+          event.preventDefault();
+          event.stopPropagation();
+          setGrabbed(false);
+          setAnnouncement('已取消拖拽');
+          return;
+        }
+        const direction = KEYBOARD_DIRECTIONS[key];
+        if (direction && isGrabbed) {
+          // 抓取态下方向键移动一格；阻止页面滚动并避免冒泡到 Button
+          event.preventDefault();
+          event.stopPropagation();
+          const moved = onKeyboardMove?.(direction) ?? false;
+          setAnnouncement(moved ? '已移动卡片' : '已到边界，无法继续移动');
+        }
+      },
+      [keyboardEnabled, isGrabbed, onKeyboardMove],
+    );
+
+    const handleBlur = useCallback(() => {
+      // 焦点离开手柄时自动落下，避免遗留抓取态
+      setGrabbed(false);
+    }, []);
+
     return (
-      <Button
-        ref={ref}
-        slot="drag"
-        data-slot="kanban-drag-handle"
-        className={clsx('kanban__drag-handle', className)}
-        onPointerDown={handlePointerDown}
-        {...rest}
+      <span
+        style={{ display: 'contents' }}
+        aria-roledescription={keyboardEnabled ? 'sortable' : undefined}
+        onKeyDownCapture={handleKeyDownCapture}
+        onBlur={handleBlur}
       >
-        {children ?? <GripVerticalIcon />}
-      </Button>
+        <Button
+          ref={ref}
+          slot="drag"
+          data-slot="kanban-drag-handle"
+          data-kanban-grabbed={isGrabbed ? 'true' : undefined}
+          className={clsx('kanban__drag-handle', className)}
+          onPointerDown={handlePointerDown}
+          {...rest}
+        >
+          {children ?? <GripVerticalIcon />}
+        </Button>
+        {keyboardEnabled && (
+          <span
+            data-slot="kanban-drag-live"
+            role="status"
+            aria-live="assertive"
+            aria-atomic="true"
+            style={{
+              position: 'absolute',
+              width: 1,
+              height: 1,
+              margin: -1,
+              padding: 0,
+              border: 0,
+              clip: 'rect(0 0 0 0)',
+              clipPath: 'inset(50%)',
+              overflow: 'hidden',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            {announcement}
+          </span>
+        )}
+      </span>
     );
   },
 );
@@ -707,11 +812,15 @@ export function useKanban<T extends object>({
   );
 }
 
+/** 键盘拖拽方向：上下为列内移位，左右为跨列移动（参考 RAC 排序网格的方向语义） */
+export type KanbanKeyboardDirection = 'up' | 'down' | 'left' | 'right';
+
 /**
  * useKanbanColumn 返回的 Reorder 适配器（仍叫 dragAndDropHooks 以保 demo 签名不变）。
  * - getKey：把卡片对象映射回唯一 key
  * - onReorder：列内拖拽后 Reorder 回调新顺序，写回 list（触发 FLIP）
- * - onDragEnd：跨列命中检测，命中目标列则改卡片 status
+ * - onDragEnd：跨列命中检测 + 落点定位，命中目标列则改卡片 status 并精确插入
+ * - onKeyboardMove：键盘排序（抓取后方向键移位），复用 list/moveItem 写回，返回播报文案
  */
 export type KanbanColumnDnd<T> = {
   /** 本列标识，用于在卡片列表 DOM 上打标，供跨列命中检测识别目标列 */
@@ -719,6 +828,8 @@ export type KanbanColumnDnd<T> = {
   getKey: (item: T) => Key;
   onReorder: (nextOrder: T[]) => void;
   onDragEnd: (item: T, info: PanInfo, event: PointerEvent) => void;
+  /** 键盘移动一格；返回是否真正发生移动（供调用方决定是否播报） */
+  onKeyboardMove: (item: T, direction: KanbanKeyboardDirection) => boolean;
 };
 
 export type UseKanbanColumnReturn<T> = {
@@ -747,8 +858,67 @@ export function useKanbanColumn<T extends object>(
     [list, column, getKey],
   );
 
+  // 键盘排序：抓取卡片后方向键移动一格。
+  // - up/down：在本列内与相邻卡片交换位置（list.moveBefore / moveAfter）；
+  // - left/right：跨到相邻列（列顺序按 DOM 中 data-kanban-column 列表的渲染次序），
+  //   跨列时落到目标列列尾（无指针落点可参照，列尾为确定性结果）。
+  // 返回是否真正发生移动，便于上层据此播报；不改 hook 签名，列顺序从 DOM 读取。
+  const onKeyboardMove = useCallback(
+    (item: T, direction: KanbanKeyboardDirection): boolean => {
+      const movingKey = getKey(item);
+      const columnItems = list.items.filter((it) => getColumn(it) === column);
+      const index = columnItems.findIndex((it) => getKey(it) === movingKey);
+      if (index === -1) {
+        return false;
+      }
+
+      if (direction === 'up' || direction === 'down') {
+        if (direction === 'up') {
+          if (index === 0) {
+            return false;
+          }
+          list.moveBefore(getKey(columnItems[index - 1]), [movingKey]);
+        } else {
+          if (index >= columnItems.length - 1) {
+            return false;
+          }
+          list.moveAfter(getKey(columnItems[index + 1]), [movingKey]);
+        }
+        return true;
+      }
+
+      // 跨列：按 DOM 渲染次序取相邻列标识
+      const columnOrder = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-slot="kanban-card-list"][data-kanban-column]'),
+      )
+        .map((el) => el.dataset.kanbanColumn)
+        .filter((id): id is string => id !== undefined);
+      const colIndex = columnOrder.indexOf(column);
+      if (colIndex === -1) {
+        return false;
+      }
+      const targetColumn =
+        direction === 'left' ? columnOrder[colIndex - 1] : columnOrder[colIndex + 1];
+      if (targetColumn === undefined) {
+        return false;
+      }
+      kanban.moveItem(movingKey, targetColumn);
+      const targetTail = list.items.filter(
+        (it) => getColumn(it) === targetColumn && getKey(it) !== movingKey,
+      );
+      const lastItem = targetTail[targetTail.length - 1];
+      if (lastItem) {
+        list.moveAfter(getKey(lastItem), [movingKey]);
+      }
+      return true;
+    },
+    [kanban, list, column, getColumn, getKey],
+  );
+
   // 跨列命中：拖拽结束时按指针落点找命中的列容器（data-slot=kanban-column），
-  // 命中且非本列则把卡片 status 改到该列；列内位置由 onReorder 已实时维护。
+  // 命中且非本列则把卡片 status 改到该列。跨列后再按落点 Y 命中目标列卡片的几何
+  // 中线算出插入位置，把卡片精确落到该位置（而非一律落到列尾）；列内同列位置仍由
+  // onReorder 实时维护。
   const onDragEnd = useCallback(
     (item: T, info: PanInfo, event: PointerEvent) => {
       const point = info.point;
@@ -761,31 +931,62 @@ export function useKanbanColumn<T extends object>(
       const lists = Array.from(
         document.querySelectorAll<HTMLElement>('[data-slot="kanban-card-list"][data-kanban-column]'),
       );
-      let targetColumn: string | undefined;
+      let targetListEl: HTMLElement | undefined;
       for (const listEl of lists) {
         const rect = listEl.getBoundingClientRect();
         if (x >= rect.left && x <= rect.right && y >= rect.top && y <= rect.bottom) {
-          targetColumn = listEl.dataset.kanbanColumn;
+          targetListEl = listEl;
           break;
         }
       }
-      if (targetColumn === undefined) {
-        const hit = document
-          .elementsFromPoint(x, y)
-          .map((el) => (el as HTMLElement).closest?.('[data-slot="kanban-card-list"][data-kanban-column]'))
-          .find((el): el is HTMLElement => el != null) as HTMLElement | null;
-        targetColumn = hit?.dataset.kanbanColumn;
+      if (targetListEl === undefined) {
+        targetListEl =
+          (document
+            .elementsFromPoint(x, y)
+            .map((el) => (el as HTMLElement).closest?.('[data-slot="kanban-card-list"][data-kanban-column]'))
+            .find((el): el is HTMLElement => el != null) as HTMLElement | null) ?? undefined;
       }
-      if (targetColumn && targetColumn !== column) {
-        kanban.moveItem(getKey(item), targetColumn);
+      const targetColumn = targetListEl?.dataset.kanbanColumn;
+      if (!targetColumn || targetColumn === column) {
+        return;
+      }
+      const movingKey = getKey(item);
+      kanban.moveItem(movingKey, targetColumn);
+
+      // 跨列落点定位：按落点 Y 命中目标列内各卡片矩形中线，找出插入索引，
+      // 再用 list.moveBefore / moveAfter 把卡片精确落到该位置（忽略被拖卡片自身）。
+      const targetCards = Array.from(
+        targetListEl!.querySelectorAll<HTMLElement>('[data-slot="kanban-card"]'),
+      ).filter((el) => el.dataset.key !== String(movingKey));
+      if (targetCards.length === 0) {
+        return;
+      }
+      let beforeEl: HTMLElement | undefined;
+      for (const cardEl of targetCards) {
+        const rect = cardEl.getBoundingClientRect();
+        if (y < rect.top + rect.height / 2) {
+          beforeEl = cardEl;
+          break;
+        }
+      }
+      if (beforeEl) {
+        const beforeKey = beforeEl.dataset.key;
+        if (beforeKey !== undefined) {
+          list.moveBefore(beforeKey, [movingKey]);
+        }
+      } else {
+        const lastKey = targetCards[targetCards.length - 1]?.dataset.key;
+        if (lastKey !== undefined) {
+          list.moveAfter(lastKey, [movingKey]);
+        }
       }
     },
-    [kanban, column, getKey],
+    [kanban, list, column, getKey],
   );
 
   return useMemo(
-    () => ({ items, dragAndDropHooks: { column, getKey, onReorder, onDragEnd } }),
-    [items, column, getKey, onReorder, onDragEnd],
+    () => ({ items, dragAndDropHooks: { column, getKey, onReorder, onDragEnd, onKeyboardMove } }),
+    [items, column, getKey, onReorder, onDragEnd, onKeyboardMove],
   );
 }
 
