@@ -76,6 +76,11 @@ async function main() {
   assert(styles.length > 1000, 'dist/styles.css is unexpectedly small');
   assert(styles.includes('.button'), 'dist/styles.css missing .button marker');
   assert(styles.includes('.card'), 'dist/styles.css missing .card marker');
+  assert(!styles.includes('--tw-'), 'dist/styles.css must not expose Tailwind internal --tw-* variables');
+  assert(!styles.includes('@layer properties'), 'dist/styles.css must not expose Tailwind properties layer');
+  assert(!styles.includes('border: 0 solid'), 'dist/styles.css must not include Tailwind preflight border reset');
+  assert(!styles.includes('body {\n  background-color: var(--background);'), 'dist/styles.css must not style the host body');
+  assert(styles.includes('--vela-tw-shadow'), 'dist/styles.css missing Vela-scoped runtime CSS variables');
 
   const fontsDir = path.join(root, 'dist/fonts');
   assert(fs.existsSync(fontsDir), 'missing dist/fonts');
