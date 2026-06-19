@@ -20,11 +20,9 @@
   --tw-font-weight: var(--font-weight-normal);
   font-weight: var(--font-weight-normal);
   color: var(--muted);
-  transition-property: color,background-color,border-color,outline-color,text-decoration-color,fill,stroke,--tw-gradient-from,--tw-gradient-via,--tw-gradient-to;
-  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
-  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  /* 不覆盖基础 .button 的 transition / transform：基础按钮自带 transform .25s 的按压动画，
+     原先这里重写 transition-property(去掉 transform)+ transform:none 把它压没了。做减法，交还基础 */
   background-color: #0000;
-  transform: none;
 }
 
 @media (hover:hover) {
@@ -38,7 +36,6 @@
 .chain-of-thought__trigger:active,
 .chain-of-thought__trigger[data-pressed=true] {
   background-color: #0000;
-  transform: none;
 }
 
 .chain-of-thought--streaming .chain-of-thought__trigger {
