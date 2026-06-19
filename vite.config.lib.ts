@@ -65,6 +65,9 @@ const external = [
   'react-dom/client',
   'react-dom/server',
   /^@heroui\/react($|\/)/,
+  // button 用 @heroui/styles 的 buttonVariants(runtime)；不标 external 会被 preserveModules
+  // 连 tailwind-variants/merge 一起 vendored 进 dist/node_modules（184KB 冗余 + 版本冻结）
+  /^@heroui\/styles($|\/)/,
   /^react-aria-components($|\/)/,
   'clsx',
   /^embla-carousel($|-react$)/,

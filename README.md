@@ -15,7 +15,7 @@ Vela UI 是一套面向产品界面的 React 组件库，以 [HeroUI](https://ww
 ```bash
 pnpm add @hollycci/vela-ui
 # peer 依赖（由宿主应用提供，确保单实例）
-pnpm add react react-dom @heroui/react@^3.2.1 react-aria-components@1.18.0
+pnpm add react react-dom @heroui/react@^3.2.1 @heroui/styles@^3.2.1 react-aria-components@1.18.0
 ```
 
 > `react-aria-components` 必须与 `@heroui/react` 内部实例同版本（钉死 `1.18.0`），否则上下文会静默失效。

@@ -564,12 +564,16 @@
   },
   "peerDependencies": {
     "@heroui/react": "^3.2.1",
+    "@heroui/styles": "^3.2.1",
     "react": "^18.0.0 || ^19.0.0",
     "react-aria-components": "^1.18.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "peerDependenciesMeta": {
     "@heroui/react": {
+      "optional": false
+    },
+    "@heroui/styles": {
       "optional": false
     },
     "react-aria-components": {
