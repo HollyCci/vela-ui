@@ -1,0 +1,1391 @@
+{
+  "comparedCount": 64,
+  "perComponent": [
+    {
+      "id": "action-bar",
+      "overall": "match",
+      "summary": "The Vela Action Bar's floating pill (rounded-full white surface, filled blue circular count badge, medium-weight label, vertical action dividers, soft-danger destructive action, overlay shadow) matches the HeroUI Pro anatomy where comparable; two of three live shots are dominated by page chrome/docs so cannot be directly compared.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "agenda",
+      "overall": "match",
+      "summary": "The one directly comparable rendered shot (Usage/week view) matches heroui.pro closely on layout, header, day-column badges, all-day bars, time grid and event styling; the other seven live shots are documentation prose/code rather than rendered components, so they are uncomparable.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "app-layout",
+      "overall": "divergent",
+      "summary": "Every local app-layout capture is a broken/empty render (uniformly near-black ~72/255 luminance, heavily blurred, ~15KB, no legible text/borders/color) versus the bright light-theme heroui.pro shots, so no variant can be honestly compared until the local screenshots are re-captured.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "area-chart",
+      "overall": "match",
+      "summary": "Vela's area-chart variants reproduce HeroUI Pro's area chart treatment (smooth blue line, soft light-blue/gradient fills, grid, axis ticks, stacked/multi tints, KPI inline sparkline) faithfully across all six sections.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "bar-chart",
+      "overall": "minor",
+      "summary": "Bar Chart matches HeroUI Pro on overall chart structure, axes, grid, rounded bar tops and blue color ramp, but local bars render noticeably wider than Pro's thin bars across single-series/horizontal variants, and the KPI-with-bar-chart trend indicator uses an oversized standalone green chevron instead of Pro's small inline up-arrow.",
+      "divergentCount": 2,
+      "minorCount": 5
+    },
+    {
+      "id": "carousel",
+      "overall": "match",
+      "summary": "Carousel chrome (circular gray nav arrows, round dot indicators, slide gap, viewport layout) matches heroui.pro across variants; the only real signal is nav-arrow placement reading slightly more \"inside the slide\" than the live single-card gutter placement, plus a faintly pill-shaped active dot.",
+      "divergentCount": 0,
+      "minorCount": 2
+    },
+    {
+      "id": "cell-color-picker",
+      "overall": "minor",
+      "summary": "The cell color picker trigger (cell row, label, hex value, round swatch, border/radius/shadow) matches heroui.pro across all variants; the only real divergence is the Settings Group, which Vela renders as separate gapped pills instead of one connected grouped list.",
+      "divergentCount": 1,
+      "minorCount": 0
+    },
+    {
+      "id": "cell-select",
+      "overall": "match",
+      "summary": "Vela cell-select matches heroui.pro across all variants — rounded trigger, medium-weight label / muted value / up-down chevron, secondary grey-flat variant and disabled opacity all align; the only gaps are demo-composition choices (Font Family lacks the \"Ag\" font specimen, Settings Group mixes a secondary row), not component-styling defects.",
+      "divergentCount": 0,
+      "minorCount": 2
+    },
+    {
+      "id": "cell-slider",
+      "overall": "divergent",
+      "summary": "Structure, track shape, label/value layout and typography all match heroui.pro, but every variant diverges on the core fill color: Vela paints the fill saturated primary blue while HeroUI Pro uses a subtle light \"accent tint\", and Vela's secondary/variants rows show a stray circular blue thumb instead of the thin pill indicator.",
+      "divergentCount": 6,
+      "minorCount": 1
+    },
+    {
+      "id": "cell-switch",
+      "overall": "divergent",
+      "summary": "Every Vela cell-switch variant drops the leading text label and centers the switch inside the cell, whereas heroui.pro renders label-left / switch-right (justify-between); the pill container and switch control styling otherwise match.",
+      "divergentCount": 7,
+      "minorCount": 0
+    },
+    {
+      "id": "chain-of-thought",
+      "overall": "divergent",
+      "summary": "Plain \"Usage\"/\"Streaming\" chain-of-thought variants match the live trigger+stepped-list anatomy, but both \"Agent Trace\" variants diverge structurally: the live reference composes multiple independent collapsible labeled sections (Thought / Generated design preview card / Explore nested file list / Found UI components) while Vela renders a flat steps list plus a single ChatTool card.",
+      "divergentCount": 2,
+      "minorCount": 1
+    },
+    {
+      "id": "chart-tooltip",
+      "overall": "match",
+      "summary": "Vela's ChartTooltip card (rounded surface, muted xs header, dot/line indicators, semibold right-aligned values) closely matches heroui.pro across all variants; the only real divergence is the Inactive demo rendering a placeholder card instead of nothing.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "chat-attachment",
+      "overall": "match",
+      "summary": "Vela's chat-attachment preview chips, grouped row, and composer card closely match heroui.pro in shape, size, border and layout; only a couple of minor radius/state nuances and an icon/send-button-state difference (the latter being demo state).",
+      "divergentCount": 0,
+      "minorCount": 2
+    },
+    {
+      "id": "chat-conversation",
+      "overall": "match",
+      "summary": "Vela's chat-conversation matches heroui.pro across all three variants — centered message column, gray right-aligned user bubbles, left-aligned assistant text, bottom composer with blue send button, and the white circular scroll-to-bottom button all align in shape, color, radius, and spacing rhythm.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "chat-list-view",
+      "overall": "match",
+      "summary": "Vela's chat-list-view reproduces HeroUI Pro's two variants faithfully — multi-line rows (icon + bold title + preview + right-aligned timestamp) for Usage and single-line icon+title rows for Compact — with matching padding rhythm, typography scale, and structure; the only nuance is a slightly bluer persistent selection tint in the local demos where the live shots show neutral hover/no selection.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "chat-loader",
+      "overall": "match",
+      "summary": "Vela chat-loader renders the same loader primitives (gray bouncing dots, blue pulse dot, blue spinner ring, and avatar+line skeleton) with matching size, shape, color semantics and radius as heroui.pro; the only difference is demo-harness label arrangement, which is out of scope.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "chat-message-actions",
+      "overall": "match",
+      "summary": "Vela's chat-message-actions toolbar matches heroui.pro across all three variants: same horizontal ghost icon-button row, equivalent icon sizing, spacing rhythm, and muted neutral color treatment.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "chat-message",
+      "overall": "match",
+      "summary": "Vela chat-message matches the HeroUI Pro reference across user bubble, assistant avatar+body layout, typography, markdown rendering and spacing; the only deltas are demo-composition choices (absent default action row, Thinking label) rather than component/CSS parity gaps.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "chat-source",
+      "overall": "minor",
+      "summary": "Single-chip variants (Usage/Document/Composable) match HeroUI Pro closely with only a minor added confidence badge, but the Grouped and Stacked Favicons variants diverge structurally: Vela renders flat inline chips instead of HeroUI's collapsible \"N sources\" / stacked-favicon disclosure.",
+      "divergentCount": 2,
+      "minorCount": 3
+    },
+    {
+      "id": "chat-tool",
+      "overall": "divergent",
+      "summary": "Vela's ChatTool renders as a standalone bordered card with a right-side text-label-plus-colored-dot status and no disclosure chevron, whereas heroui.pro renders a chat-message bubble (AI avatar) with a leading status icon, a \"&lt;verb&gt; tool: &lt;name&gt;\" trigger label, and a trailing chevron disclosure that is collapsed by default.",
+      "divergentCount": 4,
+      "minorCount": 1
+    },
+    {
+      "id": "checkbox-button-group",
+      "overall": "minor",
+      "summary": "Core card primitive (border, radius, selected primary ring, top-right indicator, disabled opacity) matches well across most variants, but icon-bearing variants use a centered icon-on-top layout instead of HeroUI's icon-leading horizontal tile, and the Grid Layout / Subscription Plans variants don't reproduce the multi-column grid and success-colored selected template.",
+      "divergentCount": 4,
+      "minorCount": 0
+    },
+    {
+      "id": "code-block",
+      "overall": "minor",
+      "summary": "Card surface, radius, header label and copy-button layout match heroui.pro closely; the only real gap is the syntax-highlight token palette, which uses a blue-keyword/green-string scheme versus the reference's pink-keyword/teal-function/orange-string scheme.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "command",
+      "overall": "match",
+      "summary": "Every command variant shot shows only the closed trigger button (the modal palette dialog is unopened in both local and live), and on that visible surface the rounded trigger + kbd-badge styling matches HeroUI Pro; the only differences are demo-harness choices (trigger color/count, Chinese copy), not Command component parity gaps.",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "composed-chart",
+      "overall": "match",
+      "summary": "Vela's composed-chart renders the same bar+line / stacked / area+line / bar+area / multi-type geometries with matching blue palette, rounded bars, smooth lines and horizontal grid as heroui.pro; the only consistent visual gap is that the live demos wrap each chart in a titled card with a legend and a right-hand secondary Y-axis, whereas the local clean shots show the bare chart with a single left axis.",
+      "divergentCount": 0,
+      "minorCount": 5
+    },
+    {
+      "id": "context-menu",
+      "overall": "match",
+      "summary": "Across all seven variants both Vela and heroui.pro captured the ContextMenu in its closed/resting state, and the comparable trigger drop-zone box (dashed border, rounded corners, light fill, centered muted prompt) matches consistently; the open menu popover was not shown in any pair so the panel itself is uncomparable.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "data-grid",
+      "overall": "minor",
+      "summary": "Core Data Grid chrome (header band, row borders/rhythm, status chips, checkbox selection, floating action bar, drag handles, pinned/resize affordances) matches heroui.pro closely, but several \"showcase composition\" variants (Editable Cells, Empty State, Users, Team Members, Servers) are reduced to a bare generic grid and omit the rich toolbars, inline edit controls, empty-state icon/CTA, sparklines/radial indicators and pagination that the live examples render.",
+      "divergentCount": 5,
+      "minorCount": 2
+    },
+    {
+      "id": "drop-zone",
+      "overall": "minor",
+      "summary": "The DropZone container variants (Usage/Disabled/Image Only/Max Size/Multiple/Custom Icon) match heroui.pro closely; the only real divergences are in the file-list cards, where Vela adds a left status accent stripe, omits the inline status check/X icon, and renders retry as plain text instead of a soft-danger pill.",
+      "divergentCount": 2,
+      "minorCount": 1
+    },
+    {
+      "id": "emoji-picker",
+      "overall": "minor",
+      "summary": "Closed-trigger states match HeroUI Pro, but the open Inline picker inverts the search/grid/category stacking order vs the reference and the Sizes triggers don't show the sm/md/lg scale ramp; one local shot was a broken/empty capture.",
+      "divergentCount": 1,
+      "minorCount": 1
+    },
+    {
+      "id": "emoji-reaction-button",
+      "overall": "match",
+      "summary": "Vela's emoji-reaction-button matches heroui.pro across all four variants — identical rounded-full pill shape, accent-blue selected treatment, dimmed disabled state, and proportional sm/md/lg scaling.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "empty-state",
+      "overall": "minor",
+      "summary": "Empty State closely matches heroui.pro across structure, spacing, typography hierarchy, media circle, and size ramp; the only real signals are the avatar-group media rendering (non-overlapping avatars inside a grey blob vs an overlapping ring-bordered group) and a slightly decorative gradient on the with-background variant.",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "file-tree",
+      "overall": "match",
+      "summary": "File Tree matches HeroUI Pro on the core component (chevron indicator, indentation, faint guide lines, rounded hover/selected row tint, checkbox/drag-handle/icon+label rhythm, and sm/md/lg size scaling); the only real gap is the Dynamic Collection demo rendering only its dataset-switcher with no tree body, plus a minor missing filter header in the PR review recipe.",
+      "divergentCount": 1,
+      "minorCount": 1
+    },
+    {
+      "id": "floating-toc",
+      "overall": "match",
+      "summary": "The floating-toc bar-indicator trigger is a clean visual match to heroui.pro across all variants (gray bars, accent-blue wider active bar, right/left alignment, in-page pinning); the only differences are demo-content/harness choices (number of bars, trigger count, in-page placement side), not floating-toc.css gaps.",
+      "divergentCount": 0,
+      "minorCount": 4
+    },
+    {
+      "id": "hover-card",
+      "overall": "match",
+      "summary": "Vela's hover-card content panel (rounded overlay card, soft shadow, padding, enter/exit + placement animations) matches HeroUI Pro where comparable; the only recurring difference is the demo trigger element (Vela uses a solid primary pill, live uses inline text-links / outline buttons), which is harness/demo content rather than a hover-card styling gap.",
+      "divergentCount": 0,
+      "minorCount": 2
+    },
+    {
+      "id": "inline-select",
+      "overall": "minor",
+      "summary": "The core inline-select trigger (ghost muted text + trailing double-chevron indicator, type scale and sizing) matches heroui.pro across all variants; the only real gap is the Team Switcher composition, which lacks the live demo's leading logo/slash and colored avatar-initial badge.",
+      "divergentCount": 1,
+      "minorCount": 2
+    },
+    {
+      "id": "item-card-group",
+      "overall": "minor",
+      "summary": "Core card-group structure, variant tints, grid layout, icon boxes and typography hierarchy match heroui.pro well; the consistent gap is that list/section/pressable variants omit the hairline row/header dividers the live uses, relying on whitespace gaps instead, and a few demos pick a different composition (card vs bare, missing trailing controls).",
+      "divergentCount": 1,
+      "minorCount": 8
+    },
+    {
+      "id": "item-card",
+      "overall": "match",
+      "summary": "Item Card matches HeroUI Pro on card chrome, surface variants, icon box, and title/description hierarchy; the only flagged signals are a slightly heavier success-chip tint in Device List and demo-content interpretation differences (checkbox-cards/buttons vs live's inline select triggers).",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "kanban",
+      "overall": "minor",
+      "summary": "Vela kanban matches HeroUI Pro on column-header treatment, card radius/shadow and overall multi-column layout, but its columns use a solid gray fill where the live default/project boards show transparent columns and the Notion board uses per-column color tints.",
+      "divergentCount": 1,
+      "minorCount": 2
+    },
+    {
+      "id": "kpi-group",
+      "overall": "match",
+      "summary": "The KPI Group container (rounded surface card, equal-width horizontal columns / stacked vertical cells, hairline separators, label-above-value rhythm, shadow) matches heroui.pro across all three variants; the only visible gaps (trend delta pills, \"from {previous}\" secondary text) belong to the child KPI cell and the demo content, not the kpi-group container itself.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "kpi",
+      "overall": "minor",
+      "summary": "KPI layout, typography, icon-tint, progress and inline-chart structure track heroui.pro closely; the one repeated real divergence is the trend pill, which Vela renders as a solid saturated chip without a direction arrow vs the live soft-tinted pill with an up/down arrow.",
+      "divergentCount": 1,
+      "minorCount": 4
+    },
+    {
+      "id": "line-chart",
+      "overall": "minor",
+      "summary": "Core line/dot/grid/axis rendering and the blue palette ramp match heroui.pro well; divergences are concentrated in composite demos (KPI, Stats, Portfolio) where the delta-indicator and card scaffolding differ, plus a curve-type difference on Traffic Source.",
+      "divergentCount": 4,
+      "minorCount": 1
+    },
+    {
+      "id": "list-view",
+      "overall": "match",
+      "summary": "Vela's ListView reproduces HeroUI Pro's structure faithfully — gray-wrapped white card rows (primary) and transparent bottom-bordered rows (secondary), with matching radius, dividers, leading icons, checkbox column, two-line content, disabled greying and trailing actions; the only watch-item is a possible checked-checkbox shape difference.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "markdown",
+      "overall": "minor",
+      "summary": "Markdown rendering matches HeroUI Pro on layout, typography hierarchy, code-block container, blockquote and list styling; the one real gap is the local fenced code block lacking Shiki syntax-highlight token colors (renders flat monochrome).",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "native-select",
+      "overall": "match",
+      "summary": "Vela native-select matches heroui.pro across all 12 variants on control shape, radius, border, chevron, full-width, disabled, secondary-fill and variant treatment; the only real gaps are the invalid-state label not turning danger-red and a slightly darker/larger description+label typography.",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "navbar",
+      "overall": "match",
+      "summary": "Vela navbar matches HeroUI Pro on bar height, bottom-border chrome, brand/links/actions layout, dropdown caret, compact sizing, expanded-menu active-row highlight, and floating elevation; the only real gap is the Dashboard demo's simpler composition, and 6 live shots are doc/code-only so uncomparable.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "number-stepper",
+      "overall": "minor",
+      "summary": "The core Number Stepper control (pill group, circular white-surface +/- buttons, semibold tabular value, muted icons, label/description) matches heroui.pro closely across nearly all variants; only the Guest Picker layout and the With Custom Buttons color-variant showcase diverge, and those are demo-composition gaps rather than control-style breaks.",
+      "divergentCount": 2,
+      "minorCount": 0
+    },
+    {
+      "id": "number-value",
+      "overall": "match",
+      "summary": "Vela NumberValue matches HeroUI Pro structurally and in formatting behavior across all variants; the only visible differences are demo-harness typography (live wraps the value in large/bold labeled-grid layouts vs Vela's bare inline render) which are out of scope, plus a low-severity question over prefix/suffix de-emphasis.",
+      "divergentCount": 0,
+      "minorCount": 1
+    },
+    {
+      "id": "pie-chart",
+      "overall": "minor",
+      "summary": "Vela pie-chart segment colors, center-content, nested-ring and breakdown layout match heroui.pro, but every local donut/pie shot was captured mid Recharts sweep animation so the arcs render only partially (90-300 deg) and the local clean-element shots lack the card/title/legend chrome the live examples show.",
+      "divergentCount": 2,
+      "minorCount": 3
+    },
+    {
+      "id": "pressable-feedback",
+      "overall": "minor",
+      "summary": "The pressable surface styling (button radius/border/padding/height, card rounding, disabled opacity) matches HeroUI Pro, but most local demos are minimal neutral-only placeholders that omit the live examples' full semantic color palette, captions, icon-button rows, and rich card/list-item structure.",
+      "divergentCount": 4,
+      "minorCount": 13
+    },
+    {
+      "id": "prompt-input",
+      "overall": "divergent",
+      "summary": "Simple single-row variants (inline, compact, queue) match well, but the flagship composers (Usage, Secondary, Review Composer, With Suggestions, Run State) diverge structurally — Vela renders compact single-row pills where HeroUI Pro uses richer multi-zone composers (model-selector dropdown, action/diff pills, branch+progress toolbar, tall multi-line textarea, mic/add buttons, suggestion grid).",
+      "divergentCount": 5,
+      "minorCount": 1
+    },
+    {
+      "id": "prompt-suggestion",
+      "overall": "minor",
+      "summary": "The default (pill) variant matches the live \"Usage\" example closely; the cards variant diverges because Vela renders borderless stacked-text items while HeroUI Pro wraps each card in a bordered, rounded card container.",
+      "divergentCount": 1,
+      "minorCount": 1
+    },
+    {
+      "id": "radar-chart",
+      "overall": "minor",
+      "summary": "Core radar rendering (polygon grid, angle/radius axis labels, blue series fill/stroke tiers) matches heroui.pro closely; the only real gaps are the Dots Only variant rendering nearly empty and the Comparison variant looking much smaller/flatter than the reference.",
+      "divergentCount": 1,
+      "minorCount": 1
+    },
+    {
+      "id": "radial-chart",
+      "overall": "divergent",
+      "summary": "Core ring primitives (stroke width, rounded caps, blue palette, gray tracks) match well, but the Gauge sweep angle is 180° vs the live ~270°, and the Gauge Grid variant renders a single scaled gauge instead of the live 4-card grid of gauges with center percentages and semantic (red) color.",
+      "divergentCount": 1,
+      "minorCount": 2
+    },
+    {
+      "id": "radio-button-group",
+      "overall": "minor",
+      "summary": "Card chrome (border, 2xl radius, blue selection ring, top-right radio indicator, custom check-circle, no-indicator, disabled dimming) matches HeroUI Pro closely, but Vela consistently center-aligns card title/description whereas Pro left-aligns content, and Pro's plan/payment cards lead with prominent price/badge typography that Vela's centered single-line layout omits.",
+      "divergentCount": 1,
+      "minorCount": 7
+    },
+    {
+      "id": "rating",
+      "overall": "match",
+      "summary": "The core Rating control (amber active / gray inactive star shape, size scale, disabled opacity, fractional partial fill, custom-icon and custom-color support) matches heroui.pro closely; the only divergences are in two composed showcase demos (Product Review and With Label) where Vela chose a different layout, which is largely demo content.",
+      "divergentCount": 2,
+      "minorCount": 1
+    },
+    {
+      "id": "resizable",
+      "overall": "match",
+      "summary": "Vela's Resizable matches heroui.pro on layout, panel structure, 1px divider, rounded container, grip/pill indicator shapes and CSS-variable defaults; the only deltas are demo-harness choices (Vela demos opt into grip indicators on a few variants the live demo leaves plain) and several live shots that are docs/code rather than a rendered example.",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "rich-text-editor",
+      "overall": "minor",
+      "summary": "Editor shell, content typography, blockquote, footer and disabled treatment closely track heroui.pro, but the local toolbar diverges in styling (filled grey bar + vertical group dividers + text-letter toggles vs live's borderless row of circular/icon buttons) and the Custom Composition variant keeps a top toolbar instead of relocating a compact toolbar into the footer.",
+      "divergentCount": 1,
+      "minorCount": 5
+    },
+    {
+      "id": "segment",
+      "overall": "minor",
+      "summary": "Segment matches HeroUI Pro closely on its core treatments (grey-track + white shadowed indicator pill, ghost accent pill, sizes, disabled states); three demo variants (without-separators, theme-switcher, icon-expand) render with a different variant/pattern than the live reference, but the segment.css shard itself is correct.",
+      "divergentCount": 3,
+      "minorCount": 0
+    },
+    {
+      "id": "sheet",
+      "overall": "match",
+      "summary": "Vela's Sheet trigger buttons match heroui.pro's flat/light primary-tinted pill styling across all 16 variants; no live screenshot shows an open sheet panel, so only closed-state triggers are comparable, and the few gaps are demo-harness scaffolding (missing toggle/status sub-elements) rather than component styling divergences.",
+      "divergentCount": 0,
+      "minorCount": 3
+    },
+    {
+      "id": "text-shimmer",
+      "overall": "match",
+      "summary": "Text Shimmer's default Usage variant matches heroui.pro's gradient treatment, typography, and card framing; the Color variant's live shot is page chrome only so it cannot be visually compared.",
+      "divergentCount": 0,
+      "minorCount": 0
+    },
+    {
+      "id": "timeline",
+      "overall": "minor",
+      "summary": "The core Timeline primitive (rail, status-tinted markers, connector, time/title/description typography) matches heroui.pro closely, but several Pro variants demonstrate richer slot compositions (nested content cards, stat tables, inline status tags, author/avatar meta, header groups, single-line compact rows, split meta-vs-content layout) that the Vela clean shots render only as a generic time/title/description (+ action buttons) timeline.",
+      "divergentCount": 4,
+      "minorCount": 3
+    },
+    {
+      "id": "trend-chip",
+      "overall": "divergent",
+      "summary": "Vela's TrendChip renders the indicator icon as a large glyph stacked ABOVE the value text in a near-square block, whereas HeroUI Pro renders a compact horizontal inline pill badge (arrow + prefix + value + suffix on one line inside a small tinted, rounded background) — a fundamental structural divergence across every variant.",
+      "divergentCount": 6,
+      "minorCount": 0
+    },
+    {
+      "id": "widget",
+      "overall": "match",
+      "summary": "The Widget shell (rounded secondary-surface container, semibold title + muted trailing/legend header, white inset content with 1px ring + soft shadow, muted footer caption) matches heroui.pro closely across all variants; the only divergences are in the embedded chart sub-elements, which the Vela demos render as simplified axis-less sparklines.",
+      "divergentCount": 0,
+      "minorCount": 4
+    }
+  ],
+  "highMediumDivergences": [
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Track shape (rounded pill), height, padding rhythm, dark left-aligned label, muted right-aligned tabular value all match. But the fill (cell-slider__fill) is re",
+      "fix": "In src/styles/components/cell-slider.css change .cell-slider__fill background-color from var(--color-default) (resolving to bright primary blue) to a subtle lig"
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-controlled",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Layout matches (label left, value right, optional 'Value: x' caption is demo content). Same fill-color gap as default: Vela uses bright primary-blue fill; live ",
+      "fix": "Same .cell-slider__fill background-color fix in src/styles/components/cell-slider.css (subtle accent tint instead of var(--color-default) blue)."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-integer-step",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Structure matches (single track, label left, integer value right, ~75% fill position correct). Fill is saturated primary blue in Vela vs subtle neutral accent t",
+      "fix": "Same .cell-slider__fill accent-tint fix in src/styles/components/cell-slider.css."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-secondary-group",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live Secondary Group renders each row with a neutral GREY fill (the --secondary track style) and a thin pill thumb. Vela renders the secondary group rows with B",
+      "fix": "In src/styles/components/cell-slider.css: (1) ensure .cell-slider__track--secondary .cell-slider__fill uses the neutral muted tint (it is defined as color-mix m"
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-variants",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Decisive comparison. Live Variants shows default = white/very-light accent-tint fill and secondary = neutral grey fill, both with a thin vertical pill thumb. Ve",
+      "fix": "In src/styles/components/cell-slider.css: change .cell-slider__fill from var(--color-default) (blue) to a light accent tint to match the default variant; keep ."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-controlled",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Usage) shows a compact pill with the text label flush-left and the switch flush-right (justify-between), label text rendered inside the cell. ",
+      "fix": "Root cause is in src/components/cell-switch/index.tsx: CellSwitch.Trigger renders @heroui/react <Switch.Content>, whose own internal layout centers its children"
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Same systemic defect as controlled. Paired live shot (Controlled) shows label 'Animations' left + switch right plus a helper line below; the Vela default shot s",
+      "fix": "Same fix as cell-switch-controlled: restore justify-between row layout and visible leading label in src/styles/components/cell-switch.css / src/components/cell-"
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-disabled",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Disabled) shows two dimmed cells each with 'Animations' label left and switch right (one on / one off). The Vela disabled shot shows a single ",
+      "fix": "Same root-cause fix (trigger justify-between + visible label). No disabled-specific CSS change needed beyond the shared trigger layout fix in src/styles/compone"
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-feature-announcement",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Feature Announcement) is a taller multi-line cell: bold title 'Try the new sidebar' with a 'New' badge, a secondary description line, and the ",
+      "fix": "Beyond the shared trigger layout fix, the feature-announcement demo needs the multi-line label structure to actually render (title + description) — verify CellS"
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-secondary-group",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Secondary Group) shows two secondary-variant cells (muted gray fill, no border) with labels 'Notifications' / 'Marketing emails' left and swit",
+      "fix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css. Secondary background/border treatment (.cell-switch__trigger--secon"
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-settings-group",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Settings Group) shows three default-variant cells (white fill, thin border) with labels 'Animations' / 'Sounds' / 'Haptics' left and switches ",
+      "fix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css / src/components/cell-switch/index.tsx."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-variants",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired live shot (Variants) shows a 'default' cell (white, bordered) above a 'secondary' cell (gray, borderless), each labeled 'Animations' with switch right. T",
+      "fix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css. Variant container styling (default border vs secondary gray fill) a"
+    },
+    {
+      "id": "chain-of-thought",
+      "slug": "chain-of-thought-agent-trace",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Structurally different from the live 'Agent Trace' variant. Live composes a vertical sequence of multiple independent collapsible labeled sections, each with it",
+      "fix": "Primarily a demo composition change in src/showcase/demos/ai-overlay-demos.tsx (ChainOfThoughtVariantDemo, ~lines 1346-1383): replace the single steps-list + on"
+    },
+    {
+      "id": "chain-of-thought",
+      "slug": "chain-of-thought-agent-trace-streaming",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Same structural divergence as 'Agent Trace', captured in the streaming state. Live 'Agent Trace Streaming' shows the identical rich multi-section layout (Though",
+      "fix": "Same as chain-of-thought-agent-trace: update the agent-trace demo composition in src/showcase/demos/ai-overlay-demos.tsx to reproduce the multi-section trace (T"
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-grouped",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired with live Grouped. HeroUI renders grouped sources as a single collapsible disclosure: a muted '3 sources' summary row with a chevron indicator that expan",
+      "fix": "Component change: build a ChatSources (plural) disclosure wrapper that renders a 'N sources' trigger + chevron and an expandable list, wiring up the existing sr"
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-stacked-favicons",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Paired with live Stacked Favicons. HeroUI shows a compact disclosure: a cluster of overlapping/stacked favicons followed by a 'Sources' label and a chevron, sit",
+      "fix": "Component change: add a stacked-favicon avatar-group rendering mode to the ChatSources disclosure trigger (overlapping favicons + 'Sources' label + chevron) usi"
+    },
+    {
+      "id": "chat-tool",
+      "slug": "chat-tool-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Structure differs on several real signals (not content). Live: trigger is a single row with a LEADING circular status icon (green check), the label reads 'Used ",
+      "fix": "In src/styles/components/chat-tool.css move the status from a trailing dot+label to a leading status icon in .chat-tool__trigger-label, add a trailing chevron d"
+    },
+    {
+      "id": "chat-tool",
+      "slug": "chat-tool-streaming",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live: leading running/wrench icon + 'Running tool: searchDocs' label + UP chevron (expanded); body shows a single args code block only, no field labels; inside ",
+      "fix": "Relocate the running spinner to the leading icon slot in .chat-tool__trigger-label and add the trailing chevron; align the streaming body to show args only (com"
+    },
+    {
+      "id": "chat-tool",
+      "slug": "chat-tool-error-state",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live: leading red X icon + 'Failed tool: fetchPage' + chevron (expanded), body shows the args code block followed by a red error line; sits in an AI avatar bubb",
+      "fix": "Component: include the args code block in the error layout and render leading red X icon + 'Failed tool: <name>' + chevron. CSS (chat-tool.css): tone down .chat"
+    },
+    {
+      "id": "data-grid",
+      "slug": "data-grid-editable-cells",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live renders a rich 'Feature Flags' grid with a section title+description and INLINE editing controls per row: a priority chip with a select stepper, a numeric ",
+      "fix": "Component/demo change (not data-grid.css): rebuild the Editable Cells showcase to render in-cell controls (Select for priority chip, numeric stepper, Switch for"
+    },
+    {
+      "id": "data-grid",
+      "slug": "data-grid-team-members",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live renders a full data-management surface: section title 'Team Members' + description, a toolbar (Search box, 'Member Type' / 'Status' filter dropdowns, 'Sort",
+      "fix": "Demo/component change: build the Team Members showcase with a toolbar (search + filter Selects + Add Member Button + column-visibility menu), a checkbox column,"
+    },
+    {
+      "id": "data-grid",
+      "slug": "data-grid-servers",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live renders a dense ops grid: 'Servers' title, a toolbar (Filter/Sort/Columns + Search), checkbox column, server id, status, region, a circular/radial CPU prog",
+      "fix": "Primary: demo/component change — add the toolbar, checkbox/action columns, and in-cell radial-progress + sparkline renderers to match live. Secondary: lighten t"
+    },
+    {
+      "id": "pie-chart",
+      "slug": "pie-chart-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Local 'Default pie chart' renders only a ~90 deg fan/wedge instead of a full 360 deg pie; live (Market Share / Browser Usage) shows a complete circular pie insi",
+      "fix": "Disable/auto-complete Recharts pie animation for the parity capture (isAnimationActive={false}) in src/components/pie-chart/index.tsx or the showcase harness; n"
+    },
+    {
+      "id": "pie-chart",
+      "slug": "pie-chart-donut",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Local 'Donut chart' renders only the top ~180 deg arc (semicircle) of the donut ring; live Donut (Traffic Sources) shows a full closed 360 deg ring inside a car",
+      "fix": "Same root cause: set isAnimationActive={false} on the Pie for captures so the ring closes; pie-chart.css ring/segment styling already matches."
+    },
+    {
+      "id": "prompt-input",
+      "slug": "prompt-input-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live Usage is a two-row composer: a top prompt row (\"What do you want to know?\") and a separate bottom toolbar row holding an attachment button, a model-selecto",
+      "fix": "This is primarily a demo-composition gap in src/showcase/demos/ai-overlay-demos.tsx (prompt-input default demo): add a bottom PromptInput toolbar row with attac"
+    },
+    {
+      "id": "prompt-input",
+      "slug": "prompt-input-review-composer",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live Review Composer is a multi-zone composer: a top row of action pills (\"Review +469 -34\" with green/red diff stats, \"Create Branch & Commit\", a \"...\" overflo",
+      "fix": "Demo gap in src/showcase/demos/ai-overlay-demos.tsx (review-composer demo): build the three zones — top action/diff pills, middle input with model selector + ru"
+    },
+    {
+      "id": "prompt-input",
+      "slug": "prompt-input-with-suggestions",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live places a large centered hero heading + subheading, then a TALL multi-line textarea composer (placeholder \"Describe an app...\") with an internal bottom tool",
+      "fix": "Demo gap in src/showcase/demos/ai-overlay-demos.tsx (with-suggestions demo): swap to a tall multi-line PromptInput.TextArea with an internal toolbar (mic + add "
+    },
+    {
+      "id": "radar-chart",
+      "slug": "radar-chart-dots-only",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Local renders only the empty polygon grid with no visible data series at all (no connecting line, no fill, and the dots are effectively invisible). The live 'Do",
+      "fix": "Component/demo change, not CSS. In src/showcase/demos/charts-demos.tsx (~line 1372-1376) the dots-only branch sets stroke='transparent' and fillOpacity=0, leavi"
+    },
+    {
+      "id": "radial-chart",
+      "slug": "radial-chart-gauge-grid",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Structural mismatch. Live 'Gauge Grid' is a 2x2 grid of four bordered cards (Conversion 75%, Engagement 75%, Bounce Rate 35%, Errors 90%), each containing a ~27",
+      "fix": "Component/demo change, not CSS. In src/showcase/demos/charts-demos.tsx replace the gauge-grid branch (currently reusing the single 'Gauge with scale' RadialVari"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-default",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Usage' shows three compact inline pill badges: a soft-green pill with a tiny up-arrow + '+3.3%' on one line, a soft-red pill with down-arrow + '-2.1%', an",
+      "fix": "trend-chip.css indicator sizing + chip flex are not taking effect at runtime (only heroui-full.css loads). Give the indicator SVG an explicit small fixed width/"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-custom-indicator",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Custom Indicator' keeps the same horizontal pill form: default green/red arrow pills plus custom-icon pills ('[icon] +12.5%' green tint, '[icon] 0.0%') wh",
+      "fix": "Same root cause as default: constrain .trend-chip__indicator (including custom icon slot) to a small fixed size and enforce inline-row pill layout in the runtim"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-prefix-and-suffix",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Prefix And Suffix' shows pills with prefix + value + suffix all inline on one line inside a tinted pill (e.g. '↑ +$ 1,234', '↓ -5.9% vs last month', '↑ +3",
+      "fix": "Fix the inline-row pill layout (same as default). Once the chip lays out horizontally, confirm .trend-chip__prefix / __value / __suffix have appropriate inter-e"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-sizes",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Sizes' shows three green pill badges at sm/md/lg with the pill, arrow, and text all scaling proportionally while staying horizontal inline. Vela shows thr",
+      "fix": "After enforcing the horizontal pill layout, verify .trend-chip--sm/--md/--lg scale padding, font-size, gap, AND indicator size together (live scales the whole p"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-tabular-nums",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Tabular Nums' shows vertically-stacked pill badges with tabular (monospaced-digit) numerals so the digits align across rows ('↑ +1.1%', '↑ +22.2%', '↓ -33",
+      "fix": "Same horizontal-pill fix. Additionally ensure font-variant-numeric: tabular-nums on .trend-chip__value is actually applied at runtime (move it into the loaded s"
+    },
+    {
+      "id": "trend-chip",
+      "slug": "trend-chip-variants",
+      "sev": "high",
+      "verdict": "divergent",
+      "div": "Live 'Variants' shows a 4-row matrix (primary/secondary/tertiary/soft), each row with up/down/flat columns, all as horizontal inline pills — primary uses solid ",
+      "fix": "Fix the horizontal inline-pill layout (root cause). Confirm the underlying Chip variant prop (primary/secondary/tertiary/soft) maps to the correct fill vs soft-"
+    },
+    {
+      "id": "bar-chart",
+      "slug": "bar-chart-horizontal",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Local horizontal bars are much taller/thicker than Pro's thin horizontal bars, and use a brighter sky-blue vs Pro's deeper, more saturated primary blue. Pro sho",
+      "fix": "Add maxBarSize (~16-20) / increase barCategoryGap and switch fill to the primary blue token in the horizontal demo in src/showcase/demos/charts-demos.tsx so bar"
+    },
+    {
+      "id": "bar-chart",
+      "slug": "bar-chart-kpi-with-bar-chart",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Pro shows the trend as a small inline up-arrow + muted '3.3% last 30d' on the same line as/just under the big number, with a thin-bar mini chart that has month ",
+      "fix": "In the kpi-with-bar-chart demo in src/showcase/demos/charts-demos.tsx, replace the large standalone chevron with a small inline trend arrow next to the delta te"
+    },
+    {
+      "id": "cell-color-picker",
+      "slug": "cell-color-picker-settings-group",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live__03 renders the three rows as one CONNECTED settings group: a single rounded bordered container with internal hairline dividers, no gaps between rows, only",
+      "fix": "This is a demo-composition + grouped-style gap. In src/showcase/demos/forms-demos.tsx the cell-color-picker settings-group demo should wrap the three CellColorP"
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-settings-group",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live Settings Group groups sliders under section subheadings (Density, Corners) as vertical stacks with neutral grey fills and thin pill thumbs. Vela shows a fl",
+      "fix": "Apply the .cell-slider__fill accent/neutral-tint fix; if the secondary/muted variant is intended here, confirm the demo (src/showcase/demos/forms-demos.tsx) ren"
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-composable",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Paired with live Composable. Both embed a source inside an AI message with body copy + a copy action. HeroUI embeds a small inline source chip ('React docs' wit",
+      "fix": "Either swap ChatSource.Preview for an inline ChatSource chip in the composable demo (src/showcase/demos/ai-overlay-demos.tsx) to mirror HeroUI's inline placemen"
+    },
+    {
+      "id": "chat-tool",
+      "slug": "chat-tool-grouped",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live ChatToolGroup is COLLAPSED into a single disclosure row 'N tool calls' with a trailing chevron inside an AI avatar bubble. Local renders the group EXPANDED",
+      "fix": "Component: default ChatToolGroup to a collapsed summary row ('N 个工具调用') with a chevron, expandable to the nested list; wrap in the avatar/message bubble. Apply "
+    },
+    {
+      "id": "checkbox-button-group",
+      "slug": "checkbox-button-group-grid-layout",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live 'Grid Layout' renders cards in a 3-column grid; local renders the same single-column vertical stack at comparable width, so the defining grid behavior is n",
+      "fix": "In src/styles/components/checkbox-button-group.css add a default multi-column track to .checkbox-button-group--grid (e.g. grid-template-columns: repeat(auto-fit"
+    },
+    {
+      "id": "checkbox-button-group",
+      "slug": "checkbox-button-group-icon-cards",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live icon cards use an icon-LEADING horizontal layout: a rounded square icon tile on the left with title/subtitle stacked to its right, left-aligned. Local rend",
+      "fix": "In src/styles/components/checkbox-button-group.css give icon-bearing items flex-direction:row + align-items:center/start, and add a tile to .checkbox-button-gro"
+    },
+    {
+      "id": "checkbox-button-group",
+      "slug": "checkbox-button-group-subscription-plans",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live Subscription Plans is a polished template: centered heading/subtitle, plan cards with price lines, a SUCCESS (green) selected card with green check indicat",
+      "fix": "Primarily a demo-composition gap in src/showcase/demos/forms-demos.tsx (add heading/prices/CTA and a selected plan). To support the success-colored selection, e"
+    },
+    {
+      "id": "checkbox-button-group",
+      "slug": "checkbox-button-group-with-icons",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Same icon-layout divergence as Icon Cards: live places the icon on the LEFT with text to the right (icon-leading horizontal, 2-column grid) and shows selection ",
+      "fix": "In src/styles/components/checkbox-button-group.css switch icon items to flex-direction:row with leading icon; in the With Icons demo (src/showcase/demos/forms-d"
+    },
+    {
+      "id": "data-grid",
+      "slug": "data-grid-empty-state",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live empty state is a full EmptyState block centered in the grid body: a circular outlined folder icon, a bold heading ('No Projects Yet'), descriptive subtext,",
+      "fix": "Demo/component change: pass a renderEmptyState that uses the EmptyState sub-component (EmptyState.Media variant=icon + heading + description + a primary action "
+    },
+    {
+      "id": "data-grid",
+      "slug": "data-grid-users",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live renders a composed Users panel: left-aligned section title 'Users' + descriptive subtitle, a top-right 'Add user' button, columns Name/Title/Email/Role, an",
+      "fix": "Demo/component change: wrap the grid in a header region (title + description + 'Add user' Button) and add a trailing action column rendering an 'Edit' link per "
+    },
+    {
+      "id": "drop-zone",
+      "slug": "drop-zone-with-file-list",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Vela file-item cards render a 3px colored vertical accent stripe on the left edge (blue=uploading, green=complete, red=failed); the live reference cards have no",
+      "fix": "In src/styles/components/drop-zone.css remove (or set transparent) the .drop-zone__file-item:before left-stripe at line 252-261 and its per-status colors at lin"
+    },
+    {
+      "id": "drop-zone",
+      "slug": "drop-zone-compact-file-list",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Same family of differences as With File List, now on the compact cards: each completed compact card carries a green left accent stripe absent from the live refe",
+      "fix": "Same as with-file-list: drop the .drop-zone__file-item:before accent stripe (drop-zone.css lines 252-261, 299-315) and add the inline status icon to the compact"
+    },
+    {
+      "id": "emoji-picker",
+      "slug": "emoji-picker-inline",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Open inline picker layout order is inverted vs reference. Live stacks: rounded pill search input WITH leading magnifier icon and an inline skin-tone trigger on ",
+      "fix": "In the inline composition, reorder so EmojiPicker.Content places the search row (with SkinTonePicker inline) first, then EmojiPicker.Grid, then the category/Foo"
+    },
+    {
+      "id": "empty-state",
+      "slug": "empty-state-with-avatar-group",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Live renders an overlapping AvatarGroup (avatars with white ring separators, negative-margin overlap) on transparent background. Local renders the three avatars",
+      "fix": "Use the real overlapping AvatarGroup in the with-avatar-group demo (negative inline margin + ring border per avatar) and remove the icon-style media background;"
+    },
+    {
+      "id": "file-tree",
+      "slug": "file-tree-dynamic-collection",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Paired with live Dynamic Collection. The live shows a fully rendered file tree (apps/frontend/... with chevrons, labels and guide lines). The Vela shot renders ",
+      "fix": "Component/demo fix (not CSS). In the dynamic-collection showcase demo (src/showcase/demos), ensure the selected dataset actually populates and expands the FileT"
+    },
+    {
+      "id": "inline-select",
+      "slug": "inline-select-team-switcher",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live renders a breadcrumb-style team switcher: a leading app logo, a '/' separator, then a small colored square avatar/initial badge ('N') sitting immediately b",
+      "fix": "This is a demo/composition difference rather than a base-style issue: update the team-switcher demo (src/showcase/demos/forms-demos.tsx inline-select team-switc"
+    },
+    {
+      "id": "item-card-group",
+      "slug": "item-card-group-linked-accounts",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live Linked Accounts is a 3-column grid of bordered cards each with leading brand icon + title + status subtitle + a trailing control (green check or + button).",
+      "fix": "Update the linked-accounts demo to use the grid layout (item-card-group--grid) and add the trailing control slot per card; confirm grid columns via --item-card-"
+    },
+    {
+      "id": "item-card-group",
+      "slug": "item-card-group-permission-levels",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Live Permission Levels renders the group with NO outer card border — bare header (title + subtitle) above borderless rows, each with leading icon + 2-line text ",
+      "fix": "Switch this demo to the transparent/borderless group variant (item-card-group--transparent in src/styles/components/item-card-group.css) and add a trailing sele"
+    },
+    {
+      "id": "item-card-group",
+      "slug": "item-card-group-wallet-list",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Both bordered cards with rows using a circular leading avatar/icon — shape matches live Wallet List. Deltas: live rows have a trailing two-line value column (am",
+      "fix": "Extend the wallet-list demo rows with a trailing value/secondary-value column and an overflow '...' menu button, render inter-row separators, and drop the heade"
+    },
+    {
+      "id": "kanban",
+      "slug": "kanban-notion-board",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "The live Notion board's defining trait is per-column color tinting: Todo column = light blue tint, In Progress = cream/yellow tint, To Document = pink/red tint,",
+      "fix": "Add per-column tint support in src/styles/components/kanban.css (e.g. a [data-variant=notion] .kanban__column rule keyed off a column accent var using color-mix"
+    },
+    {
+      "id": "kpi",
+      "slug": "kpi-with-chart-bottom",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live 'With Chart Bottom' renders a smooth AREA/line chart with a semantic gradient fill spanning the full card width and bleeding to the bottom edge. Vela rende",
+      "fix": "Use an area/line chart (with gradient fill) for the with-chart-bottom demo to match live, or if bar is intentional, keep the existing .kpi>.kpi__chart negative "
+    },
+    {
+      "id": "line-chart",
+      "slug": "line-chart-kpi-with-chart",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Compared against live 'KPI With Chart' (live__02). Live renders bordered KPI cards (Total Revenue / Bounce Rate / New Customers) with the sparkline placed INLIN",
+      "fix": "Rework the KPI-with-chart demo in the showcase (src/showcase/demos line-chart demos) to use the inline KPI card layout: bordered card, sparkline to the right of"
+    },
+    {
+      "id": "line-chart",
+      "slug": "line-chart-portfolio",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Compared against live 'Portfolio' (live__04). Live is a financial card: header 'Portfolio' with a segmented time-range control (1H/1D/1W/1M/1Y/ALL, selected pil",
+      "fix": "Rebuild the Portfolio demo in the showcase to the financial-card layout: card wrapper, segmented time-range control, balance header with success-tinted delta, a"
+    },
+    {
+      "id": "line-chart",
+      "slug": "line-chart-stats-with-chart",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Compared against live 'Stats With Chart' (live__06). Live shows three separate stat cards (Revenue / Expenses / Sales) each with a rounded PILL delta badge (suc",
+      "fix": "Restructure the stats-with-chart demo to use three discrete stat cards with rounded tinted delta badges (success/danger chip with small arrow) plus a separate c"
+    },
+    {
+      "id": "markdown",
+      "slug": "markdown-default",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Overall structure, typography scale/weight (H1, H2 \"Features\", body), bulleted list, code-block container (rounded gray surface, top-left language label, top-ri",
+      "fix": "Add Shiki/Highlight.js token color rules for fenced code blocks (.markdown pre code / .shiki token classes) in src/styles/components/markdown.css, or enable the"
+    },
+    {
+      "id": "number-stepper",
+      "slug": "number-stepper-guest-picker",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live composes each guest type as a vertical list row: bold label + muted description on the LEFT, stepper aligned RIGHT, separated by horizontal row dividers (A",
+      "fix": "Demo-only composition gap (showcase/demos/forms-demos.tsx) — rebuild the guest-picker demo as a vertical list with justify-between rows, label+description on th"
+    },
+    {
+      "id": "number-stepper",
+      "slug": "number-stepper-with-custom-buttons",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live demonstrates multiple button color/variant treatments per stepper: primary (solid blue filled buttons), secondary (light-blue tinted buttons with blue icon",
+      "fix": "Primarily a demo-content gap (showcase/demos/forms-demos.tsx) — extend the custom-buttons demo to render primary/secondary/tertiary/outline button variants. If "
+    },
+    {
+      "id": "pie-chart",
+      "slug": "pie-chart-donut-with-content",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Local 'Donut with center content' renders ~270 deg of the ring (arc not closed) but the bold centered '100%' center label is present, weighted and positioned li",
+      "fix": "isAnimationActive={false} for capture to close the ring. Center-content CSS (.recharts-label fill var(--foreground)) already matches; no change required."
+    },
+    {
+      "id": "pie-chart",
+      "slug": "pie-chart-donut-with-label",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Local 'Donut with labels' renders ~300 deg of the ring with a visible gap; live 'Donut With Label' (Storage Usage) shows a full closed ring with '100 / GB used'",
+      "fix": "isAnimationActive={false} for capture; pie-chart.css label styling already matches the live."
+    },
+    {
+      "id": "pie-chart",
+      "slug": "pie-chart-nested-donut",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Local 'Nested donut chart' correctly renders two concentric rings with the right inner/outer radii and a distinct lighter inner ramp vs darker outer ramp, match",
+      "fix": "isAnimationActive={false} on both Pie layers for capture; nested-ring radii and color ramps already match — no pie-chart.css change needed."
+    },
+    {
+      "id": "pressable-feedback",
+      "slug": "pressable-feedback-default",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Live Usage section is a comprehensive button matrix: row of Primary(solid blue)/Secondary(tint)/Tertiary/Outline/Ghost/Danger(red), a row of icon+label buttons ",
+      "fix": "Demo-composition gap, not CSS. Expand the default/Usage demo in src/showcase/demos/feedback-nav-demos.tsx to render the multi-variant button grid (Primary/Secon"
+    },
+    {
+      "id": "pressable-feedback",
+      "slug": "pressable-feedback-comparison",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live shows a 4-group layout (Ripple/Highlight/Hold Confirm/Progress Feedback), each labeled and each with 3 buttons (Primary solid, Secondary tint, Outline). Lo",
+      "fix": "Rework comparison demo in src/showcase/demos/feedback-nav-demos.tsx to render per-feedback-type groups with Primary/Secondary/Outline color variants and group l"
+    },
+    {
+      "id": "pressable-feedback",
+      "slug": "pressable-feedback-pressable-cards",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live shows a rich pressable-card gallery: an image hero card (title/subtitle/'Notify me' button), avatar member cards (avatar + name + 'By X' meta), and thumbna",
+      "fix": "Demo-composition gap in src/showcase/demos/feedback-nav-demos.tsx: build representative pressable cards (image header card, avatar list card, thumbnail row card"
+    },
+    {
+      "id": "pressable-feedback",
+      "slug": "pressable-feedback-with-highlight",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live demonstrates highlight feedback across the full button palette: Primary/Secondary/Tertiary/Outline/Ghost/Danger row, an icon+label row (Search/Add Member/E",
+      "fix": "Demo gap in src/showcase/demos/feedback-nav-demos.tsx: replicate the multi-variant button grid for the With Highlight example."
+    },
+    {
+      "id": "pressable-feedback",
+      "slug": "pressable-feedback-with-ripple",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live demonstrates ripple across the full button palette (Primary/Secondary/Tertiary/Outline/Ghost/Danger/Danger Soft + icon+label row + icon-only row, plus a CS",
+      "fix": "Demo gap in src/showcase/demos/feedback-nav-demos.tsx: replicate the multi-variant button grid for the With Ripple example."
+    },
+    {
+      "id": "prompt-input",
+      "slug": "prompt-input-secondary",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Secondary surface fill (grey) and the two-row layout match, but Vela's toolbar row only has a leading + button on the left and send on the right — it is missing",
+      "fix": "Demo gap in src/showcase/demos/ai-overlay-demos.tsx (secondary demo): add the model-selector Select control into the bottom toolbar between the attachment butto"
+    },
+    {
+      "id": "prompt-input",
+      "slug": "prompt-input-run-state",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live Run State is a tall multi-line composer card with the circular send button anchored at the bottom-right corner of the card and a footer caption (\"Status-dr",
+      "fix": "Demo gap in src/showcase/demos/ai-overlay-demos.tsx (run-state demo): use a tall textarea composer with the send button bottom-right-anchored inside the card an"
+    },
+    {
+      "id": "prompt-suggestion",
+      "slug": "prompt-suggestion-cards",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Compared against the live \"Cards\" example. In the live shot each suggestion is wrapped in its own card container with a faint light border and rounded corners (",
+      "fix": "In src/styles/components/prompt-suggestion.css, give .prompt-suggestion__item--card a visible card container to match live: replace `border: 0;` with `border: 1"
+    },
+    {
+      "id": "radio-button-group",
+      "slug": "radio-button-group-delivery-and-payment",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Pro's 'Delivery And Payment' is a composite: a horizontal 3-up 'Delivery method' card row (Standard/Express/Super Fast, left-aligned with price) PLUS a separate",
+      "fix": "Component/demo change: this example needs the icon placed inline at the card's leading edge (flex-row item with .radio-button-group__item-icon before .radio-but"
+    },
+    {
+      "id": "radio-button-group",
+      "slug": "radio-button-group-icon-cards",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Both place a leading icon on the card and keep border/radius/top-right radio. Pro's 'Icon Cards' is left-aligned with the icon inline-left, plan name + a 'Most ",
+      "fix": "Left-align content (.radio-button-group__item-content { align-items: flex-start }) and place the icon inline-left for this variant; price/badge typography is de"
+    },
+    {
+      "id": "radio-button-group",
+      "slug": "radio-button-group-with-icons",
+      "sev": "medium",
+      "verdict": "minor",
+      "div": "Pro's 'With Icons' (payment-method cards) places the brand icon inline at the card's leading edge with text to the right, left-aligned, no centered title. Vela ",
+      "fix": "Add a horizontal item layout for this variant (flex-row, items-center, icon before content) and left-align .radio-button-group__item-content in src/styles/compo"
+    },
+    {
+      "id": "rating",
+      "slug": "rating-product-review",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Structurally different composed example. Live shows a multi-attribute breakdown: 4 label rows (Quality / Value for money / Design / Durability) each with a frac",
+      "fix": "Demo change only: rework the rating product-review showcase demo (src/showcase/demos) into a multi-row attribute breakdown (label + Rating readOnly fractional +"
+    },
+    {
+      "id": "rating",
+      "slug": "rating-with-label",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Different label composition. Live shows a form-field pattern: a question label ('How would you rate this product?') positioned ABOVE a centered 5-star row. Vela",
+      "fix": "Demo change only: change the rating with-label showcase demo (src/showcase/demos) to render a label above a centered Rating row (label-on-top form-field composi"
+    },
+    {
+      "id": "rich-text-editor",
+      "slug": "rich-text-editor-custom-composition",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "The whole point of this variant in live is a relocated/compact toolbar moved INTO the footer: live shows heading + body + bullet list + blockquote at top, then ",
+      "fix": "Component/demo change in src/showcase/demos/forms-demos.tsx custom-composition variant: render the compact RichTextEditor.Toolbar inside the footer slot (left-a"
+    },
+    {
+      "id": "segment",
+      "slug": "segment-without-separators",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Paired with live Without Separators. Live keeps the DEFAULT treatment (grey rounded track + white shadowed indicator pill) and merely removes the vertical divid",
+      "fix": "Not a CSS-shard bug — segment.css default/ghost styles are both correct. Fix the demo in src/showcase/demos/feedback-nav-demos.tsx line ~2402: the `segmentVaria"
+    },
+    {
+      "id": "segment",
+      "slug": "segment-theme-switcher",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Paired with live Theme Switcher. Live uses the DEFAULT treatment (grey rounded track + white shadowed indicator pill) with the selected item highlighted by the ",
+      "fix": "segment.css is correct (default + ghost both implemented). Fix the demo in src/showcase/demos/feedback-nav-demos.tsx line ~2468: the theme-switcher Segment pass"
+    },
+    {
+      "id": "segment",
+      "slug": "segment-icon-expand",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Paired with live Icon Expand. Live implements the icon-expand pattern: unselected items are icon-only (collapsed) and the selected item EXPANDS to icon + text r",
+      "fix": "Component-level/demo change in src/showcase/demos/feedback-nav-demos.tsx lines ~2453-2463: rebuild the icon-expand demo to use variant=\"ghost\" and render unsele"
+    },
+    {
+      "id": "timeline",
+      "slug": "timeline-studio-review",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live demonstrates a header group ('Studio review' / 'Runner launch assets'), gradient avatar-style markers, an inline status tag ('Review') on the title line, r",
+      "fix": "Primarily a demo composition gap — update the studio-review demo to use a content card slot, inline tag, and right-aligned meta. If the rich layout is unsupport"
+    },
+    {
+      "id": "timeline",
+      "slug": "timeline-compact-log",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live 'Compact Log' is genuinely dense: title and timestamp share ONE line (title left, timestamp right-aligned), description only when present, very tight verti",
+      "fix": "Add a compact/inline layout: in timeline.css, for [data-density=compact] place .timeline__time inline and right-aligned on the title row (e.g. a header flex row"
+    },
+    {
+      "id": "timeline",
+      "slug": "timeline-incident-response",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live shows a header group, a first-row composer INPUT with a 'Post' button, an 'Update from [avatar] Nora Vazquez [On-call tag]' row with right-aligned timestam",
+      "fix": "Demo composition gap — rebuild the incident-response demo with a composer slot, nested card, inline author avatars, and right-aligned timestamps. No timeline.cs"
+    },
+    {
+      "id": "timeline",
+      "slug": "timeline-repository-activity",
+      "sev": "medium",
+      "verdict": "divergent",
+      "div": "Live shows a 'May 2026' section header on a rule, icon-tinted markers, title + author subtitle with right-aligned date, and rich per-item content: nested stat t",
+      "fix": "Demo composition gap — enrich the repository-activity demo with stat-grid and nested-card content slots and a section header. timeline.css rail/content can host"
+    }
+  ],
+  "verifiedConfirmed": [
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-default",
+      "severity": "high",
+      "divergences": "Track shape (rounded pill), height, padding rhythm, dark left-aligned label, muted right-aligned tabular value all match. But the fill (cell-slider__fill) is rendered as saturated primary BLUE covering the left ~50%, whereas the live Usage fill is a subtle light/neutral 'accent tint' (near-white, barely lighter than the track). The dark label therefore sits on a bright blue band in Vela vs a quiet tint in Pro. Live also shows a thin vertical thumb pill at the fill boundary which is not visible in the Vela default shot.",
+      "suggestedFix": "In src/styles/components/cell-slider.css change .cell-slider__fill background-color from var(--color-default) (resolving to bright primary blue) to a subtle light accent tint, e.g. color-mix(in oklab, var(--foreground) ~8-12%, transparent) or the muted/default-100 token used by Pro; ensure the thumb ::after pill is visible at rest (raise base opacity) to match the live boundary indicator.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired shots: local__cell-slider-default.png vs live__00.png (manifest: cell-slider \"Usage\", index 0). The fill color is a genuine component styling divergence, not chrome or demo content. Vela fill (cell-slider__fill) is sampled at saturated primary BLUE rgb(4,133,247)/#0485F7 across the left ~50%, so the dark label \"学习密度\" sits on a bright blue band. Live Pro fill is sampled at light neutral gray rgb(235,235,236)/~#EBEBEC over a pure-white rgb(255,255,255) unfilled track — a subtle near-white tint, barely lighter than the track — so the dark \"Spacing\" label sits on a quiet tint. Shared structure (rounded pill, height, padding rhythm, dark left label, muted right tabular value 0.5/0.50) matches as claimed; the copy difference (学习密度 vs Spacing) is demo content and irrelevant. This is a real visual-parity gap in the single most prominent styling property. Caveat: the secondary sub-claim of a \"thin vertical thumb pill at the fill boundary\" in live is not clearly visible even in a 3x zoom of the live crop — the boundary looks like a clean fill/track edge — so that detail is weakly supported, but the dominant fill-color claim is unambiguously confirmed."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-controlled",
+      "severity": "high",
+      "divergences": "Layout matches (label left, value right, optional 'Value: x' caption is demo content). Same fill-color gap as default: Vela uses bright primary-blue fill; live Controlled fill is a faint neutral tint that is almost invisible against the track. Severity driven entirely by the saturated-blue fill, not structure.",
+      "suggestedFix": "Same .cell-slider__fill background-color fix in src/styles/components/cell-slider.css (subtle accent tint instead of var(--color-default) blue).",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__cell-slider-controlled.png against its paired live__01.png (\"Controlled\" heading per manifest). Structure matches in both: pill-shaped cell slider, label on left, numeric value on right. Content differs (Vela: \"学习密度: 62%\" + value 0.62; live: \"Spacing\" + value 0.50 + \"Value: 0.50\" caption) — those are demo-content/data differences and are correctly excluded, and the \"Value: x\" caption is demo content. The genuine component-styling divergence is the fill: Vela renders the filled portion (~left 30%) as a bright, saturated primary-blue band with a dark-blue thumb/divider, whereas the live heroui.pro Controlled slider renders its fill as a very faint neutral/light-gray tint that is almost invisible against the track — no saturated color. This is the same fill-color gap reported for the default variant, is a property of the component itself (not page chrome — the surrounding hero.pro nav/sidebar is ignored), and is severity-driving. Confirmed as a real visual-parity gap."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-integer-step",
+      "severity": "high",
+      "divergences": "Structure matches (single track, label left, integer value right, ~75% fill position correct). Fill is saturated primary blue in Vela vs subtle neutral accent tint in live Volume example. Same root cause as default.",
+      "suggestedFix": "Same .cell-slider__fill accent-tint fix in src/styles/components/cell-slider.css.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired images: local__cell-slider-integer-step.png vs live__03.png (manifest index 3, heading \"Integer Step\"). Structure matches in both: single pill-shaped track, text label on the left, integer \"75\" on the right, fill boundary at ~75%. The divergence is real and is a component styling gap, not chrome/demo-content. Pixel sampling of the fill region (left ~75% of track): Local fill = RGB(4,133,247) — fully saturated primary blue across the whole filled portion. Live fill = RGB(235,235,236) — a near-white neutral light-gray tint with NO blue at all (the lone 132,132,134 sample is dark label-text antialiasing, not fill). So Vela paints a saturated primary-blue progress fill while heroui.pro's Volume example uses only a subtle neutral gray track tint. The Volume vs 音量(整数步进) copy and locale difference is demo content and is correctly ignored; the page chrome (nav, sidebar, \"On this page\") is also irrelevant. The load-bearing visual difference is the fill color treatment — same root cause as the default cell-slider variant."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-secondary-group",
+      "severity": "high",
+      "divergences": "Live Secondary Group renders each row with a neutral GREY fill (the --secondary track style) and a thin pill thumb. Vela renders the secondary group rows with BRIGHT BLUE fills (looks like the default/primary variant, not the muted secondary style) and shows a stray round/circular blue thumb dot at the fill boundary instead of the thin vertical pill. The secondary variant is therefore not visually distinct from default in Vela, and the thumb shape is wrong.",
+      "suggestedFix": "In src/styles/components/cell-slider.css: (1) ensure .cell-slider__track--secondary .cell-slider__fill uses the neutral muted tint (it is defined as color-mix muted 20% — verify the demo applies the --secondary variant class so it isn't falling back to the blue default fill); (2) remove/flatten the circular thumb — .cell-slider__thumb should be transparent with only the ::after pill (width var(--cell-slider-thumb-width)) visible, not a filled round dot. Check the component (src/components/cell-slider/index.tsx) is passing variant='secondary' in this demo.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired via manifest: section \"Secondary Group\" = live index 4 (live__04.png, heroui.pro reference) vs local__cell-slider-secondary-group.png (Vela). LIVE reference: rows \"Spacing 0.50\" / \"Font Size 0.30\" each rendered as a pill with a neutral/muted GREY filled track on the left and a slightly lighter grey remainder — no bright color, no protruding round thumb dot. This matches the claimed \"secondary\" muted-grey track style. VELA (local secondary-group): rows \"字间距 0.42 / 朗读速度 0.72 / 提示强度 0.3\" all render with a BRIGHT BLUE (primary/default) fill, and the middle row shows a stray round/circular blue thumb dot sitting at the fill boundary (~0.72) rather than a thin vertical pill. So in the group demo the secondary variant is visually identical to the default/primary blue slider — not distinct. Cross-check confirms this is a real component gap, not demo content: Vela's own local__cell-slider-default.png is bright blue (correct), and local__cell-slider-variants.png shows Vela CAN render a grey secondary row (\"次级视觉\") — yet the secondary-GROUP demo fails to apply that grey style and uses blue for every row, plus the same round-dot thumb artifact appears at the fill boundary instead of the reference's thin pill thumb. The differing copy (Chinese labels, 3 vs 2 rows) is incidental demo content; the blue-vs-grey fill treatment and the round-dot-vs-pill thumb are intrinsic component styling properties. Both halves of the claim hold: secondary is not visually distinct from default, and the thumb shape is wrong."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-variants",
+      "severity": "high",
+      "divergences": "Decisive comparison. Live Variants shows default = white/very-light accent-tint fill and secondary = neutral grey fill, both with a thin vertical pill thumb. Vela shows default = saturated bright-blue fill, and secondary = grey fill but with a stray filled round BLUE thumb dot. So Vela's default fill color is wrong (blue vs light tint) and Vela's thumb is a circle vs the live thin pill. The CSS-Classes doc in the live shot confirms cell-slider__fill should be a subtle 'accent tint' and cell-slider__thumb a transparent hit area with an ::after pill indicator.",
+      "suggestedFix": "In src/styles/components/cell-slider.css: change .cell-slider__fill from var(--color-default) (blue) to a light accent tint to match the default variant; keep .cell-slider__track--secondary .cell-slider__fill as the neutral muted tint; ensure .cell-slider__thumb stays background:transparent with border:none and only the ::after pill rendered (eliminate the round blue dot seen in the secondary row).",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired shots: local__cell-slider-variants.png vs live__06.png (Variants section per manifest). Decisive component-styling divergence, not demo content or page chrome. FILL COLOR: Live default fill is white/very-light tint — sampled (231,231,232) over white track (255,255,255), no blue present; Vela default fill is fully saturated bright blue — sampled (4,133,247). That is a wrong fill token (saturated accent vs subtle tint). THUMB SHAPE: Live thumb is a thin vertical seam between fill and track (no round element) in both rows; Vela renders a solid blue rounded half-circle thumb dot at the fill/track boundary (secondary row blue pixels span x≈181-206 forming a rounded shape at y=106-109; default row blue rounds out from x180 to x206 across y62-72) instead of a thin pill. The live shot's own CSS-Classes doc confirms intent: .cell-slider__fill = 'Accent tint showing the current value' and .cell-slider__thumb = 'Transparent hit area with a ::after pill indicator' — matching the light-tint fill and pill thumb of the live render and contradicting Vela's saturated blue fill + round blue dot. Incidental non-divergences (label language 默认视觉/次级视觉 vs 'Spacing', value 0.5 vs 0.50) do not affect the verdict; the fill-color and thumb-shape gaps are real component visual-parity defects."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-controlled",
+      "severity": "high",
+      "divergences": "Paired live shot (Usage) shows a compact pill with the text label flush-left and the switch flush-right (justify-between), label text rendered inside the cell. The Vela shot renders NO label text inside the trigger and the switch is centered with empty space on both sides. The pill radius (~12px rounded rect), thin 1px border, height, horizontal padding, and the switch control itself (blue 'on' track, white thumb, sizing) match well — the only divergence is the missing label and the centered (not right-aligned) control. The demo source DOES pass CellSwitch.Label text, so the label is being dropped at render time rather than being a copy difference.",
+      "suggestedFix": "Root cause is in src/components/cell-switch/index.tsx: CellSwitch.Trigger renders @heroui/react <Switch.Content>, whose own internal layout centers its children and overrides the trigger's flex, so the .cell-switch__label span collapses/hides and the control centers. In src/styles/components/cell-switch.css enforce row layout on the trigger explicitly: add `justify-content: space-between` and ensure `display:flex; align-items:center` on .cell-switch__trigger, and verify .cell-switch__label keeps `flex:1; text-align:start` (it already declares these but they are being overridden by Switch.Content). If Switch.Content forces centering via inline/utility styles, override with higher specificity (.cell-switch .cell-switch__trigger{justify-content:space-between!important}) or render the trigger as a plain label element instead of Switch.Content so the label text and flex:1 take effect.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired live shot live__01.png (manifest maps cell-switch-controlled -> \"Controlled\" section, index 1) shows a compact pill with the label text \"Animations\" flush-left and the blue 'on' switch flush-right (justify-between) INSIDE the cell, plus an \"Animations: On\" caption below. The Vela shot local__cell-switch-controlled.png renders an empty white pill containing ONLY a centered blue switch (white thumb) with no label text inside the trigger at all; the \"Controlled switch\" text sits ABOVE/outside the pill as a separate caption. Pill geometry matches (rounded rect, thin border, height, padding) and the switch control itself matches (blue track, white thumb) — the divergence is the missing in-cell label and centered-vs-right-aligned control. This is NOT a copy difference: the demo source (src/showcase/demos/forms-demos.tsx:784-787) explicitly passes <CellSwitch.Label>开启课堂提醒（受控：...）</CellSwitch.Label> inside <CellSwitch.Trigger>, so label text is provided but dropped at render. The component (src/components/cell-switch/index.tsx:32-45) renders the Trigger as HeroUI OSS <Switch.Content> wrapping the Label+Control, yet the rendered pill shows no inner text — confirmed in the local default shot too (empty pill, centered switch, label only as an outside caption). Genuine structural/styling parity gap, not page chrome."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-default",
+      "severity": "high",
+      "divergences": "Same systemic defect as controlled. Paired live shot (Controlled) shows label 'Animations' left + switch right plus a helper line below; the Vela default shot shows only a centered switch with no label text inside the white cell. Container and switch styling otherwise match the reference.",
+      "suggestedFix": "Same fix as cell-switch-controlled: restore justify-between row layout and visible leading label in src/styles/components/cell-switch.css / src/components/cell-switch/index.tsx.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired shots: docs/parity-shots/cell-switch/local__cell-switch-default.png vs the reference Usage section. Note the manifest maps cell-switch-default -> \"Usage\" = live__00.png (not Controlled); the claim cited Controlled, but the same defect is visible in both live__00 (Usage) and live__01 (Controlled), so the comparison holds.\n\nReference (live__00, Usage): a compact pill-shaped white cell containing \"Animations\" label on the LEFT and the blue switch justified to the RIGHT edge. The page's own Anatomy block confirms this is structural: CellSwitch.Trigger > CellSwitch.Label + CellSwitch.Control. The label is a first-class component slot, not page chrome.\n\nVela (local__cell-switch-default): a wide white pill with the switch sitting roughly center-left and NO label text inside the cell. The only text is \"Default switch\" in gray ABOVE the cell, which is the demo section heading, not an in-cell CellSwitch.Label.\n\nThis is a genuine component visual/structural parity gap: the Vela CellSwitch is missing the in-cell Label slot and lays out the control centered rather than space-between (label left / control right). Container background and switch styling otherwise match. It is not merely a copy/data difference (the label slot itself is absent) and not heroui.pro page chrome. The controlled pair (local__cell-switch-controlled vs live__01) shows the identical defect, supporting the \"same systemic\" characterization."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-disabled",
+      "severity": "high",
+      "divergences": "Paired live shot (Disabled) shows two dimmed cells each with 'Animations' label left and switch right (one on / one off). The Vela disabled shot shows a single dimmed cell with a centered switch and no label text. The disabled opacity/dimming treatment itself matches; the divergence is the missing label and centered control.",
+      "suggestedFix": "Same root-cause fix (trigger justify-between + visible label). No disabled-specific CSS change needed beyond the shared trigger layout fix in src/styles/components/cell-switch.css.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Re-read both paired images. Live (live__02.png, \"Disabled\" section per manifest): two dimmed cells, each with an \"Animations\" label flush-left and a switch flush-right (top ON/blue, bottom OFF/gray) — i.e. label-left + control-right row layout. Local (local__cell-switch-disabled.png): a single dimmed pill-shaped cell with NO visible label text inside it and a faded thumb sitting roughly CENTERED in the cell, OFF state. The \"Disabled switch\" text above the cell is the demo harness DemoSection heading (page chrome), not the cell's own label.\n\nThis is a genuine component gap, not just demo content. The Vela demo source (src/showcase/demos/forms-demos.tsx lines 1128-1138) explicitly renders <CellSwitch.Trigger> containing a <CellSwitch.Label> ('组织策略锁定') followed by <CellSwitch.Control/> — the same label-left/control-right anatomy as live. Yet the rendered local shot shows no label text and a centered control, so the intended Label is not painting and the Control is mis-positioned (centered) instead of pushed to the right edge. The label COPY difference (Animations vs 组织策略锁定) is ignorable demo content, and the cell-count difference (2 vs 1) is demo content, but the missing label + centered (non-right-aligned) control is a real structural/styling divergence. The disabled dimming/opacity treatment itself does match, consistent with the claim."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-feature-announcement",
+      "severity": "high",
+      "divergences": "Paired live shot (Feature Announcement) is a taller multi-line cell: bold title 'Try the new sidebar' with a 'New' badge, a secondary description line, and the switch on the right. The Vela shot is a single-row cell with a centered switch and no title/description/badge visible at all. Both the rich two-line content (title + description) and the right-aligned switch are missing.",
+      "suggestedFix": "Beyond the shared trigger layout fix, the feature-announcement demo needs the multi-line label structure to actually render (title + description) — verify CellSwitch.Label content shows; align items to top (align-items:flex-start) for the multi-line case and allow the trigger height to grow. Edit src/styles/components/cell-switch.css trigger to not force a fixed single-row height (height: calc(var(--spacing)*9)) when content wraps, and confirm the label text renders in src/components/cell-switch/index.tsx.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired images: docs/parity-shots/cell-switch/live__03.png (manifest live index 3, heading \"Feature Announcement\") vs local__cell-switch-feature-announcement.png. LIVE shows a content cell with a bold title \"Try the new sidebar\", a \"New\" badge to its right, a secondary description line \"Keep your pages, meetings, and AI within reach.\", and the switch pinned to the right edge — a multi-line, left-aligned content row. LOCAL (Vela) shows a white pill-shaped cell with NO title, NO badge, NO description, and only a single switch centered horizontally (toggled on). This is a genuine structural/layout divergence, not page chrome (the hero.pro header/sidebar/TOC are excluded from the comparison region) and not a mere copy/icon swap: the entire title+badge+description content slot is absent and the switch alignment differs (centered vs right-pinned). The Vela component fails to render the Feature Announcement layout pattern (rich content + trailing switch), confirming the claimed parity gap."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-secondary-group",
+      "severity": "high",
+      "divergences": "Paired live shot (Secondary Group) shows two secondary-variant cells (muted gray fill, no border) with labels 'Notifications' / 'Marketing emails' left and switches right. The Vela shot shows three gray secondary cells but each has a centered switch and no label text. The secondary background tint, lack of border, and switch styling match the reference; only the missing label and centered control diverge.",
+      "suggestedFix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css. Secondary background/border treatment (.cell-switch__trigger--secondary, .cell-switch__control--secondary) already matches and needs no change.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired images: live__04.png (Secondary Group, per manifest) vs local__cell-switch-secondary-group.png. Live reference shows two secondary cells (muted gray fill, no border, rounded) each with a LEFT-aligned label (\"Notifications\", \"Marketing emails\") and the switch pushed to the RIGHT edge (Notifications ON/blue, Marketing OFF). Vela's shot shows three gray secondary cells with the SAME tint/no-border styling, but every cell has NO label text and the switch is HORIZONTALLY CENTERED rather than right-aligned. The secondary background and switch visual styling do match. Beyond the missing label copy (arguably demo content), the centered control vs. trailing/right-justified control is a genuine component layout divergence: a labeled cell-switch should render a label-leading row with the switch justified to the trailing edge, but Vela centers a lone switch — indicating the label+trailing-switch row layout is not applied. This is a real component visual-parity gap, not page chrome (heroui nav/sidebar is outside the compared region). The 3-vs-2 cell count is demo data and not itself dispositive, but the layout difference confirms the divergence."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-settings-group",
+      "severity": "high",
+      "divergences": "Paired live shot (Settings Group) shows three default-variant cells (white fill, thin border) with labels 'Animations' / 'Sounds' / 'Haptics' left and switches right. The Vela shot shows three white cells but each has a centered switch and no label text. Container styling matches; the missing label and centered control are the divergence.",
+      "suggestedFix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css / src/components/cell-switch/index.tsx.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired shots: live__05.png (manifest \"Settings Group\", index 5) vs local__cell-switch-settings-group.png. LIVE shows three white/thin-border cells, each with a left-aligned label (Animations / Sounds / Haptics) and a switch pinned to the right edge; switch states On/Off/On. LOCAL (verified at 2.2-3x zoom) shows three matching white cells with the same On/Off/On switch states, but NO label text at all and the switch sitting roughly centered with empty space on both sides. This is a genuine component visual-parity gap, not a demo-content or page-chrome difference: the demo source (src/showcase/demos/forms-demos.tsx lines 1078-1081) DOES render <CellSwitch.Label>{label}</CellSwitch.Label> with real labels (课堂提醒/作业截止提醒/学习周报), and the runtime CSS (src/styles/components/cell-switch.css, loaded via lib.css->index.css->main.tsx) defines .cell-switch__trigger as display:flex/align-items:center and .cell-switch__label as visible dark flex:1 text-align:start with .cell-switch__control flex-shrink:0 on the right. So labels SHOULD render left and the control right — exactly the live layout. The captured local render showing neither the label text nor a right-pinned control is a real structural/visual divergence of the component (the label slot not rendering), matching the claim. Note: the static CSS/JSX both look correct, so I could not pin the exact runtime root cause, but the rendered output unambiguously diverges as described."
+    },
+    {
+      "id": "cell-switch",
+      "slug": "cell-switch-variants",
+      "severity": "high",
+      "divergences": "Paired live shot (Variants) shows a 'default' cell (white, bordered) above a 'secondary' cell (gray, borderless), each labeled 'Animations' with switch right. The Vela shot correctly shows the two variants stacked (white bordered + gray borderless, matching tints) but both cells have a centered switch and no label text. The default-vs-secondary visual distinction is reproduced correctly; only the missing label and centered control diverge.",
+      "suggestedFix": "Shared trigger justify-between + visible label fix in src/styles/components/cell-switch.css. Variant container styling (default border vs secondary gray fill) already matches the reference.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired shots: local__cell-switch-variants.png vs live__06.png (Variants), per manifest. LIVE: two stacked cells, each with a small \"default\"/\"secondary\" caption above it; the white-bordered (default) cell and the gray-borderless (secondary) cell each contain the label text \"Animations\" left-aligned with the blue switch right-aligned (space-between row layout). VELA: the same two tints are reproduced correctly (top = white bordered, bottom = gray borderless), confirming the default-vs-secondary variant styling works — BUT both Vela cells have NO \"Animations\" label text and the switch is CENTERED in the row rather than right-aligned. This is a genuine component-layout/styling gap, not page chrome: the live docs' own CSS Classes list a .cell-switch__label (\"Leading text label\") and the cell is meant to render label-left / control-right (space-between). Vela drops the label slot and centers the lone control, so the row composition diverges structurally. The centered control (not just missing copy) confirms the space-between/label layout of the component itself isn't applied. Matches the claim: variant tints correct; missing label + centered control are the real divergence."
+    },
+    {
+      "id": "chain-of-thought",
+      "slug": "chain-of-thought-agent-trace",
+      "severity": "high",
+      "divergences": "Structurally different from the live 'Agent Trace' variant. Live composes a vertical sequence of multiple independent collapsible labeled sections, each with its own header+chevron: a 'Thought' section with a multi-line paragraph; a 'Generated design' section containing an embedded white preview card (rounded, soft border/shadow) with a mini area-chart inside; an 'Explore - N Files' section with a nested file-read list (dot indicators + file-document icons, two-level rows like 'Read layout' / 'Read app/layout.tsx'); and a 'Found UI components' section with paragraph text plus a muted 'Scanning N files' status line. Vela renders only the flat single steps list (dots + labels) followed by one ChatTool card (label + 'Args' JSON CodeBlock + 'Result' + green success badge). Missing: the multi-section collapsible grouping, the embedded design-preview card with chart, and the nested file-read list. The single ChatTool card is a reasonable analog for a tool call but does not reproduce the live trace's section-based information architecture.",
+      "suggestedFix": "Primarily a demo composition change in src/showcase/demos/ai-overlay-demos.tsx (ChainOfThoughtVariantDemo, ~lines 1346-1383): replace the single steps-list + one ChatTool with several stacked ChainOfThought blocks / collapsible sections to mirror the live Thought / Generated design / Explore (nested file list) / Found UI components structure, including an embedded preview card and a nested file-read list. If the component itself lacks a way to render nested/file-list sub-steps and section grouping, extend chain-of-thought (and add the needed selectors in src/styles/components/chain-of-thought.css) to support multiple labeled collapsible sections and a nested file-row list variant.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing live__02.png (Agent Trace, manifest index 2) vs local__chain-of-thought-agent-trace.png. LIVE renders a vertical stack of multiple independent collapsible labeled sections, each with its own header+chevron: (1) \"Thought for 2s\" -> multi-line paragraph; (2) \"Generated design\" -> an embedded white rounded preview card with soft border/shadow containing a mini blue area-chart (SVG) with placeholder bars; (3) \"Explore • 2 Files\" -> a nested two-level file-read list with dot+chevron parent rows (\"Read layout\") and file-document-icon child rows (\"Read app/layout.tsx\", \"Read app/globals.css\"); (4) \"Found UI components\" -> paragraph plus a muted \"Scanning 56 files\" status line. LOCAL renders only a single \"已思考 8 秒\" collapsible whose body is a FLAT steps list (dot + muted label + one paragraph line each: 拆解目标/检索数据/输出结论), followed by ONE ChatTool card (label \"learner_progress.search\" + green 成功 badge + 参数 JSON CodeBlock + 结果 text). The differing copy/language is demo content and ignorable, and the hero.pro nav/sidebar is page chrome (correctly absent from the local crop). But the divergence is structural, not content: the live trace's section-based information architecture — multiple grouped collapsible sections, the embedded design-preview card rendering an area chart, and the nested file-read list with chevron/dot/file-icon rows — has no analog in Vela. Vela substitutes a flat dot-labeled steps list plus a single generic tool card, which reproduces neither the multi-section grouping nor the embedded rich-content blocks (chart card, nested file list). This is a genuine component visual-parity gap."
+    },
+    {
+      "id": "chain-of-thought",
+      "slug": "chain-of-thought-agent-trace-streaming",
+      "severity": "high",
+      "divergences": "Same structural divergence as 'Agent Trace', captured in the streaming state. Live 'Agent Trace Streaming' shows the identical rich multi-section layout (Thought paragraph / 'Generated design' embedded preview card with area-chart / 'Explore - N Files' nested file-read list / 'Found UI components' with 'Scanning N files'). Vela shows the flat steps list (with a streaming 'Generating' step) plus one running ChatTool card (blue 'running' spinner badge). Missing the same elements: multi-section collapsible grouping, embedded design-preview card, and nested file-read list.",
+      "suggestedFix": "Same as chain-of-thought-agent-trace: update the agent-trace demo composition in src/showcase/demos/ai-overlay-demos.tsx to reproduce the multi-section trace (Thought / Generated design preview card / Explore nested file list / Found UI components) in streaming form, and extend the component + src/styles/components/chain-of-thought.css if multiple collapsible sections / a nested file-row list are not yet supported.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing live__03.png (\"Agent Trace Streaming\") with local__chain-of-thought-agent-trace-streaming.png confirms a genuine structural/layout divergence, not mere copy/data or page chrome.\n\nLIVE renders a rich multi-section agent trace, each section with its own heading + collapse chevron: (1) \"Thought for 2s\" paragraph; (2) \"Generated design\" containing an EMBEDDED design-preview card (white card with an area-chart mockup); (3) \"Explore • 2 Files\" with a NESTED file-read list (Read layout / Read app/layout.tsx / Read globals / Read app/globals.css), indented rows with file-type icons; (4) \"Found UI components\" with \"Scanning 56 files\". This is per-section collapsible grouping.\n\nVELA renders a FLAT layout: a single top-level collapse chevron over a bullet-step list (拆解目标 / 检索数据 / 生成中 \"Generating\" streaming step), followed by exactly one ChatTool card (\"调用 learner_progress.search\") with a blue \"运行中\" (running) spinner badge, 参数 { \"range\": \"7d\", \"groupBy\": \"class\" }, and 结果 \"正在读取学习记录...\".\n\nMissing in Vela exactly as claimed: (a) multi-section collapsible grouping (Vela has one chevron + flat steps, not per-section headings/chevrons); (b) embedded design-preview card with chart (no equivalent); (c) nested file-read list with file icons (Vela substitutes one generic tool-call card). The Chinese-vs-English copy and the specific chart/file data are ignorable demo-content differences, but the layout primitives genuinely differ. This is the streaming-state counterpart of the same Agent Trace structural gap."
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-grouped",
+      "severity": "high",
+      "divergences": "Paired with live Grouped. HeroUI renders grouped sources as a single collapsible disclosure: a muted '3 sources' summary row with a chevron indicator that expands to reveal the source list. Vela instead renders three separate flat ChatSource chips (React Docs / MDN / W3C) laid out side-by-side with no count summary, no chevron, and no expand/collapse. The collapsible disclosure styles exist (src/styles/components/chat-sources.css: chat-sources__trigger, chat-sources__content, chat-sources__list, disclosure-indicator) but are unwired — there is no ChatSources plural component and the demo does not use them.",
+      "suggestedFix": "Component change: build a ChatSources (plural) disclosure wrapper that renders a 'N sources' trigger + chevron and an expandable list, wiring up the existing src/styles/components/chat-sources.css classes; then use it in the grouped demo in src/showcase/demos/ai-overlay-demos.tsx instead of the flat chip map.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Genuine component visual-parity gap, confirmed by both images and source.\n\nLIVE (live__02.png, heading \"Grouped\"): inside an AI chat message (\"Answer synthesized from multiple sources.\") HeroUI renders a single collapsible disclosure — a muted \"3 sources\" summary row with a chevron (v) indicator to expand/collapse. No individual source chips are shown in the collapsed state.\n\nLOCAL (local__chat-source-grouped.png): three separate flat chips laid out side-by-side — \"React Docs\", \"MDN\", \"W3C\" (each with a circular favicon/fallback dot) — plus the demo status text \"尚未打开\". There is NO \"3 sources\" count summary, NO chevron, and NO expand/collapse affordance.\n\nThis is not page chrome (the surrounding hero.pro nav/sidebar is correctly ignorable) and not merely a copy/data difference: the source titles roughly correspond (React Docs/MDN/W3C), but the structural rendering model differs fundamentally — disclosure-with-summary vs. flat chip row.\n\nSource confirms root cause: the demo (src/showcase/demos/ai-overlay-demos.tsx:2148-2154) renders the grouped variant as `<div className=\"flex flex-wrap gap-2\">` mapping SOURCE_ITEMS to individual `<ChatSource>` chips — exactly the flat layout seen. The collapsible disclosure styles exist (src/styles/components/chat-sources.css: chat-sources__trigger, chat-sources__content, chat-sources__list, [data-slot=disclosure-indicator], chat-sources__trigger-label, chat-sources__content[data-expanded]) but are unwired: there is no plural ChatSources component (grep for `export ChatSources` / `function ChatSources` returns nothing; chat-source/index.tsx has no Disclosure/trigger references), so nothing emits the \"N sources\" summary row or chevron."
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-stacked-favicons",
+      "severity": "high",
+      "divergences": "Paired with live Stacked Favicons. HeroUI shows a compact disclosure: a cluster of overlapping/stacked favicons followed by a 'Sources' label and a chevron, sitting under the AI message. Vela instead renders a full inline sentence ('本段回答参考了 [chip][chip][chip] 。') with three complete pill chips inline — there is no overlapping favicon stack, no 'Sources' summary label, and no disclosure chevron. Structure, density and the signature stacked-favicon avatar cluster are all missing.",
+      "suggestedFix": "Component change: add a stacked-favicon avatar-group rendering mode to the ChatSources disclosure trigger (overlapping favicons + 'Sources' label + chevron) using src/styles/components/chat-sources.css; replace the inline-sentence stacked-favicons demo in src/showcase/demos/ai-overlay-demos.tsx with that disclosure.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Live HeroUI (live__03.png, \"Stacked Favicons\" section per manifest) renders the AI message \"Answer synthesized from multiple sources.\" with a compact disclosure beneath it: a tight cluster of overlapping/stacked favicons (a clustered icon group, e.g. a Fox-style favicon) followed by a \"Sources\" summary label and a chevron (∨) disclosure indicator. Vela (local__chat-source-stacked-favicons.png) instead renders a full inline sentence \"本段回答参考了 [React Docs] [MDN] [W3C] 。\" with three complete pill chips laid out inline. There is no overlapping favicon avatar stack, no \"Sources\" summary label, and no disclosure chevron. This is a genuine component-level structural/density divergence — the signature collapsed stacked-favicon + \"Sources\" + chevron disclosure pattern is entirely absent in Vela, replaced by an expanded inline-chip sentence. It is not mere copy/data difference (the chip text vs label is incidental) nor page chrome: the core layout/affordance the variant exists to demonstrate is missing."
+    },
+    {
+      "id": "chat-tool",
+      "slug": "chat-tool-default",
+      "severity": "high",
+      "divergences": "Structure differs on several real signals (not content). Live: trigger is a single row with a LEADING circular status icon (green check), the label reads 'Used tool: <name>', and a CHEVRON disclosure affordance sits at the far right; the whole tool sits inside a chat-message bubble with an 'AI' avatar to its left; the disclosure is COLLAPSED by default (args/result hidden). Local: no leading icon and no chevron; status is shown as a trailing text label ('成功') plus a 7px colored dot on the right; no avatar/bubble wrapper; the card is EXPANDED by default showing 参数/结果 blocks. Border radius/elevation are similar but Vela draws a full success-tinted border around the whole card while live keeps a neutral border with only the icon carrying success color.",
+      "suggestedFix": "In src/styles/components/chat-tool.css move the status from a trailing dot+label to a leading status icon in .chat-tool__trigger-label, add a trailing chevron disclosure indicator on .chat-tool__trigger, and have the component render the trigger as '<verb> tool: <name>' (collapsed by default). Reduce/limit the success border tint to match live's neutral card border. Component change likely needed to add the avatar/message-bubble wrapper and default-collapsed state.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__chat-tool-default.png with its manifest-paired live shot live__00.png (\"Usage\" section): Live shows the tool as a COLLAPSED single-row trigger — a LEADING green circular check icon, label \"Used tool: getWeather\", and a CHEVRON (down-caret) disclosure at the far right, all wrapped in a chat-message bubble with an \"AI\" avatar to its left and helper text \"Completed tool call with JSON args and result.\"; the row has a neutral light border with only the icon carrying success color, and args/result are hidden. Local shows NO leading icon and NO chevron; status is a trailing \"成功\" text label plus a small green dot on the right; there is no avatar/bubble wrapper; the card is EXPANDED by default rendering 参数 (JSON args) and 结果 blocks (caption \"展开状态: open\"); and Vela draws a full success-tinted green border around the whole card. These are genuine structural/styling divergences of the component (disclosure affordance, status presentation, default expansion state, wrapper/avatar, border treatment) — not mere demo copy/icon/data differences, and the heroui.pro page chrome (sidebar/header) is irrelevant. Every signal in the claim is borne out by the two images."
+    },
+    {
+      "id": "bar-chart",
+      "slug": "bar-chart-horizontal",
+      "severity": "medium",
+      "divergences": "Local horizontal bars are much taller/thicker than Pro's thin horizontal bars, and use a brighter sky-blue vs Pro's deeper, more saturated primary blue. Pro shows more whitespace between bars. Rounded ends, left category labels and bottom x-axis match structurally.",
+      "suggestedFix": "Add maxBarSize (~16-20) / increase barCategoryGap and switch fill to the primary blue token in the horizontal demo in src/showcase/demos/charts-demos.tsx so bar height and color match Pro.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired images: local__bar-chart-horizontal.png vs live__04.png (Horizontal, manifest index 4). Pixel analysis confirms both claimed divergences as scale-independent component styling, not demo content or chrome. (1) Bar thickness/whitespace: local bars fill ~80% of each row band (thickness ~40px / gap ~10px); Pro bars fill only ~41% (thickness ~15px / gap ~21px). This band-fill ratio is independent of the differing image widths (814 vs 1440), so local bars are genuinely ~2x thicker proportionally with far less inter-bar whitespace — a real barSize/barCategoryGap gap. (2) Color: local fill is bright sky-blue RGB ~(68,173,255) ≈ #44ADFF; Pro fill is a deeper, more saturated primary blue RGB ~(16,139,247) ≈ #108BF7 — a clear series-color token difference. Structural elements match per claim: rounded bar ends, left category labels, bottom x-axis present in both. Differences I deliberately ignored as non-component: data labels (Qualified/Proposal vs Widgets/Gadgets), bar count (4 vs 5), axis scale (0-100 vs 0-2000), and Pro's 'Top Products' card wrapper plus heroui.pro page chrome. The two cited gaps are genuine visual-parity divergences in the bar-chart component itself."
+    },
+    {
+      "id": "bar-chart",
+      "slug": "bar-chart-kpi-with-bar-chart",
+      "severity": "medium",
+      "divergences": "Pro shows the trend as a small inline up-arrow + muted '3.3% last 30d' on the same line as/just under the big number, with a thin-bar mini chart that has month axis labels. Local renders an oversized standalone green chevron icon above a green '8.6% QoQ', the mini-bars are wide, and there are no month labels under the bars. The big-number + label hierarchy otherwise matches.",
+      "suggestedFix": "In the kpi-with-bar-chart demo in src/showcase/demos/charts-demos.tsx, replace the large standalone chevron with a small inline trend arrow next to the delta text, render x-axis month tick labels, and apply maxBarSize plus the primary blue token to thin/darken the mini bars.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__bar-chart-kpi-with-bar-chart.png against the paired live__06.png (manifest index 6 = \"KPIWith Bar Chart\"), excluding heroui.pro page chrome (nav/sidebar/On-this-page):\n\nPRO (live): big number \"278\" with a SMALL inline up-arrow + MUTED GRAY \"3.3% last 30d\" on the SAME baseline/line to the right of the number; mini chart has THIN bars with a month X-axis (\"Jan Feb Mar ... Dec\") under the bars.\n\nLOCAL: an OVERSIZED standalone GREEN chevron (^) icon sitting ABOVE a GREEN \"8.6% QoQ\", both stacked vertically and offset right (not inline with the big number \"292k\"); mini-bars are WIDE; there are NO month labels beneath the bars.\n\nThese are genuine component-level visual divergences, not just demo content: (1) trend indicator layout — inline arrow+text vs oversized chevron-above-text block; (2) trend color treatment — muted gray vs green; (3) bar width — thin vs wide; (4) missing X-axis month labels in local. Differences in title copy, the numeric value, the specific delta text, and bar count (12 vs 6) are demo-data noise and not the basis for the verdict. The big-number + label hierarchy otherwise matches, as claimed. Every sub-claim is supported by the pixels."
+    },
+    {
+      "id": "cell-color-picker",
+      "slug": "cell-color-picker-settings-group",
+      "severity": "medium",
+      "divergences": "Live__03 renders the three rows as one CONNECTED settings group: a single rounded bordered container with internal hairline dividers, no gaps between rows, only the outer top/bottom corners rounded, shared elevation. Vela renders three SEPARATE fully-rounded pills, each with its own border + drop shadow, stacked with a visible vertical gap (~12-16px). This changes the grouping affordance and the vertical rhythm/elevation of the section.",
+      "suggestedFix": "This is a demo-composition + grouped-style gap. In src/showcase/demos/forms-demos.tsx the cell-color-picker settings-group demo should wrap the three CellColorPicker rows in a single grouped container (zero gap) and add grouped styling so adjacent rows share borders with only the outer corners rounded. Add a grouped modifier in src/styles/components/cell-color-picker.css (e.g. .cell-color-picker--grouped: remove per-row shadow, collapse gap to 0, square inner corners, single top divider per row) — note per MEMORY the runtime loads heroui-full.css, so the same grouped rule must land there to take effect at runtime.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing live__03.png (Settings Group, index 3) vs local__cell-color-picker-settings-group.png. LIVE: the three rows (Accent/Success/Danger) form ONE connected group — a single bordered, rounded container where rows sit flush with thin internal hairline dividers, no vertical gaps, only the outer top/bottom corners rounded, one shared elevation. VELA: three SEPARATE fully-rounded pills (主题色/成功色/警告色), each with its own border and drop shadow, stacked with a clear ~12-16px vertical gap; each row is independently elevated. This is a genuine component composition/styling divergence — the grouping affordance (segmented connected group vs. detached pills) and vertical rhythm/elevation differ, exactly as claimed. There are also content differences (EN vs CN labels, Danger #EF4444 red vs 警告色 #F59E0B orange) but those are demo-content; the load-bearing structural gap (connected vs separated, shared vs per-row border+shadow, gap vs no gap) is real and not attributable to page chrome."
+    },
+    {
+      "id": "cell-slider",
+      "slug": "cell-slider-settings-group",
+      "severity": "medium",
+      "divergences": "Live Settings Group groups sliders under section subheadings (Density, Corners) as vertical stacks with neutral grey fills and thin pill thumbs. Vela shows a flat list of rows with bright-blue fills. The grouping subheadings/section structure being absent is partly demo content, but the fill-color (blue vs neutral) and saturated treatment diverge from the muted settings-panel look of the reference.",
+      "suggestedFix": "Apply the .cell-slider__fill accent/neutral-tint fix; if the secondary/muted variant is intended here, confirm the demo (src/showcase/demos/forms-demos.tsx) renders grouped sections with the secondary variant so fills read as quiet grey like the reference.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__cell-slider-settings-group.png to live__05.png (the manifest-paired \"Settings Group\" shot): the heroui.pro reference renders each cell-slider with a NEUTRAL GREY filled track on a white track — a muted, monochrome settings-panel look (rows: Spacing 0.50, Font Size 0.30 under \"Density\"; General Radius 0.50, Forms Radius 0.30 under \"Corners\"). Vela renders the identical control type with a BRIGHT SATURATED BLUE filled track (字间距 0.42, 朗读速度 0.72, 提示强度 0.3). The fill-color/saturation divergence (blue vs neutral grey) is a property of how the cell-slider component paints its filled track — not page chrome, not just data/copy. This is a genuine component styling parity gap. The other differences the claim flags — missing Density/Corners subheadings and the label text/values — are demo-content differences and not by themselves a component gap, but the blue-vs-grey fill treatment is real and component-level, so the divergence is confirmed."
+    },
+    {
+      "id": "chat-source",
+      "slug": "chat-source-composable",
+      "severity": "medium",
+      "divergences": "Paired with live Composable. Both embed a source inside an AI message with body copy + a copy action. HeroUI embeds a small inline source chip ('React docs' with favicon) within the prose. Vela instead renders a larger ChatSource.Preview block — bold title 'React Learn' on its own line plus a muted description line beneath — which reads as a richer card rather than the compact inline chip HeroUI uses. Result: more vertical space and a heavier title/description hierarchy than the live example.",
+      "suggestedFix": "Either swap ChatSource.Preview for an inline ChatSource chip in the composable demo (src/showcase/demos/ai-overlay-demos.tsx) to mirror HeroUI's inline placement, or tighten the preview to a single-line chip-like treatment via src/styles/components/chat-source.css (.chat-source__preview / .chat-source__preview-title / .chat-source__preview-description) so it sits inline rather than as a stacked card.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__chat-source-composable.png vs live__04.png (Composable = live index 4 per manifest). Live HeroUI: AI message with body prose (\"React's documentation has a clear explanation... The source chip below uses custom trigger content with a fetched favicon.\") followed by a single COMPACT INLINE CHIP PILL — small rounded pill with a fetched favicon + \"React docs\" on one line, embedded under the prose. Vela local: same AI message concept but renders a stacked ChatSource.Preview block — a BOLD \"React Learn\" title on its own line plus a MUTED description line beneath (\"组合式组件适合把来源嵌入 AI 回复正文。\"), with no favicon, then a separate copy-action row. This is a genuine structural/hierarchy divergence: a multi-line title+description card occupying more vertical space versus HeroUI's one-line compact favicon chip. The shape difference (stacked bold-title/muted-desc card vs. compact inline pill) and the absence of the favicon in Vela are component-level rendering differences, not merely demo copy/language or heroui.pro page chrome. The Chinese vs English body text is incidental; the load-bearing divergence is the source-embed presentation."
+    },
+    {
+      "id": "emoji-picker",
+      "slug": "emoji-picker-inline",
+      "severity": "medium",
+      "divergences": "Open inline picker layout order is inverted vs reference. Live stacks: rounded pill search input WITH leading magnifier icon and an inline skin-tone trigger on the right at the TOP, then a fully populated multi-column emoji grid, then the category navigation strip pinned at the BOTTOM (footer absolute bottom:0). Local stacks: category tab strip at the TOP, a plain bordered search input (no visible magnifier icon, no inline skin-tone trigger) BELOW it, then a large grid that renders nearly empty with a single emoji floating centered. So: (1) category strip placement top vs bottom, (2) search field is below categories instead of at top, (3) search lacks the leading search icon and the inline skin-tone hand trigger, (4) grid not showing a populated multi-column layout. Items 1-3 are real structural/styling parity gaps; the empty grid is partly likely a harness/virtualization capture artifact.",
+      "suggestedFix": "In the inline composition, reorder so EmojiPicker.Content places the search row (with SkinTonePicker inline) first, then EmojiPicker.Grid, then the category/Footer strip last; the CSS already pins .emoji-picker__footer to bottom:0 (absolute) so the category strip should sit at the bottom — verify the demo (src/showcase/demos/forms-demos.tsx emoji-picker-inline) isn't rendering categories above the search. Add the leading magnifier icon and the SkinTonePicker trigger inside the search row to match the reference.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Comparing local__emoji-picker-inline.png vs live__02.png (manifest index 2, heading \"Inline\"). LIVE reference (heroui.pro card): (a) rounded pill search input with a leading magnifier icon and an inline skin-tone hand trigger (✋) docked inside the right of the search bar, sitting at the TOP; (b) a densely populated 6-column emoji grid in the middle; (c) a category navigation strip (clock/smiley/wave/dog/apple/soccer/car/bulb) pinned at the BOTTOM as a footer. LOCAL (Vela): the category tab strip (😀👍🐼🍎💡✋ + skin-tone hands) sits at the TOP; below it a plain bordered rectangular search field (\"搜索表情...\") with NO leading magnifier icon and NO inline skin-tone trigger; below that a large gray box that is nearly empty with a single 😀 floating centered.\n\nAssessing skeptically: (1) category strip top-vs-bottom and (2) search-above-vs-below-categories are genuine layout-order inversions of the component itself, not page chrome and not demo copy. (3) The search field's missing leading magnifier icon and missing inline skin-tone trigger, plus pill-vs-plain-border styling, are real component composition/styling gaps (the EN-vs-ZH placeholder is mere i18n and is not the cited issue). These three are clearly visible structural/styling parity divergences. (4) The empty grid with one centered emoji is most consistent with a virtualization/no-layout capture artifact in the harness (the claim concedes this), so I do not credit it as an independent component gap — but it is not needed: items 1-3 alone constitute a genuine component visual-parity divergence."
+    },
+    {
+      "id": "empty-state",
+      "slug": "empty-state-with-avatar-group",
+      "severity": "medium",
+      "divergences": "Live renders an overlapping AvatarGroup (avatars with white ring separators, negative-margin overlap) on transparent background. Local renders the three avatars spaced apart with gaps, non-overlapping, wrapped inside a grey rounded pill/blob container behind them. The overlap + ring stacking and the absence of a media background are not reproduced.",
+      "suggestedFix": "Use the real overlapping AvatarGroup in the with-avatar-group demo (negative inline margin + ring border per avatar) and remove the icon-style media background; the .empty-state__media[data-variant=icon] grey circle bg in src/styles/components/empty-state.css should not apply when media is an avatar group (scope the background to data-variant=icon only / set data-variant=avatar).",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Paired images: docs/parity-shots/empty-state/local__empty-state-with-avatar-group.png vs live__06.png (manifest \"With Avatar Group\" -> index 6). LIVE shows three avatars rendered as overlapping circles with negative-margin stacking and a white ring separator between each, sitting directly on a transparent/white background (no media blob). LOCAL shows the three avatars (letter-initials \"王 李 陈\") spaced apart with visible gaps, NOT overlapping and with no white ring stacking, and wrapped inside a grey rounded pill/blob container behind them. Setting aside the demo-content differences that should be ignored (copy \"No Team Members\"/\"Invite Members\" vs \"暂无匹配课程\"/\"刷新\", and gradient-image avatars vs letter-initial avatars), two genuine component-level visual differences remain: (1) the AvatarGroup overlap + white-ring stacking is absent locally (avatars are gapped/non-overlapping), and (2) local retains a grey rounded media-slot background behind the avatar group that live does not render (live keeps the avatars on transparent background). These are structural/styling divergences of the EmptyState avatar-group variant, not page chrome, so the claim holds."
+    },
+    {
+      "id": "inline-select",
+      "slug": "inline-select-team-switcher",
+      "severity": "medium",
+      "divergences": "Live renders a breadcrumb-style team switcher: a leading app logo, a '/' separator, then a small colored square avatar/initial badge ('N') sitting immediately before the team name inside the inline trigger row. Local renders only a bare select trigger ('增长组' + chevron) followed by a separate caption text ('当前团队：growth') with no leading logo, no slash separator, and no avatar/initial badge. The composed leading-element treatment (logo + slash + colored initial chip) is absent, so the structure of this variant diverges.",
+      "suggestedFix": "This is a demo/composition difference rather than a base-style issue: update the team-switcher demo (src/showcase/demos/forms-demos.tsx inline-select team-switcher case) to compose a leading logo + '/' + a colored InlineSelect.Value initial-badge before the team name instead of appending a 'current team' caption. If a leading-badge slot is desired in the component, add an avatar/initial-chip style to src/styles/components/inline-select.css for content placed before .inline-select__value.",
+      "verifyVerdict": "confirmed",
+      "verifyReason": "Compared local__inline-select-team-switcher.png against live__01.png (Team Switcher = live index 1 per manifest.json). LIVE trigger row is a composed breadcrumb: dark \"hero\" app logo glyph, a thin grey \"/\" separator, a purple rounded-square initial chip showing \"N\", then team name \"Northwind Labs\", then an up/down chevron. LOCAL shows only a bare select trigger (\"增长组\" + chevron) plus a separate sibling caption \"当前团队：growth\"; it has no leading logo, no \"/\" separator, and no colored initial/avatar chip. This is a structural/layout divergence of the variant's trigger, not page chrome (the hero sidebar/search/Get-Pro chrome is excluded) and not merely translated copy: the avatar-chip + slash + logo composition inside the trigger is entirely absent locally and is replaced by a different pattern (a detached caption). The text content difference (\"Northwind Labs\" vs \"增长组\"/\"growth\") alone would be discountable, but the missing leading-element composition is a genuine component visual-parity gap."
+    }
+  ],
+  "fixedVerified": [
+    "cell-slider(fill→neutral, specificity)",
+    "cell-switch(trigger row+space-between)"
+  ],
+  "verifyPhaseNote": "2026-06-19: verify 子阶段大量 403/socket(并发过大限流)，故多数 highMediumDivergences 未对抗校验=低置信(如 trend-chip 经预览核实其实是横向 pill，agent 误报)。verifiedConfirmed(25)才是高置信集。",
+  "remainingVerifiedFindings": {
+    "demo-composition": [
+      "chat-source(disclosure group/stacked)",
+      "chain-of-thought(multi-section agent-trace)",
+      "bar-chart(horizontal bar size/color, kpi inline trend)",
+      "cell-color-picker(grouped container)",
+      "emoji-picker(inline order)",
+      "empty-state(overlapping AvatarGroup)",
+      "inline-select(team-switcher compose)"
+    ],
+    "css-or-component": [
+      "chat-tool(leading status icon+chevron)"
+    ]
+  }
+}
