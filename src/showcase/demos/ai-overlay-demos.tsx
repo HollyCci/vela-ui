@@ -2294,7 +2294,9 @@ const MarkdownVariantDemo = ({ variant }: { variant: 'default' | 'streaming' | '
         </div>
       )}
       <div style={{ width: 620 }}>
-        <Markdown>{variant === 'default' ? MARKDOWN_SAMPLE : text}</Markdown>
+        <Markdown isStreaming={variant === 'with-streamdown' && isStreaming}>
+          {variant === 'default' ? MARKDOWN_SAMPLE : text}
+        </Markdown>
       </div>
     </DemoSection>
   );

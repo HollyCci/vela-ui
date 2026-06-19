@@ -157,3 +157,27 @@
 .markdown [data-sd-animate] {
   animation: var(--sd-animation,sd-fadeIn) var(--sd-duration,.15s) var(--sd-easing,ease) var(--sd-delay,0s) both;
 }
+
+/* 流式 caret：尾随光标占位，闪烁提示模型仍在追加 token（Streamdown 风格） */
+.markdown__caret {
+  display: inline-block;
+  width: calc(var(--spacing) * 0.5);
+  height: 1em;
+  margin-left: calc(var(--spacing) * 0.5);
+  vertical-align: text-bottom;
+  border-radius: calc(var(--radius) * .25);
+  background-color: var(--foreground);
+  animation: markdown-caret-blink 1s steps(2, start) infinite;
+}
+
+@keyframes markdown-caret-blink {
+  0% { opacity: 1; }
+  50% { opacity: 0; }
+  100% { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .markdown__caret {
+    animation: none;
+  }
+}

@@ -3,6 +3,7 @@
 import {
   createElement,
   forwardRef,
+  memo,
   useMemo,
   type CSSProperties,
   type ElementType,
@@ -55,13 +56,18 @@ export type MarkdownProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | '
   children?: string;
   /** Component overrides for rendered markdown elements. */
   components?: Partial<MarkdownComponents>;
+  /**
+   * 流式追加中：尾部渲染闪烁 caret 占位，根类切换为 --streaming（Streamdown 风格，参考 API，默认 false）。
+   * 未闭合代码围栏仍按既有逻辑兜底渲染。
+   */
+  isStreaming?: boolean;
   /** Stable block-key seed. */
   id?: string;
   className?: string;
   style?: CSSProperties;
 };
 
-type ParsedBlock = { kind: 'content'; node: ReactNode } | { kind: 'empty' };
+type ParsedBlock = { kind: 'content'; source: string; node: ReactNode } | { kind: 'empty' };
 type MarkdownSegment = { kind: 'text'; lines: string[] } | { kind: 'code'; language: string; code: string };
 type MarkdownRenderContext = { components?: Partial<MarkdownComponents> };
 type TableAlignment = 'center' | 'left' | 'right';
@@ -500,39 +506,77 @@ const parseBlocks = (source: string, context: MarkdownRenderContext): ParsedBloc
       blocks.push({ kind: 'empty' });
     }
 
-    blocks.push({
-      kind: 'content',
-      node:
-        segment.kind === 'code'
-          ? renderFencedCode(context, segment.language, segment.code)
-          : parseContentBlock(segment.lines.join('\n'), context),
-    });
+    if (segment.kind === 'code') {
+      blocks.push({
+        kind: 'content',
+        // 围栏块以语言+正文作稳定签名，token 追加时未变化的块跳过重渲染
+        source: `\`\`\`${segment.language}\n${segment.code}`,
+        node: renderFencedCode(context, segment.language, segment.code),
+      });
+      return;
+    }
+
+    const text = segment.lines.join('\n');
+    blocks.push({ kind: 'content', source: text, node: parseContentBlock(text, context) });
   });
 
   return blocks;
 };
 
 /**
+ * 单个块容器：以稳定块源 source 作 memo 边界，流式追加 token 时未变化的块跳过重渲染。
+ * node 由 source 派生，因此 source 相等即可视为同一渲染结果。
+ */
+type MarkdownBlockProps = { source: string; node: ReactNode };
+
+const MarkdownBlock = memo(
+  ({ node }: MarkdownBlockProps) => (
+    <div data-slot="markdown-block" className="markdown__block">
+      {node}
+    </div>
+  ),
+  (prev, next) => prev.source === next.source,
+);
+MarkdownBlock.displayName = 'MarkdownBlock';
+
+/**
  * Markdown root: renders local markdown into the prose container used by AI components.
  * Fenced code defaults to CodeBlock so language labels and copy stay available.
+ * isStreaming 为真时尾部追加闪烁 caret 并切根类 --streaming（Streamdown 风格）。
  */
 const Markdown = forwardRef<HTMLDivElement, MarkdownProps>(
-  ({ children = '', components, id, className, ...rest }, ref) => {
+  ({ children = '', components, isStreaming = false, id, className, ...rest }, ref) => {
     const seed = useMemo(() => id ?? `markdown-${++markdownIdSeed}`, [id]);
     const blocks = useMemo(() => parseBlocks(children, { components }), [children, components]);
 
     return (
-      <div ref={ref} data-slot="markdown" className={clsx('markdown', className)} {...rest}>
-        {blocks.map((block, index) => (
-          <div
-            // eslint-disable-next-line react/no-array-index-key -- 解析块按位置渲染，index 稳定
-            key={`${seed}-${index}`}
-            data-slot="markdown-block"
-            className="markdown__block"
-          >
-            {block.kind === 'content' ? block.node : null}
-          </div>
-        ))}
+      <div
+        ref={ref}
+        data-slot="markdown"
+        data-streaming={isStreaming ? 'true' : undefined}
+        className={clsx('markdown', isStreaming && 'markdown--streaming', className)}
+        {...rest}
+      >
+        {blocks.map((block, index) =>
+          block.kind === 'content' ? (
+            <MarkdownBlock
+              // eslint-disable-next-line react/no-array-index-key -- 解析块按位置渲染，index 稳定
+              key={`${seed}-${index}`}
+              source={block.source}
+              node={block.node}
+            />
+          ) : (
+            <div
+              // eslint-disable-next-line react/no-array-index-key -- 解析块按位置渲染，index 稳定
+              key={`${seed}-${index}`}
+              data-slot="markdown-block"
+              className="markdown__block"
+            />
+          ),
+        )}
+        {isStreaming ? (
+          <span data-slot="markdown-caret" className="markdown__caret" aria-hidden="true" />
+        ) : null}
       </div>
     );
   },
