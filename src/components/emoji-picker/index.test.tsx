@@ -88,10 +88,73 @@ describe('EmojiPicker', () => {
     render(<EmojiPicker isInline />);
 
     const search = screen.getByRole('textbox', { name: '搜索表情' });
-    // 输入一个匹配不到任何分类/表情的查询 → 空态
+    // 输入一个匹配不到任何分类/表情/名称的查询 → 空态
     await user.type(search, 'zzzznomatch');
 
     expect(screen.getByText('没有匹配的表情')).toBeInTheDocument();
+  });
+
+  // ── 名称搜索：英文关键词应跨分类命中对应 emoji（HeroUI 搜索是按名检索）─────────────
+  it('按英文名称/关键词搜索能命中 emoji（smile / heart / dog）', async () => {
+    const user = userEvent.setup();
+    render(<EmojiPicker isInline />);
+
+    const search = screen.getByRole('textbox', { name: '搜索表情' });
+    const grid = screen.getByRole('listbox', { name: '表情网格' });
+
+    // 'dog' 命中动物分类里的 🐶
+    await user.type(search, 'dog');
+    expect(within(grid).getByRole('option', { name: '🐶' })).toBeInTheDocument();
+    expect(screen.queryByText('没有匹配的表情')).not.toBeInTheDocument();
+
+    // 'heart' 命中 😍（heart eyes 关键词）
+    await user.clear(search);
+    await user.type(search, 'heart');
+    expect(within(grid).getByRole('option', { name: '😍' })).toBeInTheDocument();
+
+    // 'smile' 跨多个笑脸命中，至少 😄（smile）在内
+    await user.clear(search);
+    await user.type(search, 'smile');
+    expect(within(grid).getByRole('option', { name: '😄' })).toBeInTheDocument();
+  });
+
+  // ── 肤色：选 dark 后，可套色的 👍 重渲为带 Fitzpatrick dark 修饰符的字符 ───────────
+  it('选肤色后可套色 emoji 重渲为带 Fitzpatrick 修饰符的字符', async () => {
+    const user = userEvent.setup();
+    render(<EmojiPicker isInline />);
+
+    // 先切到手势分类，👍 可套色（单选 ToggleButtonGroup 里的项 role=radio）
+    await user.click(screen.getByRole('radio', { name: '手势' }));
+
+    const grid = screen.getByRole('listbox', { name: '表情网格' });
+    // 默认肤色：基础 👍 在网格中
+    expect(within(grid).getByRole('option', { name: '👍' })).toBeInTheDocument();
+
+    // 选 dark 肤色（aria-label='深'，exact 避免误配其它档）
+    await user.click(screen.getByRole('radio', { name: '深', exact: true }));
+
+    // 重渲后基础 👍 不再存在，取而代之是带 dark 修饰符的 👍🏿
+    expect(within(grid).queryByRole('option', { name: '👍' })).not.toBeInTheDocument();
+    expect(within(grid).getByRole('option', { name: '👍\u{1F3FF}' })).toBeInTheDocument();
+  });
+
+  // ── 肤色受控：传 tone 后渲染对应肤色，且不可套色的表情不受影响 ─────────────────────
+  it('受控 tone=light 时手势重渲带 light 修饰符，笑脸不受影响', () => {
+    render(<EmojiPicker isInline tone="light" />);
+    // 笑脸分类（默认激活）：😀 不可套色，仍是基础字符
+    const grid = screen.getByRole('listbox', { name: '表情网格' });
+    expect(within(grid).getByRole('option', { name: '😀' })).toBeInTheDocument();
+    expect(within(grid).queryByRole('option', { name: '😀\u{1F3FB}' })).not.toBeInTheDocument();
+  });
+
+  it('肤色切换触发 onToneChange 回调', async () => {
+    const user = userEvent.setup();
+    const onToneChange = vi.fn();
+    render(<EmojiPicker isInline onToneChange={onToneChange} />);
+
+    // exact:true 让 '中' 只配中档，不误配 '中浅'/'中深'
+    await user.click(screen.getByRole('radio', { name: '中', exact: true }));
+    expect(onToneChange).toHaveBeenCalledWith('medium');
   });
 
   it('非 inline 模式渲染 trigger 按钮, 显示当前值', () => {
