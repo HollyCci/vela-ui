@@ -809,7 +809,7 @@ const ChartTooltipVariantDemo = ({ variant }: { variant: TooltipVariant }) => {
             <LineChart.Tooltip
               cursor={{ strokeDasharray: '4 4' }}
               content={
-                <LineChart.TooltipContent
+                <ChartTooltip.Content
                   indicator={variant === 'custom-formatters' ? 'line' : 'dot'}
                   labelFormatter={
                     variant === 'custom-formatters' ? (label) => `Report: ${label}` : undefined

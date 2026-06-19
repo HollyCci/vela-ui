@@ -24,7 +24,7 @@ import {
   Label,
   LabelList,
 } from 'recharts';
-import ChartTooltip from '../chart-tooltip';
+import ChartTooltip, { type ChartTooltipContentProps } from '../chart-tooltip';
 
 type ChartDatum = Record<string, number | string>;
 
@@ -178,60 +178,12 @@ const LineChartRoot = forwardRef<HTMLDivElement, LineChartProps>(
 );
 LineChartRoot.displayName = 'LineChart';
 
-/** Recharts payload 单项（tooltip content 回调入参） */
-type TooltipPayloadItem = {
-  name?: ReactNode;
-  value?: number | string;
-  color?: string;
-  dataKey?: string | number;
-  payload?: ChartDatum;
-};
+// 内容感知逻辑已提升到 ChartTooltip.Content（内容感知原语），此处直接复用避免重复
+export type LineChartTooltipContentProps = ChartTooltipContentProps;
 
-export type LineChartTooltipContentProps = {
-  active?: boolean;
-  payload?: TooltipPayloadItem[];
-  label?: ReactNode;
-  /** 指示器形态，默认 dot */
-  indicator?: 'dot' | 'line';
-  /** 值格式化函数 */
-  formatter?: (value: number | string, name: ReactNode) => ReactNode;
-  /** label 格式化函数 */
-  labelFormatter?: (label: ReactNode) => ReactNode;
-  /** 是否隐藏顶部 label 行 */
-  hideLabel?: boolean;
-};
-
-const TooltipContent = ({
-  active,
-  payload,
-  label,
-  indicator = 'dot',
-  formatter,
-  labelFormatter,
-  hideLabel,
-}: LineChartTooltipContentProps) => {
-  if (!active || !payload || payload.length === 0) return null;
-  return (
-    <ChartTooltip>
-      {!hideLabel && (
-        <ChartTooltip.Header>{labelFormatter ? labelFormatter(label) : label}</ChartTooltip.Header>
-      )}
-      {payload.map((item, index) => (
-        <ChartTooltip.Item
-          key={item.dataKey ?? index}
-          indicator={indicator}
-          indicatorColor={item.color}
-          label={item.name}
-          value={
-            formatter && item.value !== undefined
-              ? formatter(item.value, item.name)
-              : item.value
-          }
-        />
-      ))}
-    </ChartTooltip>
-  );
-};
+const TooltipContent = (props: LineChartTooltipContentProps) => (
+  <ChartTooltip.Content {...props} />
+);
 TooltipContent.displayName = 'LineChart.TooltipContent';
 
 const LineChart = Object.assign(LineChartRoot, {

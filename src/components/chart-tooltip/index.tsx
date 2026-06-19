@@ -49,6 +49,70 @@ const Item = forwardRef<HTMLDivElement, ChartTooltipItemProps>(
 );
 Item.displayName = 'ChartTooltip.Item';
 
-const ChartTooltip = Object.assign(ChartTooltipRoot, { Header, Item });
+/** Recharts payload 单项（content 回调入参） */
+export type ChartTooltipPayloadItem = {
+  name?: ReactNode;
+  value?: number | string;
+  color?: string;
+  dataKey?: string | number;
+  payload?: Record<string, number | string>;
+};
+
+export type ChartTooltipContentProps = {
+  /** Recharts 注入：是否激活（hover 中），未激活则不渲染 */
+  active?: boolean;
+  /** Recharts 注入：当前数据点的各系列项 */
+  payload?: ChartTooltipPayloadItem[];
+  /** Recharts 注入：当前数据点 label（如 x 轴分类值） */
+  label?: ReactNode;
+  /** 指示器形态，默认 dot */
+  indicator?: ChartTooltipIndicator;
+  /** 值格式化函数 */
+  formatter?: (value: number | string, name: ReactNode) => ReactNode;
+  /** label 格式化函数 */
+  labelFormatter?: (label: ReactNode) => ReactNode;
+  /** 是否隐藏顶部 label 行 */
+  hideLabel?: boolean;
+};
+
+/**
+ * 内容感知的 tooltip 主体：直接消费 Recharts 的 active/payload/label，
+ * 自动渲染 Header + 各系列 Item，并应用 formatter/labelFormatter。
+ * 各图表的 *.TooltipContent 复用此实现，避免重复。
+ */
+const Content = ({
+  active,
+  payload,
+  label,
+  indicator = 'dot',
+  formatter,
+  labelFormatter,
+  hideLabel,
+}: ChartTooltipContentProps) => {
+  if (!active || !payload || payload.length === 0) return null;
+  return (
+    <ChartTooltipRoot>
+      {!hideLabel && (
+        <Header>{labelFormatter ? labelFormatter(label) : label}</Header>
+      )}
+      {payload.map((item, index) => (
+        <Item
+          key={item.dataKey ?? index}
+          indicator={indicator}
+          indicatorColor={item.color}
+          label={item.name}
+          value={
+            formatter && item.value !== undefined
+              ? formatter(item.value, item.name)
+              : item.value
+          }
+        />
+      ))}
+    </ChartTooltipRoot>
+  );
+};
+Content.displayName = 'ChartTooltip.Content';
+
+const ChartTooltip = Object.assign(ChartTooltipRoot, { Header, Item, Content });
 
 export default ChartTooltip;
