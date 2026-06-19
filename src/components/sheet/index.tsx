@@ -158,10 +158,9 @@ const SheetDragContext = createContext<SheetDragContextValue | null>(null);
 
 /** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐目标交互手感 */
 const DISMISS_FRACTION = 0.3;
-const SNAP_FRACTION = 0.18;
-const MIN_SNAP_DISTANCE = 48;
-const MAX_SNAP_DISTANCE = 120;
 const VELOCITY_THRESHOLD = 500;
+/** 拖拽结束时把瞬时速度折算成额外投影位移的系数（秒），用于选「最近档」时纳入惯性，近似 vaul */
+const VELOCITY_PROJECTION = 0.08;
 
 /** 弹回/收起的弹簧动画，cubic 近似 `cubic-bezier(0.32, 0.72, 0, 1)` 的速度曲线 */
 const SNAP_TRANSITION: Transition = {
@@ -187,6 +186,86 @@ const hasSnapPoints = (snapPoints: SheetSnapPoint[] | undefined) =>
 
 const toCssSize = (value: SheetSnapPoint | undefined) =>
   typeof value === 'number' ? `${value}px` : value;
+
+/**
+ * 把一个 snap point 解析为沿关闭轴的像素值，供拖拽结束时计算「最近档」。
+ * number / "<n>px" 直接取像素；"<n>%" 相对视口对应维度；其它单位（rem/vh/vw…）退化按
+ * 当前实测尺寸与当前档数值的比例缩放（同单位场景精确，跨单位场景为近似）。viewportSize 为
+ * 视口在关闭轴上的尺寸；fallbackBasis 为可选的「当前实测像素 / 当前档数值」比例换算上下文。
+ */
+export const resolveSnapPx = (
+  value: SheetSnapPoint,
+  viewportSize: number,
+  fallbackBasis?: { numeric: number; px: number },
+): number => {
+  if (typeof value === 'number') return value;
+  const trimmed = value.trim();
+  const percentMatch = /^(-?\d*\.?\d+)%$/.exec(trimmed);
+  if (percentMatch) return (parseFloat(percentMatch[1]) / 100) * viewportSize;
+  const pxMatch = /^(-?\d*\.?\d+)px$/.exec(trimmed);
+  if (pxMatch) return parseFloat(pxMatch[1]);
+  const numericMatch = /^(-?\d*\.?\d+)/.exec(trimmed);
+  if (numericMatch && fallbackBasis && fallbackBasis.numeric !== 0) {
+    return (parseFloat(numericMatch[1]) / fallbackBasis.numeric) * fallbackBasis.px;
+  }
+  if (numericMatch) return parseFloat(numericMatch[1]);
+  return viewportSize;
+};
+
+/** 取一个 snap point 数值部分（百分比/像素/裸数字），用于按比例换算的上下文 */
+const snapNumericPart = (value: SheetSnapPoint): number => {
+  if (typeof value === 'number') return value;
+  const numericMatch = /^(-?\d*\.?\d+)/.exec(value.trim());
+  return numericMatch ? parseFloat(numericMatch[1]) : 0;
+};
+
+/**
+ * 纯函数：据拖拽结束时的投影尺寸，在已解析为像素的各档中选目标。
+ * 返回最近档下标；若已停在最小档且投影尺寸跌破关闭阈值（或速度极快）则返回 'dismiss'。
+ * 抽出为纯函数以便单测覆盖「多档跳跃落到最近档」与关闭判定，不依赖 jsdom 布局。
+ * @internal 仅供测试，不属公开 API
+ */
+export const selectSnapTarget = (params: {
+  resolvedPx: number[];
+  /** 当前实测像素尺寸（关闭轴维度） */
+  dimension: number;
+  /** 当前档下标 */
+  currentIndex: number;
+  /** 朝关闭方向为正的位移（px） */
+  directedTravel: number;
+  /** 朝关闭方向为正的速度（px/s） */
+  directedSpeed: number;
+  /** 关闭阈值（占当前维度比例） */
+  closeThreshold: number;
+}): number | 'dismiss' => {
+  const { resolvedPx, dimension, currentIndex, directedTravel, directedSpeed, closeThreshold } =
+    params;
+  if (resolvedPx.length === 0) return currentIndex;
+
+  const projectedTravel = directedTravel + directedSpeed * VELOCITY_PROJECTION;
+  const projectedSize = dimension - projectedTravel;
+
+  let smallestIndex = 0;
+  resolvedPx.forEach((px, index) => {
+    if (px < resolvedPx[smallestIndex]) smallestIndex = index;
+  });
+  const smallestPx = resolvedPx[smallestIndex];
+  const closesPastSmallest =
+    projectedSize < smallestPx - dimension * closeThreshold ||
+    directedSpeed > VELOCITY_THRESHOLD * 1.5;
+  if (closesPastSmallest && currentIndex === smallestIndex) return 'dismiss';
+
+  let nearestIndex = currentIndex;
+  let nearestDist = Infinity;
+  resolvedPx.forEach((px, index) => {
+    const dist = Math.abs(px - projectedSize);
+    if (dist < nearestDist) {
+      nearestDist = dist;
+      nearestIndex = index;
+    }
+  });
+  return nearestIndex;
+};
 
 const snapPointToIndex = (
   value: SheetActiveSnapPoint | undefined,
@@ -322,7 +401,52 @@ const Dialog = ({
     else el.removeAttribute('data-dragging');
   };
 
+  /** 拖拽中实时覆盖的面板尺寸（关闭轴维度），由 onDrag 写入、onDragEnd/弹回时清除 */
+  const applyLiveSize = (size: number) => {
+    const dialog = surfaceRef.current?.querySelector<HTMLElement>('[data-slot="sheet-dialog"]');
+    if (!dialog) return;
+    // 拖拽中关掉 CSS 尺寸过渡，避免与逐帧跟随冲突（结束后清除恢复 snap 弹簧过渡）
+    dialog.style.transition = 'none';
+    if (vertical) dialog.style.height = `${size}px`;
+    else dialog.style.width = `${size}px`;
+  };
+
+  /** 清除实时尺寸覆盖，把控制权还给 React 渲染的 snapStyle（带 CSS 过渡的最终 snap 动画） */
+  const clearLiveSize = () => {
+    const dialog = surfaceRef.current?.querySelector<HTMLElement>('[data-slot="sheet-dialog"]');
+    if (!dialog) return;
+    dialog.style.transition = '';
+    dialog.style.height = '';
+    dialog.style.width = '';
+  };
+
   const handleDragStart = () => setDragging(true);
+
+  // 逐帧跟随：把实时拖拽位移映射成插值尺寸，使面板随指针连续增减（而非离散跳档，对齐 vaul/HeroUI）。
+  // 仅在有 snap 档时启用；沿关闭方向（directedTravel>0）拖动缩小，反方向放大；夹在最小/最大档之间。
+  const handleDrag = (_event: unknown, info: PanInfo) => {
+    if (!snapsEnabled) return;
+    const el = surfaceRef.current;
+    if (!el) return;
+    const dimension = vertical ? el.offsetHeight : el.offsetWidth;
+    const travel = vertical ? info.offset.y : info.offset.x;
+    const directedTravel = travel * sign;
+    const viewportSize = vertical
+      ? typeof window !== 'undefined'
+        ? window.innerHeight
+        : dimension
+      : typeof window !== 'undefined'
+        ? window.innerWidth
+        : dimension;
+    const basis = { numeric: snapNumericPart(currentSnapValue!), px: dimension };
+    const resolvedPx = resolvedSnapPoints.map((point) => resolveSnapPx(point, viewportSize, basis));
+    const minPx = Math.min(...resolvedPx);
+    const maxPx = Math.max(...resolvedPx);
+    const liveSize = Math.min(Math.max(dimension - directedTravel, minPx), maxPx);
+    applyLiveSize(liveSize);
+    // snap 模式下用尺寸变化表达跟随：清零平移避免「既缩放又位移」的双重移动（底边/侧边锚定不动）
+    offset.set(0);
+  };
 
   const setSnapPoint = (index: number) => {
     if (!snapsEnabled) return;
@@ -344,6 +468,7 @@ const Dialog = ({
 
   const handleDragEnd = (_event: unknown, info: PanInfo) => {
     setDragging(false);
+    clearLiveSize();
     const el = surfaceRef.current;
     const travel = vertical ? info.offset.y : info.offset.x;
     const speed = vertical ? info.velocity.y : info.velocity.x;
@@ -351,27 +476,35 @@ const Dialog = ({
     const directedTravel = travel * sign;
     const directedSpeed = speed * sign;
     const dimension = el ? (vertical ? el.offsetHeight : el.offsetWidth) : 0;
-    const snapDistance = Math.min(
-      Math.max(dimension * SNAP_FRACTION, MIN_SNAP_DISTANCE),
-      MAX_SNAP_DISTANCE,
-    );
 
     if (snapsEnabled) {
-      if (
-        (directedTravel > snapDistance || directedSpeed > VELOCITY_THRESHOLD) &&
-        currentSnapPoint > 0
-      ) {
-        setSnapPoint(currentSnapPoint - 1);
+      // 沿关闭方向拖动（directedTravel>0）使面板缩小；据「当前尺寸 − 投影位移」求投影尺寸，
+      // 再在所有 snap 档中选距离最近的一档——允许一次快/长拖跨越多档（对齐 vaul/HeroUI）。
+      const viewportSize = vertical
+        ? typeof window !== 'undefined'
+          ? window.innerHeight
+          : dimension
+        : typeof window !== 'undefined'
+          ? window.innerWidth
+          : dimension;
+      const basis = { numeric: snapNumericPart(currentSnapValue!), px: dimension };
+      const resolvedPx = resolvedSnapPoints.map((point) =>
+        resolveSnapPx(point, viewportSize, basis),
+      );
+      const target = selectSnapTarget({
+        resolvedPx,
+        dimension,
+        currentIndex: currentSnapPoint,
+        directedTravel,
+        directedSpeed,
+        closeThreshold,
+      });
+      if (target === 'dismiss') {
+        if (overlayState) overlayState.close();
         return;
       }
-
-      if (
-        (-directedTravel > snapDistance || -directedSpeed > VELOCITY_THRESHOLD) &&
-        currentSnapPoint < resolvedSnapPoints.length - 1
-      ) {
-        setSnapPoint(currentSnapPoint + 1);
-        return;
-      }
+      setSnapPoint(target);
+      return;
     }
 
     const shouldDismiss =
@@ -418,6 +551,7 @@ const Dialog = ({
         }}
         transition={SNAP_TRANSITION}
         onDragStart={handleDragStart}
+        onDrag={handleDrag}
         onDragEnd={handleDragEnd}
         className={clsx('sheet__drag-surface', `sheet__drag-surface--${placement}`)}
       >
