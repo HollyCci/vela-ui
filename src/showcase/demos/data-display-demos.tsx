@@ -71,8 +71,8 @@ const KpiDemo = () => (
         <Kpi.Title>本周完课学员</Kpi.Title>
       </Kpi.Header>
       <Kpi.Content>
-        <Kpi.Value>1,286</Kpi.Value>
-        <Kpi.Trend>
+        <Kpi.Value value={1286} />
+        <Kpi.Trend trend="up">
           <Chip color="success" size="sm">
             +12.4%
           </Chip>
@@ -108,8 +108,8 @@ const KpiGroupDemo = () => (
           <Kpi.Title>课程续费率</Kpi.Title>
         </Kpi.Header>
         <Kpi.Content>
-          <Kpi.Value>76.5%</Kpi.Value>
-          <Kpi.Trend>
+          <Kpi.Value value={76.5} format={(v) => `${v}%`} />
+          <Kpi.Trend trend="down">
             <Chip color="danger" size="sm">
               -1.3%
             </Chip>

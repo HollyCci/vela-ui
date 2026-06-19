@@ -40,6 +40,40 @@ describe('Kpi', () => {
     expect(document.querySelector('.kpi__footer')).toHaveTextContent('footer');
   });
 
+  it('Value formats a numeric value with toLocaleString by default', () => {
+    render(<Kpi.Value value={1286} />);
+    const value = document.querySelector('.kpi__value') as HTMLElement;
+    expect(value).toHaveTextContent((1286).toLocaleString());
+  });
+
+  it('Value applies a custom format over the default', () => {
+    render(<Kpi.Value value={76.5} format={(v) => `${v}%`} />);
+    expect(document.querySelector('.kpi__value')).toHaveTextContent('76.5%');
+  });
+
+  it('Value falls back to children when no value prop is given', () => {
+    render(<Kpi.Value>42 分钟</Kpi.Value>);
+    expect(document.querySelector('.kpi__value')).toHaveTextContent('42 分钟');
+  });
+
+  it('Trend reflects direction via data-trend and keeps children', () => {
+    render(
+      <Kpi.Trend trend="up">
+        <span>+12.4%</span>
+      </Kpi.Trend>,
+    );
+    const trend = document.querySelector('.kpi__trend') as HTMLElement;
+    expect(trend).toHaveAttribute('data-trend', 'up');
+    expect(trend).toHaveTextContent('+12.4%');
+  });
+
+  it('Trend without direction sets no data-trend and renders children only', () => {
+    render(<Kpi.Trend>+5%</Kpi.Trend>);
+    const trend = document.querySelector('.kpi__trend') as HTMLElement;
+    expect(trend).not.toHaveAttribute('data-trend');
+    expect(trend).toHaveTextContent('+5%');
+  });
+
   it('Icon reflects status via data-status and is aria-hidden', () => {
     render(<Kpi.Icon status="warning">!</Kpi.Icon>);
     const icon = document.querySelector('.kpi__icon') as HTMLElement;
