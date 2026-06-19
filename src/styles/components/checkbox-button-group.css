@@ -14,7 +14,10 @@
   display: grid;
 }
 
-.checkbox-button-group__item {
+/* 基础 .checkbox:not(:has([data-slot=description])){align-items:center}(0,2,0) 胜过此前
+   .checkbox-button-group__item(0,1,0) 的 align-items:stretch，致卡片内容被居中而非左对齐。
+   加 .checkbox-button-group 祖先提到 0,2,0，且本 shard 在 lib.css 中后于 checkbox.css 导入 → 胜出 */
+.checkbox-button-group .checkbox-button-group__item {
   align-items: stretch;
   gap: calc(var(--spacing) * 4);
   padding-inline: calc(var(--spacing) * 5);
