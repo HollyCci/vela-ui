@@ -4,6 +4,8 @@ Vela UI 是一套面向产品界面的 React 组件库，以 [HeroUI](https://ww
 
 ## 安装
 
+> 面向消费方的分步安装教程（含 token、CI、排错）见 **[docs/install-guide.md](docs/install-guide.md)**。下面是要点。
+
 本包发布在 **GitHub Packages**（私有 registry），消费方先在项目根 `.npmrc` 里把 `@hollycci` scope 指向 GitHub Packages 并配置鉴权 token（需 `read:packages` 权限的 GitHub PAT）：
 
 ```ini
