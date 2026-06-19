@@ -105,7 +105,7 @@ const expectVisible = async (locator, label) => {
   try {
     await locator.waitFor({ state: 'visible', timeout: 6000 });
   } catch (error) {
-    throw new Error(`${label}: ${error.message}`);
+    throw new Error(`${label}: ${error.message}`, { cause: error });
   }
   const box = await locator.boundingBox();
   if (!box || box.width < 4 || box.height < 4) {

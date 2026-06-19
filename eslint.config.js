@@ -17,6 +17,8 @@ export default tseslint.config(
       // showcase 是开发/演示代码，非发布产物；质量闸聚焦库源码（src/components + src/index）
       'src/showcase/**',
       'src/main.tsx',
+      // docs 是文档与导出物料（portable-kit 为 Node 配置脚本，非浏览器库源码），同样不进质量闸
+      'docs/**',
     ],
   },
   js.configs.recommended,
