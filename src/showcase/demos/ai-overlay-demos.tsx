@@ -110,13 +110,21 @@ const ChatSourceDemo = () => {
         <ChatSource
           href="https://react.dev"
           title="React 官方文档"
+          confidence={0.95}
           onOpen={() => setLastOpened('React 官方文档')}
         />{' '}
         <ChatSource
           href="https://developer.mozilla.org"
           title="MDN Web Docs"
           fallback="M"
+          confidence={0.5}
           onOpen={() => setLastOpened('MDN Web Docs')}
+        />{' '}
+        <ChatSource
+          href="https://files.example.com/design-spec.pdf"
+          title="design-spec.pdf"
+          sourceType="document"
+          onOpen={() => setLastOpened('design-spec.pdf（文档）')}
         />
       </div>
       <ChatSource.Preview
@@ -2120,13 +2128,20 @@ const ChatSourceVariantDemo = ({ variant }: { variant: ChatSourceVariant }) => {
   return (
     <DemoSection label={`chat-source-${variant}`} isColumn>
       {variant === 'default' && (
-        <ChatSource href={SOURCE_ITEMS[0].href} title={SOURCE_ITEMS[0].title} fallback="R" onOpen={handleOpen} />
+        <ChatSource
+          href={SOURCE_ITEMS[0].href}
+          title={SOURCE_ITEMS[0].title}
+          fallback="R"
+          confidence={0.92}
+          onOpen={handleOpen}
+        />
       )}
       {variant === 'document' && (
-        <ChatSource.Preview
-          href="https://github.com/HollyCci/vela-ui/blob/main/README.md"
-          title="Vela UI README.md"
-          description="包含安装方式、样式引入与组件库消费说明。"
+        <ChatSource
+          href="https://files.example.com/vela-ui-spec.pdf"
+          title="Vela UI Spec.pdf"
+          sourceType="document"
+          confidence={0.6}
           onOpen={handleOpen}
         />
       )}
