@@ -67,6 +67,7 @@
   flex-shrink: 0;
   width: 2rem;
   height: 2rem;
+  animation: var(--animate-pulse);
 }
 
 .chat-loader__skeleton-avatar--sm {
@@ -92,6 +93,7 @@
   border-radius: calc(var(--radius) * .75);
   background-color: var(--default);
   width: 100%;
+  animation: var(--animate-pulse);
 }
 
 .chat-loader__skeleton-line--sm {
@@ -117,6 +119,12 @@
 @media (prefers-reduced-motion:reduce) {
   .chat-loader__dot,
   .chat-loader__pulse {
+    opacity: .7;
+    animation: none;
+  }
+
+  .chat-loader__skeleton-avatar,
+  .chat-loader__skeleton-line {
     opacity: .7;
     animation: none;
   }

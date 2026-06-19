@@ -1369,12 +1369,19 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
   ]);
   const [draftAttachments, setDraftAttachments] = useState(['家长沟通记录.docx']);
   const [composerStatus, setComposerStatus] = useState('附件尚未发送');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const removeAttachment = useCallback((name: string) => {
     setAttachments((prev) => prev.filter((attachment) => attachment.name !== name));
   }, []);
-  const addDraftAttachment = useCallback(() => {
-    setDraftAttachments((prev) => [...prev, `补充材料-${prev.length + 1}.pdf`]);
+  const openFilePicker = useCallback(() => {
+    fileInputRef.current?.click();
+  }, []);
+  const addPickedFiles = useCallback((files: File[]) => {
+    setDraftAttachments((prev) => [
+      ...prev,
+      ...files.map((file) => file.name).filter((name) => !prev.includes(name)),
+    ]);
   }, []);
   const removeDraftAttachment = useCallback((name: string) => {
     setDraftAttachments((prev) => prev.filter((item) => item !== name));
@@ -1396,9 +1403,14 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
               </PromptInput.Attachments>
               <PromptInput.TextArea aria-label="带附件的提示输入" />
             </PromptInput.Content>
+            <ChatAttachment.Input
+              ref={fileInputRef}
+              accept=".pdf,.doc,.docx,image/*"
+              onSelect={addPickedFiles}
+            />
             <PromptInput.Toolbar>
               <PromptInput.ToolbarStart>
-                <PromptInput.Action aria-label="添加附件" tooltip="添加附件" onPress={addDraftAttachment}>
+                <PromptInput.Action aria-label="添加附件" tooltip="添加附件" onPress={openFilePicker}>
                   ＋
                 </PromptInput.Action>
               </PromptInput.ToolbarStart>
@@ -1413,9 +1425,28 @@ const ChatAttachmentVariantDemo = ({ variant }: { variant: ChatAttachmentVariant
     );
   }
 
+  if (variant === 'grouped') {
+    return (
+      <DemoSection label="chat-attachment-grouped">
+        <ChatAttachment.Group label="本次提交的附件">
+          {attachments.map((attachment) => (
+            <ChatAttachment
+              key={attachment.name}
+              role="listitem"
+              name={attachment.name}
+              kind={attachment.kind}
+              fallbackIcon={attachment.fallbackIcon}
+              onRemove={() => removeAttachment(attachment.name)}
+            />
+          ))}
+        </ChatAttachment.Group>
+      </DemoSection>
+    );
+  }
+
   return (
     <DemoSection label={`chat-attachment-${variant}`}>
-      {attachments.slice(0, variant === 'default' ? 2 : attachments.length).map((attachment) => (
+      {attachments.slice(0, 2).map((attachment) => (
         <ChatAttachment
           key={attachment.name}
           name={attachment.name}
