@@ -15,8 +15,10 @@ import {
   Cell,
   Label,
   LabelList,
+  Sector,
   Tooltip,
   Legend,
+  type PieSectorDataItem,
 } from 'recharts';
 import ChartTooltip from '../chart-tooltip';
 
@@ -132,6 +134,19 @@ function TooltipContent({
 }
 TooltipContent.displayName = 'PieChart.TooltipContent';
 
+/** 悬停扇区向外扩张的像素值，对齐 HeroUI Pro 的 active slice 高亮 */
+const ACTIVE_SLICE_EXPAND = 6;
+
+/**
+ * 预置的 active-shape 渲染器：悬停时把扇区外半径放大一圈。
+ * recharts 3.x 由内部 tooltip 高亮态驱动 isActive（需图表内存在 Tooltip），
+ * 透传给 <PieChart.Pie activeShape={...}> 即可获得 hover 扩张，无需手动 activeIndex。
+ */
+function ActiveSliceShape({ outerRadius = 0, ...rest }: Partial<PieSectorDataItem>) {
+  return <Sector {...rest} outerRadius={outerRadius + ACTIVE_SLICE_EXPAND} />;
+}
+ActiveSliceShape.displayName = 'PieChart.ActiveShape';
+
 const PieChartRoot = forwardRef<HTMLDivElement, PieChartProps>(
   (
     {
@@ -225,9 +240,11 @@ const PieChart = Object.assign(PieChartRoot, {
   Cell,
   Label,
   LabelList,
+  Sector,
   Tooltip,
   Legend,
   TooltipContent,
+  ActiveShape: ActiveSliceShape,
 });
 
 export default PieChart;

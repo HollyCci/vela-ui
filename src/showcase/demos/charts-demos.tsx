@@ -1333,6 +1333,7 @@ const PieVariantDemo = ({ variant }: { variant: PieVariant }) => {
           innerRadius={variant === 'donut' ? 58 : 0}
           outerRadius={92}
           paddingAngle={variant === 'donut' ? 2 : 1}
+          activeShape={<PieChart.ActiveShape />}
         />
       </PieChart>
     </DemoSection>
