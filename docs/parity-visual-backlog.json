@@ -1387,5 +1387,23 @@
     "css-or-component": [
       "chat-tool(leading status icon+chevron)"
     ]
+  },
+  "subtractionSweep": {
+    "principle": "用基础组件拼 Pro，别覆盖/压制基础已有的样式与动画；bug 仅在 wrap @heroui 且 co-apply 基础 slot 类、且 wrapper 特指度打输时出现",
+    "fixedVisible": [
+      "cell-slider(fill+thumb 蓝→中性)",
+      "cell-switch(trigger 行布局)",
+      "chain-of-thought(恢复基础按钮按压动画)",
+      "checkbox-button-group(卡片项左对齐)",
+      "context-menu(项间距 2px)",
+      "sheet(去双层 padding/抢占圆角/maxheight/实色模糊遮罩)",
+      "navbar(竖分隔线 24px 居中)",
+      "app-layout(menu/aside 触发器桌面端隐藏)",
+      "data-grid(工具列贴合+去多余竖条)",
+      "kpi(分隔线全出血)"
+    ],
+    "auditedClean": "batch1-5 共审 ~47 组件;多数 wrap 原语/自命名空间/from-scratch，无碰撞。pressable-feedback/prompt-input/emoji-picker/file-tree/rich-text-editor/kpi-group/floating-toc/widget/sidebar/list-view/item-card-group/rating/cell-select/cell-color-picker/command/hover-card/stepper/item-card/inline-select/native-select/number-stepper/segment/trend-chip/drop-zone/emoji-reaction-button 等均 clean",
+    "remaining": "from-scratch(charts via recharts/agenda/kanban/code-block/timeline/markdown/number-value/text-shimmer/resizable/radial-chart/chat-*)撞 base 概率低，batch-6 收尾确认中",
+    "fixMethod": "加祖先类/双类提特指度(0,2,0+)或减法交还基础;全部 preview computed 实测验证;门禁全绿"
   }
 }
