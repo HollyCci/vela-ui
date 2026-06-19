@@ -1238,10 +1238,38 @@ const CellSelectVariantDemo = ({ variant }: { variant: CellSelectVariantSlug }) 
   }
 
   if (variant === 'custom-value') {
+    // 真正行使 SelectValue 的函数式 children（SelectValueRenderProps）：根据
+    // isPlaceholder/selectedText 渲染自定义标记，而非把选中态塞进 Label 文案里伪造。
     return (
       <DemoSection label="Custom value display" isColumn>
-        {renderSlotSelect(`当前时段：${slotLabel}`, slot)}
-        <span className="text-muted text-sm">选择会同步到单元格标题。</span>
+        <CellSelect aria-label="上课时段" value={slot} onChange={handleSlotChange} style={{ width }}>
+          <CellSelect.Trigger>
+            <CellSelect.Label>上课时段</CellSelect.Label>
+            <CellSelect.Value>
+              {({ isPlaceholder, selectedText }) =>
+                isPlaceholder ? (
+                  <span data-testid="cell-select-custom-placeholder" className="text-muted">
+                    请选择时段
+                  </span>
+                ) : (
+                  <span data-testid="cell-select-custom-value">已约：{selectedText}</span>
+                )
+              }
+            </CellSelect.Value>
+            <CellSelect.Indicator />
+          </CellSelect.Trigger>
+          <CellSelect.Popover>
+            <CellSelect.List>
+              {SLOT_OPTIONS.map((option) => (
+                <CellSelect.Item key={option.id} id={option.id} textValue={option.label}>
+                  {option.label}
+                  <CellSelect.ItemIndicator />
+                </CellSelect.Item>
+              ))}
+            </CellSelect.List>
+          </CellSelect.Popover>
+        </CellSelect>
+        <span className="text-muted text-sm">选中态由 Value 的函数式 children 自定义渲染。</span>
       </DemoSection>
     );
   }
