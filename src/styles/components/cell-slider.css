@@ -114,6 +114,13 @@
   position: absolute;
 }
 
+/* 基础 .slider .slider__fill 用 var(--accent)(品牌蓝)，与本组件的 .cell-slider .cell-slider__fill
+   同特指度(0,2,0)且 slider.css 在 lib.css 中后导入 → 蓝色胜出。默认轨道 fill 须更高特指度覆盖回
+   var(--color-default)(浅中性，对齐 heroui.pro 的 ≈#EBEBEC)，与 secondary fill 的 0,3,0 规则保持一致量级 */
+.cell-slider .cell-slider__track--default .cell-slider__fill {
+  background-color: var(--color-default);
+}
+
 .cell-slider .cell-slider__thumb {
   top: calc(var(--spacing) * 0);
   --tw-translate-y: calc(1 / 2 * 100%);
