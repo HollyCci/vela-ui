@@ -281,6 +281,9 @@ const RichTextEditorRoot = forwardRef<HTMLDivElement, RichTextEditorProps>(
     const [isFocused, setFocused] = useState(false);
     const contentRef = useRef<HTMLDivElement | null>(null);
     const lastSelectionRef = useRef<Range | null>(null);
+    // 记录最近一次未超限的 HTML，超限时用它把 contentEditable 回滚到合法内容。
+    const lastValidHtmlRef = useRef(html);
+    lastValidHtmlRef.current = html;
 
     const emitChange = useCallback(
       (nextHtml: string) => {
@@ -338,9 +341,19 @@ const RichTextEditorRoot = forwardRef<HTMLDivElement, RichTextEditorProps>(
     const syncFromDom = useCallback(() => {
       const element = contentRef.current;
       if (element === null) return;
-      emitChange(element.innerHTML);
+      const nextHtml = element.innerHTML;
+      // maxLength 是硬上限：当新纯文本长度超过上限时，把 DOM 回滚到上一份合法内容，
+      // 既不提交超限内容，也不让 contentEditable 继续无限制增长（对齐 Tiptap CharacterCount limit）。
+      if (maxLength !== undefined && textFromHtml(nextHtml).length > maxLength) {
+        if (element.innerHTML !== lastValidHtmlRef.current) {
+          element.innerHTML = lastValidHtmlRef.current;
+        }
+        handleSelectionChange();
+        return;
+      }
+      emitChange(nextHtml);
       handleSelectionChange();
-    }, [emitChange, handleSelectionChange]);
+    }, [emitChange, handleSelectionChange, maxLength]);
 
     const runCommand = useCallback(
       (command: RichTextEditorCommand) => {
