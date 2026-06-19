@@ -59,7 +59,7 @@ pnpm add react react-dom \
 > **为什么要装这些 peer：**
 > - `@heroui/react` / `@heroui/styles`：组件库的运行时基座，需 `>=3.2.1`（3.2.0 是缺陷版，tooltip/calendar 焦点会坏）。
 > - `react-aria-components` **务必钉 `1.18.0`**：必须与 `@heroui/react` 内部实例同版本，否则 React context 会静默失效（组件行为异常但不报错）。
-> - 我们的 `styles.css` 是**自包含预编译产物**，所以**不需要**装 Tailwind。
+> - 我们的 CSS 入口是**预编译产物**，所以**不需要**装 Tailwind。
 
 ---
 
@@ -67,7 +67,7 @@ pnpm add react react-dom \
 
 ```tsx
 import { Button, Card, DataGrid } from '@hollycci/vela-ui';
-import '@hollycci/vela-ui/styles.css'; // 全局引一次即可（含样式与字体）
+import '@hollycci/vela-ui/css'; // 全局引一次即可（含样式与字体）
 
 export function Example() {
   return (
@@ -84,12 +84,14 @@ export function Example() {
 ```
 
 - **样式只需引一次**：通常放在应用入口（如 `main.tsx` / `app/layout.tsx`）。
+- **旧入口已移除**：不要再使用 `@hollycci/vela-ui/styles.css`，请改用 `@hollycci/vela-ui/css`。
+- **已有主题系统**：可按需接 `@hollycci/vela-ui/tokens.css`、`@hollycci/vela-ui/components.css` 或 `@hollycci/vela-ui/components/button.css` 等 CSS 子路径。
 - **按需子路径导入**（更利于 tree-shaking，可选）：
   ```tsx
   import Button from '@hollycci/vela-ui/button';
   ```
 - **TypeScript**：每个组件及其子组件的 Props 类型都随包导出，开箱即用。
-- **Next.js / RSC**：交互组件已标 `'use client'`，纯展示组件兼容 Server Component，可直接在 server 组件树引入；`styles.css` 在 `app/layout.tsx` 引入即可。
+- **Next.js / RSC**：交互组件已标 `'use client'`，纯展示组件兼容 Server Component，可直接在 server 组件树引入；`@hollycci/vela-ui/css` 在 `app/layout.tsx` 引入即可。
 
 ---
 
@@ -118,7 +120,7 @@ GitHub Actions 示例（消费方项目的 workflow）：
 |---|---|
 | `npm error 401 Unauthorized` | token 没配或失效。确认 `echo $GITHUB_TOKEN` 有值、token 有 `read:packages`、`.npmrc` 第二行在 |
 | `npm error 404 Not Found` (`@hollycci/vela-ui`) | scope 没指向 GitHub Packages（`.npmrc` 第一行缺失）或 token 无权限读 |
-| 组件渲染了但**样式全无** | 忘了 `import '@hollycci/vela-ui/styles.css'`；或打包工具把 CSS 摇掉了（确认没在 sideEffects 里排除 CSS） |
+| 组件渲染了但**样式全无** | 忘了 `import '@hollycci/vela-ui/css'`；或打包工具把 CSS 摇掉了（确认没在 sideEffects 里排除 CSS） |
 | 组件**行为异常**（如下拉/焦点不工作）但不报错 | `react-aria-components` 版本与 `@heroui/react` 不一致 → 钉到 `1.18.0` |
 | tooltip / 日历**焦点打不开浮层** | `@heroui/react` 是缺陷的 3.2.0 → 升到 `>=3.2.1` |
 | pnpm 报 peer 警告 | 按第 3 步把 peer 依赖装齐、版本对齐即可 |

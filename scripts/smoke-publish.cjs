@@ -18,7 +18,7 @@ function assert(condition, message) {
 
 function componentExportEntries() {
   return Object.entries(pkg.exports)
-    .filter(([key]) => key.startsWith('./') && key !== './styles.css' && key !== './package.json')
+    .filter(([key, value]) => key.startsWith('./') && key !== './package.json' && typeof value === 'object' && value.types && value.import)
     .sort(([a], [b]) => a.localeCompare(b));
 }
 
@@ -32,6 +32,36 @@ function resolveExportTarget(exportValue, condition) {
 async function importTarget(target) {
   const abs = path.join(root, target);
   return import(pathToFileURL(abs).href);
+}
+
+function resolveCssExportTarget(exportValue) {
+  if (typeof exportValue === 'string') return exportValue;
+  return exportValue.style ?? exportValue.default;
+}
+
+function assertCssExport(key, marker) {
+  const target = resolveCssExportTarget(pkg.exports[key]);
+  assert(typeof target === 'string', `${key} CSS export target missing`);
+  const abs = path.join(root, target);
+  assert(fs.existsSync(abs), `${key} CSS target missing: ${target}`);
+  const css = fs.readFileSync(abs, 'utf8');
+  if (marker) assert(css.includes(marker), `${key} missing marker: ${marker}`);
+  assert(!css.includes('--tw-'), `${key} must not expose Tailwind internal --tw-* variables`);
+  assert(!css.includes('@layer properties'), `${key} must not expose Tailwind properties layer`);
+  assert(!css.includes('border: 0 solid'), `${key} must not include Tailwind preflight border reset`);
+  assert(!css.includes('body {\n  background-color: var(--background);'), `${key} must not style the host body`);
+  return { target, css };
+}
+
+function assertCssFile(target, marker) {
+  const abs = path.join(root, target);
+  assert(fs.existsSync(abs), `CSS file missing: ${target}`);
+  const css = fs.readFileSync(abs, 'utf8');
+  if (marker) assert(css.includes(marker), `${target} missing marker: ${marker}`);
+  assert(!css.includes('--tw-'), `${target} must not expose Tailwind internal --tw-* variables`);
+  assert(!css.includes('@layer properties'), `${target} must not expose Tailwind properties layer`);
+  assert(!css.includes('border: 0 solid'), `${target} must not include Tailwind preflight border reset`);
+  assert(!css.includes('body {\n  background-color: var(--background);'), `${target} must not style the host body`);
 }
 
 function packFileList() {
@@ -70,24 +100,30 @@ async function main() {
     assert(mod.default !== undefined, `${key} ESM default export is missing`);
   }
 
-  const stylesPath = path.join(root, 'dist/styles.css');
-  assert(fs.existsSync(stylesPath), 'missing dist/styles.css');
-  const styles = fs.readFileSync(stylesPath, 'utf8');
-  assert(styles.length > 1000, 'dist/styles.css is unexpectedly small');
-  assert(styles.includes('.button'), 'dist/styles.css missing .button marker');
-  assert(styles.includes('.card'), 'dist/styles.css missing .card marker');
-  assert(!styles.includes('--tw-'), 'dist/styles.css must not expose Tailwind internal --tw-* variables');
-  assert(!styles.includes('@layer properties'), 'dist/styles.css must not expose Tailwind properties layer');
-  assert(!styles.includes('border: 0 solid'), 'dist/styles.css must not include Tailwind preflight border reset');
-  assert(!styles.includes('body {\n  background-color: var(--background);'), 'dist/styles.css must not style the host body');
-  assert(styles.includes('--vela-tw-shadow'), 'dist/styles.css missing Vela-scoped runtime CSS variables');
+  assert(!fs.existsSync(path.join(root, 'dist/styles.css')), 'legacy dist/styles.css must not be emitted');
+  const indexCss = assertCssExport('./css', '@layer vela-theme, vela-base, vela-components;').css;
+  assert(indexCss.includes('@import "./components/index.css" layer(vela-components);'), 'main CSS must layer component imports');
+  assertCssExport('./properties.css', '--vela-tw-shadow');
+  assertCssExport('./tokens.css', '--background');
+  assertCssExport('./base', '@import "./scrollbar.css";');
+  assertCssExport('./components.css', '@import "./components/index.css";');
+  assert(pkg.exports['./base/*.css'] === './dist/base/*.css', 'missing base CSS pattern export');
+  assert(pkg.exports['./components/*.css'] === './dist/components/*.css', 'missing component CSS pattern export');
+  assertCssFile('dist/components/button.css', '.button');
+  assertCssExport('./themes/default', '@import "../../tokens.css";');
+  assertCssExport('./keyframes.css', '@keyframes enter');
+  assertCssExport('./fonts.css', '--font-inter');
 
   const fontsDir = path.join(root, 'dist/fonts');
   assert(fs.existsSync(fontsDir), 'missing dist/fonts');
   assert(fs.readdirSync(fontsDir).some((name) => name.endsWith('.woff2')), 'dist/fonts has no woff2 files');
 
   const packed = packFileList();
-  assert(packed.includes('dist/styles.css'), 'npm pack missing dist/styles.css');
+  assert(packed.includes('dist/index.css'), 'npm pack missing dist/index.css');
+  assert(packed.includes('dist/tokens.css'), 'npm pack missing dist/tokens.css');
+  assert(packed.includes('dist/components.css'), 'npm pack missing dist/components.css');
+  assert(packed.includes('dist/components/button.css'), 'npm pack missing component CSS files');
+  assert(!packed.includes('dist/styles.css'), 'npm pack must not include legacy dist/styles.css');
   assert(packed.some((p) => p.startsWith('dist/fonts/') && p.endsWith('.woff2')), 'npm pack missing fonts');
   assert(!packed.some((p) => p.includes('heroui-full.css')), 'npm pack should not include heroui-full.css');
 
