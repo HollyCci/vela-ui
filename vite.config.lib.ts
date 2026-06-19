@@ -6,20 +6,18 @@ import { readFileSync, writeFileSync, mkdirSync, cpSync } from 'node:fs';
 const entry = fileURLToPath(new URL('./src/index.ts', import.meta.url));
 
 /**
- * 把自有样式分片 + 字体声明合成单一 dist/styles.css，
- * 并随包发布字体文件（fonts.css 用 ./fonts/*.woff2 相对路径）。
+ * 把自有样式分片发布成 HeroUI-style CSS-first 目录：
+ * index.css 是分层主入口，子路径给已有设计系统按需集成使用。
  * 不跑 Tailwind —— 组件 CSS 已是预编译产物，消费方无需安装 Tailwind。
  */
-const tailwindPreflightStart = '@supports (not ((-webkit-appearance:-apple-pay-button))) or (contain-intrinsic-size:1px)';
 const scrollbarUtilitiesStart = '[data-scrollbar=thin]';
 
-function stripPublishOnlyGlobals(css: string) {
-  const start = css.indexOf(tailwindPreflightStart);
-  const end = css.indexOf(scrollbarUtilitiesStart);
+function extractPublishBase(css: string) {
+  const start = css.indexOf(scrollbarUtilitiesStart);
 
-  if (start === -1 || end === -1 || end <= start) return css;
+  if (start === -1) return '';
 
-  return `${css.slice(0, start)}${css.slice(end)}`;
+  return css.slice(start);
 }
 
 function scopeTailwindRuntimeVars(css: string) {
@@ -30,8 +28,7 @@ function scopeTailwindRuntimeVars(css: string) {
 }
 
 function readPublishCss(file: string) {
-  const css = readFileSync(file, 'utf8');
-  return scopeTailwindRuntimeVars(file.endsWith('/base.css') ? stripPublishOnlyGlobals(css) : css);
+  return scopeTailwindRuntimeVars(readFileSync(file, 'utf8'));
 }
 
 function copyStyles() {
@@ -39,18 +36,50 @@ function copyStyles() {
     name: 'vela-copy-styles',
     closeBundle() {
       mkdirSync('dist/fonts', { recursive: true });
+      mkdirSync('dist/base', { recursive: true });
+      mkdirSync('dist/components', { recursive: true });
+      mkdirSync('dist/themes/default', { recursive: true });
+
       const blocks = JSON.parse(readFileSync('src/styles/_index.json', 'utf8')) as Array<{ file: string }>;
-      const css = [
-        'src/styles/properties.css',
-        'src/styles/tokens.css',
-        'src/styles/base.css',
-        'src/styles/keyframes-shared.css',
-        ...blocks.map((block) => `src/styles/${block.file}`),
-        'src/styles/fonts.css',
-      ]
-        .map((p) => readPublishCss(p))
-        .join('\n');
-      writeFileSync('dist/styles.css', css);
+      const propertiesCss = readPublishCss('src/styles/properties.css');
+      const tokensCss = readPublishCss('src/styles/tokens.css');
+      const baseCss = scopeTailwindRuntimeVars(extractPublishBase(readFileSync('src/styles/base.css', 'utf8')));
+      const keyframesCss = readPublishCss('src/styles/keyframes-shared.css');
+      const fontsCss = readPublishCss('src/styles/fonts.css');
+      const componentBlocks = blocks.map((block) => ({
+        file: block.file.replace(/^components\//, ''),
+        css: readPublishCss(`src/styles/${block.file}`),
+      }));
+      const componentImports = componentBlocks.map((block) => `@import "./${block.file}";`).join('\n');
+
+      writeFileSync('dist/properties.css', propertiesCss);
+      writeFileSync('dist/tokens.css', tokensCss);
+      writeFileSync('dist/base/scrollbar.css', baseCss);
+      writeFileSync('dist/base/base.css', '@import "./scrollbar.css";\n');
+      writeFileSync('dist/keyframes.css', keyframesCss);
+      writeFileSync('dist/fonts.css', fontsCss);
+      writeFileSync('dist/components/index.css', `${componentImports}\n`);
+      writeFileSync('dist/components.css', '@import "./properties.css";\n@import "./keyframes.css";\n@import "./components/index.css";\n');
+      writeFileSync('dist/themes/default/index.css', '@import "../../tokens.css";\n');
+      writeFileSync(
+        'dist/index.css',
+        [
+          '@layer vela-theme, vela-base, vela-components;',
+          '',
+          '@import "./properties.css";',
+          '@import "./tokens.css" layer(vela-theme);',
+          '@import "./base/base.css" layer(vela-base);',
+          '@import "./keyframes.css";',
+          '@import "./components/index.css" layer(vela-components);',
+          '@import "./fonts.css";',
+          '',
+        ].join('\n'),
+      );
+
+      for (const block of componentBlocks) {
+        writeFileSync(`dist/components/${block.file}`, block.css);
+      }
+
       cpSync('src/styles/fonts', 'dist/fonts', { recursive: true });
     },
   };

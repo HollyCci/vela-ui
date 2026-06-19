@@ -7,11 +7,24 @@ const barrelPath = path.join(root, 'src/components/index.ts');
 
 const FIXED_EXPORTS = {
   '.': {
+    style: './dist/index.css',
     types: './dist/index.d.ts',
     import: './dist/index.js',
     default: './dist/index.js',
   },
-  './styles.css': './dist/styles.css',
+  './css': {
+    style: './dist/index.css',
+    default: './dist/index.css',
+  },
+  './properties.css': './dist/properties.css',
+  './tokens.css': './dist/tokens.css',
+  './base': './dist/base/base.css',
+  './base/*.css': './dist/base/*.css',
+  './components.css': './dist/components.css',
+  './components/*.css': './dist/components/*.css',
+  './themes/default': './dist/themes/default/index.css',
+  './keyframes.css': './dist/keyframes.css',
+  './fonts.css': './dist/fonts.css',
   './package.json': './package.json',
 };
 
@@ -60,11 +73,16 @@ function main() {
       console.error('package.json exports is out of sync. Run: pnpm generate:exports');
       process.exit(1);
     }
+    if (pkg.style !== './dist/index.css') {
+      console.error('package.json style is out of sync. Run: pnpm generate:exports');
+      process.exit(1);
+    }
     console.log(`exports ok: ${slugs.length} component subpaths`);
     return;
   }
 
   pkg.exports = nextExports;
+  pkg.style = './dist/index.css';
   fs.writeFileSync(packagePath, stableStringifyPackage(pkg));
   console.log(`generated exports: ${slugs.length} component subpaths`);
 }

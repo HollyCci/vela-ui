@@ -15,11 +15,24 @@
   },
   "exports": {
     ".": {
+      "style": "./dist/index.css",
       "types": "./dist/index.d.ts",
       "import": "./dist/index.js",
       "default": "./dist/index.js"
     },
-    "./styles.css": "./dist/styles.css",
+    "./css": {
+      "style": "./dist/index.css",
+      "default": "./dist/index.css"
+    },
+    "./properties.css": "./dist/properties.css",
+    "./tokens.css": "./dist/tokens.css",
+    "./base": "./dist/base/base.css",
+    "./base/*.css": "./dist/base/*.css",
+    "./components.css": "./dist/components.css",
+    "./components/*.css": "./dist/components/*.css",
+    "./themes/default": "./dist/themes/default/index.css",
+    "./keyframes.css": "./dist/keyframes.css",
+    "./fonts.css": "./dist/fonts.css",
     "./package.json": "./package.json",
     "./action-bar": {
       "types": "./dist/components/action-bar/index.d.ts",
@@ -618,5 +631,6 @@
     "vite": "^6.0.3",
     "vitest": "^4.1.9",
     "vitest-axe": "^0.1.0"
-  }
+  },
+  "style": "./dist/index.css"
 }

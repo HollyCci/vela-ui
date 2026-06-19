@@ -28,7 +28,7 @@ pnpm add react react-dom @heroui/react@^3.2.1 @heroui/styles@^3.2.1 react-aria-c
 
 ```tsx
 import { Button, Card, DataGrid } from '@hollycci/vela-ui';
-import '@hollycci/vela-ui/styles.css'; // 一次性引入，含 Vela 预编译样式与字体
+import '@hollycci/vela-ui/css'; // 一次性引入，含 Vela 预编译样式与字体
 
 export function Example() {
   return (
@@ -44,7 +44,7 @@ export function Example() {
 }
 ```
 
-- **样式**：`@hollycci/vela-ui/styles.css` 是自包含的预编译产物，**消费方无需安装 Tailwind**。
+- **样式**：`@hollycci/vela-ui/css` 是 HeroUI-style 分层主入口，**消费方无需安装 Tailwind**；已有主题系统可改用 `tokens.css` / `components.css` / `components/*.css` 等子路径按层接入。
 - **Tree-shaking**：ESM-only 发布，每个组件独立产物（`preserveModules`）+ `sideEffects: ["**/*.css"]`，未使用的组件不会进入打包结果。
 - **RSC / Next.js App Router**：交互组件已标注 `'use client'`（74/98），纯展示组件保持 Server Component 兼容，可直接在 server 组件树中引入。
 - **类型**：每个组件及其子组件 Props 类型均随包导出。
@@ -60,7 +60,7 @@ pnpm dev        # 文档式 showcase，默认 http://localhost:5180
 
 ```bash
 pnpm dev          # 启动本地 showcase（开发）
-pnpm build        # 构建可发布库产物（dist/：ESM+.d.ts+styles.css+fonts）
+pnpm build        # 构建可发布库产物（dist/：ESM+.d.ts+index.css+CSS 子路径+fonts）
 pnpm build:demo   # 构建 showcase 静态站
 pnpm preview      # 预览构建产物
 pnpm type-check   # TypeScript 检查
@@ -95,7 +95,8 @@ gh release create vX.Y.Z --title vX.Y.Z --generate-notes
 - `index.js` — 库入口（ESM-only）
 - `components/<name>/index.js` — 每组件独立模块（按需打包）
 - `index.d.ts` + `components/<name>/index.d.ts` — 类型声明
-- `styles.css` — 由令牌、基础样式、组件分片与字体声明合成的库样式
+- `index.css` — 分层主入口（tokens / base / component blocks / fonts）
+- `tokens.css`、`components.css`、`components/<name>.css`、`base/*.css` — HeroUI-style CSS 子路径，便于宿主按层或按组件接入
 - `fonts/*.woff2` — 字体资源
 
 ## 工程约定

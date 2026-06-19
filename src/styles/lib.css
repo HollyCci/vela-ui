@@ -1,7 +1,7 @@
 /**
  * Vela UI 自有样式聚合入口。
  * 顺序固定：Tailwind properties -> tokens -> base -> shared keyframes -> component blocks -> fonts。
- * 库发布产物 dist/styles.css 由同一顺序拼接后净化生成，避免向宿主泄露 Tailwind 全局底座。
+ * 库发布产物按 HeroUI-style CSS 子路径输出，主入口为 dist/index.css。
  */
 @import './properties.css';
 @import './tokens.css';
