@@ -15,6 +15,10 @@
 .cell-switch .cell-switch__trigger {
   height: calc(var(--spacing) * 9);
   align-items: center;
+  /* 基础 .switch__content 设 flex-direction:column 致标签与开关纵向堆叠居中；
+     cell 行布局须显式 row + space-between(标签左/开关右)对齐 heroui.pro */
+  flex-direction: row;
+  justify-content: space-between;
   gap: calc(var(--spacing) * 3);
   border-radius: var(--field-radius,calc(var(--radius) * 1.5));
   border-style: var(--tw-border-style);
