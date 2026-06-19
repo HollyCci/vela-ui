@@ -452,6 +452,8 @@ const ContextMenuSubmenuPopover = ({
   ...rest
 }: ContextMenuSubmenuPopoverProps) => (
   <Popover
+    // 子菜单浮层同样经 RAC 输出 role="dialog"，缺省补可访问名（与根 Popover 一致），消费方可经 aria-label/aria-labelledby 覆盖
+    aria-label="Submenu"
     offset={offset}
     placement={placement as Placement}
     className={clsx('context-menu__popover', className)}

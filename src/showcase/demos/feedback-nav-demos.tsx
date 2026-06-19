@@ -2136,11 +2136,41 @@ const ContextMenuVariantDemo = ({ variant }: VariantDemoProps) => {
       >
         <ContextMenu.Trigger longPressDelay={variant === 'long-press' ? 550 : undefined}>
           <div style={CONTEXT_MENU_TARGET_STYLE}>
-            {variant === 'disabled' ? '禁用：右键无响应' : variant === 'long-press' ? '长按或右键打开' : '在此处右键'}
+            {variant === 'disabled' ? '禁用：右键无响应' : variant === 'long-press' ? '长按或右键打开' : variant === 'with-selection' ? '右键单选（radio）' : '在此处右键'}
           </div>
         </ContextMenu.Trigger>
         <ContextMenu.Popover>{renderMenu()}</ContextMenu.Popover>
       </ContextMenu>
+      {variant === 'with-selection' && (
+        // 多选（checkbox）：selectionMode="multiple" 透传到底层 Menu，RAC 输出 role="menuitemcheckbox"+aria-checked，
+        // ItemIndicator 反映勾选态、且多选项点击后菜单不自动关闭（与单选 radio 对照）
+        <ContextMenu>
+          <ContextMenu.Trigger>
+            <div style={CONTEXT_MENU_TARGET_STYLE}>右键多选（checkbox）</div>
+          </ContextMenu.Trigger>
+          <ContextMenu.Popover>
+            <ContextMenu.Menu
+              aria-label="视图开关"
+              selectionMode="multiple"
+              defaultSelectedKeys={['wrap']}
+              onAction={handleAction}
+            >
+              <ContextMenu.Item id="wrap" textValue="自动换行">
+                <ContextMenu.ItemIndicator />
+                自动换行
+              </ContextMenu.Item>
+              <ContextMenu.Item id="minimap" textValue="缩略图">
+                <ContextMenu.ItemIndicator />
+                缩略图
+              </ContextMenu.Item>
+              <ContextMenu.Item id="line-numbers" textValue="行号">
+                <ContextMenu.ItemIndicator />
+                行号
+              </ContextMenu.Item>
+            </ContextMenu.Menu>
+          </ContextMenu.Popover>
+        </ContextMenu>
+      )}
       <span style={VARIANT_MUTED_STYLE}>{lastItem}</span>
     </DemoSection>
   );
