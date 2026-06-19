@@ -2226,21 +2226,23 @@ const ChatToolVariantDemo = ({ variant }: { variant: ChatToolVariant }) => {
   if (variant === 'grouped') {
     return (
       <DemoSection label="chat-tool-grouped" isColumn>
-        <ChatTool label="读取学习记录" status="success" statusLabel="成功" defaultExpanded>
-          <ChatTool.Result>读取完成。</ChatTool.Result>
-        </ChatTool>
-        <ChatTool label={<TextShimmer>生成行动建议</TextShimmer>} status="running" isExpandable={false} />
-        <ChatTool label="发送提醒" status="requires-action" defaultExpanded>
-          <ChatTool.Approval
-            actions={
-              <Button size="sm" disabled={approval === 'approved'} onClick={() => setApproval('approved')}>
-                允许
-              </Button>
-            }
-          >
-            {approval === 'approved' ? '已允许发送提醒。' : '需要确认发送对象。'}
-          </ChatTool.Approval>
-        </ChatTool>
+        <ChatTool.Group label="家长通知流程 · 3 个工具调用" defaultExpanded>
+          <ChatTool label="读取学习记录" status="success" statusLabel="成功" defaultExpanded>
+            <ChatTool.Result>读取完成。</ChatTool.Result>
+          </ChatTool>
+          <ChatTool label={<TextShimmer>生成行动建议</TextShimmer>} status="running" isExpandable={false} />
+          <ChatTool label="发送提醒" status="requires-action" defaultExpanded>
+            <ChatTool.Approval
+              actions={
+                <Button size="sm" disabled={approval === 'approved'} onClick={() => setApproval('approved')}>
+                  允许
+                </Button>
+              }
+            >
+              {approval === 'approved' ? '已允许发送提醒。' : '需要确认发送对象。'}
+            </ChatTool.Approval>
+          </ChatTool>
+        </ChatTool.Group>
       </DemoSection>
     );
   }

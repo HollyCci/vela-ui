@@ -31,6 +31,15 @@ export type ChatToolProps = HTMLAttributes<HTMLDivElement> & {
   onToggle?: MouseEventHandler<HTMLButtonElement>;
 };
 
+export type ChatToolGroupProps = HTMLAttributes<HTMLDivElement> & {
+  /** 分组头部标签；提供时渲染可展开的分组触发器，否则仅作共享容器 */
+  label?: ReactNode;
+  isExpanded?: boolean;
+  defaultExpanded?: boolean;
+  onExpandedChange?: (isExpanded: boolean) => void;
+  onToggle?: MouseEventHandler<HTMLButtonElement>;
+};
+
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
 export type ChatToolArgsProps = SectionProps;
@@ -178,12 +187,74 @@ const Meta = forwardRef<HTMLDivElement, ChatToolMetaProps>(({ className, ...rest
 ));
 Meta.displayName = 'ChatTool.Meta';
 
+const Group = forwardRef<HTMLDivElement, ChatToolGroupProps>(
+  (
+    {
+      label,
+      isExpanded,
+      defaultExpanded = true,
+      onExpandedChange,
+      onToggle,
+      className,
+      children,
+      ...rest
+    },
+    ref,
+  ) => {
+    const contentId = useId();
+    const [internalExpanded, setInternalExpanded] = useState(defaultExpanded);
+    const expanded = isExpanded ?? internalExpanded;
+    // 无 label 时仅作共享容器，始终展示子卡片
+    const hasHeader = label !== undefined;
+    const open = hasHeader ? expanded : true;
+
+    const handleToggle: MouseEventHandler<HTMLButtonElement> = (event) => {
+      const nextExpanded = !expanded;
+      if (isExpanded === undefined) setInternalExpanded(nextExpanded);
+      onExpandedChange?.(nextExpanded);
+      onToggle?.(event);
+    };
+
+    return (
+      <div ref={ref} className={clsx('chat-tool-group', className)} {...rest}>
+        {hasHeader && (
+          <div data-slot="disclosure-heading">
+            <button
+              type="button"
+              className="chat-tool-group__trigger"
+              data-expandable="true"
+              aria-expanded={expanded}
+              aria-controls={contentId}
+              onClick={handleToggle}
+            >
+              <span className="chat-tool-group__trigger-label">{label}</span>
+            </button>
+          </div>
+        )}
+        <div
+          id={contentId}
+          className="chat-tool-group__content"
+          data-expanded={open ? 'true' : 'false'}
+          hidden={!open}
+          aria-hidden={!open}
+        >
+          <div className="chat-tool-group__content-body">{children}</div>
+        </div>
+      </div>
+    );
+  },
+);
+Group.displayName = 'ChatTool.Group';
+
+export { Group as ChatToolGroup };
+
 const ChatTool = Object.assign(ChatToolRoot, {
   Args,
   Result,
   Error: ErrorSection,
   Approval,
   Meta,
+  Group,
 });
 
 export default ChatTool;
