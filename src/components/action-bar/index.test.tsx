@@ -66,6 +66,34 @@ describe('ActionBar', () => {
     }
   });
 
+  // 回归：进/退场动画类挂在带动画的内层 wrapper 上（即 onAnimationEnd 所在元素），
+  // 退场动画结束驱动卸载依赖此处。注：jsdom 无真实 AnimationEvent，React 合成 onAnimationEnd
+  // 无法在单测里触发（仓库其余组件同样不对 animationend 做断言），故只校验可观测的动画类落点。
+  it('applies enter/exit motion classes on the animated wrapper', () => {
+    const { rerender } = render(
+      <ActionBar isOpen>
+        <ActionBar.Content>
+          <button type="button">Delete</button>
+        </ActionBar.Content>
+      </ActionBar>,
+    );
+    const wrapper = document.querySelector('.action-bar__wrapper') as Element;
+    expect(wrapper.className).toContain('animate-in');
+    expect(wrapper.className).not.toContain('animate-out');
+
+    rerender(
+      <ActionBar isOpen={false}>
+        <ActionBar.Content>
+          <button type="button">Delete</button>
+        </ActionBar.Content>
+      </ActionBar>,
+    );
+    // 退场态：内层 wrapper 切到 animate-out（退场动画跑在它自身，与 onAnimationEnd 同元素）
+    const closing = document.querySelector('.action-bar__wrapper') as Element;
+    expect(closing.className).toContain('animate-out');
+    expect(closing.className).not.toContain('animate-in');
+  });
+
   // 回归：内部按钮点击触发回调
   it('fires inner button callback on click', async () => {
     const user = userEvent.setup();

@@ -10,7 +10,8 @@ export type EmptyStateProps = HTMLAttributes<HTMLDivElement> & {
 type SectionProps = HTMLAttributes<HTMLDivElement>;
 
 export type EmptyStateHeaderProps = SectionProps;
-export type EmptyStateTitleProps = SectionProps;
+// 标题渲染为 <h3>，对齐 HeroUI Pro 的标题语义（与 timeline/kanban 等同库组件一致）
+export type EmptyStateTitleProps = HTMLAttributes<HTMLHeadingElement>;
 export type EmptyStateDescriptionProps = SectionProps;
 export type EmptyStateContentProps = SectionProps;
 
@@ -49,8 +50,8 @@ const Media = forwardRef<HTMLDivElement, EmptyStateMediaProps>(
 );
 Media.displayName = 'EmptyState.Media';
 
-const Title = forwardRef<HTMLDivElement, EmptyStateTitleProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('empty-state__title', className)} {...rest} />
+const Title = forwardRef<HTMLHeadingElement, EmptyStateTitleProps>(({ className, ...rest }, ref) => (
+  <h3 ref={ref} className={clsx('empty-state__title', className)} {...rest} />
 ));
 Title.displayName = 'EmptyState.Title';
 

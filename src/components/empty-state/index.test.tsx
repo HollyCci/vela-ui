@@ -34,7 +34,9 @@ describe('EmptyState', () => {
       </EmptyState>,
     );
     expect(document.querySelector('.empty-state__header')).toBeInTheDocument();
-    expect(document.querySelector('.empty-state__title')).toHaveTextContent('Title');
+    // 标题渲染为 <h3>，可由 role=heading (level 3) 触达，并保留 empty-state__title class
+    const title = screen.getByRole('heading', { level: 3, name: 'Title' });
+    expect(title).toHaveClass('empty-state__title');
     expect(document.querySelector('.empty-state__description')).toHaveTextContent('Desc');
     expect(screen.getByRole('button', { name: 'Refresh' })).toBeInTheDocument();
   });

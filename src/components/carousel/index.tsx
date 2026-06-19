@@ -9,8 +9,10 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type CSSProperties,
+  type FocusEvent as ReactFocusEvent,
   type HTMLAttributes,
   type KeyboardEvent as ReactKeyboardEvent,
   type ReactNode,
@@ -406,18 +408,79 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
       if (emblaApi !== undefined) setApi?.(emblaApi);
     }, [emblaApi, setApi]);
 
-    useEffect(() => {
-      if (emblaApi === undefined || !isAutoplayEnabled) return undefined;
-      const timer = window.setInterval(() => {
+    // 自动轮播计时器（无 embla-carousel-autoplay 依赖时的内建实现）。
+    // 与 HeroUI Pro（embla-carousel-autoplay）对齐：指针悬停 / 焦点进入根容器时暂停，
+    // 手动导航（按钮/圆点/缩略图/键盘）后重置计时器。用 ref 持有 timer 句柄以便随时清/重启。
+    const autoplayTimerRef = useRef<number | undefined>(undefined);
+    const isAutoplayPausedRef = useRef(false);
+
+    const stopAutoplay = useCallback(() => {
+      if (autoplayTimerRef.current !== undefined) {
+        window.clearInterval(autoplayTimerRef.current);
+        autoplayTimerRef.current = undefined;
+      }
+    }, []);
+
+    const startAutoplay = useCallback(() => {
+      stopAutoplay();
+      // 关闭、未就绪或处于暂停态（悬停/聚焦）时不启动
+      if (emblaApi === undefined || !isAutoplayEnabled || isAutoplayPausedRef.current) return;
+      autoplayTimerRef.current = window.setInterval(() => {
         if (emblaApi.canScrollNext()) emblaApi.scrollNext();
         else emblaApi.scrollTo(0);
       }, Math.max(250, autoplayDelay));
-      return () => window.clearInterval(timer);
-    }, [autoplayDelay, emblaApi, isAutoplayEnabled]);
+    }, [autoplayDelay, emblaApi, isAutoplayEnabled, stopAutoplay]);
 
-    const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-    const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-    const scrollTo = useCallback((index: number) => emblaApi?.scrollTo(index), [emblaApi]);
+    // 启停由 enable/delay/api 变化驱动；卸载时清理
+    useEffect(() => {
+      startAutoplay();
+      return stopAutoplay;
+    }, [startAutoplay, stopAutoplay]);
+
+    // 手动导航后重置计时器（参考实现：reset-on-interaction），暂停态下保持暂停不重启
+    const resetAutoplay = useCallback(() => {
+      if (!isAutoplayEnabled || isAutoplayPausedRef.current) return;
+      startAutoplay();
+    }, [isAutoplayEnabled, startAutoplay]);
+
+    // 指针悬停 / 焦点进入根容器时暂停，离开后恢复
+    const handlePointerEnter = useCallback(() => {
+      isAutoplayPausedRef.current = true;
+      stopAutoplay();
+    }, [stopAutoplay]);
+    const handlePointerLeave = useCallback(() => {
+      isAutoplayPausedRef.current = false;
+      startAutoplay();
+    }, [startAutoplay]);
+    const handleFocusCapture = useCallback(() => {
+      isAutoplayPausedRef.current = true;
+      stopAutoplay();
+    }, [stopAutoplay]);
+    const handleBlurCapture = useCallback(
+      (event: ReactFocusEvent<HTMLDivElement>) => {
+        // 仅当焦点真正离开根容器（而非在内部控件间转移）时才恢复
+        if (event.currentTarget.contains(event.relatedTarget as Node | null)) return;
+        isAutoplayPausedRef.current = false;
+        startAutoplay();
+      },
+      [startAutoplay],
+    );
+
+    const scrollPrev = useCallback(() => {
+      emblaApi?.scrollPrev();
+      resetAutoplay();
+    }, [emblaApi, resetAutoplay]);
+    const scrollNext = useCallback(() => {
+      emblaApi?.scrollNext();
+      resetAutoplay();
+    }, [emblaApi, resetAutoplay]);
+    const scrollTo = useCallback(
+      (index: number) => {
+        emblaApi?.scrollTo(index);
+        resetAutoplay();
+      },
+      [emblaApi, resetAutoplay],
+    );
 
     const isVertical = opts?.axis === 'y';
     const isRtl = opts?.direction === 'rtl';
@@ -499,6 +562,23 @@ const CarouselRoot = forwardRef<HTMLDivElement, CarouselProps>(
           data-slot="carousel"
           className={clsx('carousel', `carousel--${type}`, className)}
           {...rest}
+          // 悬停/聚焦暂停自动轮播；放在 rest 之后合并消费者回调，确保内建行为不被覆盖
+          onMouseEnter={(event) => {
+            rest.onMouseEnter?.(event);
+            handlePointerEnter();
+          }}
+          onMouseLeave={(event) => {
+            rest.onMouseLeave?.(event);
+            handlePointerLeave();
+          }}
+          onFocusCapture={(event) => {
+            rest.onFocusCapture?.(event);
+            handleFocusCapture();
+          }}
+          onBlurCapture={(event) => {
+            rest.onBlurCapture?.(event);
+            handleBlurCapture(event);
+          }}
         >
           <div className="carousel__viewport-wrapper" data-slot="carousel-viewport-wrapper">
             {wrapperChildren}
