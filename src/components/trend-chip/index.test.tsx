@@ -29,6 +29,21 @@ describe('TrendChip', () => {
     expect(screen.getByText('vs LW')).toHaveClass('trend-chip__suffix');
   });
 
+  it('replaces the default indicator with a custom icon while keeping the trend color', () => {
+    const { container } = render(
+      <TrendChip trend="up" value="5" icon={<svg data-testid="custom-icon" />} />,
+    );
+    const indicator = container.querySelector('.trend-chip__indicator');
+    // 默认箭头被自定义图标替换，趋势色仍由 chip--success 提供
+    expect(indicator?.querySelector('[data-testid="custom-icon"]')).not.toBeNull();
+    expect(container.querySelector('[data-slot="chip"]')).toHaveClass('chip--success');
+  });
+
+  it('renders the optional prefix before the value', () => {
+    render(<TrendChip trend="up" prefix="营收" value="18.2%" />);
+    expect(screen.getByText('营收')).toHaveClass('trend-chip__prefix');
+  });
+
   it('passes the size through to the size-specific class', () => {
     const { container } = render(<TrendChip trend="up" value="5" size="lg" />);
     const chip = container.querySelector('[data-slot="chip"]');

@@ -8,6 +8,10 @@ export type TrendChipSize = 'sm' | 'md' | 'lg';
 export type TrendChipProps = Omit<HTMLAttributes<HTMLSpanElement>, 'color'> & {
   trend?: TrendDirection;
   value: ReactNode;
+  /** 自定义指示图标，提供时替换默认的趋势箭头（仍沿用趋势色） */
+  icon?: ReactNode;
+  /** 数值前缀，渲染在 value 之前（如「营收」「目标」） */
+  prefix?: ReactNode;
   suffix?: ReactNode;
   size?: TrendChipSize;
   variant?: ChipVariant;
@@ -44,7 +48,10 @@ const TREND_ICON = {
 } as const;
 
 const TrendChip = forwardRef<HTMLSpanElement, TrendChipProps>(
-  ({ trend = 'up', value, suffix, size = 'md', variant = 'tertiary', className, ...rest }, ref) => (
+  (
+    { trend = 'up', value, icon, prefix, suffix, size = 'md', variant = 'tertiary', className, ...rest },
+    ref,
+  ) => (
     <Chip
       ref={ref}
       color={TREND_COLOR[trend]}
@@ -53,7 +60,9 @@ const TrendChip = forwardRef<HTMLSpanElement, TrendChipProps>(
       className={clsx(`trend-chip--${size}`, className)}
       {...rest}
     >
-      <span className="trend-chip__indicator">{TREND_ICON[trend]}</span>
+      {/* 提供 icon 时替换默认箭头，仍处于趋势色的指示槽内 */}
+      <span className="trend-chip__indicator">{icon ?? TREND_ICON[trend]}</span>
+      {prefix !== undefined && <span className="trend-chip__prefix">{prefix}</span>}
       <span className="trend-chip__value">{value}</span>
       {suffix !== undefined && <span className="trend-chip__suffix">{suffix}</span>}
     </Chip>

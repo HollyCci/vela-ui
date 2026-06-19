@@ -1248,6 +1248,25 @@ const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
   );
 };
 
+// 自定义指示图标：使用 currentColor 以继承趋势槽的颜色
+const TargetIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1" />
+  </svg>
+);
+
+const ShieldIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <path
+      d="M12 3l7 3v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V6z"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'sizes') {
     return (
@@ -1272,8 +1291,8 @@ const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'prefix-and-suffix') {
     return (
       <DemoSection label="prefix and suffix">
-        <TrendChip trend="up" value={<><span>营收</span> 18.2%</>} suffix="环比" />
-        <TrendChip trend="down" value={<><span>流失</span> 2.1%</>} suffix="较上周" />
+        <TrendChip trend="up" prefix="营收" value="18.2%" suffix="环比" />
+        <TrendChip trend="down" prefix="流失" value="2.1%" suffix="较上周" />
       </DemoSection>
     );
   }
@@ -1296,8 +1315,9 @@ const TrendChipVariantDemo = ({ variant }: VariantDemoProps) => {
   if (variant === 'custom-indicator') {
     return (
       <DemoSection label="custom indicator composition">
-        <TrendChip trend="up" value={<><span aria-hidden="true">目标</span> 96%</>} suffix="达成" />
-        <TrendChip trend="neutral" value={<><span aria-hidden="true">SLA</span> 99.9%</>} />
+        {/* icon 覆盖默认箭头，仍沿用趋势色（success / default） */}
+        <TrendChip trend="up" icon={<TargetIcon />} value="96%" suffix="达成" />
+        <TrendChip trend="neutral" icon={<ShieldIcon />} value="99.9%" />
       </DemoSection>
     );
   }
