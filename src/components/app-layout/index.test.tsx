@@ -63,6 +63,40 @@ describe('AppLayout', () => {
     expect(onSidebarOpenChange).toHaveBeenCalledWith(true);
   });
 
+  it('renders the mobile sidebar inside a Sheet overlay when opened below the breakpoint', async () => {
+    // 模拟移动端视口：matchMedia(max-width:768) 命中 → 侧栏改走 Sheet 覆盖层
+    vi.stubGlobal(
+      'matchMedia',
+      vi.fn().mockImplementation((query: string) => ({
+        matches: true,
+        media: query,
+        onchange: null,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        dispatchEvent: () => false,
+      })),
+    );
+    const user = userEvent.setup();
+    render(
+      <AppLayout sidebar={<div>侧栏内容</div>}>
+        <AppLayout.MenuToggle />
+      </AppLayout>,
+    );
+
+    // 初始未打开：不存在 sheet 对话框
+    expect(document.querySelector('[data-slot="app-layout-mobile-sidebar-dialog"]')).toBeNull();
+
+    await user.click(screen.getByRole('button', { name: 'Open navigation' }));
+
+    // 打开后：侧栏渲染进 Sheet 覆盖层（带遮罩 + 可关闭对话框），而非静态 sidebar div
+    const dialog = document.querySelector('[data-slot="app-layout-mobile-sidebar-dialog"]');
+    expect(dialog).not.toBeNull();
+    expect(document.querySelector('[data-slot="app-layout-mobile-sidebar"]')).not.toBeNull();
+    expect(screen.getByRole('dialog', { name: 'Navigation menu' })).toBeInTheDocument();
+  });
+
   it('AsideTrigger toggles aside and exposes aria-expanded + data-state', async () => {
     const user = userEvent.setup();
     const onAsideOpenChange = vi.fn();

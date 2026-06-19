@@ -282,3 +282,21 @@
   min-height: 0;
   display: flex;
 }
+
+.app-layout__mobile-sidebar-sheet {
+  width: 100%;
+  max-width: min(320px,88vw);
+}
+
+.app-layout__mobile-sidebar-dialog {
+  height: 100dvh;
+  padding: 0;
+}
+
+.app-layout__mobile-sidebar {
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  overflow-y: auto;
+}

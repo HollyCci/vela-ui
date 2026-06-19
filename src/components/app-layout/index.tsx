@@ -21,6 +21,9 @@ import clsx from 'clsx';
 import Resizable from '../resizable';
 import Sheet from '../sheet';
 
+/** 移动端断点：≤768px 时侧栏从静态占位切换为 Sheet 覆盖层（与 MenuToggle 显示断点一致） */
+const MOBILE_BREAKPOINT = 768;
+
 export type AppLayoutSidebarSide = 'left' | 'right';
 export type AppLayoutSidebarVariant = 'sidebar' | 'floating' | 'inset';
 export type AppLayoutSidebarCollapsible = 'icon' | 'offcanvas' | 'none';
@@ -98,6 +101,13 @@ type AppLayoutContextValue = {
   isSidebarOpen: boolean;
   setSidebarOpen: (open: boolean) => void;
   toggleSidebar: () => void;
+  /** 当前视口是否低于移动断点（≤768px）：移动端侧栏改走 Sheet 覆盖层 */
+  isMobile: boolean;
+  /** 移动端侧栏 Sheet 开合（与桌面 isSidebarOpen 解耦，避免桌面默认展开误触发模态） */
+  isMobileSidebarOpen: boolean;
+  setMobileSidebarOpen: (open: boolean) => void;
+  /** 侧栏所在侧，移动端 Sheet 据此选 placement */
+  sidebarSide: AppLayoutSidebarSide;
   isAsideOpen: boolean;
   setAsideOpen: (open: boolean) => void;
   toggleAside: () => void;
@@ -175,6 +185,32 @@ const matchShortcut = (combo: string, event: KeyboardEvent): boolean => {
   if (wantAlt && !event.altKey) return false;
   if (wantShift && !event.shiftKey) return false;
   return event.key.toLowerCase() === key;
+};
+
+/**
+ * 内部断点 hook：复用 sidebar/kpi-group 的 JS matchMedia 模式，监听 change + resize。
+ * 返回当前视口是否低于断点（max-width 命中即为 true）；SSR/无 matchMedia 时退化为 false。
+ */
+const useBelowBreakpoint = (breakpoint: number): boolean => {
+  const [below, setBelow] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) {
+      setBelow(false);
+      return undefined;
+    }
+    const mql = window.matchMedia(`(max-width: ${breakpoint}px)`);
+    const onChange = () => setBelow(mql.matches);
+    onChange();
+    mql.addEventListener('change', onChange);
+    window.addEventListener('resize', onChange);
+    return () => {
+      mql.removeEventListener('change', onChange);
+      window.removeEventListener('resize', onChange);
+    };
+  }, [breakpoint]);
+
+  return below;
 };
 
 /** 受控/非受控开关 hook（侧栏与 aside 共用） */
@@ -272,6 +308,15 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       onAsideOpenChange,
     );
 
+    // 移动端侧栏 Sheet 状态：独立于桌面 isSidebarOpen，仅 ≤768px 由 MenuToggle 驱动
+    const isMobile = useBelowBreakpoint(MOBILE_BREAKPOINT);
+    const [isMobileSidebarOpen, setMobileSidebarOpen] = useState(false);
+
+    // 离开移动断点时收起移动端 Sheet，避免回到桌面仍残留覆盖层
+    useEffect(() => {
+      if (!isMobile) setMobileSidebarOpen(false);
+    }, [isMobile]);
+
     const toggleSidebar = useCallback(() => setSidebarOpen(!isSidebarOpen), [isSidebarOpen, setSidebarOpen]);
     const toggleAside = useCallback(() => setAsideOpen(!isAsideOpen), [isAsideOpen, setAsideOpen]);
 
@@ -322,6 +367,10 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
         isSidebarOpen,
         setSidebarOpen,
         toggleSidebar,
+        isMobile,
+        isMobileSidebarOpen,
+        setMobileSidebarOpen,
+        sidebarSide,
         isAsideOpen,
         setAsideOpen,
         toggleAside,
@@ -333,6 +382,10 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
         isSidebarOpen,
         setSidebarOpen,
         toggleSidebar,
+        isMobile,
+        isMobileSidebarOpen,
+        setMobileSidebarOpen,
+        sidebarSide,
         isAsideOpen,
         setAsideOpen,
         toggleAside,
@@ -514,6 +567,7 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
           {...rest}
         >
           {inner}
+          {hasSidebar ? <AppLayoutMobileSidebarSheet>{sidebar}</AppLayoutMobileSidebarSheet> : null}
           {asideMobile === 'sheet' && hasAside ? (
             <AppLayoutMobileAsideSheet>{mobileSheetContent}</AppLayoutMobileAsideSheet>
           ) : null}
@@ -551,6 +605,46 @@ const AppLayoutMobileAsideSheet = ({ children }: { children: ReactNode }): React
   );
 };
 AppLayoutMobileAsideSheet.displayName = 'AppLayout.MobileAsideSheet';
+
+/**
+ * 移动端侧栏以 sheet 呈现：桌面端（≥769px）不渲染任何东西，桌面布局完全不变；
+ * ≤768px 时复用本仓库 Sheet（Drawer/RAC 焦点圈定、Esc/遮罩关闭、滑入与拖拽关闭动画），
+ * placement 跟随 sidebarSide，由独立的 isMobileSidebarOpen 驱动，避免桌面默认展开误触发模态。
+ */
+const AppLayoutMobileSidebarSheet = ({ children }: { children: ReactNode }): ReactElement | null => {
+  const ctx = useContext(AppLayoutContext);
+  if (ctx === null || !ctx.isMobile) return null;
+  return (
+    <Sheet
+      placement={ctx.sidebarSide}
+      isOpen={ctx.isMobileSidebarOpen}
+      onOpenChange={ctx.setMobileSidebarOpen}
+    >
+      <Sheet.Backdrop variant="blur">
+        <Sheet.Content
+          className="app-layout__mobile-sidebar-sheet"
+          data-slot="app-layout-mobile-sidebar-sheet"
+          data-sheet-drawer-direction={ctx.sidebarSide}
+        >
+          <Sheet.Dialog
+            aria-label="Navigation menu"
+            className="app-layout__mobile-sidebar-dialog"
+            data-slot="app-layout-mobile-sidebar-dialog"
+          >
+            <div
+              className="app-layout__mobile-sidebar"
+              data-slot="app-layout-mobile-sidebar"
+              data-side={ctx.sidebarSide}
+            >
+              {children}
+            </div>
+          </Sheet.Dialog>
+        </Sheet.Content>
+      </Sheet.Backdrop>
+    </Sheet>
+  );
+};
+AppLayoutMobileSidebarSheet.displayName = 'AppLayout.MobileSidebarSheet';
 
 const BarsIcon = (): ReactElement => (
   <svg
@@ -625,7 +719,9 @@ const MenuToggle = forwardRef<HTMLButtonElement, AppLayoutMenuToggleProps>(
     const id = useId();
 
     const handlePress = useCallback(() => {
+      // 桌面状态保持兼容（持久化/受控回调）；移动断点下同时打开侧栏 Sheet 覆盖层
       ctx?.setSidebarOpen(true);
+      ctx?.setMobileSidebarOpen(true);
     }, [ctx]);
 
     const button = (
