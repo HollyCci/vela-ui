@@ -3,6 +3,27 @@
 > 每做一个组件、每踩一个坑，就把**可复用**的教训追加到这里。目标：同一个坑只踩一次。
 > 写的时候说清「现象 → 根因 → 怎么做」，让后面的 agent 看一眼就懂。
 
+## 单组件 monolith vs Pro compound（dot-notation）API（emoji-picker 实战）
+
+- **现象**：本库 emoji-picker 是「一个 `<EmojiPicker categories=… onEmojiSelect=… isInline=… />` 单组件 props」，
+  而线上 Pro 的 API Reference 是 11 个点记法子组件（`EmojiPicker.Trigger/.Value/.Popover/.Content/.Grid/
+  .Item/.Footer/.SkinTonePicker/.SkinToneTrigger/.SkinToneContent/.SkinToneOption`），各自有 props + renders-as。
+  这类「契约形态根本不同」(monolith ↔ compound) 是**真 API 缺口**，不是 already-aligned——子组件根本没导出。
+- **怎么做**：用 `Object.assign(Fn, { Trigger, Value, … })` 把真复合子组件挂成命名空间，每个子组件包对应
+  RAC primitive（Trigger→`Button`、Value→`SelectValue`、Popover/SkinToneContent→`Popover`、Grid→`ListBox`、
+  Item→`ListBoxItem`、SkinToneOption→`ToggleButton`、Content/Footer/SkinTonePicker→`div`），className 用
+  `clsx('emoji-picker__x', fnOrStr)` 默认到 Pro 的 CSS 类 + emit `data-slot`。**单组件 props 路径原样保留**当
+  默认行为（十几个老调用点全走它，零破坏）。renders-as 逐一对齐 Pro（button/div/listbox/option），单测加
+  `tagName`/`getByRole` 锁死。
+- **status 诚实定级**：只补「子组件 API 表面 + props/renders-as」算 upgrade；但若没把 root 从 `DialogTrigger`
+  重架成 Pro 的 RAC `Select` 语义、没把 Content 接 `Autocomplete`、Grid 接 `Virtualizer+GridLayout`
+  （这些是深引擎改造、会动到所有调用点+测试），则 root 内部引擎仍偏离 Pro → 记 **partial + deviation**，
+  别谎报全 upgraded。`Content.filter`/`Grid.layoutOptions` 这种 prop 可先以**类型化 pass-through** 暴露占位。
+- **RAC className 是函数式**：`Button/ListBox/Popover/ToggleButton` 的 `className` 可为 `(values)=>string`，
+  包装时要 `typeof className === 'function' ? className(values) : className` 才能既默认 Pro 类又透传调用方。
+- **`React.HTMLAttributes` 要显式 import**：`import { type HTMLAttributes } from 'react'`，别写 `React.xxx`
+  （组件文件多半没 `import * as React`）。linter 会顺手重排 import，改完别被吓到，核对 diff 即可。
+
 ## 判薄不薄 / 别瞎改（批次1 实战）
 
 - **不是所有组件都要「用基础件拼真复合」。** 结构 primitive（Widget / Card / KpiGroup 这类）在**参考版自己的
