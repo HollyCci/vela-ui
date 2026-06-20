@@ -90,6 +90,12 @@
 
 ## 样式
 
+- **网格内容行多塞一个子项会换行（KPI「with from suffix」实战）**：`.kpi__content` 是 `grid-template-columns: 1fr auto`
+  的两列网格（数值占 1fr、趋势标占 auto 靠右）。该变体在中间多塞了一个裸 `<span>from N</span>` 作第 3 个网格
+  子项 → auto-placement 把趋势标挤到第 2 行。**修法不是把网格改 flex**（会波及 progress/chart-inline 等同享
+  `.kpi__content` 的已对齐变体），而是**把「数值 + 后缀」包进一个 flex 单元**让网格只见两格：value-group(col1
+  1fr) + trend(col2 auto)，三者稳定同行、趋势标仍靠右。后缀本身用 `flex-direction:column` 做「from / 数字」两行
+  堆叠（小号 muted）。教训：变体往内容行加第 3 个 inline 子项前，先确认该行网格列数，必要时分组成单格。
 - 样式真相源是分片 `src/styles/components/<id>.css`（[[css-source-of-truth]]）；改类名行为前先确认分片。
 - 包装件/cell-* 与基础 shard 同特指度时，base 后导入会胜出 → 视觉 bug；加祖先类提特指度
   （[[cell-wrapper-specificity]]）。

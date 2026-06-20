@@ -109,6 +109,24 @@
   color: var(--foreground);
 }
 
+/* 「from N」后缀变体：把大数值与后缀并成一个 flex 单元，占据 .kpi__content 网格的第 1 列，
+   使数值 + 后缀 + 趋势标稳定同行（否则后缀作为第 3 个网格子项会把趋势标挤到第二行）。 */
+.kpi__value-group {
+  align-items: center;
+  gap: calc(var(--spacing) * 2);
+  min-width: 0;
+  display: flex;
+}
+
+/* 后缀标签与数字两行堆叠的小号 muted 文本（对齐线上 Pro：「from」在上、数字在下）。 */
+.kpi__value-suffix {
+  flex-direction: column;
+  font-size: var(--text-xs);
+  line-height: 1.2;
+  color: var(--muted);
+  display: flex;
+}
+
 .kpi__trend {
   flex-shrink: 0;
 }

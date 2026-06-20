@@ -4150,9 +4150,16 @@ const KpiGroupVariantDemo = ({ variant }: { variant: 'horizontal' | 'vertical' |
                 <Kpi.Title>{card.title}</Kpi.Title>
               </Kpi.Header>
               <Kpi.Content>
-                <Kpi.Value>{card.value}</Kpi.Value>
-                {withFrom && (
-                  <span style={{ ...demoMutedStyle, fontSize: 12 }}>from {card.from}</span>
+                {withFrom ? (
+                  <div className="kpi__value-group">
+                    <Kpi.Value>{card.value}</Kpi.Value>
+                    <span className="kpi__value-suffix">
+                      <span>from</span>
+                      <span>{card.from}</span>
+                    </span>
+                  </div>
+                ) : (
+                  <Kpi.Value>{card.value}</Kpi.Value>
                 )}
                 <Kpi.Trend>{kpiTrendPill(card.dir, card.pct)}</Kpi.Trend>
               </Kpi.Content>
