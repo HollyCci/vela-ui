@@ -50,7 +50,7 @@ const ChatMessageDemo = () => (
             <ChatMessageActions.Copy content={CHAT_MESSAGE_DEMO_ANSWER} />
             <ChatMessageActions.ThumbsUp />
             <ChatMessageActions.ThumbsDown />
-            <ChatMessageActions.Regenerate />
+            <ChatMessageActions.Regenerate onPress={() => {}} />
           </ChatMessageActions>
         </ChatMessage.Actions>
       </ChatMessage.Body>
