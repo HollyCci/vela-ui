@@ -136,6 +136,38 @@ const autoScroll = async (page) => {
   await page.waitForTimeout(150);
 };
 
+// Recharts charts animate in on mount (~1.5s; radar/area/line grow from a collapsed
+// state). The live shots settle because captureLive runs a multi-second autoScroll
+// before screenshotting; captureLocal must likewise wait until the chart geometry stops
+// changing, else early-iterated variants get captured mid-animation (e.g. radar polygons
+// frozen at a fraction of their final radius). Polls the preview's SVG path/polygon
+// geometry until stable for two consecutive samples; returns immediately for non-chart
+// previews (no recharts surface) so they incur no extra delay.
+const waitForChartSettled = async (page, slug) => {
+  let prev = null;
+  let stable = 0;
+  for (let i = 0; i < 30; i += 1) {
+    const sig = await page.evaluate((s) => {
+      const host = document.querySelector(`.sc-live-preview[data-slug="${s}"]`);
+      if (!host) return 'no-chart';
+      const svg = host.querySelector('svg.recharts-surface');
+      if (!svg) return 'no-chart';
+      const paths = [...svg.querySelectorAll('path')].map((p) => p.getAttribute('d') || '').join('|');
+      const polys = [...svg.querySelectorAll('polygon')].map((p) => p.getAttribute('points') || '').join('|');
+      return `${paths}##${polys}`;
+    }, slug);
+    if (sig === 'no-chart') return;
+    if (sig === prev) {
+      stable += 1;
+      if (stable >= 2) return;
+    } else {
+      stable = 0;
+      prev = sig;
+    }
+    await sleep(150);
+  }
+};
+
 const captureLocal = async (page, baseUrl, id, dir) => {
   await page.setViewportSize(VIEWPORT);
   await page.goto(baseUrl, { waitUntil: 'domcontentloaded', timeout: 30000 });
@@ -148,6 +180,7 @@ const captureLocal = async (page, baseUrl, id, dir) => {
       await preview.waitFor({ state: 'visible', timeout: 6000 });
       await preview.scrollIntoViewIfNeeded();
       await sleep(120);
+      await waitForChartSettled(page, slug);
       const file = `local__${slug}.png`;
       await preview.screenshot({ path: path.join(dir, file) });
       shots.push({ slug, file });
