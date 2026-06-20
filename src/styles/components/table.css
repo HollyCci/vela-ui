@@ -4,12 +4,93 @@
  * 用于 Vela UI 组件样式。
  */
 
+.table-root {
+  width: 100%;
+  grid-template-columns: minmax(0, 1fr);
+  display: grid;
+  position: relative;
+  overflow: clip;
+}
+
 .table__scroll-container {
   scrollbar-width: var(--scrollbar-width);
   scrollbar-color: var(--scrollbar-color);
   scrollbar-gutter: var(--scrollbar-gutter);
   scrollbar-gutter: auto;
   overflow-x: auto;
+}
+
+.table-root--primary {
+  padding-inline: calc(var(--spacing) * 1);
+  padding-bottom: calc(var(--spacing) * 1);
+  background-color: var(--surface-secondary);
+  border-radius: min(32px, calc(var(--radius) * 2.5));
+}
+
+.table-root--secondary .table__header {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 0;
+  background-color: #0000;
+}
+
+.table-root--secondary .table__column {
+  background-color: var(--surface-secondary);
+}
+
+.table-root--secondary :is(th.table__column:first-child,[role=row]>[role=presentation]:first-of-type>.table__column) {
+  border-start-start-radius: min(32px, var(--radius-2xl));
+  border-end-start-radius: min(32px, var(--radius-2xl));
+}
+
+.table-root--secondary :is(th.table__column:last-child,[role=row]>[role=presentation]:last-of-type>.table__column) {
+  border-start-end-radius: min(32px, var(--radius-2xl));
+  border-end-end-radius: min(32px, var(--radius-2xl));
+}
+
+.table-root--secondary .table__body {
+  --tw-shadow: 0 0 #0000;
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+}
+
+.table-root--secondary .table__body tr:first-child td:first-child,
+.table-root--secondary .table__body tr:first-child td:last-child,
+.table-root--secondary .table__body tr:last-child td:first-child,
+.table-root--secondary .table__body tr:last-child td:last-child {
+  border-radius: 0;
+}
+
+.table-root--secondary .table__body:not(tbody) {
+  border-radius: 0;
+  overflow: visible;
+}
+
+.table-root--secondary .table__row .table__cell {
+  border-bottom-style: var(--tw-border-style);
+  border-bottom-width: 1px;
+  border-color: var(--separator-tertiary);
+  background-color: #0000;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .table-root--secondary .table__row .table__cell {
+    border-color: color-mix(in oklab, var(--separator-tertiary) 50%, transparent);
+  }
+}
+
+@media (hover:hover) {
+  .table-root--secondary .table__row:hover .table__cell,
+  .table-root--secondary .table__row[data-hovered=true] .table__cell {
+    background-color: var(--default);
+  }
+}
+
+@media (hover:hover) {
+  @supports (color:color-mix(in lab, red, red)) {
+    .table-root--secondary .table__row:hover .table__cell,
+    .table-root--secondary .table__row[data-hovered=true] .table__cell {
+      background-color: color-mix(in oklab, var(--default) 50%, transparent);
+    }
+  }
 }
 
 .table__content {
@@ -20,6 +101,10 @@
   border-spacing: var(--tw-border-spacing-x) var(--tw-border-spacing-y);
   font-size: var(--text-sm);
   line-height: var(--tw-leading,var(--text-sm--line-height));
+}
+
+.table-root--primary .table__content {
+  overflow: clip;
 }
 
 .table__header {
@@ -68,6 +153,10 @@
   content: none;
 }
 
+[role=row]>[role=presentation]:last-of-type:not(:only-of-type)>.table__column:after {
+  content: none;
+}
+
 .table__column[data-allows-sorting=true] {
   cursor: var(--cursor-interactive);
 }
@@ -85,6 +174,28 @@
   --tw-outline-style: none;
   box-shadow: inset 0 0 0 2px var(--focus);
   outline-style: none;
+}
+
+.table__sortable-column-header {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.table__sortable-column-indicator {
+  width: calc(var(--spacing) * 3);
+  height: calc(var(--spacing) * 3);
+  transition-property: transform;
+  transition-timing-function: var(--tw-ease,var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration,var(--default-transition-duration));
+  --tw-duration: .1s;
+  --tw-ease: var(--ease-out);
+  transition-duration: .1s;
+  transition-timing-function: var(--ease-out);
+}
+
+.table__sortable-column-indicator[data-direction=descending] {
+  rotate: 180deg;
 }
 
 .table__body tr:first-child td:first-child {

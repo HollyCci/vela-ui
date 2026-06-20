@@ -111,8 +111,8 @@
 
 .link .link__icon {
   pointer-events: none;
-  width: calc(var(--spacing) * 2);
-  height: calc(var(--spacing) * 2);
+  width: .75em;
+  height: .75em;
   color: currentColor;
   opacity: .6;
   transition: opacity .15s var(--ease-out);

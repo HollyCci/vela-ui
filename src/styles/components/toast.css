@@ -120,24 +120,21 @@
 }
 
 .toast__close-button {
-  top: calc(var(--spacing) * 2.5);
-  right: calc(var(--spacing) * 2.5);
+  pointer-events: none;
+  top: calc(var(--spacing) * -1);
+  right: calc(var(--spacing) * -1);
   width: calc(var(--spacing) * 5);
   height: calc(var(--spacing) * 5);
   border-color: var(--border);
   background-color: var(--default);
-  opacity: 1;
+  opacity: 0;
   position: absolute;
 }
 
 @media (min-width:40rem) {
   .toast__close-button {
-    pointer-events: none;
-    top: calc(var(--spacing) * -1);
-    right: calc(var(--spacing) * -1);
     border-style: var(--tw-border-style);
     background-color: var(--overlay);
-    opacity: 0;
     border-width: 1px;
   }
 }

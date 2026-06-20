@@ -5,13 +5,23 @@
  */
 
 .list-box {
-  gap: calc(var(--spacing) * 1);
   width: 100%;
   padding: calc(var(--spacing) * 1);
-  flex-direction: column;
-  display: flex;
   position: relative;
   overflow: clip;
+}
+
+/*
+ * Spacing between direct children.
+ *
+ * NOTE: We intentionally avoid `display: flex` + `gap` here because
+ * react-aria's Virtualizer renders a `position: relative` content div
+ * with an explicit large height (e.g. 50000px) as the only child of the
+ * ListBox. Flex shrinking would collapse that height and break scrollbar
+ * sizing during virtualized scroll.
+ */
+.list-box > * + * {
+  margin-top: calc(var(--spacing) * 1);
 }
 
 .list-box [data-slot=separator][data-orientation=horizontal] {

@@ -145,6 +145,11 @@
   background-color: var(--select-trigger-bg-focus);
 }
 
+.select[data-invalid=true] .select--secondary .select__trigger,
+.select[aria-invalid=true] .select--secondary .select__trigger {
+  background-color: var(--select-trigger-bg-focus);
+}
+
 .select__value {
   text-align: start;
   font-size: var(--text-base);

@@ -5,13 +5,14 @@
  */
 
 .switch {
-  align-items: center;
-  gap: calc(var(--spacing) * 3);
+  align-items: flex-start;
+  gap: calc(var(--spacing) * 1);
   -webkit-tap-highlight-color: transparent;
   cursor: var(--cursor-interactive);
   --switch-control-bg: var(--default);
   --switch-control-bg-hover: var(--switch-control-bg);
-  display: inline-flex;
+  flex-direction: column;
+  display: flex;
 }
 
 @supports (color:color-mix(in lab, red, red)) {
@@ -26,22 +27,47 @@
   --switch-control-bg-checked-hover: var(--accent-hover);
 }
 
-.switch:disabled,
 .switch[data-disabled=true],
-.switch[aria-disabled=true] {
+.switch[data-disabled=true] [data-slot=description],
+.switch[data-disabled=true] [data-slot=field-error] {
   opacity: var(--disabled-opacity);
   cursor: var(--cursor-disabled);
   pointer-events: none;
 }
 
-:is(.switch:disabled,.switch[data-disabled=true],.switch[aria-disabled=true]) .switch__thumb {
+.switch[data-disabled=true] .switch__thumb {
   background-color: var(--default-foreground);
 }
 
 @supports (color:color-mix(in lab, red, red)) {
-  :is(.switch:disabled,.switch[data-disabled=true],.switch[aria-disabled=true]) .switch__thumb {
+  .switch[data-disabled=true] .switch__thumb {
     background-color: color-mix(in oklab, var(--default-foreground) 20%, transparent);
   }
+}
+
+.switch>[data-slot=description] {
+  width: 100%;
+  min-width: calc(var(--spacing) * 0);
+  padding-inline-start: 3.25rem;
+}
+
+.switch>[data-slot=field-error] {
+  width: 100%;
+  min-width: calc(var(--spacing) * 0);
+  font-size: var(--text-xs);
+  line-height: var(--tw-leading,var(--text-xs--line-height));
+  color: var(--muted);
+  padding-inline-start: 3.25rem;
+}
+
+.switch.switch--sm>[data-slot=description],
+.switch.switch--sm>[data-slot=field-error] {
+  padding-inline-start: 2.75rem;
+}
+
+.switch.switch--lg>[data-slot=description],
+.switch.switch--lg>[data-slot=field-error] {
+  padding-inline-start: 3.75rem;
 }
 
 :is(.switch:disabled[aria-checked=true],.switch:disabled[data-selected=true],.switch[data-disabled=true][aria-checked=true],.switch[data-disabled=true][data-selected=true],.switch[aria-disabled=true][aria-checked=true],.switch[aria-disabled=true][data-selected=true]) .switch__thumb {
@@ -76,7 +102,8 @@
 }
 
 .switch:focus-visible .switch__control,
-.switch[data-focus-visible=true] .switch__control {
+.switch:has([data-slot=switch-content][data-focus-visible=true]) .switch__control,
+.switch [data-slot=switch-content][data-focus-visible=true] .switch__control {
   --tw-ring-shadow: var(--tw-ring-inset,) 0 0 0 calc(2px + var(--tw-ring-offset-width)) var(--tw-ring-color,currentcolor);
   box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
   --tw-ring-color: var(--focus);
@@ -88,25 +115,27 @@
 }
 
 .switch:hover .switch__control,
-.switch[data-hovered=true] .switch__control {
+.switch:has([data-slot=switch-content][data-hovered=true]) .switch__control,
+.switch [data-slot=switch-content][data-hovered=true] .switch__control {
   background-color: var(--switch-control-bg-hover);
 }
 
 .switch:active .switch__control,
-.switch[data-pressed=true] .switch__control {
+.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,
+.switch [data-slot=switch-content][data-pressed=true] .switch__control {
   background-color: var(--switch-control-bg-pressed);
 }
 
-:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *),
-:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
-:is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+:is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *),
+:is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+:is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
   transform: none;
 }
 
 @media (prefers-reduced-motion:reduce) {
-  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
-  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
-  :is(.switch:active .switch__control,.switch[data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+  :is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  :is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  :is(.switch:active .switch__control,.switch:has([data-slot=switch-content][data-pressed=true]) .switch__control,.switch [data-slot=switch-content][data-pressed=true] .switch__control):not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
     transform: none;
   }
 }
@@ -120,11 +149,30 @@
 .switch[data-selected=true]:hover .switch__control,
 .switch[aria-checked=true][data-hovered=true] .switch__control,
 .switch[data-selected=true][data-hovered=true] .switch__control,
+.switch:has([data-slot=switch-content][data-hovered=true])[data-selected=true] .switch__control,
 .switch[aria-checked=true]:active .switch__control,
 .switch[data-selected=true]:active .switch__control,
 .switch[aria-checked=true][data-pressed=true] .switch__control,
-.switch[data-selected=true][data-pressed=true] .switch__control {
+.switch[data-selected=true][data-pressed=true] .switch__control,
+.switch:has([data-slot=switch-content][data-pressed=true])[data-selected=true] .switch__control {
   background-color: var(--switch-control-bg-checked-hover);
+}
+
+.switch__content {
+  cursor: inherit;
+  align-items: center;
+  gap: calc(var(--spacing) * 3);
+  font-size: var(--text-sm);
+  line-height: var(--tw-leading,var(--text-sm--line-height));
+  --tw-font-weight: var(--font-weight-medium);
+  font-weight: var(--font-weight-medium);
+  color: var(--foreground);
+  --tw-outline-style: none;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  outline-style: none;
+  display: inline-flex;
 }
 
 .switch--sm .switch__control {
@@ -212,8 +260,17 @@
   color: var(--foreground);
 }
 
-.switch__content {
-  gap: calc(var(--spacing) * 0);
-  flex-direction: column;
-  display: flex;
+.switch [data-slot=label] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.switch__content [data-slot=label] {
+  cursor: var(--cursor-interactive);
+}
+
+.switch [data-slot=description] {
+  cursor: default;
+  -webkit-user-select: none;
+  user-select: none;
 }

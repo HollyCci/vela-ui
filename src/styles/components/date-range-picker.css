@@ -79,7 +79,7 @@
 }
 
 .date-range-picker__popover {
-  max-width: var(--trigger-width);
+  min-width: var(--trigger-width);
   transform-origin: var(--trigger-anchor-point);
   overscroll-behavior: contain;
   background-color: var(--overlay);

@@ -36,3 +36,22 @@
     transition-property: none;
   }
 }
+
+/*
+ * Toggle fields (checkbox/switch/radio): stack below the label like description.
+ * Disable collapsible height/opacity — those styles break flex-col content layout.
+ */
+.checkbox > .field-error,
+.checkbox > [data-slot="field-error"],
+.switch > .field-error,
+.switch > [data-slot="field-error"],
+.radio > .field-error,
+.radio > [data-slot="field-error"] {
+  margin: calc(var(--spacing) * 0);
+  height: auto;
+  min-height: calc(var(--spacing) * 0);
+  padding: calc(var(--spacing) * 0);
+  color: var(--muted);
+  opacity: 1;
+  transition: none;
+}

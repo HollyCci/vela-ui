@@ -187,7 +187,8 @@
 }
 
 .autocomplete__popover {
-  min-width: var(--trigger-width);
+  width: var(--trigger-width);
+  max-width: var(--trigger-width);
   transform-origin: var(--trigger-anchor-point);
   scroll-padding-block: calc(var(--spacing) * 1);
   overscroll-behavior: contain;
@@ -196,12 +197,9 @@
   padding-top: calc(var(--spacing) * 2);
   font-size: var(--text-sm);
   line-height: var(--tw-leading,var(--text-sm--line-height));
-  scrollbar-width: var(--scrollbar-width);
-  scrollbar-color: var(--scrollbar-color);
-  scrollbar-gutter: var(--scrollbar-gutter);
   border-radius: min(32px, var(--radius-3xl));
   box-shadow: var(--shadow-overlay);
-  overflow-y: auto;
+  overflow: hidden;
 }
 
 .autocomplete__popover:focus-visible:not(:focus),
@@ -271,9 +269,14 @@
 }
 
 .autocomplete__popover [data-slot=list-box] {
+  max-height: 320px;
+  scrollbar-width: var(--scrollbar-width);
+  scrollbar-color: var(--scrollbar-color);
+  scrollbar-gutter: var(--scrollbar-gutter);
   padding: calc(var(--spacing) * 1.5);
   --tw-outline-style: none;
   outline-style: none;
+  overflow-y: auto;
 }
 
 .autocomplete__popover [data-slot=list-box-item] {
@@ -303,6 +306,18 @@
   .autocomplete__popover [data-slot=empty-state] {
     color: color-mix(in oklab, var(--overlay-foreground) 60%, transparent);
   }
+}
+
+.autocomplete__popover-dialog {
+  --tw-outline-style: none;
+  outline-style: none;
+}
+
+.autocomplete__popover-dialog:focus,
+.autocomplete__popover-dialog:focus-visible,
+.autocomplete__popover-dialog[data-focus-visible=true] {
+  --tw-outline-style: none;
+  outline-style: none;
 }
 
 .autocomplete--full-width,

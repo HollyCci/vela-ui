@@ -10,6 +10,50 @@
   container-type: inline-size;
 }
 
+.range-calendar--week-view .range-calendar__cell {
+  aspect-ratio: 1;
+  place-self: center;
+  width: 100%;
+  height: auto;
+}
+
+.range-calendar--day-view .range-calendar__cell {
+  aspect-ratio: 1;
+  place-self: center;
+  width: 100%;
+  height: auto;
+}
+
+.range-calendar--day-view .range-calendar__grid {
+  flex-direction: column;
+  display: flex;
+}
+
+.range-calendar--day-view .range-calendar__grid-header {
+  grid-template-columns: repeat(7,1fr);
+  width: 100%;
+  display: grid;
+}
+
+.range-calendar--day-view .range-calendar__grid-header>tr {
+  display: contents;
+}
+
+.range-calendar--day-view .range-calendar__grid-body {
+  grid-template-columns: repeat(7,1fr);
+  width: 100%;
+  margin-top: calc(var(--spacing) * 1);
+  display: grid;
+}
+
+.range-calendar--day-view .range-calendar__grid-body>tr {
+  display: contents;
+}
+
+.range-calendar--day-view .range-calendar__grid-body>tr:first-child>td {
+  margin-top: calc(var(--spacing) * 0);
+}
+
 .range-calendar__header {
   padding-inline: calc(var(--spacing) * .5);
   padding-bottom: calc(var(--spacing) * 4);

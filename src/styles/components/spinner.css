@@ -6,11 +6,25 @@
 
 .spinner {
   pointer-events: none;
+  display: inline-flex;
   width: calc(var(--spacing) * 6);
   height: calc(var(--spacing) * 6);
-  transform-origin: 50%;
+  flex-shrink: 0;
   animation: .75s linear infinite spin;
-  position: relative;
+}
+
+.spinner:is([data-reduce-motion=true],[data-reduce-motion=true] *),
+.spinner:is([data-reduce-motion=true],[data-reduce-motion=true] *):before,
+.spinner:is([data-reduce-motion=true],[data-reduce-motion=true] *):after {
+  animation: none;
+}
+
+@media (prefers-reduced-motion:reduce) {
+  .spinner:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)),
+  .spinner:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):before,
+  .spinner:not(:is([data-reduce-motion=true],[data-reduce-motion=true] *)):after {
+    animation: none;
+  }
 }
 
 .spinner--sm {
