@@ -88,7 +88,7 @@ describe('DropZone', () => {
     expect(lastQueue[0]).toMatchObject({
       name: 'report.pdf',
       format: 'PDF',
-      color: 'orange',
+      color: 'red',
       status: 'complete',
       progress: 100,
     });
@@ -138,17 +138,18 @@ describe('DropZone', () => {
 
     expect(api.files).toHaveLength(3);
     expect(api.files[0]).toMatchObject({ name: 'ok.pdf', status: 'complete', progress: 100 });
+    // Badge color tracks file format, not upload status: a failed PNG stays green.
     expect(api.files[1]).toMatchObject({
       name: 'large.png',
       status: 'failed',
-      color: 'red',
+      color: 'green',
       progress: 0,
     });
     expect(api.files[1].error).toContain('文件大小不能超过');
     expect(api.files[2]).toMatchObject({
       name: 'notes.txt',
       status: 'failed',
-      color: 'red',
+      color: 'blue',
       error: '不支持的文件类型：.pdf,image/*',
     });
   });
@@ -167,7 +168,7 @@ describe('DropZone', () => {
     expect(onQueueChange).not.toHaveBeenCalled();
   });
 
-  it('validateFile failure marks the item failed/red with the error message', () => {
+  it('validateFile failure marks the item failed with the error message', () => {
     let api!: ReturnType<typeof useDropZoneQueue>;
     render(
       <DropZone simulateUpload={false} validateFile={() => 'too big'}>
@@ -181,7 +182,7 @@ describe('DropZone', () => {
       name: 'huge.zip',
       format: 'ZIP',
       status: 'failed',
-      color: 'red',
+      color: 'orange',
       error: 'too big',
       progress: 0,
     });
@@ -309,10 +310,10 @@ describe('DropZone', () => {
   });
 
   it('FileFormatIcon renders the format badge with the color data attribute', () => {
-    const { container } = render(<DropZone.FileFormatIcon format="PDF" color="orange" />);
+    const { container } = render(<DropZone.FileFormatIcon format="PDF" color="red" />);
     const badge = container.querySelector('[data-slot="drop-zone-file-format-icon-badge"]');
     expect(badge).toHaveTextContent('PDF');
-    expect(badge).toHaveAttribute('data-color', 'orange');
+    expect(badge).toHaveAttribute('data-color', 'red');
   });
 
   it('has no axe a11y violations', async () => {

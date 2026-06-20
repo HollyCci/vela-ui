@@ -16,7 +16,7 @@ import RichTextEditor, { type RichTextEditorJSONContent } from '../../components
 import NumberStepper from '../../components/number-stepper';
 import InlineSelect from '../../components/inline-select';
 import DropZone, {
-  type DropZoneFileFormatIconColor,
+  getUploadFileIconColor,
   type DropZoneFileStatus,
   type DropZoneUploadQueueItem,
 } from '../../components/drop-zone';
@@ -380,18 +380,6 @@ const getFileFormat = (name: string) => {
   return ext !== undefined && ext !== '' ? ext.toUpperCase() : 'FILE';
 };
 
-const getDemoQueueIconColor = (
-  format: string,
-  status: DropZoneFileStatus,
-): DropZoneFileFormatIconColor => {
-  if (status === 'failed') return 'red';
-  if (format === 'PDF' || format === 'ZIP') return 'orange';
-  if (format === 'DOC' || format === 'DOCX') return 'blue';
-  if (format === 'XLS' || format === 'XLSX' || format === 'CSV') return 'green';
-  if (format === 'PNG' || format === 'JPG' || format === 'JPEG' || format === 'WEBP') return 'purple';
-  return 'gray';
-};
-
 const createDemoQueueItem = (
   file: DemoQueueFileLike,
   id: string,
@@ -407,7 +395,7 @@ const createDemoQueueItem = (
     size: file.size,
     type: file.type,
     format,
-    color: getDemoQueueIconColor(format, status),
+    color: getUploadFileIconColor(format),
     status,
     progress: options.progress ?? (status === 'complete' ? 100 : status === 'failed' ? 100 : 45),
     error: options.error,

@@ -137,15 +137,33 @@ const getUploadFileFormat = (name: string) => {
   return extension !== undefined && extension !== '' ? extension.toUpperCase() : 'FILE';
 };
 
-const getUploadFileIconColor = (
-  format: string,
-  status: DropZoneFileStatus,
-): DropZoneFileFormatIconColor => {
-  if (status === 'failed') return 'red';
-  if (format === 'PDF' || format === 'ZIP') return 'orange';
-  if (format === 'DOC' || format === 'DOCX') return 'blue';
+// Badge color is determined purely by file format, mirroring the reference:
+// PDF=red, documents=blue, images/spreadsheets=green, video=purple, archives=orange.
+// The upload status (failed/uploading/complete) never recolors the badge — a failed
+// MP4 stays purple, matching the live Drop Zone docs.
+export const getUploadFileIconColor = (format: string): DropZoneFileFormatIconColor => {
+  if (format === 'PDF') return 'red';
+  if (format === 'DOC' || format === 'DOCX' || format === 'TXT' || format === 'RTF') return 'blue';
+  if (format === 'ZIP' || format === 'RAR' || format === '7Z') return 'orange';
+  if (
+    format === 'PNG' ||
+    format === 'JPG' ||
+    format === 'JPEG' ||
+    format === 'GIF' ||
+    format === 'WEBP' ||
+    format === 'SVG'
+  )
+    return 'green';
   if (format === 'XLS' || format === 'XLSX' || format === 'CSV') return 'green';
-  if (format === 'PNG' || format === 'JPG' || format === 'JPEG' || format === 'WEBP') return 'purple';
+  if (
+    format === 'MP4' ||
+    format === 'MOV' ||
+    format === 'WEBM' ||
+    format === 'M4V' ||
+    format === 'AVI' ||
+    format === 'MKV'
+  )
+    return 'purple';
   return 'gray';
 };
 
@@ -365,7 +383,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
           lastModified: normalizedFile.lastModified,
           file: normalizedFile.file,
           format,
-          color: getUploadFileIconColor(format, status),
+          color: getUploadFileIconColor(format),
           status,
           progress,
           error: validationError,
@@ -438,7 +456,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
               error: validationError,
               canRetry: false,
               attempt: item.attempt + 1,
-              color: getUploadFileIconColor(item.format, status),
+              color: getUploadFileIconColor(item.format),
               updatedAt: Date.now(),
             };
           }),
@@ -481,7 +499,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
                   progress: 100,
                   error: latestRef.current.resolveUploadFailureMessage(item),
                   canRetry: true,
-                  color: getUploadFileIconColor(item.format, 'failed'),
+                  color: getUploadFileIconColor(item.format),
                   updatedAt,
                 };
               }
@@ -492,7 +510,7 @@ const DropZoneRoot = forwardRef<HTMLDivElement, DropZoneProps>(
                 progress: 100,
                 error: undefined,
                 canRetry: false,
-                color: getUploadFileIconColor(item.format, 'complete'),
+                color: getUploadFileIconColor(item.format),
                 updatedAt,
               };
             }),
