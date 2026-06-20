@@ -843,14 +843,18 @@ const CellSelectVariantDemo = ({ variant }: { variant: CellSelectVariantSlug }) 
   const slotLabel = SLOT_OPTIONS.find((option) => option.id === slot)?.label ?? '未设置';
   const width = variant === 'settings-group' ? 380 : 340;
 
-  const renderSlotSelect = (label: string, value?: DemoKey | null) => (
+  const renderSlotSelect = (
+    label: string,
+    value?: DemoKey | null,
+    triggerVariant: 'default' | 'secondary' = 'default',
+  ) => (
     <CellSelect
       aria-label={label}
       value={value}
       onChange={value !== undefined ? handleSlotChange : undefined}
       defaultValue={value === undefined ? 'morning' : undefined}
       isDisabled={variant === 'disabled'}
-      variant={variant === 'variants' ? 'secondary' : 'default'}
+      variant={triggerVariant}
       style={{ width }}
     >
       <CellSelect.Trigger>

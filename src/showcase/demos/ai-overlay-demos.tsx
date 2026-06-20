@@ -2133,9 +2133,15 @@ const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageAction
             <ChatMessageActions>
               <ChatMessageActions.Copy
                 content={CHAT_ANSWER}
-                icon={variant === 'custom-icons' ? <span aria-hidden="true">C</span> : undefined}
+                icon={
+                  variant === 'custom-icons' ? (
+                    <ChatMessageActions.CopyIcon style={{ color: 'var(--accent)' }} />
+                  ) : undefined
+                }
                 copiedIcon={
-                  variant === 'custom-icons' ? <span aria-hidden="true">✓</span> : undefined
+                  variant === 'custom-icons' ? (
+                    <ChatMessageActions.CheckIcon style={{ color: 'var(--accent)' }} />
+                  ) : undefined
                 }
               />
               {variant === 'custom-icons' && (
@@ -2143,7 +2149,7 @@ const ChatMessageActionsVariantDemo = ({ variant }: { variant: ChatMessageAction
                   isSelected={rating === 'up'}
                   onChange={(isSelected) => setRating(isSelected ? 'up' : null)}
                 >
-                  <span aria-hidden="true">＋</span>
+                  <ChatMessageActions.ThumbsUpIcon style={{ color: 'var(--success)' }} />
                 </ChatMessageActions.ThumbsUp>
               )}
               {variant === 'default' && (
