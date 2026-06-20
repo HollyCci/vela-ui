@@ -4,6 +4,7 @@ dist-demo
 coverage
 *.local
 .DS_Store
+.idea/
 *.tsbuildinfo
 
 # 视觉对比截图(本地生成，不入库)
