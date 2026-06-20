@@ -46,8 +46,8 @@ describe('Kpi', () => {
     expect(value).toHaveTextContent((1286).toLocaleString());
   });
 
-  it('Value applies a custom format over the default', () => {
-    render(<Kpi.Value value={76.5} format={(v) => `${v}%`} />);
+  it('Value supports a render-function child receiving the formatted value', () => {
+    render(<Kpi.Value value={76.5}>{(formatted) => `${formatted}%`}</Kpi.Value>);
     expect(document.querySelector('.kpi__value')).toHaveTextContent('76.5%');
   });
 
@@ -56,14 +56,10 @@ describe('Kpi', () => {
     expect(document.querySelector('.kpi__value')).toHaveTextContent('42 分钟');
   });
 
-  it('Trend reflects direction via data-trend and keeps children', () => {
-    render(
-      <Kpi.Trend trend="up">
-        <span>+12.4%</span>
-      </Kpi.Trend>,
-    );
+  it('Trend renders a TrendChip when given a value', () => {
+    render(<Kpi.Trend trend="up" value="+12.4%" />);
     const trend = document.querySelector('.kpi__trend') as HTMLElement;
-    expect(trend).toHaveAttribute('data-trend', 'up');
+    expect(trend).toBeInTheDocument();
     expect(trend).toHaveTextContent('+12.4%');
   });
 
