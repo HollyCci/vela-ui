@@ -202,7 +202,8 @@
 }
 
 .carousel__thumbnail[data-selected=true] {
-  box-shadow: 0 0 0 2px var(--color-accent);
+  /* 对齐线上参考版：选中缩略图为 2px 强调色描边 + 2px 背景色偏移(ring-offset)，描边与图之间留白 */
+  box-shadow: 0 0 0 2px var(--background), 0 0 0 4px var(--color-accent);
 }
 
 @media (prefers-reduced-motion:reduce) {

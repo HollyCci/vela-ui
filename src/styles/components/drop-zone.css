@@ -249,16 +249,7 @@
   overflow: hidden;
 }
 
-.drop-zone__file-item:before {
-  content: "";
-  inset-block: calc(var(--spacing) * 2);
-  inset-inline-start: 0;
-  width: 3px;
-  border-radius: 999px;
-  background-color: var(--color-border);
-  opacity: .85;
-  position: absolute;
-}
+/* 线上参考版的文件卡片无左侧色条，故移除 ::before 装饰条以对齐视觉 */
 
 @keyframes drop-zone-file-item-enter {
   from {
@@ -296,20 +287,8 @@
   }
 }
 
-.drop-zone__file-item[data-status=uploading]:before {
-  background-color: var(--color-accent);
-}
-
-.drop-zone__file-item[data-status=complete]:before {
-  background-color: var(--success);
-}
-
 .drop-zone__file-item[data-status=failed] {
   border-color: var(--danger);
-}
-
-.drop-zone__file-item[data-status=failed]:before {
-  background-color: var(--danger);
 }
 
 @supports (color:color-mix(in lab, red, red)) {
@@ -423,26 +402,30 @@
 }
 
 .drop-zone__file-retry-trigger {
-  margin-top: calc(var(--spacing) * .5);
+  /* 线上参考版的「重试/Try again」为 danger-soft 药丸按钮（浅红底+深红字+全圆角），非纯文字链接 */
+  align-self: flex-start;
+  margin-top: calc(var(--spacing) * 1.5);
   cursor: pointer;
-  padding: calc(var(--spacing) * 0);
+  padding-inline: calc(var(--spacing) * 3);
+  padding-block: calc(var(--spacing) * 1.5);
+  border-radius: 999px;
   font-size: var(--text-xs);
   line-height: var(--tw-leading,var(--text-xs--line-height));
   --tw-font-weight: var(--font-weight-medium);
   font-weight: var(--font-weight-medium);
-  color: var(--danger);
+  color: var(--danger-soft-foreground);
   --tw-outline-style: none;
   -webkit-tap-highlight-color: transparent;
   cursor: var(--cursor-interactive);
-  background-color: #0000;
+  background-color: var(--danger-soft);
   outline-style: none;
-  transition: color .15s var(--ease-out), transform .15s var(--ease-smooth);
+  transition: color .15s var(--ease-out), background-color .15s var(--ease-out), transform .15s var(--ease-smooth);
 }
 
 @media (hover:hover) {
   .drop-zone__file-retry-trigger:hover,
   .drop-zone__file-retry-trigger[data-hovered=true] {
-    text-decoration: underline;
+    background-color: var(--danger-soft-hover);
   }
 }
 

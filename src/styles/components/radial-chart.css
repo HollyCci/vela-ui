@@ -6,6 +6,12 @@
 
 .radial-chart {
   width: 100%;
+  /* 固定像素宽度的图表（如 gauge/with-legend）会比 width:100% 的根容器窄，
+   * 默认左对齐会让图表偏离居中的覆盖层标签（线上参考版二者精确居中）。
+   * 横向居中容器内的图表，使其几何中心与覆盖层中心对齐；width:100% 的
+   * 响应式图表仍占满整宽，不受影响。 */
+  display: flex;
+  justify-content: center;
 }
 
 .radial-chart .recharts-tooltip-cursor {

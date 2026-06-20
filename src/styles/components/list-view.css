@@ -178,6 +178,7 @@
 }
 
 .list-view__title {
+  display: block;
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--text-sm);
@@ -189,6 +190,7 @@
 }
 
 .list-view__description {
+  display: block;
   margin-top: calc(var(--spacing) * .5);
   text-overflow: ellipsis;
   white-space: nowrap;

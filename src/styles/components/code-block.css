@@ -55,42 +55,39 @@
   display: block;
 }
 
+/* 语法 token 配色对齐线上参考版（github-light 主题调色板，固定 hex 而非主题色，保证逐像素一致） */
 .code-block__token--comment {
-  color: var(--muted);
+  color: #6a737d;
   font-style: italic;
 }
 
 .code-block__token--function {
-  color: var(--accent);
+  color: #6f42c1;
 }
 
 .code-block__token--keyword {
-  color: var(--accent);
-  --tw-font-weight: var(--font-weight-medium);
-  font-weight: var(--font-weight-medium);
+  color: #d73a49;
 }
 
 .code-block__token--number {
-  color: var(--warning);
+  color: #005cc5;
 }
 
 .code-block__token--operator,
 .code-block__token--punctuation {
-  color: var(--muted);
+  color: #24292e;
 }
 
 .code-block__token--property {
-  color: var(--foreground);
-  --tw-font-weight: var(--font-weight-medium);
-  font-weight: var(--font-weight-medium);
+  color: #e36209;
 }
 
 .code-block__token--string {
-  color: var(--success);
+  color: #032f62;
 }
 
 .code-block__token--variable {
-  color: var(--danger);
+  color: #24292e;
 }
 
 .code-block__code .shiki,

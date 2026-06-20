@@ -103,6 +103,13 @@
   display: flex;
 }
 
+/* 卡片正文需左对齐(线上参考版)：内容列默认被 OSS checkbox 基础样式居中(align-items:center)，
+   标题/描述被挤到水平居中而非贴左。加 .checkbox-button-group 祖先把特指度提到 0,2,0 胜出，
+   置 align-items:flex-start 使 strong 标题与 span 描述贴左，与线上参考版一致。 */
+.checkbox-button-group .checkbox-button-group__item-content {
+  align-items: flex-start;
+}
+
 .checkbox-button-group__item-icon {
   flex-shrink: 0;
 }

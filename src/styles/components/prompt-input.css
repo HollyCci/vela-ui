@@ -137,6 +137,24 @@
   padding-bottom: calc(var(--spacing) * 14);
 }
 
+/*
+ * 基础 textarea 分片(.textarea{min-height:38px})在 lib.css 中后于本片导入，
+ * 与裸 .prompt-input__textarea 同特指度时会胜出，导致多行 shell 塌成单行、
+ * 发送按钮被 overflow 截顶。用 .prompt-input__shell ... .textarea 抬特指度夺回，
+ * 对齐线上参考版的多行高度。
+ */
+.prompt-input__shell .prompt-input__textarea.textarea {
+  min-height: 112px;
+}
+
+.prompt-input--sm .prompt-input__shell .prompt-input__textarea.textarea {
+  min-height: 88px;
+}
+
+.prompt-input--lg .prompt-input__shell .prompt-input__textarea.textarea {
+  min-height: 128px;
+}
+
 .prompt-input__toolbar {
   inset-inline: calc(var(--spacing) * 3);
   bottom: calc(var(--spacing) * 3);

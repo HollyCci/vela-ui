@@ -172,18 +172,34 @@
   opacity: 1;
 }
 
+/* 线上参考版：card item 是真正的卡片（surface 底 + 1px 边框 + 圆角 + 内边距 + 轻阴影），
+ * 而非裸文本。padding/radius 与 pill 对齐，底色用 --surface(白)，阴影用 --surface-shadow。 */
 .prompt-suggestion__item--card {
-  gap: calc(var(--spacing) * 3);
+  gap: calc(var(--spacing) * 1.5);
   border-radius: calc(var(--radius) * 2);
+  border-style: var(--tw-border-style);
+  border-width: 1px;
+  border-color: var(--border);
   flex-direction: column;
   height: 100%;
-  padding: 0;
-  border: 0;
+  padding-inline: calc(var(--spacing) * 4);
+  padding-block: calc(var(--spacing) * 4);
   text-align: left;
-  color: inherit;
-  background-color: #0000;
+  color: var(--foreground);
+  --tw-shadow: var(--surface-shadow);
+  box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow), var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
+  background-color: var(--surface);
   cursor: var(--cursor-interactive);
+  transition-property: color, background-color, border-color, box-shadow;
+  transition-timing-function: var(--tw-ease, var(--default-transition-timing-function));
+  transition-duration: var(--tw-duration, var(--default-transition-duration));
   display: flex;
+}
+
+@media (hover:hover) {
+  .prompt-suggestion__item--card:hover {
+    border-color: var(--field-border-hover);
+  }
 }
 
 .prompt-suggestion__item--card:focus-visible,
@@ -194,12 +210,22 @@
 }
 
 .prompt-suggestion__item--card[aria-pressed=true] {
+  border-color: var(--color-focus);
   box-shadow: inset 0 0 0 2px var(--color-focus);
+}
+
+/* 线上参考版：当 card item 带描述时，标题(label)为 semibold；描述为 muted 灰。
+ * 用 :has() 限定到「有兄弟描述」的 card label，不影响 pill / 纯标题卡片。 */
+.prompt-suggestion__item--card:has(.prompt-suggestion__item-description) .prompt-suggestion__item-label {
+  --tw-font-weight: var(--font-weight-semibold);
+  font-weight: var(--font-weight-semibold);
+  color: var(--foreground);
 }
 
 .prompt-suggestion__item-description {
   font-size: var(--text-sm);
   line-height: var(--tw-leading,var(--text-sm--line-height));
+  color: var(--muted);
 }
 
 .prompt-suggestion__item-footer {

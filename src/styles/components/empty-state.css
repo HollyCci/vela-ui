@@ -120,8 +120,10 @@
 }
 
 .empty-state__content {
+  flex-wrap: wrap;
+  justify-content: center;
   align-items: center;
   gap: calc(var(--spacing) * 2);
-  flex-direction: column;
+  flex-direction: row;
   display: flex;
 }

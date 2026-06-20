@@ -57,6 +57,16 @@
   padding-right: .75rem;
 }
 
+/* 轨道底色须为白(--field-background)，让灰色的 .cell-slider__fill 形成「已填充=灰 / 未填充=白」对比，
+   对齐线上参考版(未填充段≈#FFFFFF、填充段≈#EBEBEC)。
+   基础 .slider .slider__track 的 background-color:var(--default)(灰)特指度(0,2,0)与本组件
+   .cell-slider .cell-slider__track 同级，而 slider.css 在 lib.css 后导入 → 基础灰胜出，导致整条轨道与
+   fill 同灰、填充进度不可见。这里只针对 --default 变体并借 [data-slot] 把特指度提到(0,2,1)压过基础,
+   恢复白底;secondary 变体保持自身 var(--color-default) 灰底,不受影响。 */
+.cell-slider .cell-slider__track--default[data-slot] {
+  background-color: var(--field-background,var(--default));
+}
+
 @media (hover:hover) {
   .cell-slider .cell-slider__track:hover,
   .cell-slider .cell-slider__track[data-hovered=true] {
@@ -253,6 +263,20 @@
   height: calc(var(--spacing) * 9);
   border-radius: var(--field-radius,calc(var(--radius) * 1.5));
   border-inline-width: 0;
+}
+
+/* 基础 .slider 用「超宽 inline 边框 + accent 着色」当填充进度条：
+   .slider[data-orientation=horizontal] .slider__track 有 border-inline-width:.75rem，
+   再由 [data-fill-start=true]/[data-fill-end=true] 把起/止侧边框染成 var(--accent)(品牌蓝)。
+   本组件改用独立的 .cell-slider__fill div 做填充，那条蓝边框应彻底消失。但:
+   - 上面 border-inline-width:0 规则特指度(0,3,0)与基础宽度规则同级，而 slider.css 在 lib.css 后导入 → 基础胜出，侧边框宽度回到 .75rem;
+   - 基础 [data-fill-start=true] 着色规则特指度(0,4,0)更高 → 左侧边框被染蓝，配合 border-radius 圆角在轨道最左端渲染出一枚蓝色半圆 pill。
+   线上参考版无此蓝边(轨道为统一描边/无突出件)。这里用附加 [data-slot] 把特指度提到(0,5,0)压过基础着色规则,
+   把 inline 边框宽度归零并将着色重置为透明,使 .cell-slider__fill 成为唯一填充。 */
+.cell-slider[data-orientation=horizontal] .cell-slider__track[data-fill-start=true][data-slot],
+.cell-slider[data-orientation=horizontal] .cell-slider__track[data-fill-end=true][data-slot] {
+  border-inline-width: 0;
+  border-inline-color: transparent;
 }
 
 .cell-slider[data-orientation=horizontal] .cell-slider__fill,

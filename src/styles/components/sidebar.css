@@ -65,7 +65,8 @@
   padding: calc(var(--spacing) * 0);
 }
 
-.sidebar[data-state=collapsed]:not([data-collapsible=offcanvas]) .sidebar__header [data-sidebar=label] {
+.sidebar[data-state=collapsed]:not([data-collapsible=offcanvas]) .sidebar__header [data-sidebar=label],
+.sidebar[data-state=collapsed]:not([data-collapsible=offcanvas]) .sidebar__header .sidebar__menu-label-text {
   display: none;
 }
 

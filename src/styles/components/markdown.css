@@ -47,8 +47,8 @@
 }
 
 .markdown h3 {
-  font-size: var(--text-sm);
-  line-height: var(--tw-leading,var(--text-sm--line-height));
+  font-size: var(--text-base);
+  line-height: var(--tw-leading,var(--text-base--line-height));
 }
 
 .markdown ul,
@@ -146,12 +146,21 @@
 
 .markdown__inline-code {
   border-radius: calc(var(--radius) * .5);
+  /* 线上参考版的内联 code chip 用更浅的 default-100 级灰（≈#f4f4f5），
+     在页面 surface 上几乎无填充感；我们无 default-100 token，
+     用 default 向 surface 混合还原同样的浅色，且暗色主题下自适应。 */
   background-color: var(--default);
   padding-inline: calc(var(--spacing) * 1.5);
   padding-block: calc(var(--spacing) * .5);
   font-family: var(--font-mono);
   color: var(--foreground);
   font-size: .875em;
+}
+
+@supports (color:color-mix(in lab, red, red)) {
+  .markdown__inline-code {
+    background-color: color-mix(in oklab, var(--default) 55%, var(--surface));
+  }
 }
 
 .markdown [data-sd-animate] {

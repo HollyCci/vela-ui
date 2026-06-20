@@ -85,6 +85,18 @@
   align-self: flex-start;
 }
 
+/*
+ * 线上参考版的助手头像默认按 32px(sm)渲染，与占位 spacer(w-8 h-8)一致。
+ * Avatar 默认 size 为 40px(md),会比参考版大 8px。
+ * 用祖先类 .chat-message--assistant 提到 (0,2,0) 特指度盖过 .avatar(0,1,0),
+ * 并用 :not() 排除显式 size,避免回归消费方传入的 sm/lg。
+ */
+.chat-message--assistant .chat-message__avatar:not(.avatar--sm):not(.avatar--lg) {
+  width: calc(var(--spacing) * 8);
+  height: calc(var(--spacing) * 8);
+  border-radius: calc(var(--radius) * 2);
+}
+
 .chat-message__avatar-spacer {
   width: calc(var(--spacing) * 8);
   height: calc(var(--spacing) * 8);

@@ -36,10 +36,11 @@
   align-items: center;
   gap: calc(var(--spacing) * 1);
   padding: calc(var(--spacing) * 2);
+  /* 线上参考版：工具栏与内容同为白底，无分隔线 */
   border-bottom-style: var(--tw-border-style);
   border-bottom-width: 1px;
-  border-color: var(--border);
-  background: var(--surface-secondary);
+  border-color: transparent;
+  background: var(--surface);
   display: flex;
   flex-wrap: wrap;
 }
@@ -142,9 +143,10 @@
 }
 
 .rich-text-editor__content blockquote {
+  /* 线上参考版：引用块左边线为细的中性边框色，非强调蓝 */
   border-left-style: var(--tw-border-style);
-  border-left-width: 3px;
-  border-color: var(--accent);
+  border-left-width: 2px;
+  border-color: var(--border);
   color: var(--muted);
   padding-left: calc(var(--spacing) * 3);
 }
@@ -165,11 +167,12 @@
 }
 
 .rich-text-editor__footer {
+  /* 线上参考版：页脚与内容同为白底，无顶部分隔线 */
   border-top-style: var(--tw-border-style);
   border-top-width: 1px;
-  border-color: var(--border);
+  border-color: transparent;
   color: var(--muted);
-  background: var(--surface-secondary);
+  background: var(--surface);
   padding: calc(var(--spacing) * 2) calc(var(--spacing) * 3);
   align-items: center;
   justify-content: space-between;
