@@ -16,14 +16,6 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
-  Brush,
-  ReferenceLine,
-  ReferenceArea,
-  ReferenceDot,
-  Cell,
-  Label,
-  LabelList,
 } from 'recharts';
 import ChartTooltip from '../chart-tooltip';
 
@@ -245,14 +237,6 @@ const BarChart = Object.assign(BarChartRoot, {
   YAxis,
   Grid: CartesianGrid,
   Tooltip,
-  Legend,
-  Brush,
-  ReferenceLine,
-  ReferenceArea,
-  ReferenceDot,
-  Cell,
-  Label,
-  LabelList,
   TooltipContent,
 });
 

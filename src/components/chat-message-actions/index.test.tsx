@@ -20,7 +20,11 @@ describe('ChatMessageActions', () => {
   it('Action renders an OSS button with data-slot and forwards aria-label', () => {
     render(<ChatMessageActions.Action aria-label="More" />);
     const btn = screen.getByRole('button', { name: 'More' });
+    expect(btn.tagName).toBe('BUTTON');
     expect(btn).toHaveAttribute('data-slot', 'chat-message-action');
+    // Pro CSS Classes 契约：Individual icon button → .chat-message-actions__action
+    expect(btn).toHaveClass('chat-message-actions__action');
+    // 既有视觉钩子并存（color: var(--muted)）
     expect(btn).toHaveClass('chat-message__action');
   });
 

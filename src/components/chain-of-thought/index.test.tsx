@@ -19,7 +19,22 @@ describe('ChainOfThought', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('omits data-status and renders a bare muted dot by default (backward compatible)', () => {
+  it('renders the trigger as a button (参考版 Trigger renders-as button)', () => {
+    const { container } = render(
+      <ChainOfThought defaultExpanded>
+        <ChainOfThought.Trigger>Thought for 2s</ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step>Body</ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>,
+    );
+    const trigger = container.querySelector('[data-slot="chain-of-thought-trigger"]')!;
+    expect(trigger.tagName).toBe('BUTTON');
+  });
+
+  it('renders the step header (indicator + label) when label is provided', () => {
     const { container } = render(
       <ChainOfThought defaultExpanded>
         <ChainOfThought.Content>
@@ -30,54 +45,47 @@ describe('ChainOfThought', () => {
       </ChainOfThought>,
     );
     const step = container.querySelector('[data-slot="chain-of-thought-step"]')!;
-    expect(step.hasAttribute('data-status')).toBe(false);
+    expect(step.tagName).toBe('DIV');
     const indicator = container.querySelector('.chain-of-thought__step-indicator')!;
-    expect(indicator.hasAttribute('data-status')).toBe(false);
-    // 缺省指示节点为空圆点，无对勾
-    expect(indicator.querySelector('[data-slot="chain-of-thought-step-check"]')).toBeNull();
-    expect(indicator.textContent).toBe('');
+    expect(indicator).not.toBeNull();
+    expect(indicator.getAttribute('aria-hidden')).toBe('true');
+    const label = container.querySelector('.chain-of-thought__step-label')!;
+    expect(label.textContent).toBe('Analyze');
+    expect(container.querySelector('.chain-of-thought__step-content')!.textContent).toBe(
+      'Read the question',
+    );
   });
 
-  it.each(['pending', 'active'] as const)(
-    'reflects status=%s on step + indicator as a dot (no checkmark)',
-    (status) => {
-      const { container } = render(
-        <ChainOfThought defaultExpanded>
-          <ChainOfThought.Content>
-            <ChainOfThought.Steps>
-              <ChainOfThought.Step label="Step" status={status}>
-                Body
-              </ChainOfThought.Step>
-            </ChainOfThought.Steps>
-          </ChainOfThought.Content>
-        </ChainOfThought>,
-      );
-      const step = container.querySelector('[data-slot="chain-of-thought-step"]')!;
-      expect(step.getAttribute('data-status')).toBe(status);
-      const indicator = container.querySelector('.chain-of-thought__step-indicator')!;
-      expect(indicator.getAttribute('data-status')).toBe(status);
-      expect(indicator.querySelector('[data-slot="chain-of-thought-step-check"]')).toBeNull();
-    },
-  );
-
-  it('renders a checkmark indicator for status=complete', () => {
+  it('renders body-only (no step header) when label is omitted (backward compatible)', () => {
     const { container } = render(
       <ChainOfThought defaultExpanded>
         <ChainOfThought.Content>
           <ChainOfThought.Steps>
-            <ChainOfThought.Step label="Done" status="complete">
-              Body
-            </ChainOfThought.Step>
+            <ChainOfThought.Step>Body content only</ChainOfThought.Step>
           </ChainOfThought.Steps>
         </ChainOfThought.Content>
       </ChainOfThought>,
     );
-    const step = container.querySelector('[data-slot="chain-of-thought-step"]')!;
-    expect(step.getAttribute('data-status')).toBe('complete');
-    const indicator = container.querySelector('.chain-of-thought__step-indicator')!;
-    expect(indicator.getAttribute('data-status')).toBe('complete');
-    const check = indicator.querySelector('[data-slot="chain-of-thought-step-check"]');
-    expect(check).not.toBeNull();
-    expect(check!.getAttribute('aria-hidden')).toBe('true');
+    expect(container.querySelector('.chain-of-thought__step-header')).toBeNull();
+    expect(container.querySelector('.chain-of-thought__step-indicator')).toBeNull();
+    expect(container.querySelector('.chain-of-thought__step-content')!.textContent).toBe(
+      'Body content only',
+    );
+  });
+
+  it('applies the streaming root modifier when isStreaming is set', () => {
+    const { container } = render(
+      <ChainOfThought isStreaming defaultExpanded>
+        <ChainOfThought.Trigger>Thinking…</ChainOfThought.Trigger>
+        <ChainOfThought.Content>
+          <ChainOfThought.Steps>
+            <ChainOfThought.Step label="Analyze">Body</ChainOfThought.Step>
+          </ChainOfThought.Steps>
+        </ChainOfThought.Content>
+      </ChainOfThought>,
+    );
+    const root = container.querySelector('[data-slot="chain-of-thought"]')!;
+    expect(root.classList.contains('chain-of-thought--streaming')).toBe(true);
+    expect(root.classList.contains('chain-of-thought--complete')).toBe(false);
   });
 });

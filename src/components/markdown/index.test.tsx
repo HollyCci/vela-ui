@@ -26,32 +26,45 @@ describe('Markdown', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('renders the streaming caret slot only when isStreaming', () => {
-    const idle = render(<Markdown>{SAMPLE}</Markdown>);
-    expect(idle.container.querySelector('[data-slot="markdown-caret"]')).toBeNull();
-    expect(idle.container.querySelector('[data-slot="markdown"]')).not.toHaveAttribute('data-streaming');
+  it('renders as the markdown root div with block wrappers', () => {
+    const { container } = render(<Markdown>{SAMPLE}</Markdown>);
+    const root = container.querySelector('[data-slot="markdown"]');
+    expect(root).not.toBeNull();
+    expect(root?.tagName).toBe('DIV');
+    expect(root).toHaveClass('markdown');
+    expect(container.querySelectorAll('[data-slot="markdown-block"]').length).toBeGreaterThan(0);
+  });
 
-    const streaming = render(<Markdown isStreaming>{SAMPLE}</Markdown>);
-    const caret = streaming.container.querySelector('[data-slot="markdown-caret"]');
-    expect(caret).not.toBeNull();
-    expect(caret).toHaveAttribute('aria-hidden', 'true');
-    expect(streaming.container.querySelector('[data-slot="markdown"]')).toHaveAttribute(
-      'data-streaming',
-      'true',
+  it('forwards className and native div attributes onto the root', () => {
+    const { container } = render(
+      <Markdown className="custom" id="seed" aria-label="answer">
+        {SAMPLE}
+      </Markdown>,
     );
-    expect(streaming.container.querySelector('[data-slot="markdown"]')).toHaveClass('markdown--streaming');
+    const root = container.querySelector('[data-slot="markdown"]');
+    expect(root).toHaveClass('markdown', 'custom');
+    expect(root).toHaveAttribute('aria-label', 'answer');
+  });
+
+  it('applies component overrides for rendered markdown elements', () => {
+    const { container } = render(
+      <Markdown components={{ a: ({ children, ...props }) => <a data-custom-link {...props}>{children}</a> }}>
+        {'A [link](https://example.com).'}
+      </Markdown>,
+    );
+    expect(container.querySelector('a[data-custom-link]')).not.toBeNull();
   });
 
   it('keeps the block list stable while a trailing token is appended', () => {
-    const { container, rerender } = render(<Markdown isStreaming>{SAMPLE}</Markdown>);
+    const { container, rerender } = render(<Markdown>{SAMPLE}</Markdown>);
     const before = container.querySelectorAll('[data-slot="markdown-block"]');
     const blockCount = before.length;
     const firstBlock = before[0];
 
-    rerender(<Markdown isStreaming>{`${SAMPLE} 追加`}</Markdown>);
+    rerender(<Markdown>{`${SAMPLE} 追加`}</Markdown>);
     const after = container.querySelectorAll('[data-slot="markdown-block"]');
 
-    // 块数量不变，且未变化的首块为同一 DOM 节点（memo 跳过重渲染）
+    // 块数量不变，且未变化的首块为同一 DOM 节点（memo 跳过重渲染，参考版同款流式性能）
     expect(after.length).toBe(blockCount);
     expect(after[0]).toBe(firstBlock);
   });

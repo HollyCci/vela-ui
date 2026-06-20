@@ -6,8 +6,13 @@ export type TrendDirection = 'up' | 'down' | 'neutral';
 export type TrendChipSize = 'sm' | 'md' | 'lg';
 
 export type TrendChipProps = Omit<HTMLAttributes<HTMLSpanElement>, 'color'> & {
+  /** 趋势方向；控制默认箭头图标与配色（up→success、down→danger、neutral→default） */
   trend?: TrendDirection;
-  value: ReactNode;
+  /**
+   * 数值文本。提供时走单组件路径：自动组合 indicator/prefix/value/suffix。
+   * 不提供时走复合路径：直接渲染 children（含 TrendChip.Indicator/.Prefix/.Suffix）。
+   */
+  value?: ReactNode;
   /** 自定义指示图标，提供时替换默认的趋势箭头（仍沿用趋势色） */
   icon?: ReactNode;
   /** 数值前缀，渲染在 value 之前（如「营收」「目标」） */
@@ -47,9 +52,32 @@ const TREND_ICON = {
   neutral: <NeutralIcon />,
 } as const;
 
-const TrendChip = forwardRef<HTMLSpanElement, TrendChipProps>(
+/** 趋势箭头图标槽。复合用法：<TrendChip.Indicator>{customSvg}</TrendChip.Indicator> */
+export type TrendChipIndicatorProps = HTMLAttributes<HTMLSpanElement>;
+const Indicator = forwardRef<HTMLSpanElement, TrendChipIndicatorProps>(
+  ({ className, ...rest }, ref) => (
+    <span ref={ref} className={clsx('trend-chip__indicator', className)} {...rest} />
+  ),
+);
+Indicator.displayName = 'TrendChip.Indicator';
+
+/** 数值前缀槽。复合用法：<TrendChip.Prefix>$</TrendChip.Prefix> */
+export type TrendChipPrefixProps = HTMLAttributes<HTMLSpanElement>;
+const Prefix = forwardRef<HTMLSpanElement, TrendChipPrefixProps>(({ className, ...rest }, ref) => (
+  <span ref={ref} className={clsx('trend-chip__prefix', className)} {...rest} />
+));
+Prefix.displayName = 'TrendChip.Prefix';
+
+/** 数值后缀槽。复合用法：<TrendChip.Suffix>vs LW</TrendChip.Suffix> */
+export type TrendChipSuffixProps = HTMLAttributes<HTMLSpanElement>;
+const Suffix = forwardRef<HTMLSpanElement, TrendChipSuffixProps>(({ className, ...rest }, ref) => (
+  <span ref={ref} className={clsx('trend-chip__suffix', className)} {...rest} />
+));
+Suffix.displayName = 'TrendChip.Suffix';
+
+const TrendChipRoot = forwardRef<HTMLSpanElement, TrendChipProps>(
   (
-    { trend = 'up', value, icon, prefix, suffix, size = 'md', variant = 'tertiary', className, ...rest },
+    { trend = 'up', value, icon, prefix, suffix, size = 'sm', variant = 'soft', className, children, ...rest },
     ref,
   ) => (
     <Chip
@@ -57,18 +85,43 @@ const TrendChip = forwardRef<HTMLSpanElement, TrendChipProps>(
       color={TREND_COLOR[trend]}
       variant={variant}
       size={size}
-      className={clsx(`trend-chip--${size}`, className)}
+      data-trend={trend}
+      className={clsx('trend-chip', `trend-chip--${size}`, className)}
       {...rest}
     >
-      {/* 提供 icon 时替换默认箭头，仍处于趋势色的指示槽内 */}
-      <span className="trend-chip__indicator">{icon ?? TREND_ICON[trend]}</span>
-      {prefix !== undefined && <span className="trend-chip__prefix">{prefix}</span>}
-      <span className="trend-chip__value">{value}</span>
-      {suffix !== undefined && <span className="trend-chip__suffix">{suffix}</span>}
+      {value !== undefined ? (
+        <>
+          {/* 提供 icon 时替换默认箭头，仍处于趋势色的指示槽内 */}
+          <span className="trend-chip__indicator">{icon ?? TREND_ICON[trend]}</span>
+          {prefix !== undefined && <span className="trend-chip__prefix">{prefix}</span>}
+          <span className="trend-chip__value">{value}</span>
+          {suffix !== undefined && <span className="trend-chip__suffix">{suffix}</span>}
+        </>
+      ) : (
+        children
+      )}
     </Chip>
   ),
 );
 
-TrendChip.displayName = 'TrendChip';
+TrendChipRoot.displayName = 'TrendChip';
+
+/**
+ * TrendChip — 软底趋势徽标（箭头 + 数值），按方向上色。
+ *
+ * 两种用法（对齐线上 Pro 版的复合 API，同时保留单组件 props 向后兼容）：
+ * 1. 单组件（默认路径，原契约）：<TrendChip trend="up" value="+3.3%" suffix="vs LW" />
+ * 2. 复合（点记法，对齐 Pro Anatomy）：
+ *    <TrendChip trend="up"><TrendChip.Prefix>$</TrendChip.Prefix>
+ *      <TrendChip.Indicator>{svg}</TrendChip.Indicator>
+ *      <span className="trend-chip__value">1,234</span></TrendChip>
+ *
+ * 复合路径下不传 value，root 直渲 children；indicator 不再自动注入，由 TrendChip.Indicator 提供。
+ */
+const TrendChip = Object.assign(TrendChipRoot, {
+  Indicator,
+  Prefix,
+  Suffix,
+});
 
 export default TrendChip;

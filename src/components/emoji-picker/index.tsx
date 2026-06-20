@@ -6,19 +6,28 @@ import {
   useState,
   type ChangeEvent,
   type CSSProperties,
+  type HTMLAttributes,
   type ReactNode,
 } from 'react';
 import {
   Button as RACButton,
+  type ButtonProps as RACButtonProps,
   Dialog as RACDialog,
   DialogTrigger as RACDialogTrigger,
   Input as RACInput,
   ListBox as RACListBox,
+  type ListBoxProps as RACListBoxProps,
   ListBoxItem as RACListBoxItem,
+  type ListBoxItemProps as RACListBoxItemProps,
   Popover as RACPopover,
+  type PopoverProps as RACPopoverProps,
+  SelectValue as RACSelectValue,
+  type SelectValueProps as RACSelectValueProps,
   ToggleButton as RACToggleButton,
+  type ToggleButtonProps as RACToggleButtonProps,
   ToggleButtonGroup as RACToggleButtonGroup,
   type Key,
+  type Placement,
 } from 'react-aria-components';
 import clsx from 'clsx';
 
@@ -552,4 +561,238 @@ const EmojiPicker = ({
 };
 EmojiPicker.displayName = 'EmojiPicker';
 
-export default EmojiPicker;
+/* ────────────────────────────────────────────────────────────────────────────
+ * 复合（dot-notation）子组件 —— 对齐线上 Pro 版的 compound API。
+ *
+ * 线上 Pro 的 EmojiPicker 暴露一套点记法子组件（Trigger / Value / Popover / Content /
+ * Grid / Item / Footer / SkinTonePicker / SkinToneTrigger / SkinToneContent /
+ * SkinToneOption），每个都是包基础 RAC primitive 的真复合件、props 与渲染元素逐一对齐 Pro。
+ * 顶层 `<EmojiPicker .../>` 的单组件 props 路径（categories/onEmojiSelect/isInline/…）作为
+ * **向后兼容默认行为**保留不动——现有 7+ 调用点全部走这条路径，不受影响。
+ * 新增子组件供需要自行组合 Trigger/Popover/Grid 的调用方使用，props/renders-as 对齐 Pro。
+ * 基础件来源：react-aria-components 的 Button / SelectValue / Popover / ListBox / ListBoxItem。
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+/** EmojiPicker.Trigger —— renders as Button（包 RAC Button，透传全部 RAC Button props）。 */
+const EmojiPickerTrigger = ({ className, ...props }: RACButtonProps) => (
+  <RACButton
+    data-slot="emoji-picker-trigger"
+    className={(values) =>
+      clsx('emoji-picker__trigger', typeof className === 'function' ? className(values) : className)
+    }
+    {...props}
+  />
+);
+EmojiPickerTrigger.displayName = 'EmojiPicker.Trigger';
+
+/** EmojiPicker.Value —— renders as RAC SelectValue（显示当前选中表情）。 */
+const EmojiPickerValue = <T extends object>({
+  className,
+  ...props
+}: RACSelectValueProps<T>) => (
+  <RACSelectValue
+    data-slot="emoji-picker-value"
+    className={(values) =>
+      clsx('emoji-picker__value', typeof className === 'function' ? className(values) : className)
+    }
+    {...props}
+  />
+);
+EmojiPickerValue.displayName = 'EmojiPicker.Value';
+
+export type EmojiPickerPopoverProps = RACPopoverProps & {
+  /** 距 trigger 的偏移（px），Pro 默认 4 */
+  offset?: number;
+  /** 相对 trigger 的首选放置位，Pro 默认 'bottom' */
+  placement?: Placement;
+};
+
+/** EmojiPicker.Popover —— renders as 浮层（包 RAC Popover）。offset/placement 默认对齐 Pro。 */
+const EmojiPickerPopover = ({
+  offset = 4,
+  placement = 'bottom',
+  className,
+  ...props
+}: EmojiPickerPopoverProps) => (
+  <RACPopover
+    data-slot="emoji-picker-popover"
+    offset={offset}
+    placement={placement}
+    className={(values) =>
+      clsx('emoji-picker__popover', typeof className === 'function' ? className(values) : className)
+    }
+    {...props}
+  />
+);
+EmojiPickerPopover.displayName = 'EmojiPicker.Popover';
+
+export type EmojiPickerContentProps = {
+  /** 自定义表情搜索过滤函数，Pro 默认大小写不敏感 contains */
+  filter?: (textValue: string, inputValue: string) => boolean;
+  className?: string;
+  style?: CSSProperties;
+  children?: ReactNode;
+};
+
+/** EmojiPicker.Content —— renders as flex wrapper（Pro 内部 Autocomplete）。这里渲染为容器 div。 */
+const EmojiPickerContent = ({ className, style, children }: EmojiPickerContentProps) => (
+  <div
+    data-slot="emoji-picker-content"
+    className={clsx('emoji-picker__content', className)}
+    style={style}
+  >
+    {children}
+  </div>
+);
+EmojiPickerContent.displayName = 'EmojiPicker.Content';
+
+/** EmojiPicker.Grid —— renders as RAC ListBox（Pro 用 Virtualizer+GridLayout，透传 ListBox props）。 */
+const EmojiPickerGrid = <T extends object>({
+  className,
+  ...props
+}: RACListBoxProps<T>) => (
+  <RACListBox
+    data-slot="emoji-picker-grid"
+    className={(values) =>
+      clsx('emoji-picker__grid', typeof className === 'function' ? className(values) : className)
+    }
+    {...props}
+  />
+);
+EmojiPickerGrid.displayName = 'EmojiPicker.Grid';
+
+/** EmojiPicker.Item —— renders as RAC ListBoxItem（透传全部 RAC ListBoxItem props）。 */
+const EmojiPickerItem = <T extends object>({
+  className,
+  ...props
+}: RACListBoxItemProps<T>) => (
+  <RACListBoxItem
+    data-slot="emoji-picker-item"
+    className={(values) =>
+      clsx('emoji-picker__item', typeof className === 'function' ? className(values) : className)
+    }
+    {...props}
+  />
+);
+EmojiPickerItem.displayName = 'EmojiPicker.Item';
+
+/** EmojiPicker.Footer —— renders as <div>（Pro 无独有 props）。 */
+const EmojiPickerFooter = ({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    data-slot="emoji-picker-footer"
+    className={clsx('emoji-picker__footer', className)}
+    {...props}
+  >
+    {children}
+  </div>
+);
+EmojiPickerFooter.displayName = 'EmojiPicker.Footer';
+
+/** EmojiPicker.SkinTonePicker —— renders as 容器（Pro 是带内部 Popover 的 Provider）。 */
+const EmojiPickerSkinTonePicker = ({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLDivElement>) => (
+  <div
+    data-slot="emoji-picker-skin-tone-picker"
+    className={clsx('emoji-picker__skin-tone-picker', className)}
+    {...props}
+  >
+    {children}
+  </div>
+);
+EmojiPickerSkinTonePicker.displayName = 'EmojiPicker.SkinTonePicker';
+
+/** EmojiPicker.SkinToneTrigger —— renders as Button。Pro 默认 aria-label='Select skin tone'。 */
+const EmojiPickerSkinToneTrigger = ({
+  className,
+  'aria-label': ariaLabel = 'Select skin tone',
+  ...props
+}: RACButtonProps) => (
+  <RACButton
+    data-slot="emoji-picker-skin-tone-trigger"
+    aria-label={ariaLabel}
+    className={(values) =>
+      clsx(
+        'emoji-picker__skin-tone-picker',
+        typeof className === 'function' ? className(values) : className,
+      )
+    }
+    {...props}
+  />
+);
+EmojiPickerSkinToneTrigger.displayName = 'EmojiPicker.SkinToneTrigger';
+
+export type EmojiPickerSkinToneContentProps = RACPopoverProps & {
+  /** 距 trigger 的偏移（px），Pro 默认 4 */
+  offset?: number;
+  /** Popover 放置位，Pro 默认 'bottom end' */
+  placement?: Placement;
+};
+
+/** EmojiPicker.SkinToneContent —— renders as Popover content。placement 默认对齐 Pro 'bottom end'。 */
+const EmojiPickerSkinToneContent = ({
+  offset = 4,
+  placement = 'bottom end',
+  className,
+  ...props
+}: EmojiPickerSkinToneContentProps) => (
+  <RACPopover
+    data-slot="emoji-picker-skin-tone-content"
+    offset={offset}
+    placement={placement}
+    className={(values) =>
+      clsx(
+        'emoji-picker__skin-tone-options',
+        typeof className === 'function' ? className(values) : className,
+      )
+    }
+    {...props}
+  />
+);
+EmojiPickerSkinToneContent.displayName = 'EmojiPicker.SkinToneContent';
+
+export type EmojiPickerSkinToneOptionProps = RACToggleButtonProps & {
+  /** 肤色标识（如 default / light / dark）。Pro 标记为必填。 */
+  id: string;
+};
+
+/** EmojiPicker.SkinToneOption —— renders as Button 色块（这里包 RAC ToggleButton 以承载选中态）。 */
+const EmojiPickerSkinToneOption = ({
+  className,
+  ...props
+}: EmojiPickerSkinToneOptionProps) => (
+  <RACToggleButton
+    data-slot="emoji-picker-skin-tone-option"
+    className={(values) =>
+      clsx(
+        'emoji-picker__skin-tone-option',
+        typeof className === 'function' ? className(values) : className,
+      )
+    }
+    {...props}
+  />
+);
+EmojiPickerSkinToneOption.displayName = 'EmojiPicker.SkinToneOption';
+
+/** 把复合子组件挂到 EmojiPicker 上，得到 Pro 的点记法（dot-notation）API。 */
+const EmojiPickerNamespace = Object.assign(EmojiPicker, {
+  Trigger: EmojiPickerTrigger,
+  Value: EmojiPickerValue,
+  Popover: EmojiPickerPopover,
+  Content: EmojiPickerContent,
+  Grid: EmojiPickerGrid,
+  Item: EmojiPickerItem,
+  Footer: EmojiPickerFooter,
+  SkinTonePicker: EmojiPickerSkinTonePicker,
+  SkinToneTrigger: EmojiPickerSkinToneTrigger,
+  SkinToneContent: EmojiPickerSkinToneContent,
+  SkinToneOption: EmojiPickerSkinToneOption,
+});
+
+export default EmojiPickerNamespace;

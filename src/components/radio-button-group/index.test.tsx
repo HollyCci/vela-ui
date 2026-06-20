@@ -57,6 +57,26 @@ describe('RadioButtonGroup', () => {
     expect(radios[1]).toBeChecked();
   });
 
+  it('locks renders-as: Indicator=span, ItemIcon=div, ItemContent=label (intentional deviation from Pro div)', () => {
+    const { container } = render(
+      <RadioButtonGroup aria-label="cycle">
+        <RadioButtonGroup.Item value="a">
+          <RadioButtonGroup.Indicator />
+          <RadioButtonGroup.ItemIcon>icon</RadioButtonGroup.ItemIcon>
+          <RadioButtonGroup.ItemContent>A</RadioButtonGroup.ItemContent>
+        </RadioButtonGroup.Item>
+      </RadioButtonGroup>,
+    );
+    const tag = (slot: string) =>
+      container.querySelector(`[data-slot="${slot}"]`)?.tagName;
+    // Indicator + ItemIcon match Pro renders-as (span / div) verbatim.
+    expect(tag('radio-button-group-indicator')).toBe('SPAN');
+    expect(tag('radio-button-group-item-icon')).toBe('DIV');
+    // ItemContent wraps Radio.Content (RAC RadioButton) → label; Pro docs it as div, but
+    // the clickable label is required for radio selection + a11y → intentional deviation.
+    expect(tag('radio-button-group-item-content')).toBe('LABEL');
+  });
+
   it('custom Indicator (with children) renders a data-custom span', () => {
     const { container } = render(
       <RadioButtonGroup aria-label="cycle">

@@ -21,25 +21,63 @@ import {
 } from 'react';
 import clsx from 'clsx';
 import Popover from '../popover';
+import Tooltip from '../tooltip';
 
 export type RichTextEditorJSONContent = Record<string, unknown>;
 export type RichTextEditorValue = RichTextEditorJSONContent | string;
 
+/**
+ * 内部命令并集（execCommand 引擎落地的全部命令）。包含线上 Pro 版的命令 token
+ * （`code`/`codeBlock`/`heading-1/-2/-3`）以及本库历史 token（`heading1`/`heading2`/`paragraph`/
+ * `removeFormat`/`undo`/`redo`），后者作为后向兼容别名保留，老调用点零破坏。
+ */
 export type RichTextEditorCommand =
   | 'bold'
   | 'italic'
   | 'underline'
   | 'strike'
+  | 'code'
   | 'paragraph'
   | 'heading1'
   | 'heading2'
+  | 'heading-1'
+  | 'heading-2'
+  | 'heading-3'
   | 'bulletList'
   | 'orderedList'
   | 'blockquote'
   | 'codeBlock'
   | 'undo'
   | 'redo'
+  | 'clearFormatting'
+  | 'clearContent'
   | 'removeFormat';
+
+/**
+ * 对齐线上 Pro 版 `RichTextEditor.ToggleButton` 的 `command` 并集（标记/块级格式开关）。
+ */
+export type RichTextEditorToggleCommand =
+  | 'bold'
+  | 'italic'
+  | 'underline'
+  | 'strike'
+  | 'code'
+  | 'blockquote'
+  | 'bulletList'
+  | 'orderedList'
+  | 'codeBlock'
+  | 'heading-1'
+  | 'heading-2'
+  | 'heading-3'
+  // 后向兼容别名（本库历史 token）
+  | 'heading1'
+  | 'heading2'
+  | 'paragraph';
+
+/**
+ * 对齐线上 Pro 版 `RichTextEditor.ActionButton` 的 `action` 并集（历史/格式动作）。
+ */
+export type RichTextEditorAction = 'undo' | 'redo' | 'clearFormatting' | 'clearContent';
 
 export type RichTextEditorValueDetails = {
   html: string;
@@ -69,26 +107,72 @@ export type RichTextEditorContentProps = Omit<HTMLAttributes<HTMLDivElement>, 'c
   placeholder?: string;
 };
 export type RichTextEditorFooterProps = HTMLAttributes<HTMLDivElement>;
-export type RichTextEditorBubbleMenuProps = HTMLAttributes<HTMLDivElement>;
-export type RichTextEditorFloatingMenuProps = HTMLAttributes<HTMLDivElement>;
+export type RichTextEditorBubbleMenuProps = HTMLAttributes<HTMLDivElement> & {
+  /** 透传给内部菜单 toolbar 容器的 props，对齐线上 Pro 版 `toolbarProps`。 */
+  toolbarProps?: RichTextEditorToolbarProps;
+};
+export type RichTextEditorFloatingMenuProps = HTMLAttributes<HTMLDivElement> & {
+  /** 透传给内部菜单 toolbar 容器的 props，对齐线上 Pro 版 `toolbarProps`。 */
+  toolbarProps?: RichTextEditorToolbarProps;
+};
 export type RichTextEditorSuggestionMenuProps = HTMLAttributes<HTMLDivElement>;
 
-export type RichTextEditorButtonProps = Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'> & {
+export type RichTextEditorToggleButtonProps = Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'> & {
+  /** 切换的标记/块级命令，并集对齐线上 Pro 版（`heading-1` 等）。 */
+  command?: RichTextEditorToggleCommand;
+  /** 悬浮提示，对齐线上 Pro 版 `tooltip`。 */
+  tooltip?: ReactNode;
+  /** @deprecated 历史别名，等价于按钮文案；请改用 children。 */
+  label?: ReactNode;
+};
+
+export type RichTextEditorActionButtonProps = Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'> & {
+  /** 历史/格式动作，对齐线上 Pro 版 `action`。 */
+  action?: RichTextEditorAction;
+  /** 悬浮提示，对齐线上 Pro 版 `tooltip`。 */
+  tooltip?: ReactNode;
+  /** @deprecated 历史别名，与 `action` 等价（接受任意内部命令 token）。 */
   command?: RichTextEditorCommand;
+  /** @deprecated 历史别名，等价于按钮文案；请改用 children。 */
   label?: ReactNode;
 };
 
 export type RichTextEditorCommandButtonProps = Omit<HTMLAttributes<HTMLButtonElement>, 'onClick'> & {
-  command: (editor: RichTextEditorController) => void;
+  /** 自定义命令回调，返回 void 或 boolean，对齐线上 Pro 版 `onCommand`。 */
+  onCommand?: (editor: RichTextEditorController) => void | boolean;
+  /** 受控激活态，布尔或基于 editor 的判定，对齐线上 Pro 版 `isActive`。 */
+  isActive?: boolean | ((editor: RichTextEditorController) => boolean);
+  /** 受控禁用态，布尔或基于 editor 的判定，对齐线上 Pro 版 `isDisabled`。 */
+  isDisabled?: boolean | ((editor: RichTextEditorController) => boolean);
+  /** 悬浮提示，对齐线上 Pro 版 `tooltip`。 */
+  tooltip?: ReactNode;
+  /** @deprecated 历史别名，等价于 `onCommand`（仅 void 返回）。 */
+  command?: (editor: RichTextEditorController) => void;
+  /** @deprecated 历史别名，等价于按钮文案；请改用 children。 */
   label?: ReactNode;
 };
+
+/** @deprecated 旧统一按钮 props 别名，保留以兼容老类型引用。 */
+export type RichTextEditorButtonProps = RichTextEditorToggleButtonProps;
 
 export type RichTextEditorLinkPopoverProps = {
   trigger?: ReactNode;
   className?: string;
 };
 
-export type RichTextEditorCharacterCountProps = HTMLAttributes<HTMLSpanElement> & {
+export type RichTextEditorCharacterCountStats = {
+  characters: number;
+  words: number;
+  maxLength?: number;
+  isOverLimit: boolean;
+};
+
+export type RichTextEditorCharacterCountProps = Omit<HTMLAttributes<HTMLSpanElement>, 'children'> & {
+  /** 是否统计词数，对齐线上 Pro 版 `showWords`（默认 false）。 */
+  showWords?: boolean;
+  /** 自定义渲染：ReactNode 或基于统计的渲染函数，对齐线上 Pro 版 `children`。 */
+  children?: ReactNode | ((stats: RichTextEditorCharacterCountStats) => ReactNode);
+  /** @deprecated 历史 prop：在字符数后附加 ` / max`；改用 children 渲染函数自定义。 */
   showMax?: boolean;
 };
 
@@ -190,9 +274,13 @@ const commandToExec = (command: RichTextEditorCommand): [string, string?] => {
     case 'strike':
       return ['strikeThrough'];
     case 'heading1':
+    case 'heading-1':
       return ['formatBlock', 'H1'];
     case 'heading2':
+    case 'heading-2':
       return ['formatBlock', 'H2'];
+    case 'heading-3':
+      return ['formatBlock', 'H3'];
     case 'paragraph':
       return ['formatBlock', 'P'];
     case 'bulletList':
@@ -201,9 +289,14 @@ const commandToExec = (command: RichTextEditorCommand): [string, string?] => {
       return ['insertOrderedList'];
     case 'blockquote':
       return ['formatBlock', 'BLOCKQUOTE'];
+    case 'code':
     case 'codeBlock':
       return ['formatBlock', 'PRE'];
+    case 'clearFormatting':
     case 'removeFormat':
+      return ['removeFormat'];
+    case 'clearContent':
+      // execCommand 无原生「清空文档」动作；root 的 runCommand 单独拦截处理。
       return ['removeFormat'];
     default:
       return [command];
@@ -216,15 +309,21 @@ const commandLabel = (command: RichTextEditorCommand) => {
     italic: 'I',
     underline: 'U',
     strike: 'S',
+    code: '</>',
     paragraph: 'P',
     heading1: 'H1',
     heading2: 'H2',
+    'heading-1': 'H1',
+    'heading-2': 'H2',
+    'heading-3': 'H3',
     bulletList: '•',
     orderedList: '1.',
     blockquote: '“”',
     codeBlock: '</>',
     undo: '↶',
     redo: '↷',
+    clearFormatting: 'Tx',
+    clearContent: '🗑',
     removeFormat: 'Tx',
   };
   return labels[command];
@@ -232,11 +331,19 @@ const commandLabel = (command: RichTextEditorCommand) => {
 
 const queryCommand = (command: RichTextEditorCommand) => {
   if (typeof document === 'undefined') return false;
-  if (command === 'heading1' || command === 'heading2' || command === 'paragraph') {
+  if (
+    command === 'heading1' ||
+    command === 'heading2' ||
+    command === 'heading-1' ||
+    command === 'heading-2' ||
+    command === 'heading-3' ||
+    command === 'paragraph'
+  ) {
     try {
       const block = String(document.queryCommandValue('formatBlock')).toLowerCase();
-      if (command === 'heading1') return block === 'h1';
-      if (command === 'heading2') return block === 'h2';
+      if (command === 'heading1' || command === 'heading-1') return block === 'h1';
+      if (command === 'heading2' || command === 'heading-2') return block === 'h2';
+      if (command === 'heading-3') return block === 'h3';
       return block === 'p' || block === 'div';
     } catch {
       return false;
@@ -247,6 +354,25 @@ const queryCommand = (command: RichTextEditorCommand) => {
     return document.queryCommandState(exec);
   } catch {
     return false;
+  }
+};
+
+/**
+ * 把命令 token 归一到激活态判定用的规范键（Pro token 与历史别名互通）。
+ * 例：`heading-1` 与 `heading1` 归一为同一键，确保 toggle 激活态在两种 token 下都点亮。
+ */
+const canonicalActiveKey = (command: RichTextEditorCommand): RichTextEditorCommand => {
+  switch (command) {
+    case 'heading-1':
+      return 'heading1';
+    case 'heading-2':
+      return 'heading2';
+    case 'code':
+      return 'codeBlock';
+    case 'clearFormatting':
+      return 'removeFormat';
+    default:
+      return command;
   }
 };
 
@@ -358,6 +484,15 @@ const RichTextEditorRoot = forwardRef<HTMLDivElement, RichTextEditorProps>(
     const runCommand = useCallback(
       (command: RichTextEditorCommand) => {
         if (isDisabled || isReadOnly || typeof document === 'undefined') return;
+        // clearContent（Pro action）= 清空整篇文档；execCommand 无原生对应，直接重置 DOM。
+        if (command === 'clearContent') {
+          const element = contentRef.current;
+          if (element !== null) {
+            element.innerHTML = '<p></p>';
+            syncFromDom();
+          }
+          return;
+        }
         restoreSelection();
         const [exec, execValue] = commandToExec(command);
         document.execCommand(exec, false, execValue);
@@ -475,17 +610,25 @@ const ToolbarGroup = forwardRef<HTMLDivElement, RichTextEditorToolbarGroupProps>
 ));
 ToolbarGroup.displayName = 'RichTextEditor.ToolbarGroup';
 
-const ToggleButton = forwardRef<HTMLButtonElement, RichTextEditorButtonProps>(
-  ({ command = 'bold', label, className, ...rest }, ref) => {
-    const editor = useRichTextEditorContext();
-    const isActive = editor.activeCommands.has(command);
+const withTooltip = (tooltip: ReactNode, button: ReactNode) =>
+  tooltip === undefined || tooltip === null ? (
+    button
+  ) : (
+    <Tooltip content={tooltip}>{button}</Tooltip>
+  );
 
-    return (
+const ToggleButton = forwardRef<HTMLButtonElement, RichTextEditorToggleButtonProps>(
+  ({ command = 'bold', tooltip, label, children, className, ...rest }, ref) => {
+    const editor = useRichTextEditorContext();
+    const isActive = editor.activeCommands.has(canonicalActiveKey(command));
+
+    const button = (
       <button
         ref={ref}
         type="button"
         data-slot="rich-text-editor-toggle-button"
         data-command={command}
+        data-active={isActive ? 'true' : undefined}
         aria-pressed={isActive}
         disabled={editor.isDisabled || editor.isReadOnly}
         className={clsx('rich-text-editor__button', 'rich-text-editor__toggle-button', className)}
@@ -493,57 +636,74 @@ const ToggleButton = forwardRef<HTMLButtonElement, RichTextEditorButtonProps>(
         onClick={() => editor.runCommand(command)}
         {...rest}
       >
-        {label ?? commandLabel(command)}
+        {children ?? label ?? commandLabel(command)}
       </button>
     );
+
+    return withTooltip(tooltip, button);
   },
 );
 ToggleButton.displayName = 'RichTextEditor.ToggleButton';
 
-const ActionButton = forwardRef<HTMLButtonElement, RichTextEditorButtonProps>(
-  ({ command, label, className, children, ...rest }, ref) => {
+const ActionButton = forwardRef<HTMLButtonElement, RichTextEditorActionButtonProps>(
+  ({ action, command, tooltip, label, className, children, ...rest }, ref) => {
     const editor = useRichTextEditorContext();
+    // action 优先（Pro 契约）；command 为历史别名。
+    const resolved: RichTextEditorCommand | undefined = action ?? command;
 
-    return (
+    const button = (
       <button
         ref={ref}
         type="button"
         data-slot="rich-text-editor-action-button"
+        data-action={action}
         data-command={command}
         disabled={editor.isDisabled}
         className={clsx('rich-text-editor__button', 'rich-text-editor__action-button', className)}
         onMouseDown={(event) => event.preventDefault()}
         onClick={() => {
-          if (command) editor.runCommand(command);
+          if (resolved) editor.runCommand(resolved);
           else editor.focus();
         }}
         {...rest}
       >
-        {children ?? label ?? (command ? commandLabel(command) : 'Action')}
+        {children ?? label ?? (resolved ? commandLabel(resolved) : 'Action')}
       </button>
     );
+
+    return withTooltip(tooltip, button);
   },
 );
 ActionButton.displayName = 'RichTextEditor.ActionButton';
 
 const CommandButton = forwardRef<HTMLButtonElement, RichTextEditorCommandButtonProps>(
-  ({ command, label, className, children, ...rest }, ref) => {
+  ({ onCommand, command, isActive, isDisabled, tooltip, label, className, children, ...rest }, ref) => {
     const editor = useRichTextEditorContext();
+    // onCommand 优先（Pro 契约）；command 为历史别名。
+    const run = onCommand ?? command;
 
-    return (
+    const active = typeof isActive === 'function' ? isActive(editor) : isActive;
+    const disabledFromProp = typeof isDisabled === 'function' ? isDisabled(editor) : isDisabled;
+    const disabled = disabledFromProp ?? (editor.isDisabled || editor.isReadOnly);
+
+    const button = (
       <button
         ref={ref}
         type="button"
         data-slot="rich-text-editor-command-button"
-        disabled={editor.isDisabled || editor.isReadOnly}
+        data-active={active ? 'true' : undefined}
+        aria-pressed={active === undefined ? undefined : active}
+        disabled={disabled}
         className={clsx('rich-text-editor__button', 'rich-text-editor__command-button', className)}
         onMouseDown={(event) => event.preventDefault()}
-        onClick={() => command(editor)}
+        onClick={() => run?.(editor)}
         {...rest}
       >
         {children ?? label ?? 'Run'}
       </button>
     );
+
+    return withTooltip(tooltip, button);
   },
 );
 CommandButton.displayName = 'RichTextEditor.CommandButton';
@@ -665,29 +825,59 @@ const Content = forwardRef<HTMLDivElement, RichTextEditorContentProps>(
 );
 Content.displayName = 'RichTextEditor.Content';
 
-const BubbleMenu = forwardRef<HTMLDivElement, RichTextEditorBubbleMenuProps>(({ className, ...rest }, ref) => {
-  const editor = useRichTextEditorContext();
+const BubbleMenu = forwardRef<HTMLDivElement, RichTextEditorBubbleMenuProps>(
+  ({ className, toolbarProps, children, ...rest }, ref) => {
+    const editor = useRichTextEditorContext();
 
-  return (
-    <div
-      ref={ref}
-      data-slot="rich-text-editor-bubble-menu"
-      data-visible={editor.isFocused ? 'true' : undefined}
-      className={clsx('rich-text-editor__bubble-menu', className)}
-      {...rest}
-    />
-  );
-});
+    return (
+      <div
+        ref={ref}
+        data-slot="rich-text-editor-bubble-menu"
+        data-visible={editor.isFocused ? 'true' : undefined}
+        className={clsx('rich-text-editor__bubble-menu', className)}
+        {...rest}
+      >
+        {toolbarProps !== undefined ? (
+          <div
+            role="toolbar"
+            data-slot="rich-text-editor-bubble-menu-toolbar"
+            {...toolbarProps}
+            className={clsx('rich-text-editor__bubble-menu-toolbar', toolbarProps.className)}
+          >
+            {children}
+          </div>
+        ) : (
+          children
+        )}
+      </div>
+    );
+  },
+);
 BubbleMenu.displayName = 'RichTextEditor.BubbleMenu';
 
-const FloatingMenu = forwardRef<HTMLDivElement, RichTextEditorFloatingMenuProps>(({ className, ...rest }, ref) => (
-  <div
-    ref={ref}
-    data-slot="rich-text-editor-floating-menu"
-    className={clsx('rich-text-editor__floating-menu', className)}
-    {...rest}
-  />
-));
+const FloatingMenu = forwardRef<HTMLDivElement, RichTextEditorFloatingMenuProps>(
+  ({ className, toolbarProps, children, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="rich-text-editor-floating-menu"
+      className={clsx('rich-text-editor__floating-menu', className)}
+      {...rest}
+    >
+      {toolbarProps !== undefined ? (
+        <div
+          role="toolbar"
+          data-slot="rich-text-editor-floating-menu-toolbar"
+          {...toolbarProps}
+          className={clsx('rich-text-editor__floating-menu-toolbar', toolbarProps.className)}
+        >
+          {children}
+        </div>
+      ) : (
+        children
+      )}
+    </div>
+  ),
+);
 FloatingMenu.displayName = 'RichTextEditor.FloatingMenu';
 
 const SuggestionMenu = forwardRef<HTMLDivElement, RichTextEditorSuggestionMenuProps>(({ className, ...rest }, ref) => (
@@ -710,20 +900,46 @@ const Footer = forwardRef<HTMLDivElement, RichTextEditorFooterProps>(({ classNam
 ));
 Footer.displayName = 'RichTextEditor.Footer';
 
+const countWords = (text: string) => {
+  const trimmed = text.trim();
+  return trimmed === '' ? 0 : trimmed.split(/\s+/).length;
+};
+
 const CharacterCount = forwardRef<HTMLSpanElement, RichTextEditorCharacterCountProps>(
-  ({ showMax = true, className, ...rest }, ref) => {
-    const { characterCount, maxLength } = useRichTextEditorContext();
+  ({ showWords = false, showMax = true, children, className, ...rest }, ref) => {
+    const { characterCount, text, maxLength } = useRichTextEditorContext();
+    const isOverLimit = maxLength !== undefined && characterCount > maxLength;
+    const stats: RichTextEditorCharacterCountStats = {
+      characters: characterCount,
+      words: countWords(text),
+      maxLength,
+      isOverLimit,
+    };
+
+    let content: ReactNode;
+    if (typeof children === 'function') {
+      content = (children as (stats: RichTextEditorCharacterCountStats) => ReactNode)(stats);
+    } else if (children !== undefined) {
+      content = children;
+    } else {
+      content = (
+        <>
+          {characterCount}
+          {showMax && maxLength !== undefined ? ` / ${maxLength}` : null}
+          {showWords ? ` · ${stats.words} ${stats.words === 1 ? 'word' : 'words'}` : null}
+        </>
+      );
+    }
 
     return (
       <span
         ref={ref}
         data-slot="rich-text-editor-character-count"
-        data-over-limit={maxLength !== undefined && characterCount > maxLength ? 'true' : undefined}
+        data-over-limit={isOverLimit ? 'true' : undefined}
         className={clsx('rich-text-editor__character-count', className)}
         {...rest}
       >
-        {characterCount}
-        {showMax && maxLength !== undefined ? ` / ${maxLength}` : null}
+        {content}
       </span>
     );
   },

@@ -1179,12 +1179,12 @@ const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
           <div key={signDisplay} style={VARIANT_ROW_STYLE}>
             <span style={{ ...VARIANT_MUTED_STYLE, width: 96 }}>{signDisplay}</span>
             {[42, 0, -42].map((value) => (
-              <NumberValue
+              <span
                 key={value}
-                value={value}
-                formatOptions={{ signDisplay }}
                 style={{ width: 48, textAlign: 'right', fontVariantNumeric: 'tabular-nums' }}
-              />
+              >
+                <NumberValue value={value} signDisplay={signDisplay} />
+              </span>
             ))}
           </div>
         ))}
@@ -1196,13 +1196,12 @@ const NumberValueVariantDemo = ({ variant }: VariantDemoProps) => {
     return (
       <DemoSection label="tabular nums" isColumn>
         {[228441, 71887, 156540, 1234, 98234].map((value) => (
-          <NumberValue
+          <span
             key={value}
-            value={value}
-            locale="en-US"
             style={{ fontVariantNumeric: 'tabular-nums', minWidth: 140, textAlign: 'right' }}
-            formatOptions={{ style: 'currency', currency: 'USD' }}
-          />
+          >
+            <NumberValue value={value} locale="en-US" style="currency" currency="USD" />
+          </span>
         ))}
       </DemoSection>
     );
@@ -1363,7 +1362,9 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
             <Rating aria-label={`${value} out of 5 stars`} value={value} isReadOnly>
               <RatingItems />
             </Rating>
-            <NumberValue value={value} style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }} />
+            <span style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }}>
+              <NumberValue value={value} />
+            </span>
           </div>
         ))}
       </DemoSection>
@@ -1452,7 +1453,9 @@ const RatingVariantDemo = ({ variant }: VariantDemoProps) => {
             <Rating aria-label={label} value={value} isReadOnly>
               <RatingItems />
             </Rating>
-            <NumberValue value={value} style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }} />
+            <span style={{ ...VARIANT_MUTED_STYLE, marginLeft: 8 }}>
+              <NumberValue value={value} />
+            </span>
           </div>
         ))}
       </DemoSection>

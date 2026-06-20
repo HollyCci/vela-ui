@@ -150,6 +150,17 @@ describe('Agenda', () => {
     expect(root).toHaveClass('agenda');
   });
 
+  // 渲染元素对齐 Pro：Header 渲染 div（Pro 文档为 div / "supports all HTML div props"），
+  // 不是 <header>（<header> 会隐式成 banner landmark，Pro 没有该角色）。
+  it('renders Header as a div (matches Pro renders-as, no banner landmark)', () => {
+    render(<UncontrolledAgenda />);
+    const header = document.querySelector('[data-slot="agenda-header"]');
+    expect(header).toBeInTheDocument();
+    expect(header?.tagName).toBe('DIV');
+    expect(document.querySelector('header')).toBeNull();
+    expect(screen.queryByRole('banner')).toBeNull();
+  });
+
   it('renders events for the day as event slots', () => {
     render(<UncontrolledAgenda />);
     expect(screen.getByText('Standup')).toBeInTheDocument();

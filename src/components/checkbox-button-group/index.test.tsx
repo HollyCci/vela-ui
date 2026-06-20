@@ -56,6 +56,35 @@ describe('CheckboxButtonGroup', () => {
     expect(onChange).toHaveBeenCalledWith(['reading', 'listening']);
   });
 
+  it('default Indicator renders as a span (reference renders-as) and is non-custom', () => {
+    const { container } = renderGroup();
+    const indicator = container.querySelector(
+      '[data-slot="checkbox-button-group-indicator"]',
+    );
+    // reference: CheckboxButtonGroup.Indicator renders-as span (here the OSS
+    // Checkbox.Control resolves to a <span>); no data-custom on the default path.
+    expect(indicator?.tagName).toBe('SPAN');
+    expect(indicator).not.toHaveAttribute('data-custom');
+  });
+
+  it('ItemIcon renders as a div (reference renders-as) carrying the icon slot', () => {
+    const { container } = render(
+      <CheckboxButtonGroup aria-label="skills">
+        <CheckboxButtonGroup.Item value="a">
+          <CheckboxButtonGroup.ItemIcon>
+            <svg data-testid="icon" />
+          </CheckboxButtonGroup.ItemIcon>
+          <CheckboxButtonGroup.ItemContent>A</CheckboxButtonGroup.ItemContent>
+        </CheckboxButtonGroup.Item>
+      </CheckboxButtonGroup>,
+    );
+    const icon = container.querySelector(
+      '[data-slot="checkbox-button-group-item-icon"]',
+    );
+    expect(icon?.tagName).toBe('DIV');
+    expect(icon).toHaveClass('checkbox-button-group__item-icon');
+  });
+
   it('custom Indicator (with children) renders a data-custom span', () => {
     const { container } = render(
       <CheckboxButtonGroup aria-label="skills">

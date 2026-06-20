@@ -110,6 +110,48 @@ describe('Carousel', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  // Thumbnails / Thumbnail：参考版标 Thumbnails=role="tablist"，但 Thumbnail 基座 RAC Button
+  // 会剥离 role/aria-selected，无法成合法 tab 子项；tablist 缺 tab 子项会触发 axe 违规，
+  // 故有意偏差保留 role="group"（见组件注释）。这里锁住偏差后的真实渲染与 data-selected 反映。
+  describe('thumbnails', () => {
+    const renderThumbnails = () =>
+      render(
+        <Carousel>
+          <Carousel.Content>
+            <Carousel.Item>Slide 1</Carousel.Item>
+            <Carousel.Item>Slide 2</Carousel.Item>
+          </Carousel.Content>
+          <Carousel.Thumbnails>
+            <Carousel.Thumbnail index={0} src="/a.png" />
+            <Carousel.Thumbnail index={1} src="/b.png" />
+          </Carousel.Thumbnails>
+        </Carousel>,
+      );
+
+    it('Thumbnails renders the carousel__thumbnails container with group semantics', () => {
+      renderThumbnails();
+      const group = document.querySelector('[data-slot="carousel-thumbnails"]') as HTMLElement;
+      expect(group).toBeInTheDocument();
+      expect(group).toHaveAttribute('role', 'group');
+      expect(group).toHaveClass('carousel__thumbnails');
+    });
+
+    it('Thumbnail buttons reflect the active slide via data-selected', () => {
+      renderThumbnails();
+      const thumbs = document.querySelectorAll('[data-slot="carousel-thumbnail"]');
+      expect(thumbs).toHaveLength(2);
+      expect(thumbs[0]).toHaveClass('carousel__thumbnail');
+      expect(thumbs[0]).toHaveAttribute('data-selected', 'true');
+      expect(thumbs[1]).not.toHaveAttribute('data-selected');
+      expect(thumbs[0]).toHaveAttribute('aria-label', 'Go to slide 1');
+    });
+
+    it('thumbnails has no axe a11y violations', async () => {
+      const { container } = renderThumbnails();
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
+
   describe('autoplay (内建计时器与 HeroUI Pro 对齐)', () => {
     // 通过 setApi 拿到真实 Embla 实例并监听 scrollNext，借假定时器断言每个 delay 推进一次。
     // jsdom 无布局，scrollNext 不会真正切片，但插桩可证明计时器在跑/暂停/重置。

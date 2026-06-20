@@ -32,7 +32,10 @@ import { AnimatePresence, motion, Reorder, useDragControls, type DragControls } 
 import clsx from 'clsx';
 
 export type PromptInputSize = 'sm' | 'md' | 'lg';
-export type PromptInputVariant = 'primary' | 'secondary' | 'inline';
+/** Surface styling variant (参考 API：仅 primary/secondary) */
+export type PromptInputVariant = 'primary' | 'secondary';
+/** Composer layout / toolbar placement (参考 API) */
+export type PromptInputLayout = 'stacked' | 'compact' | 'inline';
 export type PromptInputStatus = 'ready' | 'submitted' | 'streaming' | 'error';
 
 export type PromptInputProps = Omit<HTMLAttributes<HTMLDivElement>, 'onSubmit'> & {
@@ -52,7 +55,16 @@ export type PromptInputProps = Omit<HTMLAttributes<HTMLDivElement>, 'onSubmit'> 
   /** 自适应高度上限（参考 API，默认 240） */
   maxHeight?: number | string;
   size?: PromptInputSize;
-  variant?: PromptInputVariant;
+  /**
+   * Surface styling（参考 API：'primary' | 'secondary'，默认 'primary'）。
+   * 向后兼容：仍接受废弃值 'inline'，等价于 `layout="inline"`（旧调用点不破坏）。
+   */
+  variant?: PromptInputVariant | 'inline';
+  /**
+   * Composer layout / toolbar placement（参考 API：'stacked' | 'compact' | 'inline'，默认 'stacked'）。
+   * 未显式传时，若 `variant="inline"`（废弃别名）则回退为 'inline'，否则 'stacked'。
+   */
+  layout?: PromptInputLayout;
   /**
    * 提供时 Shell 接通原生文件拖放：拖入时 shell 输出 data-dragging（命中 CSS 虚线放置区高亮），
    * 松手回调 dropped File[]（参考 API，可选/向后兼容；未提供时不绑定拖放事件，保持原行为）。
@@ -152,7 +164,10 @@ type PromptInputContextValue = {
   lockInputOnRun: boolean;
   maxHeight: number | string;
   size: PromptInputSize;
+  /** 解析后的 surface 变体（primary/secondary） */
   variant: PromptInputVariant;
+  /** 解析后的 layout（stacked/compact/inline）；inline 别名已并入此处 */
+  layout: PromptInputLayout;
   setExpanded: (expanded: boolean) => void;
   /** 根 onFilesDrop（缺省 null 时 Shell 不绑定拖放，保持原行为） */
   onFilesDrop: ((files: File[]) => void) | null;
@@ -169,6 +184,7 @@ const PromptInputContext = createContext<PromptInputContextValue>({
   maxHeight: 240,
   size: 'md',
   variant: 'primary',
+  layout: 'stacked',
   setExpanded: () => undefined,
   onFilesDrop: null,
 });
@@ -293,10 +309,10 @@ const DotsIcon = () => (
 );
 DotsIcon.displayName = 'PromptInput.DotsIcon';
 
-/** inline 变体的 Action/Send 固定 sm 尺寸（与基准快照一致），其余跟随根 size */
+/** inline 布局的 Action/Send 固定 sm 尺寸（与基准快照一致），其余跟随根 size */
 const useButtonSize = (): PromptInputSize => {
-  const { size, variant } = useContext(PromptInputContext);
-  return variant === 'inline' ? 'sm' : size;
+  const { size, layout } = useContext(PromptInputContext);
+  return layout === 'inline' ? 'sm' : size;
 };
 
 /**
@@ -306,7 +322,10 @@ const useButtonSize = (): PromptInputSize => {
  */
 const Shell = forwardRef<HTMLDivElement, PromptInputSectionProps>(
   ({ className, onDragOver, onDragLeave, onDrop, ...rest }, ref) => {
-    const { variant, isDisabled, onFilesDrop } = useContext(PromptInputContext);
+    const { variant, layout, isDisabled, onFilesDrop } = useContext(PromptInputContext);
+    // inline 布局沿用既有 shell--inline 皮肤（其 surface 由 [data-variant=inline] 整套 CSS 接管）；
+    // 其余布局用 surface 变体皮肤 shell--primary / shell--secondary。
+    const shellSkin = layout === 'inline' ? 'inline' : variant;
     const [isDragging, setIsDragging] = useState(false);
     // 嵌套子元素的 dragenter/dragleave 会冒泡乱跳，用计数器只在真正离开 shell 时熄灭
     const dragDepthRef = useRef(0);
@@ -364,7 +383,7 @@ const Shell = forwardRef<HTMLDivElement, PromptInputSectionProps>(
         ref={ref}
         data-slot="prompt-input-shell"
         data-dragging={isDragging ? 'true' : undefined}
-        className={clsx('prompt-input__shell', `prompt-input__shell--${variant}`, className)}
+        className={clsx('prompt-input__shell', `prompt-input__shell--${shellSkin}`, className)}
         onDragOver={isDropEnabled ? handleDragOver : onDragOver}
         onDragLeave={isDropEnabled ? handleDragLeave : onDragLeave}
         onDrop={isDropEnabled ? handleDrop : onDrop}
@@ -1017,7 +1036,8 @@ QueueItemAction.displayName = 'PromptInput.Queue.Item.Action';
 
 /**
  * AI 提示输入根（参考 API）：值受控/非受控、status 状态机、isDisabled、
- * inline 变体按行数切 data-expanded；shell/queue 等结构由子组件按 Anatomy 组合。
+ * variant=surface 皮肤 / layout=布局；inline 布局按行数切 data-expanded；
+ * shell/queue 等结构由子组件按 Anatomy 组合。
  */
 const PromptInputRoot = ({
   value: valueProp,
@@ -1031,10 +1051,20 @@ const PromptInputRoot = ({
   maxHeight = 240,
   size = 'md',
   variant = 'primary',
+  layout,
   onFilesDrop,
   className,
   ...rest
 }: PromptInputProps) => {
+  // variant='inline' 是布局的废弃别名：折算进 layout，surface 落回 'primary'（向后兼容旧调用点）。
+  const variantIsInlineAlias = variant === 'inline';
+  const resolvedLayout: PromptInputLayout =
+    layout ?? (variantIsInlineAlias ? 'inline' : 'stacked');
+  const surfaceVariant: PromptInputVariant = variantIsInlineAlias ? 'primary' : variant;
+  // CSS 仍以 data-variant=inline 驱动 inline 整套皮肤；inline 布局时该属性输出 'inline'，否则输出 surface。
+  const dataVariant: PromptInputVariant | 'inline' =
+    resolvedLayout === 'inline' ? 'inline' : surfaceVariant;
+
   const [internalValue, setInternalValue] = useState(defaultValue);
   const [isExpanded, setIsExpanded] = useState(false);
   const isControlled = valueProp !== undefined;
@@ -1075,11 +1105,12 @@ const PromptInputRoot = ({
       lockInputOnRun,
       maxHeight,
       size,
-      variant,
+      variant: surfaceVariant,
+      layout: resolvedLayout,
       setExpanded: setIsExpanded,
       onFilesDrop: onFilesDrop ?? null,
     }),
-    [value, setValue, submit, stop, status, isDisabled, lockInputOnRun, maxHeight, size, variant, onFilesDrop],
+    [value, setValue, submit, stop, status, isDisabled, lockInputOnRun, maxHeight, size, surfaceVariant, resolvedLayout, onFilesDrop],
   );
 
   return (
@@ -1087,10 +1118,11 @@ const PromptInputRoot = ({
       <div
         data-slot="prompt-input"
         data-status={status}
-        data-variant={variant}
+        data-variant={dataVariant}
+        data-layout={resolvedLayout}
         data-disabled={isDisabled ? 'true' : undefined}
         data-pending={status === 'submitted' ? 'true' : undefined}
-        data-expanded={variant === 'inline' && isExpanded ? 'true' : undefined}
+        data-expanded={resolvedLayout === 'inline' && isExpanded ? 'true' : undefined}
         className={clsx('prompt-input', size !== 'md' && `prompt-input--${size}`, className)}
         {...rest}
       />

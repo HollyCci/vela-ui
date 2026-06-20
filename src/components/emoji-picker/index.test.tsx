@@ -176,4 +176,97 @@ describe('EmojiPicker', () => {
     const { container } = render(<EmojiPicker isInline aria-label="选择表情" />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  // ── 复合（dot-notation）子组件对齐线上 Pro 版 compound API ──────────────────────
+  describe('compound（dot-notation）子组件', () => {
+    it('Pro 全部子组件都挂在 EmojiPicker 上（点记法可用）', () => {
+      // 与线上 Pro Anatomy 一致的 11 个子组件名
+      expect(EmojiPicker.Trigger).toBeTypeOf('function');
+      expect(EmojiPicker.Value).toBeTypeOf('function');
+      expect(EmojiPicker.Popover).toBeTypeOf('function');
+      expect(EmojiPicker.Content).toBeTypeOf('function');
+      expect(EmojiPicker.Grid).toBeTypeOf('function');
+      expect(EmojiPicker.Item).toBeTypeOf('function');
+      expect(EmojiPicker.Footer).toBeTypeOf('function');
+      expect(EmojiPicker.SkinTonePicker).toBeTypeOf('function');
+      expect(EmojiPicker.SkinToneTrigger).toBeTypeOf('function');
+      expect(EmojiPicker.SkinToneContent).toBeTypeOf('function');
+      expect(EmojiPicker.SkinToneOption).toBeTypeOf('function');
+    });
+
+    it('Trigger renders-as button，带 emoji-picker__trigger 类与 data-slot', () => {
+      render(<EmojiPicker.Trigger aria-label="开">😀</EmojiPicker.Trigger>);
+      const btn = screen.getByRole('button', { name: '开' });
+      expect(btn.tagName).toBe('BUTTON');
+      expect(btn).toHaveClass('emoji-picker__trigger');
+      expect(btn).toHaveAttribute('data-slot', 'emoji-picker-trigger');
+    });
+
+    it('Content renders-as div，带 emoji-picker__content 类，透传 children', () => {
+      render(<EmojiPicker.Content>内容</EmojiPicker.Content>);
+      const content = document.querySelector('[data-slot="emoji-picker-content"]');
+      expect(content).toBeInTheDocument();
+      expect(content?.tagName).toBe('DIV');
+      expect(content).toHaveClass('emoji-picker__content');
+      expect(content).toHaveTextContent('内容');
+    });
+
+    it('Footer renders-as div，带 emoji-picker__footer 类', () => {
+      render(<EmojiPicker.Footer>底部</EmojiPicker.Footer>);
+      const footer = document.querySelector('[data-slot="emoji-picker-footer"]');
+      expect(footer?.tagName).toBe('DIV');
+      expect(footer).toHaveClass('emoji-picker__footer');
+      expect(footer).toHaveTextContent('底部');
+    });
+
+    it('Grid + Item 组合渲染：Grid 为 listbox，Item 为其 option', () => {
+      render(
+        <EmojiPicker.Grid aria-label="网格" selectionMode="single">
+          <EmojiPicker.Item id="😀" textValue="😀">
+            😀
+          </EmojiPicker.Item>
+        </EmojiPicker.Grid>,
+      );
+      const grid = screen.getByRole('listbox', { name: '网格' });
+      expect(grid).toHaveClass('emoji-picker__grid');
+      const item = within(grid).getByRole('option', { name: '😀' });
+      expect(item).toHaveClass('emoji-picker__item');
+      expect(item).toHaveAttribute('data-slot', 'emoji-picker-item');
+    });
+
+    it('SkinToneTrigger renders-as button，默认 aria-label=Select skin tone', () => {
+      render(<EmojiPicker.SkinToneTrigger>✋</EmojiPicker.SkinToneTrigger>);
+      const btn = screen.getByRole('button', { name: 'Select skin tone' });
+      expect(btn.tagName).toBe('BUTTON');
+      expect(btn).toHaveAttribute('data-slot', 'emoji-picker-skin-tone-trigger');
+    });
+
+    it('SkinToneOption renders-as button（承载选中态），带 emoji-picker__skin-tone-option 类', () => {
+      render(
+        <EmojiPicker.SkinToneOption id="dark" aria-label="深">
+          ✋🏿
+        </EmojiPicker.SkinToneOption>,
+      );
+      const btn = screen.getByRole('button', { name: '深' });
+      expect(btn.tagName).toBe('BUTTON');
+      expect(btn).toHaveClass('emoji-picker__skin-tone-option');
+      expect(btn).toHaveAttribute('data-slot', 'emoji-picker-skin-tone-option');
+    });
+
+    it('复合子组件拼出的面板无 axe 违规', async () => {
+      const { container } = render(
+        <EmojiPicker.Content>
+          <EmojiPicker.Grid aria-label="网格" selectionMode="single">
+            <EmojiPicker.Item id="😀" textValue="😀">
+              😀
+            </EmojiPicker.Item>
+          </EmojiPicker.Grid>
+          <EmojiPicker.Footer>
+            <EmojiPicker.SkinToneTrigger>✋</EmojiPicker.SkinToneTrigger>
+          </EmojiPicker.Footer>
+        </EmojiPicker.Content>,
+      );
+      expect(await axe(container)).toHaveNoViolations();
+    });
+  });
 });

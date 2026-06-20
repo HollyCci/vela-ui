@@ -27,9 +27,12 @@ import {
 import {
   Button as RACButton,
   Tree,
+  TreeHeader,
   TreeItem,
   TreeItemContent,
+  TreeSection,
   type ButtonProps as RACButtonProps,
+  type GridListSectionProps,
   type TreeItemProps,
   type TreeProps,
 } from 'react-aria-components';
@@ -377,6 +380,42 @@ function MenuInner<T extends object>(
 MenuInner.displayName = 'Sidebar.Menu';
 const Menu = MenuInner as <T extends object>(props: SidebarMenuProps<T>) => ReactNode;
 
+export type SidebarMenuSectionProps<T extends object = object> = Omit<
+  GridListSectionProps<T>,
+  'className' | 'style'
+> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+/** 菜单分组容器：包 RAC TreeSection，把同层 item 归组（如 "Spaces"），与 MenuHeader 配套使用 */
+function MenuSectionInner<T extends object>({ className, ...rest }: SidebarMenuSectionProps<T>) {
+  return (
+    <TreeSection
+      data-slot="sidebar-menu-section"
+      className={clsx('sidebar__menu-section', className)}
+      {...(rest as GridListSectionProps<T>)}
+    />
+  );
+}
+MenuSectionInner.displayName = 'Sidebar.MenuSection';
+const MenuSection = MenuSectionInner as <T extends object>(props: SidebarMenuSectionProps<T>) => ReactNode;
+
+export type SidebarMenuHeaderProps = Omit<Parameters<typeof TreeHeader>[0], 'className' | 'style'> & {
+  className?: string;
+  style?: CSSProperties;
+};
+
+/** 分组标题：包 RAC TreeHeader，收起时由 CSS（[data-state=collapsed]）隐藏 */
+const MenuHeader = ({ className, ...rest }: SidebarMenuHeaderProps) => (
+  <TreeHeader
+    data-slot="sidebar-menu-header"
+    className={clsx('sidebar__menu-header', className)}
+    {...rest}
+  />
+);
+MenuHeader.displayName = 'Sidebar.MenuHeader';
+
 const isExternalHref = (href: string) => href.startsWith('http://') || href.startsWith('https://');
 
 /**
@@ -396,6 +435,13 @@ const MenuItemLinkContext = createContext<MenuItemLinkContextValue | null>(null)
 const isModifiedEvent = (event: MouseEvent) =>
   event.metaKey || event.ctrlKey || event.altKey || event.shiftKey || event.button !== 0;
 
+/** Sidebar.MenuItem.tooltipProps：收起态 tooltip 的展示配置（不含 content/children） */
+export type SidebarMenuItemTooltipProps = {
+  placement?: 'top' | 'bottom' | 'left' | 'right';
+  delay?: number;
+  closeDelay?: number;
+};
+
 export type SidebarMenuItemProps = Omit<TreeItemProps, 'className' | 'style'> & {
   /** 标记为当前页（aria-current="page" + data-current 高亮） */
   isCurrent?: boolean;
@@ -405,13 +451,29 @@ export type SidebarMenuItemProps = Omit<TreeItemProps, 'className' | 'style'> & 
   forceReload?: boolean;
   /** 覆盖继承的 closeMobileOnAction（false 保持移动端 sheet 打开） */
   closeMobileOnAction?: boolean;
+  /** 收起态显示的 tooltip 内容；缺省回退到 textValue（即 item 标签，参考实现默认行为） */
+  tooltip?: ReactNode;
+  /** 收起态 tooltip 的展示配置（placement/delay/closeDelay） */
+  tooltipProps?: SidebarMenuItemTooltipProps;
   className?: string;
   style?: CSSProperties;
 };
 
 const MenuItem = forwardRef<HTMLDivElement, SidebarMenuItemProps>(
   (
-    { isCurrent = false, href, forceReload = false, closeMobileOnAction, onAction, className, children, ...rest },
+    {
+      isCurrent = false,
+      href,
+      forceReload = false,
+      closeMobileOnAction,
+      tooltip,
+      tooltipProps,
+      onAction,
+      textValue,
+      className,
+      children,
+      ...rest
+    },
     ref,
   ) => {
     const { navigate, isMobile, setMobileOpen } = useSidebarContext();
@@ -452,32 +514,48 @@ const MenuItem = forwardRef<HTMLDivElement, SidebarMenuItemProps>(
       [href, handleAnchorClick],
     );
 
+    // tooltip 缺省回退到 textValue（item 标签），与参考实现「default: Item label」一致
+    const tooltipContent = tooltip ?? textValue;
+
+    const treeItem = (
+      <TreeItem
+        ref={ref}
+        textValue={textValue}
+        data-slot="sidebar-menu-item"
+        data-current={isCurrent ? 'true' : undefined}
+        data-href={href}
+        aria-current={isCurrent ? 'page' : undefined}
+        onAction={handleAction}
+        className={clsx('sidebar__menu-item', className)}
+        {...rest}
+      >
+        {children}
+      </TreeItem>
+    );
+
     return (
       <MenuItemLinkContext.Provider value={linkContext}>
-        <TreeItem
-          ref={ref}
-          data-slot="sidebar-menu-item"
-          data-current={isCurrent ? 'true' : undefined}
-          data-href={href}
-          aria-current={isCurrent ? 'page' : undefined}
-          onAction={handleAction}
-          className={clsx('sidebar__menu-item', className)}
-          {...rest}
-        >
-          {children}
-        </TreeItem>
+        {tooltipContent !== undefined && tooltipContent !== null && tooltipContent !== '' ? (
+          <SidebarTooltip content={tooltipContent} {...tooltipProps}>
+            {treeItem}
+          </SidebarTooltip>
+        ) : (
+          treeItem
+        )}
       </MenuItemLinkContext.Provider>
     );
   },
 );
 MenuItem.displayName = 'Sidebar.MenuItem';
 
-export type SidebarMenuItemContentProps = HTMLAttributes<HTMLDivElement>;
+export type SidebarMenuItemContentProps = HTMLAttributes<HTMLSpanElement>;
 
 /**
  * 包裹 RAC TreeItemContent：RAC 在此处理 chevron slot 与 row 渲染上下文。
- * 当所属 MenuItem 带 href 时，内容区渲染为真实 <a>（同 slot/class，CSS 不变），
+ * 缺省渲染为 <span>（对齐参考实现 renders-as: span）。
+ * 当所属 MenuItem 带 href 时，内容区改渲染为真实 <a>（同 slot/class，CSS 不变），
  * 以获得原生「新标签/复制链接/状态栏 URL」；普通左键仍 preventDefault 交回 onAction 走 SPA。
+ * （<a> 是对参考实现的有意偏差，参考版用命令式 navigate 无真锚点，缺失原生链接语义，见 parity-gap-backlog。）
  */
 const MenuItemContent = ({ className, children, ...rest }: SidebarMenuItemContentProps) => {
   const link = useContext(MenuItemLinkContext);
@@ -500,9 +578,9 @@ const MenuItemContent = ({ className, children, ...rest }: SidebarMenuItemConten
 
   return (
     <TreeItemContent>
-      <div data-slot="sidebar-menu-item-content" className={clsx('sidebar__menu-item-content', className)} {...rest}>
+      <span data-slot="sidebar-menu-item-content" className={clsx('sidebar__menu-item-content', className)} {...rest}>
         {children}
-      </div>
+      </span>
     </TreeItemContent>
   );
 };
@@ -807,6 +885,8 @@ const Sidebar = Object.assign(SidebarRoot, {
   Group,
   GroupLabel,
   Menu,
+  MenuSection,
+  MenuHeader,
   MenuItem,
   MenuItemContent,
   MenuIcon,

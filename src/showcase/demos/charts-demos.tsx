@@ -124,7 +124,7 @@ const LineChartDemo = () => (
       <Widget.Header>
         <div>
           <Widget.Title>Traffic Source</Widget.Title>
-          <Kpi.Value style={{ marginTop: 6 }}>231,856</Kpi.Value>
+          <div style={{ marginTop: 6 }}><Kpi.Value>231,856</Kpi.Value></div>
           <Widget.Description>Sessions</Widget.Description>
         </div>
         <Widget.Legend>
@@ -723,7 +723,7 @@ const KpiWithChartTriple = ({ kind }: { kind: 'area' | 'line' }) => (
           >
             <div>
               <Widget.Description>{card.title}</Widget.Description>
-              <Kpi.Value style={{ margin: '4px 0' }}>{card.value}</Kpi.Value>
+              <div style={{ margin: '4px 0' }}><Kpi.Value>{card.value}</Kpi.Value></div>
               <TrendChip trend={card.trend} value={card.delta} suffix={card.deltaSuffix} size="sm" />
             </div>
             {kind === 'area' ? (
@@ -805,7 +805,7 @@ const AreaVariantDemo = ({ variant }: { variant: AreaVariant }) => {
           <Widget.Header>
             <div>
               <Widget.Title>Traffic Sources</Widget.Title>
-              <Kpi.Value style={{ marginTop: 6 }}>231,856</Kpi.Value>
+              <div style={{ marginTop: 6 }}><Kpi.Value>231,856</Kpi.Value></div>
               <Widget.Description>Sessions</Widget.Description>
             </div>
             <Widget.Legend>
@@ -1797,7 +1797,7 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
                   <Widget.Description>Revenue</Widget.Description>
                   <TrendChip trend="up" value="3.3%" size="sm" />
                 </div>
-                <Kpi.Value style={{ marginTop: 4 }}>$228,441</Kpi.Value>
+                <div style={{ marginTop: 4 }}><Kpi.Value>$228,441</Kpi.Value></div>
               </Widget.Content>
             </Widget>
             <Widget style={{ flex: '1 1 180px' }}>
@@ -1806,7 +1806,7 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
                   <Widget.Description>Expenses</Widget.Description>
                   <TrendChip trend="down" value="3.3%" size="sm" />
                 </div>
-                <Kpi.Value style={{ marginTop: 4 }}>$25,108</Kpi.Value>
+                <div style={{ marginTop: 4 }}><Kpi.Value>$25,108</Kpi.Value></div>
               </Widget.Content>
             </Widget>
             <Widget style={{ flex: '1 1 180px' }}>
@@ -1815,7 +1815,7 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
                   <Widget.Description>Sales</Widget.Description>
                   <TrendChip trend="up" value="3.3%" size="sm" />
                 </div>
-                <Kpi.Value style={{ marginTop: 4 }}>458</Kpi.Value>
+                <div style={{ marginTop: 4 }}><Kpi.Value>458</Kpi.Value></div>
               </Widget.Content>
             </Widget>
           </div>
@@ -1848,7 +1848,7 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
           <Widget.Header>
             <div>
               <Widget.Title>Traffic Source</Widget.Title>
-              <Kpi.Value style={{ marginTop: 6 }}>231,856</Kpi.Value>
+              <div style={{ marginTop: 6 }}><Kpi.Value>231,856</Kpi.Value></div>
               <Widget.Description>Sessions</Widget.Description>
             </div>
             <Widget.Legend>
@@ -1889,7 +1889,7 @@ const LineVariantDemo = ({ variant }: { variant: LineVariant }) => {
           <Widget.Content>
             <div>
               <Widget.Description>Total balance</Widget.Description>
-              <Kpi.Value style={{ margin: '2px 0' }}>$24,801.32</Kpi.Value>
+              <div style={{ margin: '2px 0' }}><Kpi.Value>$24,801.32</Kpi.Value></div>
               <span style={{ color: 'var(--chart-success, #16a34a)', fontSize: 13, fontWeight: 600 }}>
                 $1,242.77 (5.32%)
               </span>

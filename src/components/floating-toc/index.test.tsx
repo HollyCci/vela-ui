@@ -17,15 +17,21 @@ beforeEach(() => {
 });
 
 describe('FloatingToc', () => {
-  it('Trigger renders with a default non-empty aria-label and data-slot', () => {
+  it('Trigger renders as a focusable span (matches reference renders-as) with data-slot', () => {
     render(
       <FloatingToc items={ITEMS}>
         <FloatingToc.Trigger />
       </FloatingToc>,
     );
-    const trigger = screen.getByRole('button', { name: 'Table of contents' });
-    expect(trigger).toHaveAttribute('data-slot', 'floating-toc-trigger');
-    expect(trigger).toHaveAttribute('type', 'button');
+    const trigger = document.querySelector('[data-slot="floating-toc-trigger"]');
+    expect(trigger).not.toBeNull();
+    // 参考版 Trigger renders-as span，仅 native span 属性；无 button/role/aria-label/aria-expanded
+    expect(trigger?.tagName).toBe('SPAN');
+    expect(trigger).toHaveAttribute('tabindex', '0');
+    expect(trigger).not.toHaveAttribute('type');
+    expect(trigger).not.toHaveAttribute('aria-label');
+    expect(trigger).not.toHaveAttribute('aria-expanded');
+    expect(trigger).not.toHaveAttribute('role');
   });
 
   it('Trigger placement reflects root placement', () => {
@@ -34,7 +40,7 @@ describe('FloatingToc', () => {
         <FloatingToc.Trigger />
       </FloatingToc>,
     );
-    expect(screen.getByRole('button', { name: 'Table of contents' })).toHaveAttribute(
+    expect(document.querySelector('[data-slot="floating-toc-trigger"]')).toHaveAttribute(
       'data-placement',
       'left',
     );
@@ -87,7 +93,11 @@ describe('FloatingToc', () => {
         <FloatingToc.Trigger />
       </FloatingToc>,
     );
-    await user.click(screen.getByRole('button', { name: 'Table of contents' }));
+    const trigger = document.querySelector<HTMLSpanElement>(
+      '[data-slot="floating-toc-trigger"]',
+    );
+    expect(trigger).not.toBeNull();
+    await user.click(trigger as HTMLSpanElement);
     expect(onOpenChange).toHaveBeenCalledWith(true);
   });
 

@@ -85,6 +85,66 @@ describe('ListView', () => {
     expect(disabledRow).toHaveAttribute('aria-disabled', 'true');
   });
 
+  // 参考版 API：逐子组件锁定 CSS 类 + data-slot + 渲染元素（ItemContent/ItemAction 渲染 div，Title/Description 渲染 span）
+  it('renders the documented sub-components with their parity CSS classes and elements', () => {
+    render(
+      <ListView aria-label="Files">
+        <ListView.Item id="1" textValue="Proposal">
+          <ListView.ItemContent>
+            <ListView.Title>Proposal</ListView.Title>
+            <ListView.Description>Updated today</ListView.Description>
+          </ListView.ItemContent>
+          <ListView.ItemAction>
+            <button type="button">Open</button>
+          </ListView.ItemAction>
+        </ListView.Item>
+      </ListView>,
+    );
+
+    const content = screen.getByText('Proposal').closest('.list-view__item-content');
+    expect(content).toHaveAttribute('data-slot', 'list-view-item-content');
+    expect(content?.tagName).toBe('DIV');
+
+    const title = screen.getByText('Proposal');
+    expect(title).toHaveClass('list-view__title');
+    expect(title).toHaveAttribute('data-slot', 'list-view-title');
+    expect(title.tagName).toBe('SPAN');
+
+    const description = screen.getByText('Updated today');
+    expect(description).toHaveClass('list-view__description');
+    expect(description).toHaveAttribute('data-slot', 'list-view-description');
+    expect(description.tagName).toBe('SPAN');
+
+    const action = screen.getByRole('button', { name: 'Open' }).closest('.list-view__item-action');
+    expect(action).toHaveAttribute('data-slot', 'list-view-item-action');
+    expect(action?.tagName).toBe('DIV');
+  });
+
+  // 参考版 API：renderEmptyState 是 Root 的空态契约（参考文档把空态归于该 prop，而非子组件）
+  it('renders empty state through the renderEmptyState prop', () => {
+    render(
+      <ListView
+        aria-label="Files"
+        items={[]}
+        renderEmptyState={() => (
+          <ListView.EmptyState>No files</ListView.EmptyState>
+        )}
+      >
+        {(file: { id: string; name: string }) => (
+          <ListView.Item id={file.id} textValue={file.name}>
+            <ListView.ItemContent>
+              <ListView.Title>{file.name}</ListView.Title>
+            </ListView.ItemContent>
+          </ListView.Item>
+        )}
+      </ListView>,
+    );
+
+    const empty = screen.getByText('No files');
+    expect(empty).toHaveClass('list-view__empty-state');
+    expect(empty).toHaveAttribute('data-slot', 'list-view-empty-state');
+  });
+
   it('has no axe a11y violations', async () => {
     // grid 配可访问名（aria-label="Files"，来自 renderList），多选启用自动渲染选择 checkbox
     const { container } = renderList({ selectionMode: 'multiple' });

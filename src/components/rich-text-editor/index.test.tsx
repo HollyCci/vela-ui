@@ -185,4 +185,120 @@ describe('RichTextEditor', () => {
     const { container } = render(<BasicEditor value="<p>Accessible draft</p>" />);
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  // --- 线上 Pro 版 API 对齐 ---
+
+  it('ToggleButton accepts the Pro command tokens (heading-1 maps to H1 formatBlock)', async () => {
+    const user = userEvent.setup();
+    render(
+      <RichTextEditor defaultValue="<p>x</p>">
+        <RichTextEditor.Toolbar>
+          <RichTextEditor.ToggleButton command="heading-1" aria-label="H1" />
+          <RichTextEditor.ToggleButton command="code" aria-label="Code" />
+        </RichTextEditor.Toolbar>
+        <RichTextEditor.Content />
+      </RichTextEditor>,
+    );
+    const h1 = document.querySelector(
+      '[data-slot="rich-text-editor-toggle-button"][data-command="heading-1"]',
+    ) as HTMLButtonElement;
+    expect(h1).toBeInTheDocument();
+    await user.click(h1);
+    expect(document.execCommand).toHaveBeenCalledWith('formatBlock', false, 'H1');
+  });
+
+  it('ActionButton exposes the Pro `action` prop and clearContent empties the doc', async () => {
+    const user = userEvent.setup();
+    const onValueChange = vi.fn();
+    render(
+      <RichTextEditor defaultValue="<p>filled</p>" onValueChange={onValueChange}>
+        <RichTextEditor.Toolbar>
+          <RichTextEditor.ActionButton action="undo" aria-label="Undo" />
+          <RichTextEditor.ActionButton action="clearContent" aria-label="Clear" />
+        </RichTextEditor.Toolbar>
+        <RichTextEditor.Content />
+      </RichTextEditor>,
+    );
+    const undo = document.querySelector(
+      '[data-slot="rich-text-editor-action-button"][data-action="undo"]',
+    ) as HTMLButtonElement;
+    await user.click(undo);
+    expect(document.execCommand).toHaveBeenCalledWith('undo', false, undefined);
+
+    const clear = document.querySelector(
+      '[data-slot="rich-text-editor-action-button"][data-action="clearContent"]',
+    ) as HTMLButtonElement;
+    await user.click(clear);
+    expect(getContent().innerHTML).toBe('<p></p>');
+  });
+
+  it('CommandButton exposes Pro onCommand/isActive/isDisabled', async () => {
+    const user = userEvent.setup();
+    const onCommand = vi.fn();
+    render(
+      <RichTextEditor defaultValue="<p>x</p>">
+        <RichTextEditor.Content />
+        <RichTextEditor.CommandButton onCommand={onCommand} isActive isDisabled={false}>
+          Run
+        </RichTextEditor.CommandButton>
+      </RichTextEditor>,
+    );
+    const btn = screen.getByRole('button', { name: 'Run' });
+    expect(btn).toHaveAttribute('aria-pressed', 'true');
+    expect(btn).not.toBeDisabled();
+    await user.click(btn);
+    expect(onCommand).toHaveBeenCalledTimes(1);
+  });
+
+  it('CommandButton isDisabled function disables the button', () => {
+    render(
+      <RichTextEditor defaultValue="<p>x</p>">
+        <RichTextEditor.Content />
+        <RichTextEditor.CommandButton onCommand={() => {}} isDisabled={() => true}>
+          Blocked
+        </RichTextEditor.CommandButton>
+      </RichTextEditor>,
+    );
+    expect(screen.getByRole('button', { name: 'Blocked' })).toBeDisabled();
+  });
+
+  it('CharacterCount supports showWords and the children render-prop', () => {
+    const { rerender } = render(
+      <RichTextEditor value="<p>one two three</p>">
+        <RichTextEditor.Content />
+        <RichTextEditor.Footer>
+          <RichTextEditor.CharacterCount showWords />
+        </RichTextEditor.Footer>
+      </RichTextEditor>,
+    );
+    const count = document.querySelector('[data-slot="rich-text-editor-character-count"]');
+    expect(count).toHaveTextContent('13');
+    expect(count).toHaveTextContent('3 words');
+
+    rerender(
+      <RichTextEditor value="<p>one two three</p>">
+        <RichTextEditor.Content />
+        <RichTextEditor.Footer>
+          <RichTextEditor.CharacterCount>
+            {(stats) => `${stats.words}w/${stats.characters}c`}
+          </RichTextEditor.CharacterCount>
+        </RichTextEditor.Footer>
+      </RichTextEditor>,
+    );
+    expect(document.querySelector('[data-slot="rich-text-editor-character-count"]')).toHaveTextContent(
+      '3w/13c',
+    );
+  });
+
+  it('BubbleMenu forwards toolbarProps to an inner toolbar', () => {
+    render(
+      <RichTextEditor defaultValue="<p>x</p>">
+        <RichTextEditor.BubbleMenu toolbarProps={{ 'aria-label': 'Bubble toolbar' }}>
+          <RichTextEditor.ToggleButton command="bold" aria-label="Bold" />
+        </RichTextEditor.BubbleMenu>
+        <RichTextEditor.Content />
+      </RichTextEditor>,
+    );
+    expect(screen.getByRole('toolbar', { name: 'Bubble toolbar' })).toBeInTheDocument();
+  });
 });

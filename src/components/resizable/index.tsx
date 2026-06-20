@@ -24,6 +24,7 @@ import {
   Separator,
   type GroupImperativeHandle,
   type Layout,
+  type LayoutStorage,
   type PanelImperativeHandle,
   type PanelSize,
 } from 'react-resizable-panels';
@@ -32,6 +33,14 @@ export type ResizableOrientation = 'horizontal' | 'vertical';
 export type ResizableHandleType = 'line' | 'drag' | 'pill' | 'handle';
 export type ResizableVariant = 'primary' | 'secondary' | 'tertiary';
 export type ResizableIndicatorType = 'pill' | 'drag';
+export type ResizablePanelGroupResizeBehavior = 'preserve-relative-size' | 'preserve-pixel-size';
+export type { PanelSize as ResizablePanelSize } from 'react-resizable-panels';
+
+/**
+ * 持久化存储实现（对齐参考实现 `storage` prop 的 `PanelGroupStorage`）。
+ * 只需 `getItem`/`setItem`，可传 localStorage / sessionStorage / cookie 适配器等，默认 localStorage。
+ */
+export type ResizablePanelGroupStorage = LayoutStorage;
 
 /** 命令式句柄（对外 API：尺寸为百分比数组，内部桥接真引擎的 {panelId: number} 布局 map） */
 export type ResizableImperativeHandle = {
@@ -39,12 +48,16 @@ export type ResizableImperativeHandle = {
   setLayout: (sizes: number[]) => void;
 };
 
-export type ResizableProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style'> & {
+export type ResizableProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 'style' | 'id'> & {
   orientation?: ResizableOrientation;
-  /** 持久化 id：写入 localStorage，重载后恢复布局（基于真引擎 onLayoutChanged + defaultLayout） */
+  /** 持久化 id：写入存储，重载后恢复布局（基于真引擎 onLayoutChanged + defaultLayout） */
   autoSaveId?: string;
   /** 每次布局变化（含拖拽过程）触发，回传各面板百分比（按 DOM 顺序） */
   onLayout?: (sizes: number[]) => void;
+  /** 自定义持久化存储（SSR 安全），默认 localStorage（对齐参考实现 storage prop） */
+  storage?: ResizablePanelGroupStorage;
+  /** 组唯一 id（嵌套组必填）；透传真引擎落到 data-group，并兜底作存储 key（对齐参考实现 id prop） */
+  id?: string;
   /** 命令式控制布局（参考实现 handleRef） */
   handleRef?: Ref<ResizableImperativeHandle>;
   /** 禁用整组拖拽 */
@@ -62,22 +75,33 @@ export type ResizablePanelProps = Omit<
 > & {
   /** 面板 id（透传给真引擎，落到 data-panel/id，并作为布局 map 的 key；缺省由引擎 useId 生成） */
   id?: string;
-  /** 初始尺寸（百分比，参考 API） */
-  defaultSize?: number;
-  /** 最小尺寸（百分比） */
-  minSize?: number;
-  /** 最大尺寸（百分比） */
-  maxSize?: number;
+  /** 初始尺寸：数字=百分比，字符串=带 CSS 单位（对齐参考实现 number | string） */
+  defaultSize?: number | string;
+  /** 最小尺寸：数字=百分比，字符串=带 CSS 单位 */
+  minSize?: number | string;
+  /** 最大尺寸：数字=百分比，字符串=带 CSS 单位 */
+  maxSize?: number | string;
   /** 拖到最小尺寸以下时折叠到 collapsedSize（参考 API） */
   collapsible?: boolean;
-  /** 折叠后的尺寸（百分比） */
-  collapsedSize?: number;
+  /** 折叠后的尺寸：数字=百分比，字符串=带 CSS 单位 */
+  collapsedSize?: number | string;
+  /** 父组尺寸变化时该面板保留相对百分比还是像素尺寸（对齐参考实现 groupResizeBehavior） */
+  groupResizeBehavior?: ResizablePanelGroupResizeBehavior;
+  /** 面板渲染顺序（用于条件渲染场景，对齐参考实现 order） */
+  order?: number;
   /** 禁用该面板的尺寸调整 */
   disabled?: boolean;
   onCollapse?: () => void;
   onExpand?: () => void;
-  /** 尺寸变化回调，回传当前百分比（对齐参考实现签名） */
-  onResize?: (size: number) => void;
+  /**
+   * 尺寸变化回调，回传引擎 PanelSize（含 asPercentage / inPixels）+ 面板 id + 上一次尺寸
+   * （对齐参考实现签名 `(panelSize, id?, prevPanelSize?) => void`）。
+   */
+  onResize?: (
+    panelSize: PanelSize,
+    id?: string | number,
+    prevPanelSize?: PanelSize,
+  ) => void;
   /** 命令式面板句柄（collapse/expand/resize/getSize/isCollapsed，透传真引擎） */
   panelRef?: Ref<PanelImperativeHandle | null>;
   className?: string;
@@ -146,10 +170,18 @@ const arrayToLayout = (sizes: number[], order: string[]): Layout => {
   return layout;
 };
 
-const readStoredLayout = (autoSaveId: string): Layout | null => {
+/** SSR 安全地解析默认存储（localStorage），服务端无 window 时返回 null */
+const resolveStorage = (storage?: LayoutStorage): LayoutStorage | null => {
+  if (storage !== undefined) return storage;
   if (typeof window === 'undefined') return null;
+  return window.localStorage;
+};
+
+const readStoredLayout = (autoSaveId: string, storage?: LayoutStorage): Layout | null => {
+  const store = resolveStorage(storage);
+  if (store === null) return null;
   try {
-    const raw = window.localStorage.getItem(STORAGE_PREFIX + autoSaveId);
+    const raw = store.getItem(STORAGE_PREFIX + autoSaveId);
     if (raw === null) return null;
     const parsed: unknown = JSON.parse(raw);
     if (parsed !== null && typeof parsed === 'object') return parsed as Layout;
@@ -159,10 +191,11 @@ const readStoredLayout = (autoSaveId: string): Layout | null => {
   }
 };
 
-const writeStoredLayout = (autoSaveId: string, layout: Layout) => {
-  if (typeof window === 'undefined') return;
+const writeStoredLayout = (autoSaveId: string, layout: Layout, storage?: LayoutStorage) => {
+  const store = resolveStorage(storage);
+  if (store === null) return;
   try {
-    window.localStorage.setItem(STORAGE_PREFIX + autoSaveId, JSON.stringify(layout));
+    store.setItem(STORAGE_PREFIX + autoSaveId, JSON.stringify(layout));
   } catch {
     // 隐私模式 / 配额超限：静默降级为非持久化
   }
@@ -174,6 +207,8 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
       orientation = 'horizontal',
       autoSaveId,
       onLayout,
+      storage,
+      id,
       handleRef,
       disabled,
       disableCursor,
@@ -250,9 +285,9 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
     // 拖拽/键盘结束后触发：持久化最终布局（指针移动期间不写）
     const handleLayoutChanged = useCallback(
       (layout: Layout) => {
-        if (autoSaveId !== undefined) writeStoredLayout(autoSaveId, layout);
+        if (autoSaveId !== undefined) writeStoredLayout(autoSaveId, layout, storage);
       },
-      [autoSaveId],
+      [autoSaveId, storage],
     );
 
     // 对外命令式句柄：数组 <-> 真引擎布局 map
@@ -274,14 +309,15 @@ const ResizableRoot = forwardRef<HTMLDivElement, ResizableProps>(
     const [defaultLayout, setDefaultLayout] = useState<Layout | undefined>(undefined);
     useEffect(() => {
       if (autoSaveId === undefined) return;
-      setDefaultLayout(readStoredLayout(autoSaveId) ?? undefined);
-    }, [autoSaveId]);
+      setDefaultLayout(readStoredLayout(autoSaveId, storage) ?? undefined);
+    }, [autoSaveId, storage]);
 
     return (
       <ResizableContext.Provider value={contextValue}>
         <Group
           elementRef={setContainerRef}
           groupRef={groupHandleRef}
+          id={id}
           orientation={orientation}
           disabled={disabled}
           disableCursor={disableCursor}
@@ -308,6 +344,8 @@ const Panel = ({
   maxSize,
   collapsible,
   collapsedSize,
+  groupResizeBehavior,
+  order,
   disabled,
   onCollapse,
   onExpand,
@@ -328,13 +366,16 @@ const Panel = ({
     return () => registry.unregister(id);
   }, [registry, id]);
 
-  // 真引擎 onResize 回传 {asPercentage,inPixels}，并带折叠语义；映射到参考实现 onResize/onCollapse/onExpand
+  // 折叠阈值用百分比比较；collapsedSize 可为字符串单位时退回 0（仅影响折叠回调判定，引擎本身仍按其值折叠）
+  const collapsedThreshold = typeof collapsedSize === 'number' ? collapsedSize : 0;
+
+  // 真引擎 onResize 回传 {asPercentage,inPixels}+id+prev；原样透传给参考实现 onResize，并派生折叠语义
   const prevCollapsedRef = useRef<boolean | null>(null);
   const handleResize = useCallback(
-    (panelSize: PanelSize) => {
-      onResize?.(panelSize.asPercentage);
+    (panelSize: PanelSize, resizedId: string | number | undefined, prev: PanelSize | undefined) => {
+      onResize?.(panelSize, resizedId, prev);
       if (!collapsible) return;
-      const collapsed = panelSize.asPercentage <= (collapsedSize ?? 0) + 0.01;
+      const collapsed = panelSize.asPercentage <= collapsedThreshold + 0.01;
       const was = prevCollapsedRef.current;
       if (was !== null) {
         if (collapsed && !was) onCollapse?.();
@@ -342,7 +383,7 @@ const Panel = ({
       }
       prevCollapsedRef.current = collapsed;
     },
-    [onResize, onCollapse, onExpand, collapsible, collapsedSize],
+    [onResize, onCollapse, onExpand, collapsible, collapsedThreshold],
   );
 
   return (
@@ -354,13 +395,16 @@ const Panel = ({
       maxSize={maxSize}
       collapsible={collapsible}
       collapsedSize={collapsedSize}
+      groupResizeBehavior={groupResizeBehavior}
       disabled={disabled}
       onResize={handleResize}
       // className 落到引擎渲染的内层 div（对齐快照 <div class="resizable__panel">）
       className={clsx('resizable__panel', className)}
       style={style}
-      // data-slot 等 rest 落到引擎渲染的外层 div（带 data-panel/id）
+      // data-slot/data-order 等 rest 落到引擎渲染的外层 div（带 data-panel/id）；
+      // order 引擎无原生支持，作 data-order 暴露以保持 API 表面对齐参考实现
       data-slot="resizable-panel"
+      data-order={order}
       {...rest}
     >
       {children}

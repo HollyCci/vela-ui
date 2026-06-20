@@ -110,6 +110,11 @@ export type SheetFooterProps = HTMLAttributes<HTMLDivElement>;
 export type SheetHandleProps = Omit<DrawerHandleProps, 'className' | 'style'> & {
   className?: string;
   style?: CSSProperties;
+  /**
+   * 禁用「点击抓手循环 snap point」。对齐线上参考版 Sheet.Handle 的 `preventCycle`（默认 false）：
+   * 默认点击在多档之间循环，置 true 后点击不再切换档位。
+   */
+  preventCycle?: boolean;
   /** 抓手按下回调：本层用它把手势交给 framer-motion 的拖拽关闭（底座 Handle 已透传到底层 div） */
   onPointerDown?: (event: ReactPointerEvent<HTMLDivElement>) => void;
   onClick?: (event: ReactMouseEvent<HTMLDivElement>) => void;
@@ -156,8 +161,11 @@ type SheetDragContextValue = {
 
 const SheetDragContext = createContext<SheetDragContextValue | null>(null);
 
-/** 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势，对齐目标交互手感 */
-const DISMISS_FRACTION = 0.3;
+/**
+ * 位移阈值（占面板对应维度比例）与速度阈值（px/s）：任一超过即判定为关闭手势。
+ * 0.25 对齐线上参考版 Sheet 的 `closeThreshold` 默认值。
+ */
+const DISMISS_FRACTION = 0.25;
 const VELOCITY_THRESHOLD = 500;
 /** 拖拽结束时把瞬时速度折算成额外投影位移的系数（秒），用于选「最近档」时纳入惯性，近似 vaul */
 const VELOCITY_PROJECTION = 0.08;
@@ -601,7 +609,7 @@ Footer.displayName = 'Sheet.Footer';
  * 拖拽手柄：底座 Handle 自带内嵌 bar（drawer.css 已渲染为可见药丸）；本层叠加 sheet__handle 视觉。
  * 抓手上的 pointerdown 桥接到 Dialog 的 framer-motion drag，使「抓手按下即可向下拖拽关闭」。
  */
-const Handle = ({ className, onPointerDown, onClick, ...rest }: SheetHandleProps) => {
+const Handle = ({ className, preventCycle = false, onPointerDown, onClick, ...rest }: SheetHandleProps) => {
   const dragContext = useContext(SheetDragContext);
 
   const handlePointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
@@ -614,7 +622,8 @@ const Handle = ({ className, onPointerDown, onClick, ...rest }: SheetHandleProps
 
   const handleClick = (event: ReactMouseEvent<HTMLDivElement>) => {
     onClick?.(event);
-    if (!event.defaultPrevented) dragContext?.cycleSnapPoint?.();
+    // preventCycle 对齐参考版：true 时点击不再循环 snap point
+    if (!preventCycle && !event.defaultPrevented) dragContext?.cycleSnapPoint?.();
   };
 
   return (
@@ -654,7 +663,7 @@ const SheetRoot = ({
   onActiveSnapPointChange,
   onSnapPointChange,
   closeThreshold = DISMISS_FRACTION,
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   onClose,
   onOpenChange,
   ...rest
@@ -703,7 +712,7 @@ const NestedRoot = ({
   onActiveSnapPointChange,
   onSnapPointChange,
   closeThreshold = DISMISS_FRACTION,
-  shouldScaleBackground = true,
+  shouldScaleBackground = false,
   onClose,
   onOpenChange,
   isOpen,

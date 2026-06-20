@@ -378,6 +378,85 @@ describe('DataGrid', () => {
     });
   });
 
+  // 参考版命名别名：allowsColumnResize / rowHeight / 列 pinned / 列 allowsResizing / onReorder / selectionBehavior。
+  describe('参考版命名别名（向后兼容）', () => {
+    it('allowsColumnResize wraps in a resizable container and marks resizable columns', () => {
+      const RESIZABLE_COLUMNS: DataGridColumn<Course>[] = [
+        { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true, allowsResizing: true },
+        { id: 'owner', header: '负责人', accessorKey: 'owner' },
+      ];
+      const { container } = render(
+        <DataGrid
+          aria-label="可调列宽"
+          columns={RESIZABLE_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          allowsColumnResize
+        />,
+      );
+      // allowsColumnResize（参考版名）应等价 enableColumnResizing：出现列宽调整手柄
+      expect(container.querySelector('.data-grid__column-resizer')).toBeInTheDocument();
+      // allowsResizing（参考版列名）应被识别为可调整列
+      expect(container.querySelector('.data-grid__resizable-column')).toBeInTheDocument();
+    });
+
+    it('rowHeight (reference alias) drives virtualization without virtualRowHeight', () => {
+      const { container } = render(
+        <DataGrid
+          aria-label="虚拟化"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          virtualized
+          rowHeight={40}
+        />,
+      );
+      // 仅靠参考版命名 rowHeight 也能启用虚拟化（root emit data-virtualized）
+      expect(container.querySelector('[data-slot="data-grid"]')).toHaveAttribute(
+        'data-virtualized',
+        'true',
+      );
+    });
+
+    it('column.pinned ("start"/"end") emits internal data-pinned left/right (CSS-compatible)', () => {
+      const PINNED_COLUMNS: DataGridColumn<Course>[] = [
+        { id: 'name', header: '课程', accessorKey: 'name', isRowHeader: true, pinned: 'start' },
+        { id: 'owner', header: '负责人', accessorKey: 'owner' },
+        { id: 'progress', header: '掌握度', accessorKey: 'progress', pinned: 'end' },
+      ];
+      const { container } = render(
+        <DataGrid
+          aria-label="固定列"
+          columns={PINNED_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+        />,
+      );
+      // 参考版 pinned=start/end 映射到内部 left/right，保持与已锁定 CSS [data-pinned=left|right] 兼容
+      expect(container.querySelector('[data-pinned="left"]')).toBeInTheDocument();
+      expect(container.querySelector('[data-pinned="right"]')).toBeInTheDocument();
+    });
+
+    it('selectionBehavior is forwarded to the underlying table (not leaked onto root)', () => {
+      const { container } = render(
+        <DataGrid
+          aria-label="替换选择"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          selectionMode="multiple"
+          selectionBehavior="replace"
+          showSelectionCheckboxes
+          onSelectionChange={() => {}}
+        />,
+      );
+      const root = container.querySelector('[data-slot="data-grid"]');
+      // selectionBehavior 不应作为未知属性泄漏到根包装元素
+      expect(root).not.toHaveAttribute('selectionbehavior');
+      expect(root).toBeInTheDocument();
+    });
+  });
+
   // a11y：完整 grid（aria-label + 列头 + 行 + 多选 checkbox 列），axe 扫描应无违规。
   it('has no axe a11y violations', async () => {
     const { container } = render(

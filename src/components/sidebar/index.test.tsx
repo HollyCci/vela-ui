@@ -142,11 +142,11 @@ describe('Sidebar', () => {
     expect(anchor).toHaveClass('sidebar__menu-item-content');
   });
 
-  // 无 href 项仍渲染普通 <div>（向后兼容，不引入多余锚点）
-  it('renders a plain <div> content for MenuItem without href', () => {
+  // 无 href 项渲染 <span>（对齐参考实现 renders-as: span；不引入多余锚点）
+  it('renders a plain <span> content for MenuItem without href', () => {
     renderSidebar();
     const content = document.querySelector('[data-slot="sidebar-menu-item-content"]');
-    expect(content?.tagName).toBe('DIV');
+    expect(content?.tagName).toBe('SPAN');
     expect(document.querySelector('a[data-slot="sidebar-menu-item-content"]')).toBeNull();
   });
 
@@ -222,6 +222,61 @@ describe('Sidebar', () => {
     // Escape 关闭 → 焦点还回触发按钮
     await user.keyboard('{Escape}');
     expect(trigger).toHaveFocus();
+  });
+
+  // MenuSection + MenuHeader：分组容器与分组标题（对齐参考实现 RAC TreeSection/TreeHeader）
+  it('renders MenuSection grouping with a MenuHeader', () => {
+    render(
+      <Sidebar.Provider>
+        <Sidebar>
+          <Sidebar.Content>
+            <Sidebar.Menu aria-label="导航">
+              <Sidebar.MenuSection>
+                <Sidebar.MenuHeader>分组</Sidebar.MenuHeader>
+                <Sidebar.MenuItem id="a" textValue="项目 A">
+                  <Sidebar.MenuItemContent>
+                    <Sidebar.MenuLabel>项目 A</Sidebar.MenuLabel>
+                  </Sidebar.MenuItemContent>
+                </Sidebar.MenuItem>
+              </Sidebar.MenuSection>
+            </Sidebar.Menu>
+          </Sidebar.Content>
+        </Sidebar>
+      </Sidebar.Provider>,
+    );
+    const header = document.querySelector('[data-slot="sidebar-menu-header"]');
+    expect(header).not.toBeNull();
+    expect(header).toHaveTextContent('分组');
+    expect(header).toHaveClass('sidebar__menu-header');
+    expect(document.querySelector('[data-slot="sidebar-menu-item"]')).not.toBeNull();
+  });
+
+  // tooltip：缺省回退到 textValue（参考实现「default: Item label」），展开态直接渲染 children 不包 Tooltip
+  it('MenuItem accepts tooltip + tooltipProps and renders children when expanded', () => {
+    render(
+      <Sidebar.Provider defaultOpen>
+        <Sidebar>
+          <Sidebar.Content>
+            <Sidebar.Menu aria-label="导航">
+              <Sidebar.MenuItem
+                id="home"
+                textValue="首页"
+                tooltip="首页提示"
+                tooltipProps={{ placement: 'right', delay: 0 }}
+              >
+                <Sidebar.MenuItemContent>
+                  <Sidebar.MenuLabel>首页</Sidebar.MenuLabel>
+                </Sidebar.MenuItemContent>
+              </Sidebar.MenuItem>
+            </Sidebar.Menu>
+          </Sidebar.Content>
+        </Sidebar>
+      </Sidebar.Provider>,
+    );
+    // 展开态：SidebarTooltip 直接渲染 children，菜单项可见
+    const item = document.querySelector('[data-slot="sidebar-menu-item"]');
+    expect(item).not.toBeNull();
+    expect(item).toHaveTextContent('首页');
   });
 
   it('has no axe a11y violations', async () => {

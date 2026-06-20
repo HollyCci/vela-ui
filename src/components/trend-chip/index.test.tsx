@@ -8,9 +8,16 @@ describe('TrendChip', () => {
     const { container } = render(<TrendChip trend="up" value="12%" />);
     const chip = container.querySelector('[data-slot="chip"]');
     expect(chip).not.toBeNull();
-    // up -> success color, default variant tertiary
-    expect(chip).toHaveClass('chip--success', 'chip--tertiary');
+    // up -> success color, default variant soft (Pro 默认)
+    expect(chip).toHaveClass('chip--success', 'chip--soft');
     expect(screen.getByText('12%')).toHaveClass('trend-chip__value');
+  });
+
+  it('applies the base .trend-chip class and emits data-trend on the root', () => {
+    const { container } = render(<TrendChip trend="down" value="3" />);
+    const chip = container.querySelector('[data-slot="chip"]');
+    expect(chip).toHaveClass('trend-chip');
+    expect(chip).toHaveAttribute('data-trend', 'down');
   });
 
   it('maps down trend to danger color', () => {
@@ -21,6 +28,12 @@ describe('TrendChip', () => {
   it('maps neutral trend to default color', () => {
     const { container } = render(<TrendChip trend="neutral" value="0" />);
     expect(container.querySelector('[data-slot="chip"]')).toHaveClass('chip--default');
+  });
+
+  it('defaults to the sm size class when size is omitted (Pro 默认)', () => {
+    const { container } = render(<TrendChip trend="up" value="5" />);
+    const chip = container.querySelector('[data-slot="chip"]');
+    expect(chip).toHaveClass('chip--sm', 'trend-chip--sm');
   });
 
   it('renders an indicator icon and the optional suffix', () => {
@@ -50,8 +63,60 @@ describe('TrendChip', () => {
     expect(chip).toHaveClass('chip--lg', 'trend-chip--lg');
   });
 
+  describe('compound (dot-notation) API — 对齐 Pro Anatomy', () => {
+    it('renders TrendChip.Indicator / .Prefix / .Suffix as spans with the element classes', () => {
+      const { container } = render(
+        <TrendChip trend="up">
+          <TrendChip.Prefix>$</TrendChip.Prefix>
+          <TrendChip.Indicator>
+            <svg data-testid="compound-icon" />
+          </TrendChip.Indicator>
+          <span className="trend-chip__value">1,234</span>
+          <TrendChip.Suffix>vs LW</TrendChip.Suffix>
+        </TrendChip>,
+      );
+      const prefix = container.querySelector('.trend-chip__prefix');
+      const indicator = container.querySelector('.trend-chip__indicator');
+      const suffix = container.querySelector('.trend-chip__suffix');
+      expect(prefix?.tagName).toBe('SPAN');
+      expect(indicator?.tagName).toBe('SPAN');
+      expect(suffix?.tagName).toBe('SPAN');
+      expect(indicator?.querySelector('[data-testid="compound-icon"]')).not.toBeNull();
+      // 复合路径不传 value -> root 直渲 children，不再自动注入默认箭头
+      expect(screen.getByText('1,234')).toHaveClass('trend-chip__value');
+    });
+
+    it('still applies trend color + data-trend on the root in compound usage', () => {
+      const { container } = render(
+        <TrendChip trend="down">
+          <TrendChip.Indicator>
+            <svg />
+          </TrendChip.Indicator>
+          <span className="trend-chip__value">-2.1%</span>
+        </TrendChip>,
+      );
+      const chip = container.querySelector('[data-slot="chip"]');
+      expect(chip).toHaveClass('trend-chip', 'chip--danger');
+      expect(chip).toHaveAttribute('data-trend', 'down');
+    });
+  });
+
   it('has no axe a11y violations', async () => {
     const { container } = render(<TrendChip trend="up" value="12%" suffix="vs LW" />);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe a11y violations in compound usage', async () => {
+    const { container } = render(
+      <TrendChip trend="up">
+        <TrendChip.Prefix>$</TrendChip.Prefix>
+        <TrendChip.Indicator>
+          <svg aria-hidden="true" />
+        </TrendChip.Indicator>
+        <span className="trend-chip__value">1,234</span>
+        <TrendChip.Suffix>vs LW</TrendChip.Suffix>
+      </TrendChip>,
+    );
     expect(await axe(container)).toHaveNoViolations();
   });
 });

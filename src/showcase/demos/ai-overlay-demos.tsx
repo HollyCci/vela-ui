@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useCallback, useEffect, useRef, useState, type ReactNode } from 'react';
 import AlertDialog from '../../components/alert-dialog';
 import Avatar from '../../components/avatar';
 import Button from '../../components/button';
@@ -10,7 +10,7 @@ import ChatListView from '../../components/chat-list-view';
 import ChatLoader from '../../components/chat-loader';
 import ChatMessage from '../../components/chat-message';
 import ChatMessageActions from '../../components/chat-message-actions';
-import ChatSource from '../../components/chat-source';
+import ChatSource, { ChatSources } from '../../components/chat-source';
 import Markdown from '../../components/markdown';
 import ChatTool, { type ChatToolStatus } from '../../components/chat-tool';
 import CodeBlock from '../../components/code-block';
@@ -610,7 +610,7 @@ const PromptInputDemo = () => {
       <p>Queue action: {queueAction}</p>
       <PromptInput
         value={inlineValue}
-        variant="inline"
+        layout="inline"
         onSubmit={handleInlineSubmit}
         onValueChange={setInlineValue}
       >
@@ -1135,14 +1135,12 @@ const ChatListViewDemo = () => {
               textValue={chat.title}
               aria-label={`${chat.title} ${chat.preview}`}
             >
+              <ChatListView.Icon />
               <ChatListView.ItemContent>
-                <ChatListView.Icon />
-                <ChatListView.Text>
-                  <ChatListView.Title>{chat.title}</ChatListView.Title>
-                  <ChatListView.Preview>{chat.preview}</ChatListView.Preview>
-                </ChatListView.Text>
-                <ChatListView.Meta>{chat.meta}</ChatListView.Meta>
+                <ChatListView.Title>{chat.title}</ChatListView.Title>
+                <ChatListView.Preview>{chat.preview}</ChatListView.Preview>
               </ChatListView.ItemContent>
+              <ChatListView.Meta>{chat.meta}</ChatListView.Meta>
             </ChatListView.Item>
           )}
         </ChatListView>
@@ -1208,13 +1206,11 @@ const ChatConversationDemo = () => {
       <div style={{ display: 'flex', flexDirection: 'column', height: 360, width: 560, overflow: 'hidden', border: '1px solid var(--separator)', borderRadius: 12 }}>
         <ChatConversation style={{ flex: 1 }}>
           <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
-            <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {turns.map((turn) => (
-                <ChatConversation.Message key={turn.id}>
-                  <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
-                </ChatConversation.Message>
-              ))}
-            </ChatConversation.Messages>
+            {turns.map((turn) => (
+              <ChatMessage key={turn.id} variant={turn.role}>
+                {turn.text}
+              </ChatMessage>
+            ))}
             <ChatConversation.ScrollButton />
             <ChatConversation.ScrollAnchor />
           </ChatConversation.Content>
@@ -1915,26 +1911,25 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
         <ChatConversationFrame height={420}>
           <ChatConversation style={{ flex: 1 }}>
             <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
-              <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {turns.map((turn) => (
-                  <ChatConversation.Message key={turn.id}>
-                    {turn.run !== undefined ? (
-                      renderFullChatAssistantRun(turn.run, {
-                        onApprove: approveFullChatRun,
-                        onReject: rejectFullChatRun,
-                        onRegenerate: regenerateFullChatRun,
-                      })
-                    ) : (
-                      <ChatMessage
-                        variant={turn.role}
-                        avatar={turn.role === 'assistant' ? <Avatar fallback="AI" /> : undefined}
-                      >
-                        {turn.role === 'assistant' ? <Markdown>{turn.text}</Markdown> : turn.text}
-                      </ChatMessage>
-                    )}
-                  </ChatConversation.Message>
-                ))}
-              </ChatConversation.Messages>
+              {turns.map((turn) =>
+                turn.run !== undefined ? (
+                  <Fragment key={turn.id}>
+                    {renderFullChatAssistantRun(turn.run, {
+                      onApprove: approveFullChatRun,
+                      onReject: rejectFullChatRun,
+                      onRegenerate: regenerateFullChatRun,
+                    })}
+                  </Fragment>
+                ) : (
+                  <ChatMessage
+                    key={turn.id}
+                    variant={turn.role}
+                    avatar={turn.role === 'assistant' ? <Avatar fallback="AI" /> : undefined}
+                  >
+                    {turn.role === 'assistant' ? <Markdown>{turn.text}</Markdown> : turn.text}
+                  </ChatMessage>
+                ),
+              )}
               <ChatConversation.ScrollButton />
               <ChatConversation.ScrollAnchor />
             </ChatConversation.Content>
@@ -1945,7 +1940,7 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
             onSubmit={startFullChatRun}
             onStop={stopFullChatRun}
             status={fullChatStatus}
-            variant="inline"
+            layout="inline"
           >
             <PromptInput.Shell>
               <PromptInput.Content>
@@ -1978,13 +1973,11 @@ const ChatConversationVariantDemo = ({ variant }: { variant: ChatConversationVar
       <ChatConversationFrame height={variant === 'scroll-button' ? 260 : 320}>
         <ChatConversation initialScrollToBottom={variant !== 'scroll-button'} style={{ flex: 1 }}>
           <ChatConversation.Content style={{ display: 'flex', flexDirection: 'column', gap: 16, padding: 16 }}>
-            <ChatConversation.Messages style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-              {messages.map((turn) => (
-                <ChatConversation.Message key={turn.id}>
-                  <ChatMessage variant={turn.role}>{turn.text}</ChatMessage>
-                </ChatConversation.Message>
-              ))}
-            </ChatConversation.Messages>
+            {messages.map((turn) => (
+              <ChatMessage key={turn.id} variant={turn.role}>
+                {turn.text}
+              </ChatMessage>
+            ))}
             <ChatConversation.ScrollButton />
             <ChatConversation.ScrollAnchor />
           </ChatConversation.Content>
@@ -2016,14 +2009,12 @@ const ChatListViewVariantDemo = ({ variant }: { variant: ChatListViewVariant }) 
         >
           {(chat) => (
             <ChatListView.Item id={chat.id} textValue={chat.title}>
+              <ChatListView.Icon />
               <ChatListView.ItemContent>
-                <ChatListView.Icon />
-                <ChatListView.Text>
-                  <ChatListView.Title>{chat.title}</ChatListView.Title>
-                  {!isCompact && <ChatListView.Preview>{chat.preview}</ChatListView.Preview>}
-                </ChatListView.Text>
-                {!isCompact && <ChatListView.Meta>{chat.meta}</ChatListView.Meta>}
+                <ChatListView.Title>{chat.title}</ChatListView.Title>
+                {!isCompact && <ChatListView.Preview>{chat.preview}</ChatListView.Preview>}
               </ChatListView.ItemContent>
+              {!isCompact && <ChatListView.Meta>{chat.meta}</ChatListView.Meta>}
             </ChatListView.Item>
           )}
         </ChatListView>
@@ -2225,11 +2216,16 @@ const ChatSourceVariantDemo = ({ variant }: { variant: ChatSourceVariant }) => {
       {variant === 'grouped' && (
         <ChatMessage variant="assistant" avatar={<Avatar fallback="AI" />}>
           Answer synthesized from multiple sources.
-          <div className="flex flex-wrap gap-2">
-            {SOURCE_ITEMS.map((source) => (
-              <ChatSource key={source.href} {...source} onOpen={handleOpen} />
-            ))}
-          </div>
+          <ChatSources defaultExpanded={false}>
+            <ChatSources.Trigger>{SOURCE_ITEMS.length} sources</ChatSources.Trigger>
+            <ChatSources.Content>
+              <ChatSources.List>
+                {SOURCE_ITEMS.map((source) => (
+                  <ChatSource key={source.href} {...source} onOpen={handleOpen} />
+                ))}
+              </ChatSources.List>
+            </ChatSources.Content>
+          </ChatSources>
         </ChatMessage>
       )}
       {variant === 'stacked-favicons' && (
@@ -2415,9 +2411,13 @@ const MarkdownVariantDemo = ({ variant }: { variant: 'default' | 'streaming' | '
         </div>
       )}
       <div style={{ width: 620 }}>
-        <Markdown isStreaming={variant === 'with-streamdown' && isStreaming}>
-          {variant === 'default' ? MARKDOWN_SAMPLE : text}
-        </Markdown>
+        {/* 线上参考版的流式 caret 由外层 Streamdown 风格包装提供，不是 Markdown 组件的 prop。 */}
+        <div style={{ position: 'relative' }}>
+          <Markdown>{variant === 'default' ? MARKDOWN_SAMPLE : text}</Markdown>
+          {variant === 'with-streamdown' && isStreaming && (
+            <span className="markdown__caret" aria-hidden="true" />
+          )}
+        </div>
       </div>
     </DemoSection>
   );
@@ -2698,7 +2698,10 @@ const PromptInputVariantDemo = ({
         value={value}
         onValueChange={setValue}
         onSubmit={submitPrompt}
-        variant={variant === 'inline' || variant === 'compact' ? 'inline' : variant === 'secondary' ? 'secondary' : 'primary'}
+        variant={variant === 'secondary' ? 'secondary' : 'primary'}
+        // demo 的 'compact' 沿用现有 inline 皮肤外观（CSS 分片暂无 [data-layout=compact] 规则，
+        // 由 CSS-owning session 后续补；此处保持既有 parity 截图不回归）。
+        layout={variant === 'inline' || variant === 'compact' ? 'inline' : 'stacked'}
         size={variant === 'secondary' || variant === 'compact' ? 'sm' : 'md'}
       >
         <PromptInput.Shell>
@@ -3080,14 +3083,12 @@ const SheetVariantDemo = ({ variant }: { variant: SheetVariant }) => {
                   >
                     {(profession) => (
                       <ChatListView.Item id={profession.id} textValue={profession.title}>
+                        <ChatListView.Icon />
                         <ChatListView.ItemContent>
-                          <ChatListView.Icon />
-                          <ChatListView.Text>
-                            <ChatListView.Title>{profession.title}</ChatListView.Title>
-                            <ChatListView.Preview>{profession.preview}</ChatListView.Preview>
-                          </ChatListView.Text>
-                          <ChatListView.Meta>{profession.meta}</ChatListView.Meta>
+                          <ChatListView.Title>{profession.title}</ChatListView.Title>
+                          <ChatListView.Preview>{profession.preview}</ChatListView.Preview>
                         </ChatListView.ItemContent>
+                        <ChatListView.Meta>{profession.meta}</ChatListView.Meta>
                       </ChatListView.Item>
                     )}
                   </ChatListView>

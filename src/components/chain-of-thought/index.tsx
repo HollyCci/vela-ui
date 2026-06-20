@@ -36,14 +36,9 @@ export type ChainOfThoughtContentProps = Omit<DisclosureContentProps, 'className
 
 export type ChainOfThoughtStepsProps = HTMLAttributes<HTMLDivElement>;
 
-/** 步骤状态：pending=未开始（默认 muted 点）、active=进行中（脉冲点）、complete=完成（对勾） */
-export type ChainOfThoughtStepStatus = 'pending' | 'active' | 'complete';
-
 export type ChainOfThoughtStepProps = HTMLAttributes<HTMLDivElement> & {
   /** 可选步骤标签：提供时渲染步骤头（指示点 + 标签），缺省时只有正文（参考 API） */
   label?: ReactNode;
-  /** 可选步骤状态：驱动指示节点（complete 渲染对勾 / active 渲染脉冲点 / pending 渲染 muted 点）并写入 data-status，缺省保持原 muted 点 */
-  status?: ChainOfThoughtStepStatus;
 };
 
 type ChainOfThoughtContextValue = {
@@ -114,43 +109,19 @@ const Steps = forwardRef<HTMLDivElement, ChainOfThoughtStepsProps>(
 );
 Steps.displayName = 'ChainOfThought.Steps';
 
-/** 完成态对勾（属性与 Stepper 默认对勾逐字一致，尺寸/颜色由 CSS/currentColor 接管） */
-const StepCheckmark = () => (
-  <svg
-    data-slot="chain-of-thought-step-check"
-    viewBox="0 0 17 18"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    role="presentation"
-    aria-hidden="true"
-  >
-    <polyline points="1 9 7 14 15 4" />
-  </svg>
-);
-StepCheckmark.displayName = 'ChainOfThought.StepCheckmark';
-
 const Step = forwardRef<HTMLDivElement, ChainOfThoughtStepProps>(
-  ({ label, status, className, children, ...rest }, ref) => (
+  ({ label, className, children, ...rest }, ref) => (
     <div
       ref={ref}
       data-slot="chain-of-thought-step"
-      data-status={status}
       className={clsx('chain-of-thought__step', className)}
       {...rest}
     >
       {label !== undefined && (
         <div className="chain-of-thought__step-header">
-          {/* complete 渲染对勾，pending/active/缺省渲染圆点；data-status 供 CSS 区分 active 脉冲与 complete 着色 */}
-          <span
-            aria-hidden="true"
-            data-status={status}
-            className="chain-of-thought__step-indicator"
-          >
-            {status === 'complete' ? <StepCheckmark /> : null}
-          </span>
+          {/* 有意偏差：参考版 step 标签无指示节点，本库在 label 前保留 muted 圆点
+              （由 chain-of-thought.css 的 __step-indicator 着色），不引入参考版没有的 status/对勾 */}
+          <span aria-hidden="true" className="chain-of-thought__step-indicator" />
           <span className="chain-of-thought__step-label">{label}</span>
         </div>
       )}

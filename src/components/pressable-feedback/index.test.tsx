@@ -114,6 +114,25 @@ describe('PressableFeedback', () => {
     ).toBe('1200ms');
   });
 
+  it('render prop replaces the default RAC Button root, receiving resolved DOM props', () => {
+    render(
+      <PressableFeedback
+        aria-label="custom"
+        render={(props) => <a {...props} href="/go" />}
+      >
+        Go
+      </PressableFeedback>,
+    );
+    // render 覆盖默认 button 根：渲染为 <a>，仍携带合并后的 className 与 data-slot
+    const link = screen.getByRole('link', { name: 'custom' });
+    expect(link.tagName).toBe('A');
+    expect(link).toHaveClass('pressable-feedback');
+    expect(link).toHaveAttribute('data-slot', 'pressable-feedback');
+    expect(link).toHaveAttribute('href', '/go');
+    // 默认 button 不应再出现
+    expect(screen.queryByRole('button')).not.toBeInTheDocument();
+  });
+
   it('has no axe a11y violations', async () => {
     // 按钮的可访问名由消费方提供（aria-label）；反馈层均 aria-hidden，含完整合法结构
     const { container } = render(

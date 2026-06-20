@@ -41,7 +41,10 @@ describe('CellSlider', () => {
     expect(container.querySelector('[data-slot="cell-slider-thumb"]')).toHaveClass(
       'cell-slider__thumb',
     );
-    expect(container.querySelector('[data-slot="cell-slider-label"]')).toHaveTextContent('Volume');
+    const label = container.querySelector('[data-slot="cell-slider-label"]');
+    expect(label).toHaveTextContent('Volume');
+    // 参考版 Label 渲染元素为 <span>（renders-as），锁住别退化成 div
+    expect(label?.tagName).toBe('SPAN');
     // slider role provided by RAC
     expect(screen.getByRole('slider', { name: 'volume' })).toBeInTheDocument();
   });

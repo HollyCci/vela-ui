@@ -48,6 +48,21 @@ describe('NumberStepper', () => {
     expect(spin).toHaveAttribute('aria-valuenow', '5');
   });
 
+  it('emits the root size modifier class matching the documented size (default md)', () => {
+    const { container, rerender } = render(
+      <NumberStepper aria-label="数量" defaultValue={1}>
+        <Parts />
+      </NumberStepper>,
+    );
+    expect(container.querySelector('.number-stepper')).toHaveClass('number-stepper--md');
+    rerender(
+      <NumberStepper aria-label="数量" size="lg" defaultValue={1}>
+        <Parts />
+      </NumberStepper>,
+    );
+    expect(container.querySelector('.number-stepper')).toHaveClass('number-stepper--lg');
+  });
+
   it('renders increment and decrement buttons with size modifier classes', () => {
     render(
       <NumberStepper aria-label="数量" size="lg" defaultValue={1}>

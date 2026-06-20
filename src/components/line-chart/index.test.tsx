@@ -34,4 +34,34 @@ describe('LineChart', () => {
     );
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it('renders root as div[data-slot="line-chart"] (Pro renders-as contract)', () => {
+    const { container } = render(<LineChart data={DATA} height={220} width={400} />);
+    const root = container.querySelector('[data-slot="line-chart"]');
+    expect(root).not.toBeNull();
+    expect(root?.tagName).toBe('DIV');
+    expect(root).toHaveClass('line-chart');
+  });
+
+  it('forwards native div attributes and merges className onto the root', () => {
+    const { container } = render(
+      <LineChart data={DATA} height={220} width={400} className="extra" id="lc" role="img" />,
+    );
+    const root = container.querySelector('[data-slot="line-chart"]');
+    expect(root).toHaveClass('line-chart');
+    expect(root).toHaveClass('extra');
+    expect(root).toHaveAttribute('id', 'lc');
+    expect(root).toHaveAttribute('role', 'img');
+  });
+
+  it('exposes the documented Pro sub-component surface', () => {
+    // Pro API Reference: Line / XAxis / YAxis / Grid / Tooltip / TooltipContent.
+    // Recharts re-exports are forwardRef/memo objects, so assert presence not callability.
+    expect(LineChart.Line).toBeDefined();
+    expect(LineChart.XAxis).toBeDefined();
+    expect(LineChart.YAxis).toBeDefined();
+    expect(LineChart.Grid).toBeDefined();
+    expect(LineChart.Tooltip).toBeDefined();
+    expect(LineChart.TooltipContent).toBeTypeOf('function');
+  });
 });

@@ -56,12 +56,7 @@ export type MarkdownProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | '
   children?: string;
   /** Component overrides for rendered markdown elements. */
   components?: Partial<MarkdownComponents>;
-  /**
-   * 流式追加中：尾部渲染闪烁 caret 占位，根类切换为 --streaming（Streamdown 风格，参考 API，默认 false）。
-   * 未闭合代码围栏仍按既有逻辑兜底渲染。
-   */
-  isStreaming?: boolean;
-  /** Stable block-key seed. */
+  /** Stable block-key seed used for memoized block keys. */
   id?: string;
   className?: string;
   style?: CSSProperties;
@@ -542,21 +537,16 @@ MarkdownBlock.displayName = 'MarkdownBlock';
 /**
  * Markdown root: renders local markdown into the prose container used by AI components.
  * Fenced code defaults to CodeBlock so language labels and copy stay available.
- * isStreaming 为真时尾部追加闪烁 caret 并切根类 --streaming（Streamdown 风格）。
+ * 块级 memo 让流式追加 token 时只重渲染变化的块（线上参考版同款流式性能策略）。
+ * 流式 caret/动画由外层 Streamdown 风格包装负责，不属于本组件 API（对齐线上参考版）。
  */
 const Markdown = forwardRef<HTMLDivElement, MarkdownProps>(
-  ({ children = '', components, isStreaming = false, id, className, ...rest }, ref) => {
+  ({ children = '', components, id, className, ...rest }, ref) => {
     const seed = useMemo(() => id ?? `markdown-${++markdownIdSeed}`, [id]);
     const blocks = useMemo(() => parseBlocks(children, { components }), [children, components]);
 
     return (
-      <div
-        ref={ref}
-        data-slot="markdown"
-        data-streaming={isStreaming ? 'true' : undefined}
-        className={clsx('markdown', isStreaming && 'markdown--streaming', className)}
-        {...rest}
-      >
+      <div ref={ref} data-slot="markdown" className={clsx('markdown', className)} {...rest}>
         {blocks.map((block, index) =>
           block.kind === 'content' ? (
             <MarkdownBlock
@@ -574,9 +564,6 @@ const Markdown = forwardRef<HTMLDivElement, MarkdownProps>(
             />
           ),
         )}
-        {isStreaming ? (
-          <span data-slot="markdown-caret" className="markdown__caret" aria-hidden="true" />
-        ) : null}
       </div>
     );
   },

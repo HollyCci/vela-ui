@@ -23,9 +23,7 @@ describe('ChatConversation', () => {
     render(
       <ChatConversation>
         <ChatConversation.Content>
-          <ChatConversation.Messages>
-            <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
-          </ChatConversation.Messages>
+          <div>Hi</div>
           <ChatConversation.ScrollAnchor />
         </ChatConversation.Content>
       </ChatConversation>,
@@ -35,37 +33,49 @@ describe('ChatConversation', () => {
     expect(root).toHaveClass('chat-conversation');
   });
 
-  it('renders structural slots: content, messages, message, scroll-anchor', () => {
+  it('renders structural slots: content, scroll-anchor (messages are plain children, no wrapper)', () => {
     render(
       <ChatConversation>
         <ChatConversation.Content>
-          <ChatConversation.Messages>
-            <ChatConversation.Message key="m1">Hello</ChatConversation.Message>
-            <ChatConversation.Message key="m2">World</ChatConversation.Message>
-          </ChatConversation.Messages>
+          <div>Hello</div>
+          <div>World</div>
           <ChatConversation.ScrollAnchor />
         </ChatConversation.Content>
       </ChatConversation>,
     );
-    expect(document.querySelector('[data-slot="chat-conversation-content"]')).toBeInTheDocument();
-    expect(document.querySelector('[data-slot="chat-conversation-messages"]')).toBeInTheDocument();
-    expect(document.querySelectorAll('[data-slot="chat-conversation-message"]').length).toBe(2);
+    const content = document.querySelector('[data-slot="chat-conversation-content"]');
+    expect(content).toBeInTheDocument();
+    expect(content).toHaveClass('chat-conversation__content');
     const anchor = document.querySelector('[data-slot="chat-conversation-scroll-anchor"]');
     expect(anchor).toBeInTheDocument();
     expect(anchor).toHaveAttribute('aria-hidden', 'true');
     expect(screen.getByText('Hello')).toBeInTheDocument();
+    // 参考版无 Messages/Message 包裹层：messages 直接作为 Content children，故无此类 data-slot。
+    expect(
+      document.querySelector('[data-slot="chat-conversation-messages"]'),
+    ).not.toBeInTheDocument();
+    expect(
+      document.querySelector('[data-slot="chat-conversation-message"]'),
+    ).not.toBeInTheDocument();
+  });
+
+  it('does not expose Messages / Message sub-components (parity with reference API)', () => {
+    expect(
+      (ChatConversation as unknown as Record<string, unknown>).Messages,
+    ).toBeUndefined();
+    expect(
+      (ChatConversation as unknown as Record<string, unknown>).Message,
+    ).toBeUndefined();
   });
 
   it('ScrollButton container reflects at-bottom state (hidden + disabled in jsdom)', () => {
     render(
       <ChatConversation>
         <ChatConversation.Content>
-          <ChatConversation.Messages>
-            <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
-          </ChatConversation.Messages>
+          <div>Hi</div>
+          <ChatConversation.ScrollButton />
           <ChatConversation.ScrollAnchor />
         </ChatConversation.Content>
-        <ChatConversation.ScrollButton />
       </ChatConversation>,
     );
     // jsdom 下 scrollHeight/clientHeight 为 0 → 视为贴底；容器为 hidden，按钮 disabled。
@@ -116,12 +126,10 @@ describe('ChatConversation', () => {
     const { unmount } = render(
       <ChatConversation>
         <ChatConversation.Content>
-          <ChatConversation.Messages>
-            <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
-          </ChatConversation.Messages>
+          <div>Hi</div>
+          <ChatConversation.ScrollButton />
           <ChatConversation.ScrollAnchor />
         </ChatConversation.Content>
-        <ChatConversation.ScrollButton />
       </ChatConversation>,
     );
 
@@ -148,9 +156,7 @@ describe('ChatConversation', () => {
       render(
         <ChatConversation>
           <ChatConversation.Content>
-            <ChatConversation.Messages>
-              <ChatConversation.Message key="m1">Hi</ChatConversation.Message>
-            </ChatConversation.Messages>
+            <div>Hi</div>
             <ChatConversation.ScrollAnchor />
           </ChatConversation.Content>
         </ChatConversation>,
@@ -162,13 +168,11 @@ describe('ChatConversation', () => {
     const { container } = render(
       <ChatConversation aria-label="Conversation">
         <ChatConversation.Content>
-          <ChatConversation.Messages>
-            <ChatConversation.Message key="m1">Hello</ChatConversation.Message>
-            <ChatConversation.Message key="m2">World</ChatConversation.Message>
-          </ChatConversation.Messages>
+          <div>Hello</div>
+          <div>World</div>
+          <ChatConversation.ScrollButton />
           <ChatConversation.ScrollAnchor />
         </ChatConversation.Content>
-        <ChatConversation.ScrollButton />
       </ChatConversation>,
     );
     expect(await axe(container)).toHaveNoViolations();

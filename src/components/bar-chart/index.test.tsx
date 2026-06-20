@@ -33,4 +33,40 @@ describe('BarChart', () => {
     );
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it('renders root as div.bar-chart with data-slot', () => {
+    const { container } = render(
+      <BarChart data={DATA} height={220} width={400}>
+        <BarChart.Bar dataKey="units" name="Units" />
+      </BarChart>,
+    );
+    const root = container.querySelector('.bar-chart');
+    expect(root).not.toBeNull();
+    expect(root?.tagName).toBe('DIV');
+    expect(root?.getAttribute('data-slot')).toBe('bar-chart');
+  });
+
+  it('exposes exactly the reference API surface (no superset)', () => {
+    // Reference (online Pro) BarChart re-exports: Bar / XAxis / YAxis / Grid /
+    // Tooltip, plus the pre-built TooltipContent renderer. Nothing else.
+    for (const key of ['Bar', 'XAxis', 'YAxis', 'Grid', 'Tooltip', 'TooltipContent']) {
+      expect(key in BarChart).toBe(true);
+      expect((BarChart as Record<string, unknown>)[key]).toBeDefined();
+    }
+    expect(typeof BarChart.TooltipContent).toBe('function');
+
+    // Undocumented Recharts re-exports must NOT be part of the surface.
+    for (const extra of [
+      'Legend',
+      'Brush',
+      'ReferenceLine',
+      'ReferenceArea',
+      'ReferenceDot',
+      'Cell',
+      'Label',
+      'LabelList',
+    ]) {
+      expect(extra in BarChart).toBe(false);
+    }
+  });
 });

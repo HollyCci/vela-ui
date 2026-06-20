@@ -9,7 +9,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type ButtonHTMLAttributes,
   type CSSProperties,
   type FocusEvent as ReactFocusEvent,
   type HTMLAttributes,
@@ -64,7 +63,7 @@ export type FloatingTocProps = {
   children?: ReactNode;
 };
 
-export type FloatingTocTriggerProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'>;
+export type FloatingTocTriggerProps = HTMLAttributes<HTMLSpanElement>;
 
 export type FloatingTocBarProps = HTMLAttributes<HTMLSpanElement> & {
   /** 高亮为当前激活章节 */
@@ -98,7 +97,7 @@ type FloatingTocContextValue = {
   isOpen: boolean;
   placement: FloatingTocPlacement;
   triggerMode: FloatingTocTriggerMode;
-  triggerRef: RefObject<HTMLButtonElement | null>;
+  triggerRef: RefObject<HTMLSpanElement | null>;
   contentRef: RefObject<HTMLElement | null>;
   activeKey: string | undefined;
   itemsByKey: Map<string, FloatingTocItemData>;
@@ -129,7 +128,13 @@ const withLevelVar = (
   return { ...style, ['--floating-toc-level' as string]: level };
 };
 
-const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
+/**
+ * 触发器渲染为 <span>（与线上参考版一致：renders-as span，仅 native span 属性 +
+ * data-placement / data-focus-visible；参考版不带 aria-label/aria-expanded/role/data-open）。
+ * 参考版文档列出 [data-focus-visible] 说明该 span 可聚焦 → 用 tabIndex={0} 保留键盘可达，
+ * press 模式下自行补 Enter/Space 激活（span 无原生按钮语义）。
+ */
+const Trigger = forwardRef<HTMLSpanElement, FloatingTocTriggerProps>(
   (
     {
       className,
@@ -140,7 +145,6 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
       onFocus,
       onBlur,
       onKeyDown,
-      'aria-label': ariaLabel = 'Table of contents',
       children,
       ...rest
     },
@@ -160,7 +164,7 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
     const [isFocusVisible, setIsFocusVisible] = useState(false);
 
     const handleRef = useCallback(
-      (node: HTMLButtonElement | null) => {
+      (node: HTMLSpanElement | null) => {
         triggerRef.current = node;
         if (typeof forwardedRef === 'function') forwardedRef(node);
         else if (forwardedRef !== null) forwardedRef.current = node;
@@ -168,15 +172,7 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
       [forwardedRef, triggerRef],
     );
 
-    const handlePointerEnter = (event: ReactPointerEvent<HTMLButtonElement>) => {
-      onPointerEnter?.(event);
-      if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleOpen();
-    };
-    const handlePointerDown = (event: ReactPointerEvent<HTMLButtonElement>) => {
-      onPointerDown?.(event);
-      if (triggerMode !== 'press') return;
-      event.preventDefault();
-      event.stopPropagation();
+    const toggleNow = () => {
       if (isOpen) {
         closeNow();
         window.setTimeout(closeNow, 0);
@@ -184,49 +180,58 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
         openNow();
       }
     };
-    const handlePointerLeave = (event: ReactPointerEvent<HTMLButtonElement>) => {
+
+    const handlePointerEnter = (event: ReactPointerEvent<HTMLSpanElement>) => {
+      onPointerEnter?.(event);
+      if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleOpen();
+    };
+    const handlePointerDown = (event: ReactPointerEvent<HTMLSpanElement>) => {
+      onPointerDown?.(event);
+      if (triggerMode !== 'press') return;
+      event.preventDefault();
+      event.stopPropagation();
+      toggleNow();
+    };
+    const handlePointerLeave = (event: ReactPointerEvent<HTMLSpanElement>) => {
       onPointerLeave?.(event);
       if (triggerMode === 'hover' && event.pointerType !== 'touch') scheduleClose();
     };
-    const handleClick = (event: ReactMouseEvent<HTMLButtonElement>) => {
+    const handleClick = (event: ReactMouseEvent<HTMLSpanElement>) => {
       onClick?.(event);
-      if (triggerMode === 'press' && event.detail === 0) {
-        if (isOpen) {
-          closeNow();
-          window.setTimeout(closeNow, 0);
-        } else {
-          openNow();
-        }
-      }
+      // 键盘激活的 click（detail===0，testing-library/真实键盘）在 press 模式下切换
+      if (triggerMode === 'press' && event.detail === 0) toggleNow();
     };
     // 仅键盘聚焦立即打开（hover 模式）；鼠标点击产生的 focus 不触发
-    const handleFocus = (event: ReactFocusEvent<HTMLButtonElement>) => {
+    const handleFocus = (event: ReactFocusEvent<HTMLSpanElement>) => {
       onFocus?.(event);
       const visible = event.target.matches(':focus-visible');
       setIsFocusVisible(visible);
       if (triggerMode === 'hover' && visible) openNow();
     };
-    const handleBlur = (event: ReactFocusEvent<HTMLButtonElement>) => {
+    const handleBlur = (event: ReactFocusEvent<HTMLSpanElement>) => {
       onBlur?.(event);
       setIsFocusVisible(false);
       if (triggerMode === 'hover') scheduleClose();
     };
-    const handleKeyDown = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    const handleKeyDown = (event: ReactKeyboardEvent<HTMLSpanElement>) => {
       onKeyDown?.(event);
       if (event.key === 'Escape') {
         closeNow();
+        return;
+      }
+      // span 无原生按钮语义：press 模式下 Enter/Space 自行激活
+      if (triggerMode === 'press' && (event.key === 'Enter' || event.key === ' ')) {
+        event.preventDefault();
+        toggleNow();
       }
     };
 
     return (
-      <button
+      <span
         ref={handleRef}
-        type="button"
-        aria-label={ariaLabel}
-        aria-expanded={isOpen}
+        tabIndex={0}
         data-slot="floating-toc-trigger"
         data-placement={placement}
-        data-open={isOpen || undefined}
         data-focus-visible={isFocusVisible || undefined}
         className={clsx('floating-toc__trigger', className)}
         onPointerDown={handlePointerDown}
@@ -239,7 +244,7 @@ const Trigger = forwardRef<HTMLButtonElement, FloatingTocTriggerProps>(
         {...rest}
       >
         {children}
-      </button>
+      </span>
     );
   },
 );
@@ -427,7 +432,7 @@ const FloatingTocRoot = ({
   const activeKeyRef = useRef(resolvedActiveKey);
   isOpenRef.current = isOpen;
   activeKeyRef.current = resolvedActiveKey;
-  const triggerRef = useRef<HTMLButtonElement | null>(null);
+  const triggerRef = useRef<HTMLSpanElement | null>(null);
   const contentRef = useRef<HTMLElement | null>(null);
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);

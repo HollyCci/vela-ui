@@ -257,7 +257,7 @@ const NumberStepperRoot = ({
       <NumberField
         data-slot="number-stepper"
         formatOptions={formatOptions}
-        className={clsx('number-stepper', className)}
+        className={clsx('number-stepper', `number-stepper--${size}`, className)}
         {...rest}
       >
         {content}

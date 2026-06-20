@@ -14,11 +14,7 @@ import {
   RadialBar,
   Cell,
   PolarAngleAxis,
-  PolarRadiusAxis,
   Tooltip,
-  Legend,
-  Label,
-  LabelList,
 } from 'recharts';
 import ChartTooltip from '../chart-tooltip';
 
@@ -252,15 +248,15 @@ const RadialChartRoot = forwardRef<HTMLDivElement, RadialChartProps>(
 );
 RadialChartRoot.displayName = 'RadialChart';
 
+// 子组件命名空间与线上参考版 1:1：仅暴露文档化的 Bar / Cell / AngleAxis /
+// Tooltip / TooltipContent；不暴露参考版未文档化的 RadiusAxis / Legend / Label /
+// LabelList（保真铁律：不造参考版没有的 superset）。需要这些 recharts 原语时
+// 仍可直接从 recharts 引入并作为 children 传入。
 const RadialChart = Object.assign(RadialChartRoot, {
   Bar: RadialBar,
   Cell,
   AngleAxis: PolarAngleAxis,
-  RadiusAxis: PolarRadiusAxis,
   Tooltip,
-  Legend,
-  Label,
-  LabelList,
   TooltipContent,
 });
 

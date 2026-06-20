@@ -20,7 +20,7 @@ export type ChatListViewProps<T extends object = object> = Omit<
   GridListProps<T>,
   'className' | 'style'
 > & {
-  /** 密度变体：comfortable 显示预览/元信息，compact 隐藏（参考实现 --compact 仅留标题） */
+  /** 密度变体：comfortable 显示预览/元信息，compact 隐藏（线上 Pro 版 --compact 仅留标题） */
   density?: ChatListViewDensity;
   className?: string;
   style?: CSSProperties;
@@ -34,9 +34,8 @@ export type ChatListViewItemProps = Omit<GridListItemProps, 'className' | 'style
 type DivProps = HTMLAttributes<HTMLDivElement>;
 type SpanProps = HTMLAttributes<HTMLSpanElement>;
 
-export type ChatListViewItemContentProps = DivProps;
 export type ChatListViewIconProps = DivProps;
-export type ChatListViewTextProps = DivProps;
+export type ChatListViewItemContentProps = DivProps;
 export type ChatListViewMetaProps = DivProps;
 export type ChatListViewTitleProps = SpanProps;
 export type ChatListViewPreviewProps = SpanProps;
@@ -44,6 +43,16 @@ export type ChatListViewPreviewProps = SpanProps;
 /**
  * 会话/消息列表：基于 RAC GridList，键盘导航与单选高亮（data-selected）由 RAC 提供。
  * 受控选中走 selectedKeys/onSelectionChange，复用 list-view--secondary 的选中态样式。
+ *
+ * 行结构与线上 Pro 版 Anatomy 逐字一致：
+ *   <Item>
+ *     <Icon />
+ *     <ItemContent>           // 文本列：标题 + 预览
+ *       <Title /> <Preview />
+ *     </ItemContent>
+ *     <Meta />                // 可选元信息（日期/未读数），ItemContent 的同级
+ *   </Item>
+ * Icon / Meta 是 ItemContent 的同级，由 .list-view__item（flex 行）排布。
  */
 function ChatListViewRoot<T extends object>({
   density = 'comfortable',
@@ -69,24 +78,13 @@ ChatListViewRoot.displayName = 'ChatListView';
 const Item = ({ className, ...rest }: ChatListViewItemProps) => (
   <GridListItem
     data-slot="chat-list-view-item"
-    className={clsx('list-view__item', className)}
+    className={clsx('list-view__item', 'chat-list-view__item', className)}
     {...rest}
   />
 );
 Item.displayName = 'ChatListView.Item';
 
-/** 行内容外层：容纳 Icon / Text / Meta，对齐快照的 list-view__item-content */
-const ItemContent = forwardRef<HTMLDivElement, ChatListViewItemContentProps>(({ className, ...rest }, ref) => (
-  <div
-    ref={ref}
-    data-slot="chat-list-view-item-content"
-    className={clsx('list-view__item-content', className)}
-    {...rest}
-  />
-));
-ItemContent.displayName = 'ChatListView.ItemContent';
-
-/** 默认会话图标（参考实现快照内联 SVG），未传 children 时回退渲染 */
+/** 默认会话图标（线上 Pro 版快照内联 SVG），未传 children 时回退渲染 */
 const DEFAULT_ICON: ReactNode = (
   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 16 16">
     <path
@@ -98,6 +96,7 @@ const DEFAULT_ICON: ReactNode = (
   </svg>
 );
 
+/** 行首图标槽：ItemContent 的同级（线上 Pro 版结构），未传 children 时回退默认图标 */
 const Icon = forwardRef<HTMLDivElement, ChatListViewIconProps>(({ className, children, ...rest }, ref) => (
   <div
     ref={ref}
@@ -110,16 +109,23 @@ const Icon = forwardRef<HTMLDivElement, ChatListViewIconProps>(({ className, chi
 ));
 Icon.displayName = 'ChatListView.Icon';
 
-/** 标题/预览文本列容器 */
-const Text = forwardRef<HTMLDivElement, ChatListViewTextProps>(({ className, ...rest }, ref) => (
-  <div
-    ref={ref}
-    data-slot="chat-list-view-text"
-    className={clsx('chat-list-view__text', className)}
-    {...rest}
-  />
-));
-Text.displayName = 'ChatListView.Text';
+/**
+ * 文本内容包裹：标题 + 预览（线上 Pro 版 .chat-list-view__item-content = "Row text content"）。
+ * 复用 .chat-list-view__text 的纵向 flex 列布局（flex-direction:column / min-width:0），
+ * 占据行内剩余空间（flex:1）以便标题/预览溢出省略。
+ */
+const ItemContent = forwardRef<HTMLDivElement, ChatListViewItemContentProps>(
+  ({ className, style, ...rest }, ref) => (
+    <div
+      ref={ref}
+      data-slot="chat-list-view-item-content"
+      className={clsx('chat-list-view__item-content', 'chat-list-view__text', className)}
+      style={{ flex: 1, ...style }}
+      {...rest}
+    />
+  ),
+);
+ItemContent.displayName = 'ChatListView.ItemContent';
 
 const Title = forwardRef<HTMLSpanElement, ChatListViewTitleProps>(({ className, ...rest }, ref) => (
   <span
@@ -153,9 +159,8 @@ Meta.displayName = 'ChatListView.Meta';
 
 const ChatListView = Object.assign(ChatListViewRoot, {
   Item,
-  ItemContent,
   Icon,
-  Text,
+  ItemContent,
   Title,
   Preview,
   Meta,

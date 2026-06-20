@@ -35,6 +35,8 @@ export type DataGridSortDirection = SortDirection;
 export type DataGridVariant = 'primary' | 'secondary';
 export type DataGridAlign = 'start' | 'center' | 'end';
 export type DataGridPinnedSide = 'left' | 'right';
+/** 参考版列固定方向取值（start/end）；内部映射到 left/right（见 resolvePinnedSide） */
+export type DataGridPinnedEdge = 'start' | 'end';
 
 /** 排序状态信息，传给 header 渲染函数（参考 API） */
 export type DataGridSortInfo = {
@@ -49,6 +51,16 @@ export type DataGridRowReorderEvent<TRow> = {
   dropPosition: DataGridRowReorderPosition;
   orderedKeys: Key[];
   orderedRows: TRow[];
+};
+
+/** 参考版 onReorder 的事件对象形状 */
+export type DataGridReorderEvent<TRow> = {
+  /** 被移动的行 key 集合 */
+  keys: Set<Key>;
+  /** 落点目标行与相对位置 */
+  target: { key: Key; dropPosition: DataGridRowReorderPosition };
+  /** 重排后的完整数据数组 */
+  reorderedData: TRow[];
 };
 
 export type DataGridExpandedKeys = 'all' | Iterable<Key>;
@@ -161,12 +173,16 @@ export type DataGridColumn<TRow> = {
   sortFn?: (a: TRow, b: TRow) => number;
   /** 单元格对齐，end/center 通过 data-align 输出 */
   align?: DataGridAlign;
-  /** 固定列方向，组件负责 th/td sticky offset 与边界阴影 */
+  /** 固定列方向（内部取值 left/right；组件负责 th/td sticky offset 与边界阴影） */
   pin?: DataGridPinnedSide;
+  /** 固定列方向（参考版命名，start=left / end=right；与 pin 二选一，pinned 优先） */
+  pinned?: DataGridPinnedEdge;
   /** 初始/受控列宽（px / % / fr） */
   width?: ColumnWidth;
   /** 允许被 DataGrid 的列宽手柄拖拽调整；未配置时跟随 enableColumnResizing */
   resizable?: boolean;
+  /** 允许列宽拖拽（参考版命名，等同 resizable；二选一时 allowsResizing 优先） */
+  allowsResizing?: boolean;
   /** 列宽拖拽最小宽度（px） */
   minWidth?: number;
   /** 列宽拖拽最大宽度（px） */
@@ -203,6 +219,8 @@ export type DataGridProps<TRow extends object> = Omit<
   defaultSelectedKeys?: Selection;
   /** 选择变化回调 */
   onSelectionChange?: (keys: Selection) => void;
+  /** 选择交互模型（参考版命名）：toggle 叠加 / replace 替换。透传给底座 Table.Content */
+  selectionBehavior?: 'toggle' | 'replace';
   /** 自动前置选择 checkbox 列 */
   showSelectionCheckboxes?: boolean;
   /** 启用行拖拽重排 */
@@ -211,6 +229,8 @@ export type DataGridProps<TRow extends object> = Omit<
   showRowDragHandles?: boolean;
   /** 行拖拽重排回调，调用方据 orderedKeys/orderedRows 写回 data */
   onRowReorder?: (orderedKeys: Key[], event: DataGridRowReorderEvent<TRow>) => void;
+  /** 行重排回调（参考版命名/形状），与 onRowReorder 同时触发，二者可任选其一消费 */
+  onReorder?: (event: DataGridReorderEvent<TRow>) => void;
   /** 展开的行 key（传 "all" 展开所有可展开行） */
   expandedKeys?: DataGridExpandedKeys;
   /** 默认展开的行 key */
@@ -228,6 +248,8 @@ export type DataGridProps<TRow extends object> = Omit<
   expandColumnId?: string;
   /** 启用列宽拖拽调整 */
   enableColumnResizing?: boolean;
+  /** 启用列宽拖拽调整（参考版命名，等同 enableColumnResizing；二选一时 allowsColumnResize 优先） */
+  allowsColumnResize?: boolean;
   /** 受控列宽（px） */
   columnWidths?: DataGridColumnWidths;
   /** 默认列宽（px） */
@@ -238,6 +260,8 @@ export type DataGridProps<TRow extends object> = Omit<
   virtualized?: boolean;
   /** 虚拟化估算行高 */
   virtualRowHeight?: number;
+  /** 虚拟化估算行高（参考版命名，等同 virtualRowHeight；二选一时 rowHeight 优先） */
+  rowHeight?: number;
   /** 虚拟化窗口上下额外渲染的行数 */
   virtualOverscan?: number;
   /** 虚拟化滚动容器最大高度 */
@@ -345,6 +369,22 @@ const sumCssLengths = (lengths: string[]) => {
 
 const getPinnedStyle = (meta: DataGridPinnedMeta | undefined): DataGridPinnedStyle | undefined =>
   meta === undefined ? undefined : { '--data-grid-pinned-offset': meta.offset };
+
+/**
+ * 解析列固定方向：优先参考版命名 pinned（start/end），回退旧命名 pin（left/right）。
+ * 统一映射到内部 left/right，使发出的 data-pinned 与已锁定的 CSS 分片选择器（[data-pinned=left|right]）兼容。
+ */
+const resolvePinnedSide = <TRow,>(
+  column: DataGridColumn<TRow>,
+): DataGridPinnedSide | undefined => {
+  if (column.pinned === 'start') return 'left';
+  if (column.pinned === 'end') return 'right';
+  return column.pin;
+};
+
+/** 解析列是否允许拖拽列宽：优先参考版命名 allowsResizing，回退旧命名 resizable */
+const resolveColumnResizable = <TRow,>(column: DataGridColumn<TRow>): boolean | undefined =>
+  column.allowsResizing ?? column.resizable;
 
 /** 选择 checkbox（参考实现在选择列/行内用 slot="selection" 的 OSS Checkbox） */
 const DataGridSelectionCheckbox = () => (
@@ -461,6 +501,7 @@ function DataGrid<TRow extends object>({
   variant = 'primary',
   verticalAlign = 'middle',
   selectionMode = 'none',
+  selectionBehavior,
   selectedKeys,
   defaultSelectedKeys,
   onSelectionChange,
@@ -468,6 +509,7 @@ function DataGrid<TRow extends object>({
   enableRowReordering = false,
   showRowDragHandles = true,
   onRowReorder,
+  onReorder,
   expandedKeys,
   defaultExpandedKeys,
   onExpandedChange,
@@ -475,11 +517,13 @@ function DataGrid<TRow extends object>({
   renderExpandedContent,
   expandColumnId,
   enableColumnResizing = false,
+  allowsColumnResize,
   columnWidths,
   defaultColumnWidths,
   onColumnResize,
   virtualized = false,
   virtualRowHeight = DEFAULT_VIRTUAL_ROW_HEIGHT,
+  rowHeight,
   virtualOverscan = DEFAULT_VIRTUAL_OVERSCAN,
   virtualMaxHeight = DEFAULT_VIRTUAL_MAX_HEIGHT,
   onVirtualRangeChange,
@@ -539,13 +583,18 @@ function DataGrid<TRow extends object>({
   const [horizontalScrollLeft, setHorizontalScrollLeft] = useState(0);
   const [horizontalScrollMaxLeft, setHorizontalScrollMaxLeft] = useState(0);
 
+  // 参考版命名别名解析：新命名（allowsColumnResize/rowHeight）若提供则优先，否则回退旧命名
+  const effectiveColumnResizing = allowsColumnResize ?? enableColumnResizing;
+  const effectiveVirtualRowHeight = rowHeight ?? virtualRowHeight;
+
   // 受控排序：外部提供 sortDescriptor → 不在本地重排，交由调用方处理（服务端排序）
   const isControlledSort = sortDescriptor !== undefined;
   const isControlledExpanded = expandedKeys !== undefined;
   const isControlledColumnWidths = columnWidths !== undefined;
   const activeSort = sortDescriptor ?? internalSortDescriptor;
   const withSelection = showSelectionCheckboxes && selectionMode !== 'none';
-  const withRowReordering = enableRowReordering && onRowReorder !== undefined;
+  const withRowReordering =
+    enableRowReordering && (onRowReorder !== undefined || onReorder !== undefined);
   const withDragHandles = withRowReordering && showRowDragHandles;
   const withExpandableRows = renderExpandedContent !== undefined;
   const activeExpandColumnId = expandColumnId ?? columns[0]?.id;
@@ -553,8 +602,8 @@ function DataGrid<TRow extends object>({
   const getColumnWidth = (column: DataGridColumn<TRow>): ColumnWidth | undefined =>
     activeColumnWidths[column.id] ?? column.width;
   const isVirtualized = virtualized && data.length > 0;
-  const leftPinnedColumns = columns.filter((column) => column.pin === 'left');
-  const rightPinnedColumns = columns.filter((column) => column.pin === 'right');
+  const leftPinnedColumns = columns.filter((column) => resolvePinnedSide(column) === 'left');
+  const rightPinnedColumns = columns.filter((column) => resolvePinnedSide(column) === 'right');
   const hasLeftPinnedColumns = leftPinnedColumns.length > 0;
   const hasPinnedColumns = hasLeftPinnedColumns || rightPinnedColumns.length > 0;
   const shouldPinLeadingUtilityColumns = hasLeftPinnedColumns && (withDragHandles || withSelection);
@@ -576,7 +625,7 @@ function DataGrid<TRow extends object>({
     leftOffsetParts.push('var(--data-grid-selection-column-width)');
   }
   for (const column of columns) {
-    if (column.pin !== 'left') continue;
+    if (resolvePinnedSide(column) !== 'left') continue;
     pinnedColumnMeta.set(column.id, {
       side: 'left',
       offset: sumCssLengths(leftOffsetParts),
@@ -587,7 +636,7 @@ function DataGrid<TRow extends object>({
   const rightOffsetParts: string[] = [];
   const firstRightPinnedId = rightPinnedColumns[0]?.id;
   for (const column of [...columns].reverse()) {
-    if (column.pin !== 'right') continue;
+    if (resolvePinnedSide(column) !== 'right') continue;
     pinnedColumnMeta.set(column.id, {
       side: 'right',
       offset: sumCssLengths(rightOffsetParts),
@@ -595,7 +644,7 @@ function DataGrid<TRow extends object>({
     });
     rightOffsetParts.push(toCssLength(getColumnWidth(column)));
   }
-  const safeVirtualRowHeight = Math.max(1, virtualRowHeight);
+  const safeVirtualRowHeight = Math.max(1, effectiveVirtualRowHeight);
   const safeVirtualOverscan = Math.max(0, Math.floor(virtualOverscan));
   onVirtualRangeChangeRef.current = onVirtualRangeChange;
   const handleSortChange = (descriptor: SortDescriptor) => {
@@ -955,6 +1004,11 @@ function DataGrid<TRow extends object>({
       orderedKeys,
       orderedRows,
     });
+    onReorder?.({
+      keys: new Set([activeDraggedKey]),
+      target: { key: activeDropTarget.key, dropPosition: activeDropTarget.position },
+      reorderedData: orderedRows,
+    });
     clearDragState();
   };
 
@@ -1072,7 +1126,7 @@ function DataGrid<TRow extends object>({
       resizeObserver?.disconnect();
       node.removeEventListener('scroll', updateScrollMetrics);
     };
-  }, [isVirtualized, hasPinnedColumns, virtualMaxHeight, enableColumnResizing]);
+  }, [isVirtualized, hasPinnedColumns, virtualMaxHeight, effectiveColumnResizing]);
 
   useEffect(() => {
     if (!isVirtualized) return;
@@ -1398,6 +1452,7 @@ function DataGrid<TRow extends object>({
       aria-label={ariaLabel}
       className={contentClassName}
       selectionMode={selectionMode}
+      selectionBehavior={selectionBehavior}
       selectedKeys={selectedKeys}
       defaultSelectedKeys={defaultSelectedKeys}
       onSelectionChange={onSelectionChange}
@@ -1431,7 +1486,8 @@ function DataGrid<TRow extends object>({
           const isSorted = activeSort?.column === column.id;
           const sortDirection = isSorted ? activeSort?.direction : undefined;
           const pinnedMeta = pinnedColumnMeta.get(column.id);
-          const isColumnResizable = enableColumnResizing && column.resizable !== false;
+          const isColumnResizable =
+            effectiveColumnResizing && resolveColumnResizable(column) !== false;
           const headerNode =
             typeof column.header === 'function'
               ? column.header({ sortDirection })
@@ -1502,7 +1558,7 @@ function DataGrid<TRow extends object>({
       style={rootStyle}
       {...rest}
     >
-      {enableColumnResizing ? (
+      {effectiveColumnResizing ? (
         <Table.ResizableContainer {...scrollContainerProps} onResize={handleColumnResize}>
           {tableContent}
         </Table.ResizableContainer>

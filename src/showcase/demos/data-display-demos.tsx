@@ -4737,25 +4737,25 @@ const TIMELINE_VARIANT_ITEMS: Record<TimelineVariantKey, Array<{
   title: string;
   description: string;
   time: string;
-  status?: 'default' | 'accent' | 'success' | 'warning' | 'danger' | 'muted';
+  status?: 'default' | 'current' | 'success' | 'warning' | 'danger' | 'muted';
 }>> = {
   default: [
-    { title: 'Imported customer notes', description: '42 interview highlights were attached to the opportunity.', time: '09:18', status: 'accent' },
+    { title: 'Imported customer notes', description: '42 interview highlights were attached to the opportunity.', time: '09:18', status: 'current' },
     { title: 'Assigned follow-up owner', description: 'Mia Chen will prepare the next review agenda.', time: '10:04', status: 'success' },
     { title: 'Shared summary', description: 'Stakeholders received the product feedback digest.', time: '11:30', status: 'default' },
   ],
   'centered-milestones': [
     { title: 'Discovery', description: 'Research synthesis and success metrics were locked.', time: 'Week 1', status: 'success' },
-    { title: 'Prototype', description: 'Interaction model and component inventory are in review.', time: 'Week 2', status: 'accent' },
+    { title: 'Prototype', description: 'Interaction model and component inventory are in review.', time: 'Week 2', status: 'current' },
     { title: 'Release', description: 'Public changelog and migration notes are queued.', time: 'Week 3', status: 'muted' },
   ],
   'studio-review': [
     { title: 'Scene approved', description: 'Primary animation timing matches the reference handoff.', time: '09:40', status: 'success' },
     { title: 'Copy pass requested', description: 'Shorten the empty-state paragraph before final export.', time: '10:15', status: 'warning' },
-    { title: 'Ready for QA', description: 'Responsive checks are assigned to the frontend owner.', time: '11:05', status: 'accent' },
+    { title: 'Ready for QA', description: 'Responsive checks are assigned to the frontend owner.', time: '11:05', status: 'current' },
   ],
   'compact-log': [
-    { title: 'Build started', description: 'Preview build picked up commit 8f4c2a1.', time: '12:01', status: 'accent' },
+    { title: 'Build started', description: 'Preview build picked up commit 8f4c2a1.', time: '12:01', status: 'current' },
     { title: 'Checks passed', description: 'Types, lint, and visual smoke checks are green.', time: '12:04', status: 'success' },
     { title: 'Deploy queued', description: 'Production promotion waits for reviewer approval.', time: '12:06', status: 'muted' },
   ],
@@ -4766,17 +4766,17 @@ const TIMELINE_VARIANT_ITEMS: Record<TimelineVariantKey, Array<{
   ],
   'version-history': [
     { title: 'v0.4.0 published', description: 'Added controlled sheet snap points and grouped command actions.', time: 'Jun 18', status: 'success' },
-    { title: 'v0.3.2 patched', description: 'Fixed keyboard navigation in nested menus.', time: 'Jun 13', status: 'accent' },
+    { title: 'v0.3.2 patched', description: 'Fixed keyboard navigation in nested menus.', time: 'Jun 13', status: 'current' },
     { title: 'v0.3.0 released', description: 'Introduced AI message and source components.', time: 'Jun 08', status: 'muted' },
   ],
   'repository-activity': [
-    { title: 'Opened pull request', description: 'feat(showcase): add timeline parity demos.', time: '2m ago', status: 'accent' },
+    { title: 'Opened pull request', description: 'feat(showcase): add timeline parity demos.', time: '2m ago', status: 'current' },
     { title: 'Requested review', description: 'Design and accessibility reviewers were assigned.', time: '5m ago', status: 'warning' },
     { title: 'Merged dependency update', description: 'UI library patch release was consumed by the build.', time: '1h ago', status: 'success' },
   ],
   'split-content': [
     { title: 'Plan', description: 'Scope the component slots and API surface.', time: 'Step 1', status: 'success' },
-    { title: 'Implement', description: 'Wire visual states, actions, and keyboard semantics.', time: 'Step 2', status: 'accent' },
+    { title: 'Implement', description: 'Wire visual states, actions, and keyboard semantics.', time: 'Step 2', status: 'current' },
     { title: 'Verify', description: 'Compare against the reference and record parity gaps.', time: 'Step 3', status: 'muted' },
   ],
 };
@@ -4785,7 +4785,7 @@ const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
   const [message, setMessage] = useState('No timeline event selected yet');
   const axis = variant === 'centered-milestones' || variant === 'split-content' ? 'center' : 'start';
   const placement = variant === 'centered-milestones' ? 'alternate' : variant === 'split-content' ? 'alternate' : 'end';
-  const density = variant === 'compact-log' ? 'compact' : variant === 'incident-response' ? 'spacious' : 'default';
+  const density = variant === 'compact-log' ? 'compact' : 'comfortable';
   const size = variant === 'centered-milestones' ? 'lg' : variant === 'compact-log' ? 'sm' : 'md';
   const items = TIMELINE_VARIANT_ITEMS[variant];
 
@@ -4802,11 +4802,10 @@ const TimelineVariantDemo = ({ variant }: { variant: TimelineVariantKey }) => {
         {items.map((item, index) => (
           <Timeline.Item
             key={item.title}
-            status={item.status}
-            isCurrent={variant === 'incident-response' && index === 1}
+            status={variant === 'incident-response' && index === 1 ? 'current' : item.status}
           >
             <Timeline.Rail>
-              <Timeline.Marker pulse={variant === 'incident-response' && index === 1}>
+              <Timeline.Marker>
                 {variant === 'centered-milestones' ? index + 1 : null}
               </Timeline.Marker>
               <Timeline.Connector />

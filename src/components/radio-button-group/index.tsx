@@ -107,7 +107,13 @@ const Indicator = ({ className, children, ...rest }: RadioButtonGroupIndicatorPr
 };
 Indicator.displayName = 'RadioButtonGroup.Indicator';
 
-/** 包装 OSS Radio.Content 的文本内容区 */
+/**
+ * 文本内容区 —— 包装 OSS Radio.Content（底座 RAC RadioButton）。
+ * 对参考版的有意偏差：参考文档把 ItemContent 的 renders-as 标为 `div`，但 Radio.Content 必须是
+ * RadioButton（渲染 `label`）才能让整张卡片可点击选中、并承载选中/焦点的 RAC 渲染态
+ * （data-selected / data-focus-visible，CSS 依赖之）。改成裸 div 会丢点击选中 + a11y。
+ * 故保留 label 语义（与同族 checkbox-button-group 的 ItemContent 一致），props 仍为原生属性透传。
+ */
 const ItemContent = ({ className, ...rest }: RadioButtonGroupItemContentProps) => (
   <Radio.Content
     data-slot="radio-button-group-item-content"

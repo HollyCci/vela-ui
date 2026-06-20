@@ -619,9 +619,12 @@ AgendaRoot.displayName = 'Agenda';
 
 export type AgendaSectionProps = HTMLAttributes<HTMLDivElement>;
 
-const Header = forwardRef<HTMLElement, HTMLAttributes<HTMLElement>>(
+// 渲染元素对齐线上 Pro 版：Header 渲染 div（Pro 文档「supports all HTML div props」），
+// 而非 <header>。<header> 未嵌套于 sectioning content 时会隐式成为 banner landmark——
+// 这是 Pro 没有的角色，照抄会让无障碍审计判我们「比 Pro 多 landmark」；div 与 Pro 一致且 axe 干净。
+const Header = forwardRef<HTMLDivElement, HTMLAttributes<HTMLDivElement>>(
   ({ className, ...rest }, ref) => (
-    <header
+    <div
       ref={ref}
       data-slot="agenda-header"
       className={clsx('agenda__header', className)}

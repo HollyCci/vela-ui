@@ -29,6 +29,8 @@ export type AppLayoutSidebarVariant = 'sidebar' | 'floating' | 'inset';
 export type AppLayoutSidebarCollapsible = 'icon' | 'offcanvas' | 'none';
 export type AppLayoutScrollMode = 'page' | 'content';
 export type AppLayoutAsideMobile = 'hidden' | 'sheet';
+/** resizable 面板在窗口尺寸变化时的保持策略（参考实现 sidebar/aside ResizeBehavior） */
+export type AppLayoutResizeBehavior = 'preserve-relative-size' | 'preserve-pixel-size';
 
 /** 同时供 MenuToggle / AsideTrigger 的内部 Tooltip 透传（参考实现 AppLayoutTooltipProps） */
 export type AppLayoutTooltipProps = {
@@ -81,13 +83,18 @@ export type AppLayoutProps = Omit<HTMLAttributes<HTMLDivElement>, 'className' | 
 
   // —— 可调整尺寸（resizable）——
   sidebarResizable?: boolean;
-  sidebarDefaultSize?: number;
-  sidebarMinSize?: number;
-  sidebarMaxSize?: number;
+  /** 侧栏初始尺寸（百分比数字，或 CSS 单位字符串，参考实现 number | string） */
+  sidebarDefaultSize?: number | string;
+  sidebarMinSize?: number | string;
+  sidebarMaxSize?: number | string;
+  /** 侧栏面板在窗口尺寸变化时的保持策略（参考实现默认 preserve-relative-size） */
+  sidebarResizeBehavior?: AppLayoutResizeBehavior;
   asideResizable?: boolean;
-  asideDefaultSize?: number;
-  asideMinSize?: number;
-  asideMaxSize?: number;
+  asideDefaultSize?: number | string;
+  asideMinSize?: number | string;
+  asideMaxSize?: number | string;
+  /** aside 面板在窗口尺寸变化时的保持策略（参考实现默认 preserve-relative-size） */
+  asideResizeBehavior?: AppLayoutResizeBehavior;
   resizableAutoSaveId?: string;
 
   /** page：window/body 滚动；content：仅主列滚动、外壳钉死视口 */
@@ -231,6 +238,19 @@ const useControllableOpen = (
   return [open, set];
 };
 
+/**
+ * 把参考实现的 `number | string` 尺寸 prop 归一成 Resizable 引擎要的百分比数字。
+ * 数字直接用；字符串取前导数值（如 "18%" / "240px" → 18 / 240），无法解析则回退默认值。
+ */
+const toPanelSize = (size: number | string | undefined, fallback: number): number => {
+  if (typeof size === 'number') return size;
+  if (typeof size === 'string') {
+    const parsed = Number.parseFloat(size);
+    if (!Number.isNaN(parsed)) return parsed;
+  }
+  return fallback;
+};
+
 const isMobileAsideElement = (node: ReactNode): node is ReactElement<AppLayoutMobileAsideProps> => {
   if (node === null || typeof node !== 'object' || !('type' in node)) return false;
   const type = (node as ReactElement).type as unknown as { $$typeof?: symbol };
@@ -285,10 +305,12 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
       sidebarDefaultSize = 18,
       sidebarMinSize = 12,
       sidebarMaxSize = 30,
+      sidebarResizeBehavior = 'preserve-relative-size',
       asideResizable = false,
       asideDefaultSize = 20,
       asideMinSize = 15,
       asideMaxSize = 40,
+      asideResizeBehavior = 'preserve-relative-size',
       resizableAutoSaveId,
       scrollMode = 'page',
       className,
@@ -486,8 +508,11 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
     ) : null;
 
     const shouldRenderAsidePanel = hasAside && (!isResizable || isAsideOpen);
-    const sidebarPanelSize = hasSidebar ? sidebarDefaultSize : 0;
-    const asidePanelSize = shouldRenderAsidePanel ? asideDefaultSize : 0;
+    // 参考实现尺寸 prop 为 number | string，归一成引擎要的百分比数字
+    const sidebarDefaultSizeNum = toPanelSize(sidebarDefaultSize, 18);
+    const asideDefaultSizeNum = toPanelSize(asideDefaultSize, 20);
+    const sidebarPanelSize = hasSidebar ? sidebarDefaultSizeNum : 0;
+    const asidePanelSize = shouldRenderAsidePanel ? asideDefaultSizeNum : 0;
     const mainPanelDefaultSize = Math.max(1, 100 - sidebarPanelSize - asidePanelSize);
 
     // resizable 模式：走项目 Resizable 封装，保留 app-layout__resizable + *-panel 快照结构
@@ -502,9 +527,9 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
           <Resizable.Panel
             id="app-layout-sidebar"
             data-testid="app-layout-sidebar"
-            defaultSize={sidebarDefaultSize}
-            minSize={resolvedSidebarResizable ? sidebarMinSize : undefined}
-            maxSize={resolvedSidebarResizable ? sidebarMaxSize : undefined}
+            defaultSize={sidebarDefaultSizeNum}
+            minSize={resolvedSidebarResizable ? toPanelSize(sidebarMinSize, 12) : undefined}
+            maxSize={resolvedSidebarResizable ? toPanelSize(sidebarMaxSize, 30) : undefined}
             disabled={!resolvedSidebarResizable}
             className="app-layout__sidebar-panel"
             data-state={sidebarState}
@@ -530,9 +555,9 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
           <Resizable.Panel
             id="app-layout-aside"
             data-testid="app-layout-aside"
-            defaultSize={asideDefaultSize}
-            minSize={resolvedAsideResizable ? asideMinSize : undefined}
-            maxSize={resolvedAsideResizable ? asideMaxSize : undefined}
+            defaultSize={asideDefaultSizeNum}
+            minSize={resolvedAsideResizable ? toPanelSize(asideMinSize, 15) : undefined}
+            maxSize={resolvedAsideResizable ? toPanelSize(asideMaxSize, 40) : undefined}
             disabled={!resolvedAsideResizable}
             className="app-layout__aside-panel"
           >
@@ -561,6 +586,8 @@ const AppLayoutRoot = forwardRef<HTMLDivElement, AppLayoutProps>(
           data-sidebar-variant={sidebarVariant}
           data-sidebar-collapsible={sidebarCollapsible}
           data-sidebar-state={sidebarState}
+          data-sidebar-resize-behavior={resolvedSidebarResizable ? sidebarResizeBehavior : undefined}
+          data-aside-resize-behavior={resolvedAsideResizable ? asideResizeBehavior : undefined}
           data-reduce-motion={reduceMotion ? '' : undefined}
           className={clsx('app-layout', className)}
           style={rootStyle}

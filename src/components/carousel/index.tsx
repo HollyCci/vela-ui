@@ -318,6 +318,10 @@ const Thumbnails = forwardRef<HTMLDivElement, CarouselThumbnailsProps>(
         ref={ref}
         orientation="horizontal"
         hideScrollBar
+        // 对参考版的有意偏差（a11y 干净优先）：参考版把 Thumbnails 标 role="tablist"，但其
+        // Thumbnail 子项基座是 react-aria-components Button，会主动剥离 role/aria-selected
+        // （已实测：role=null、aria-selected=null），无法成为合法 role="tab" 子项。
+        // tablist 缺少 tab 子项会触发 axe `aria-required-children` 违规，故保留 role="group"。
         role="group"
         aria-label="Slide thumbnails"
         data-slot="carousel-thumbnails"

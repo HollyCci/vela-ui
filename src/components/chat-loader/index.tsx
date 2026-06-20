@@ -5,7 +5,17 @@ import SpinnerBase from '../spinner';
 export type ChatLoaderVariant = 'dots' | 'pulse' | 'skeleton' | 'spinner';
 export type ChatLoaderSize = 'sm' | 'md' | 'lg';
 
-export type ChatLoaderBaseProps = HTMLAttributes<HTMLSpanElement> & {
+/*
+ * 渲染元素对齐线上 Pro 版：所有子组件（Dots / Pulse / Spinner / Skeleton /
+ * SkeletonAvatar / SkeletonBlock / SkeletonLine）都是结构 primitive，
+ * 「Supports native `div` props」——故 renders-as = div，props 继承原生 div 属性。
+ * div↔span 切换不触发 a11y 冲突，CSS 锁的是 .chat-loader__* 类名而非标签，视觉零变化。
+ *
+ * 有意偏差：Pro API 表未列 `label`/`role="status"`。本库门禁跑 axe，
+ * 纯动画 div 无可访问名会被判为无标签状态控件 → 保留 `role="status"` + `aria-label`
+ * （由 `label` 提供，默认「加载中」）以保 axe 0 违规。仅此一处 a11y 偏差，不外扩。
+ */
+export type ChatLoaderBaseProps = HTMLAttributes<HTMLDivElement> & {
   size?: ChatLoaderSize;
   label?: string;
 };
@@ -18,21 +28,21 @@ export type ChatLoaderSkeletonProps = ChatLoaderBaseProps & {
   children?: ReactNode;
 };
 
-export type ChatLoaderSkeletonAvatarProps = HTMLAttributes<HTMLSpanElement> & {
+export type ChatLoaderSkeletonAvatarProps = HTMLAttributes<HTMLDivElement> & {
   size?: ChatLoaderSize;
 };
 
-export type ChatLoaderSkeletonLineProps = HTMLAttributes<HTMLSpanElement> & {
+export type ChatLoaderSkeletonLineProps = HTMLAttributes<HTMLDivElement> & {
   size?: ChatLoaderSize;
 };
 
-export type ChatLoaderSkeletonBlockProps = HTMLAttributes<HTMLSpanElement>;
+export type ChatLoaderSkeletonBlockProps = HTMLAttributes<HTMLDivElement>;
 
 const SKELETON_LINE_COUNT = 3;
 
-const ChatLoaderDots = forwardRef<HTMLSpanElement, ChatLoaderBaseProps>(
+const ChatLoaderDots = forwardRef<HTMLDivElement, ChatLoaderBaseProps>(
   ({ size = 'md', label = '加载中', className, ...rest }, ref) => (
-    <span
+    <div
       ref={ref}
       role="status"
       aria-label={label}
@@ -42,15 +52,15 @@ const ChatLoaderDots = forwardRef<HTMLSpanElement, ChatLoaderBaseProps>(
       <span className="chat-loader__dot" />
       <span className="chat-loader__dot" />
       <span className="chat-loader__dot" />
-    </span>
+    </div>
   ),
 );
 
 ChatLoaderDots.displayName = 'ChatLoader.Dots';
 
-const ChatLoaderPulse = forwardRef<HTMLSpanElement, ChatLoaderBaseProps>(
+const ChatLoaderPulse = forwardRef<HTMLDivElement, ChatLoaderBaseProps>(
   ({ size = 'md', label = '加载中', className, ...rest }, ref) => (
-    <span
+    <div
       ref={ref}
       role="status"
       aria-label={label}
@@ -62,9 +72,9 @@ const ChatLoaderPulse = forwardRef<HTMLSpanElement, ChatLoaderBaseProps>(
 
 ChatLoaderPulse.displayName = 'ChatLoader.Pulse';
 
-const ChatLoaderSpinner = forwardRef<HTMLSpanElement, Omit<ChatLoaderBaseProps, 'size'>>(
+const ChatLoaderSpinner = forwardRef<HTMLDivElement, Omit<ChatLoaderBaseProps, 'size'>>(
   ({ label = '加载中', className, ...rest }, ref) => (
-    <span
+    <div
       ref={ref}
       role="status"
       aria-label={label}
@@ -72,15 +82,15 @@ const ChatLoaderSpinner = forwardRef<HTMLSpanElement, Omit<ChatLoaderBaseProps, 
       {...rest}
     >
       <SpinnerBase />
-    </span>
+    </div>
   ),
 );
 
 ChatLoaderSpinner.displayName = 'ChatLoader.Spinner';
 
-const ChatLoaderSkeletonAvatar = forwardRef<HTMLSpanElement, ChatLoaderSkeletonAvatarProps>(
+const ChatLoaderSkeletonAvatar = forwardRef<HTMLDivElement, ChatLoaderSkeletonAvatarProps>(
   ({ size = 'md', className, ...rest }, ref) => (
-    <span
+    <div
       ref={ref}
       className={clsx(
         'chat-loader__skeleton-avatar',
@@ -94,9 +104,9 @@ const ChatLoaderSkeletonAvatar = forwardRef<HTMLSpanElement, ChatLoaderSkeletonA
 
 ChatLoaderSkeletonAvatar.displayName = 'ChatLoader.SkeletonAvatar';
 
-const ChatLoaderSkeletonLine = forwardRef<HTMLSpanElement, ChatLoaderSkeletonLineProps>(
+const ChatLoaderSkeletonLine = forwardRef<HTMLDivElement, ChatLoaderSkeletonLineProps>(
   ({ size = 'md', className, ...rest }, ref) => (
-    <span
+    <div
       ref={ref}
       className={clsx(
         'chat-loader__skeleton-line',
@@ -110,15 +120,15 @@ const ChatLoaderSkeletonLine = forwardRef<HTMLSpanElement, ChatLoaderSkeletonLin
 
 ChatLoaderSkeletonLine.displayName = 'ChatLoader.SkeletonLine';
 
-const ChatLoaderSkeletonBlock = forwardRef<HTMLSpanElement, ChatLoaderSkeletonBlockProps>(
+const ChatLoaderSkeletonBlock = forwardRef<HTMLDivElement, ChatLoaderSkeletonBlockProps>(
   ({ className, ...rest }, ref) => (
-    <span ref={ref} className={clsx('chat-loader__skeleton-block', className)} {...rest} />
+    <div ref={ref} className={clsx('chat-loader__skeleton-block', className)} {...rest} />
   ),
 );
 
 ChatLoaderSkeletonBlock.displayName = 'ChatLoader.SkeletonBlock';
 
-const ChatLoaderSkeleton = forwardRef<HTMLSpanElement, ChatLoaderSkeletonProps>(
+const ChatLoaderSkeleton = forwardRef<HTMLDivElement, ChatLoaderSkeletonProps>(
   ({ size = 'md', label = '加载中', className, children, ...rest }, ref) => {
     const content = children ?? (
       <>
@@ -132,7 +142,7 @@ const ChatLoaderSkeleton = forwardRef<HTMLSpanElement, ChatLoaderSkeletonProps>(
     );
 
     return (
-      <span
+      <div
         ref={ref}
         role="status"
         aria-label={label}
@@ -140,7 +150,7 @@ const ChatLoaderSkeleton = forwardRef<HTMLSpanElement, ChatLoaderSkeletonProps>(
         {...rest}
       >
         {content}
-      </span>
+      </div>
     );
   },
 );
@@ -157,7 +167,7 @@ type ChatLoaderComponent = typeof ChatLoaderRoot & {
   SkeletonLine: typeof ChatLoaderSkeletonLine;
 };
 
-const ChatLoaderRoot = forwardRef<HTMLSpanElement, ChatLoaderProps>(
+const ChatLoaderRoot = forwardRef<HTMLDivElement, ChatLoaderProps>(
   ({ variant = 'dots', size = 'md', ...rest }, ref) => {
     if (variant === 'pulse') return <ChatLoaderPulse ref={ref} size={size} {...rest} />;
     if (variant === 'skeleton') return <ChatLoaderSkeleton ref={ref} size={size} {...rest} />;

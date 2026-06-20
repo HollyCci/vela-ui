@@ -7,15 +7,26 @@ import {
   useState,
   type CSSProperties,
   type HTMLAttributes,
+  type ReactElement,
 } from 'react';
 import { Button, type ButtonProps } from 'react-aria-components';
 import clsx from 'clsx';
 
 export type PressableFeedbackSweep = 'right' | 'left' | 'down' | 'up';
 
+/**
+ * 自定义渲染函数，替换默认的 RAC Button 根元素（参考 API：DOMRenderFunction）。
+ * 接收解析后的全部 DOM props（含合并后的 className 与 data-slot），返回根元素。
+ */
+export type PressableFeedbackRenderFunction = (
+  props: Omit<PressableFeedbackProps, 'render'>,
+) => ReactElement;
+
 export type PressableFeedbackProps = Omit<ButtonProps, 'className' | 'style'> & {
   className?: string;
   style?: CSSProperties;
+  /** 自定义渲染函数，替换默认的 RAC Button 根元素（参考 API：DOMRenderFunction） */
+  render?: PressableFeedbackRenderFunction;
 };
 
 export type PressableFeedbackHighlightProps = HTMLAttributes<HTMLDivElement>;
@@ -416,14 +427,16 @@ ProgressFeedback.displayName = 'PressableFeedback.ProgressFeedback';
  * 反馈层也可脱离本容器、直接放进任意 position:relative 的宿主元素内使用。
  */
 const PressableFeedbackRoot = forwardRef<HTMLButtonElement, PressableFeedbackProps>(
-  ({ className, ...rest }, ref) => (
-    <Button
-      ref={ref}
-      data-slot="pressable-feedback"
-      className={clsx('pressable-feedback', className)}
-      {...rest}
-    />
-  ),
+  ({ render, className, ...rest }, ref) => {
+    const domProps: Omit<PressableFeedbackProps, 'render'> = {
+      'data-slot': 'pressable-feedback',
+      className: clsx('pressable-feedback', className),
+      ...rest,
+    } as Omit<PressableFeedbackProps, 'render'>;
+    // 参考 API：render(DOMRenderFunction) 替换默认 RAC Button 根元素，并接收全部解析后的
+    // DOM props。ref 仅透传给默认 Button（与 drop-zone / empty-state / item-card 的 render 约定一致）。
+    return render !== undefined ? render(domProps) : <Button ref={ref} {...domProps} />;
+  },
 );
 PressableFeedbackRoot.displayName = 'PressableFeedback';
 

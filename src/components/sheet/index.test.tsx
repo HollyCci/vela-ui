@@ -106,6 +106,63 @@ describe('Sheet', () => {
   });
 });
 
+// Handle 的「点击循环 snap point」与参考版 `preventCycle`（默认 false）。
+// snap 切换是组件 state（data-sheet-snap-index / onActiveSnapPointChange），不依赖 jsdom 布局，可直接断言。
+const SnapSheet = (props?: { preventCycle?: boolean }) => (
+  <Sheet isOpen onOpenChange={() => {}} snapPoints={[200, 400, 600]} defaultActiveSnapPoint={0}>
+    <Sheet.Trigger>Open</Sheet.Trigger>
+    <Sheet.Content>
+      <Sheet.Dialog>
+        <Sheet.Handle preventCycle={props?.preventCycle} />
+        <Sheet.Header>
+          <Sheet.Heading>Snap</Sheet.Heading>
+        </Sheet.Header>
+        <Sheet.Body>Body</Sheet.Body>
+      </Sheet.Dialog>
+    </Sheet.Content>
+  </Sheet>
+);
+
+describe('Sheet.Handle preventCycle', () => {
+  it('clicking the handle cycles snap points by default', async () => {
+    const user = userEvent.setup();
+    render(<SnapSheet />);
+    const handle = await waitFor(() => {
+      const el = document.querySelector('[data-slot="sheet-handle"]');
+      if (!el) throw new Error('handle not yet rendered');
+      return el as HTMLElement;
+    });
+    const surface = document.querySelector('[data-slot="sheet-drag-surface"]');
+    expect(surface).toHaveAttribute('data-sheet-snap-index', '0');
+    await user.click(handle);
+    await waitFor(() =>
+      expect(
+        document.querySelector('[data-slot="sheet-drag-surface"]'),
+      ).toHaveAttribute('data-sheet-snap-index', '1'),
+    );
+  });
+
+  it('preventCycle stops the click from cycling snap points', async () => {
+    const user = userEvent.setup();
+    render(<SnapSheet preventCycle />);
+    const handle = await waitFor(() => {
+      const el = document.querySelector('[data-slot="sheet-handle"]');
+      if (!el) throw new Error('handle not yet rendered');
+      return el as HTMLElement;
+    });
+    expect(document.querySelector('[data-slot="sheet-drag-surface"]')).toHaveAttribute(
+      'data-sheet-snap-index',
+      '0',
+    );
+    await user.click(handle);
+    // 点击后档位不变（仍停在 index 0）
+    expect(document.querySelector('[data-slot="sheet-drag-surface"]')).toHaveAttribute(
+      'data-sheet-snap-index',
+      '0',
+    );
+  });
+});
+
 // 拖拽结束的「最近档」选择是纯几何计算（不依赖 jsdom 布局），直接对纯函数单测。
 // 三档示例：[120, 320, 600]px；当前停在中间档（320），dimension=320。
 describe('selectSnapTarget (drag-end nearest snap)', () => {

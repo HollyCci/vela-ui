@@ -301,6 +301,87 @@ describe('PromptInput', () => {
     expect(contentsAfter).toEqual(['Beta', 'Alpha']);
   });
 
+  // 参考 API：root 区分 variant(surface: primary/secondary) 与 layout(stacked/compact/inline)。
+  // 默认 variant='primary' / layout='stacked'，root emit data-variant + data-layout。
+  it('defaults to data-variant=primary and data-layout=stacked', () => {
+    render(
+      <PromptInput>
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    const root = document.querySelector('[data-slot="prompt-input"]') as HTMLElement;
+    expect(root).toHaveAttribute('data-variant', 'primary');
+    expect(root).toHaveAttribute('data-layout', 'stacked');
+    // surface 皮肤 class 跟随 variant
+    const shell = document.querySelector('[data-slot="prompt-input-shell"]') as HTMLElement;
+    expect(shell).toHaveClass('prompt-input__shell--primary');
+  });
+
+  it('layout="compact" sets data-layout while keeping surface variant', () => {
+    render(
+      <PromptInput layout="compact" variant="secondary">
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    const root = document.querySelector('[data-slot="prompt-input"]') as HTMLElement;
+    expect(root).toHaveAttribute('data-layout', 'compact');
+    expect(root).toHaveAttribute('data-variant', 'secondary');
+    const shell = document.querySelector('[data-slot="prompt-input-shell"]') as HTMLElement;
+    expect(shell).toHaveClass('prompt-input__shell--secondary');
+  });
+
+  it('layout="inline" drives inline skin: data-layout=inline, data-variant=inline, shell--inline', () => {
+    render(
+      <PromptInput layout="inline">
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    const root = document.querySelector('[data-slot="prompt-input"]') as HTMLElement;
+    expect(root).toHaveAttribute('data-layout', 'inline');
+    // CSS 整套 inline 皮肤仍由 data-variant=inline 驱动，故 inline 布局时该属性输出 inline
+    expect(root).toHaveAttribute('data-variant', 'inline');
+    const shell = document.querySelector('[data-slot="prompt-input-shell"]') as HTMLElement;
+    expect(shell).toHaveClass('prompt-input__shell--inline');
+  });
+
+  // 向后兼容：废弃别名 variant="inline" 等价于 layout="inline"（旧调用点不破坏）。
+  it('backward-compat: variant="inline" maps to layout="inline" (deprecated alias)', () => {
+    render(
+      <PromptInput variant="inline">
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    const root = document.querySelector('[data-slot="prompt-input"]') as HTMLElement;
+    expect(root).toHaveAttribute('data-layout', 'inline');
+    expect(root).toHaveAttribute('data-variant', 'inline');
+    const shell = document.querySelector('[data-slot="prompt-input-shell"]') as HTMLElement;
+    expect(shell).toHaveClass('prompt-input__shell--inline');
+  });
+
+  // explicit layout 优先于 variant 别名：variant="inline" + layout="stacked" → stacked 布局、primary surface。
+  it('explicit layout prop wins over deprecated variant="inline" alias', () => {
+    render(
+      <PromptInput variant="inline" layout="stacked">
+        <PromptInput.Shell>
+          <PromptInput.TextArea />
+        </PromptInput.Shell>
+      </PromptInput>,
+    );
+    const root = document.querySelector('[data-slot="prompt-input"]') as HTMLElement;
+    expect(root).toHaveAttribute('data-layout', 'stacked');
+    expect(root).toHaveAttribute('data-variant', 'primary');
+    const shell = document.querySelector('[data-slot="prompt-input-shell"]') as HTMLElement;
+    expect(shell).toHaveClass('prompt-input__shell--primary');
+  });
+
   it('has no axe a11y violations', async () => {
     const { container } = render(
       <PromptInput status="ready">

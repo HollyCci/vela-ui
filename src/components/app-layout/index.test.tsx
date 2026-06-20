@@ -19,6 +19,15 @@ beforeEach(() => {
       dispatchEvent: () => false,
     })),
   );
+  // react-resizable-panels（resizable 路径）依赖 ResizeObserver 测量；jsdom 未实现，mock 之。
+  vi.stubGlobal(
+    'ResizeObserver',
+    class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    },
+  );
 });
 
 describe('AppLayout', () => {
@@ -136,6 +145,67 @@ describe('AppLayout', () => {
     const main = document.querySelector('[data-slot="app-layout-main"]');
     expect(main).toHaveAttribute('data-scroll-mode', 'content');
     expect(main).toHaveAttribute('aria-label', 'Scrollable main content');
+  });
+
+  it('emits resize-behavior data attributes when resizable (default preserve-relative-size)', () => {
+    render(
+      <AppLayout
+        sidebar={<div>侧栏</div>}
+        aside={<div>侧面板</div>}
+        sidebarCollapsible="none"
+        sidebarResizable
+        asideResizable
+      >
+        <p>x</p>
+      </AppLayout>,
+    );
+    const root = document.querySelector('[data-app-layout]');
+    expect(root).toHaveAttribute('data-sidebar-resize-behavior', 'preserve-relative-size');
+    expect(root).toHaveAttribute('data-aside-resize-behavior', 'preserve-relative-size');
+  });
+
+  it('honours an explicit resize-behavior and omits the attribute when not resizable', () => {
+    const { rerender } = render(
+      <AppLayout
+        sidebar={<div>侧栏</div>}
+        sidebarCollapsible="none"
+        sidebarResizable
+        sidebarResizeBehavior="preserve-pixel-size"
+      >
+        <p>x</p>
+      </AppLayout>,
+    );
+    expect(document.querySelector('[data-app-layout]')).toHaveAttribute(
+      'data-sidebar-resize-behavior',
+      'preserve-pixel-size',
+    );
+
+    // 未启用 resizable 时不应 emit 该属性
+    rerender(
+      <AppLayout sidebar={<div>侧栏</div>}>
+        <p>x</p>
+      </AppLayout>,
+    );
+    expect(document.querySelector('[data-app-layout]')).not.toHaveAttribute(
+      'data-sidebar-resize-behavior',
+    );
+  });
+
+  it('accepts string size props alongside numeric ones (number | string parity)', () => {
+    // 不应抛错：字符串尺寸被归一为百分比数值喂给引擎
+    render(
+      <AppLayout
+        sidebar={<div>侧栏</div>}
+        sidebarCollapsible="none"
+        sidebarResizable
+        sidebarDefaultSize="22%"
+        sidebarMinSize="10%"
+        sidebarMaxSize="35%"
+      >
+        <p>x</p>
+      </AppLayout>,
+    );
+    expect(document.querySelector('[data-app-layout]')).not.toBeNull();
   });
 
   it('has no axe a11y violations', async () => {

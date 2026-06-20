@@ -23,8 +23,14 @@ const ICON_MOTION_EXIT = { opacity: 0, filter: 'blur(4px)' } as const;
 /** 与 chat-conversation 进场曲线同源，保持库内动画手感一致 */
 const ICON_MOTION_TRANSITION: Transition = { duration: 0.18, ease: [0.16, 1, 0.3, 1] };
 
-/** Action 按钮固定类名（与快照一致：icon-only / sm / ghost） */
-const ACTION_BUTTON_CLASS = 'button button--icon-only button--sm button--ghost chat-message__action';
+/**
+ * Action 按钮固定类名（与快照一致：icon-only / sm / ghost）。
+ * 含线上 Pro 版文档约定的 `.chat-message-actions__action`（CSS Classes 表：Individual icon button），
+ * 与 `.chat-message__action`（提供 color: var(--muted) 的视觉，定义在 chat-message 分片）并存：
+ * 前者补齐 Pro 的 CSS 类契约，后者保住既有视觉，二者不冲突。
+ */
+const ACTION_BUTTON_CLASS =
+  'button button--icon-only button--sm button--ghost chat-message-actions__action chat-message__action';
 
 type IconProps = SVGProps<SVGSVGElement>;
 type CopyStatus = 'idle' | 'copied' | 'failed';
