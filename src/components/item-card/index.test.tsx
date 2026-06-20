@@ -110,6 +110,48 @@ describe('ItemCard', () => {
     expect(onPress).not.toHaveBeenCalled();
   });
 
+  // 参考版对齐：Title / Description 渲染为 <span>（而非 div）
+  it('renders Title and Description as span elements (matches reference)', () => {
+    render(
+      <ItemCard>
+        <ItemCard.Content>
+          <ItemCard.Title>Course</ItemCard.Title>
+          <ItemCard.Description>12 lessons</ItemCard.Description>
+        </ItemCard.Content>
+      </ItemCard>,
+    );
+    const title = screen.getByText('Course');
+    const description = screen.getByText('12 lessons');
+    expect(title.tagName).toBe('SPAN');
+    expect(title).toHaveClass('item-card__title');
+    expect(description.tagName).toBe('SPAN');
+    expect(description).toHaveClass('item-card__description');
+  });
+
+  // 参考版对齐：render(DOMRenderFunction) 替换默认 div 根元素，并保留全部解析后的 DOM props
+  it('supports the render prop to override the root element while keeping DOM props', async () => {
+    const user = userEvent.setup();
+    const onPress = vi.fn();
+    render(
+      <ItemCard
+        render={(domProps) => (
+          <a href="/details" {...domProps}>
+            <ItemCard.Title>Linked card</ItemCard.Title>
+          </a>
+        )}
+        onPress={onPress}
+      />,
+    );
+    const card = document.querySelector('[data-slot="item-card"]') as HTMLElement;
+    // 自定义元素是 <a>，但带上了卡片的类名、role 与交互
+    expect(card.tagName).toBe('A');
+    expect(card).toHaveClass('item-card', 'item-card--default');
+    expect(card).toHaveAttribute('role', 'button');
+    expect(card).toHaveAttribute('data-pressable', 'true');
+    await user.click(card);
+    expect(onPress).toHaveBeenCalledTimes(1);
+  });
+
   it('has no axe a11y violations', async () => {
     // 可按下的卡片渲染为 role=button，其可访问名取自标题文本内容
     const { container } = render(

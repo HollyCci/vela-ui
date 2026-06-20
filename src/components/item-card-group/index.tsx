@@ -22,11 +22,14 @@ export type ItemCardGroupSelectionKey = string | number;
 /** 选择模式：默认单选；multiple 时多张卡片可同时选中（对齐 react-aria selectionMode） */
 export type ItemCardGroupSelectionMode = 'single' | 'multiple';
 
+/** grid 布局列数，对齐线上参考版（2 | 3） */
+export type ItemCardGroupColumns = 2 | 3;
+
 type ItemCardGroupBaseProps = HTMLAttributes<HTMLDivElement> & {
   variant?: ItemCardGroupVariant;
   layout?: ItemCardGroupLayout;
   /** grid 布局时的列数（CSS 变量 --item-card-group-columns，默认 2） */
-  columns?: number;
+  columns?: ItemCardGroupColumns;
   isPressable?: boolean;
   onItemPress?: (key: ItemCardGroupSelectionKey, event: ItemCardPressEvent) => void;
 };
@@ -55,6 +58,8 @@ export type ItemCardGroupProps = ItemCardGroupBaseProps &
   (ItemCardGroupSingleSelectionProps | ItemCardGroupMultipleSelectionProps);
 
 type SectionProps = HTMLAttributes<HTMLDivElement>;
+type TitleProps = HTMLAttributes<HTMLHeadingElement>;
+type DescriptionProps = HTMLAttributes<HTMLParagraphElement>;
 
 const isItemCardElement = (child: ReactNode): child is ReactElement<ItemCardProps> =>
   isValidElement<ItemCardProps>(child) &&
@@ -214,14 +219,18 @@ const Header = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest },
 ));
 Header.displayName = 'ItemCardGroup.Header';
 
-const Title = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('item-card-group__title', className)} {...rest} />
+// 对齐线上参考版：Title 渲染为 <h3>（真实小节标题，axe 无 dl 冲突，语义优于 div）
+const Title = forwardRef<HTMLHeadingElement, TitleProps>(({ className, ...rest }, ref) => (
+  <h3 ref={ref} className={clsx('item-card-group__title', className)} {...rest} />
 ));
 Title.displayName = 'ItemCardGroup.Title';
 
-const Description = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('item-card-group__description', className)} {...rest} />
-));
+// 对齐线上参考版：Description 渲染为 <p>（小节副文本）
+const Description = forwardRef<HTMLParagraphElement, DescriptionProps>(
+  ({ className, ...rest }, ref) => (
+    <p ref={ref} className={clsx('item-card-group__description', className)} {...rest} />
+  ),
+);
 Description.displayName = 'ItemCardGroup.Description';
 
 const ItemCardGroup = Object.assign(ItemCardGroupRoot, { Header, Title, Description });

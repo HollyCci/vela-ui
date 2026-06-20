@@ -9,6 +9,7 @@ import {
   type KeyboardEvent as ReactKeyboardEvent,
   type MouseEvent as ReactMouseEvent,
   type PointerEvent as ReactPointerEvent,
+  type ReactElement,
 } from 'react';
 import clsx from 'clsx';
 
@@ -18,8 +19,17 @@ export type ItemCardPressEvent =
   | ReactMouseEvent<HTMLDivElement>
   | ReactKeyboardEvent<HTMLDivElement>;
 
+/**
+ * 自定义渲染函数，替换默认的 div 根元素（参考 API：DOMRenderFunction）。
+ * 接收已解析好的全部 DOM props（含类名、data 属性、交互事件处理器），
+ * 调用方需把它们透传到自定义根元素，方可保留按下/选中/键盘交互与样式。
+ */
+export type ItemCardRenderFunction = (props: HTMLAttributes<HTMLDivElement>) => ReactElement;
+
 export type ItemCardProps = HTMLAttributes<HTMLDivElement> & {
   variant?: ItemCardVariant;
+  /** 自定义渲染函数，替换默认的 div 根元素（参考 API：DOMRenderFunction）。 */
+  render?: ItemCardRenderFunction;
   isPressable?: boolean;
   onPress?: (event: ItemCardPressEvent) => void;
   isSelected?: boolean;
@@ -28,6 +38,8 @@ export type ItemCardProps = HTMLAttributes<HTMLDivElement> & {
 };
 
 type SectionProps = HTMLAttributes<HTMLDivElement>;
+// 参考版 Title / Description 渲染为 <span>（而非 div）。span 无 a11y 冲突，故照参考对齐。
+type SpanSectionProps = HTMLAttributes<HTMLSpanElement>;
 
 const INTERACTIVE_SELECTOR = [
   'a[href]',
@@ -66,6 +78,7 @@ const ItemCardRoot = forwardRef<HTMLDivElement, ItemCardProps>(
     {
       variant = 'default',
       className,
+      render,
       isPressable,
       onPress,
       isSelected,
@@ -203,33 +216,39 @@ const ItemCardRoot = forwardRef<HTMLDivElement, ItemCardProps>(
 
     const resolvedRole = role ?? (isInteractionEnabled ? 'button' : undefined);
 
-    return (
-      <div
-        ref={ref}
-        {...rest}
-        role={resolvedRole}
-        tabIndex={tabIndex ?? (isInteractionEnabled ? 0 : undefined)}
-        aria-pressed={
-          resolvedRole !== undefined ? (ariaPressed ?? (isSelectable ? selected : undefined)) : undefined
-        }
-        data-slot="item-card"
-        data-react-aria-pressable={isInteractionEnabled ? 'true' : undefined}
-        data-pressable={isInteractionEnabled || undefined}
-        data-pressed={isPressed || undefined}
-        data-selected={selected || undefined}
-        data-focus-visible={isFocusVisible || undefined}
-        className={clsx('item-card', `item-card--${variant}`, className)}
-        onClick={handleClick}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        onKeyDown={handleKeyDown}
-        onKeyUp={handleKeyUp}
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        onPointerLeave={handlePointerLeave}
-        onPointerCancel={handlePointerCancel}
-      />
-    );
+    const domProps: HTMLAttributes<HTMLDivElement> = {
+      ...rest,
+      role: resolvedRole,
+      tabIndex: tabIndex ?? (isInteractionEnabled ? 0 : undefined),
+      'aria-pressed':
+        resolvedRole !== undefined
+          ? (ariaPressed ?? (isSelectable ? selected : undefined))
+          : undefined,
+      'data-slot': 'item-card',
+      'data-react-aria-pressable': isInteractionEnabled ? 'true' : undefined,
+      'data-pressable': isInteractionEnabled || undefined,
+      'data-pressed': isPressed || undefined,
+      'data-selected': selected || undefined,
+      'data-focus-visible': isFocusVisible || undefined,
+      className: clsx('item-card', `item-card--${variant}`, className),
+      onClick: handleClick,
+      onFocus: handleFocus,
+      onBlur: handleBlur,
+      onKeyDown: handleKeyDown,
+      onKeyUp: handleKeyUp,
+      onPointerDown: handlePointerDown,
+      onPointerUp: handlePointerUp,
+      onPointerLeave: handlePointerLeave,
+      onPointerCancel: handlePointerCancel,
+    } as HTMLAttributes<HTMLDivElement>;
+
+    // 参考 API：render(DOMRenderFunction) 替换默认 div 根元素，并接收全部解析后的 DOM props。
+    // ref 仅透传给默认 div（与 drop-zone 的 render 约定一致）。
+    if (render !== undefined) {
+      return render(domProps);
+    }
+
+    return <div ref={ref} {...domProps} />;
   },
 );
 ItemCardRoot.displayName = 'ItemCard';
@@ -250,13 +269,15 @@ const Content = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }
 ));
 Content.displayName = 'ItemCard.Content';
 
-const Title = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('item-card__title', className)} {...rest} />
+// 参考版 Title 渲染为 <span>。
+const Title = forwardRef<HTMLSpanElement, SpanSectionProps>(({ className, ...rest }, ref) => (
+  <span ref={ref} className={clsx('item-card__title', className)} {...rest} />
 ));
 Title.displayName = 'ItemCard.Title';
 
-const Description = forwardRef<HTMLDivElement, SectionProps>(({ className, ...rest }, ref) => (
-  <div ref={ref} className={clsx('item-card__description', className)} {...rest} />
+// 参考版 Description 渲染为 <span>。
+const Description = forwardRef<HTMLSpanElement, SpanSectionProps>(({ className, ...rest }, ref) => (
+  <span ref={ref} className={clsx('item-card__description', className)} {...rest} />
 ));
 Description.displayName = 'ItemCard.Description';
 

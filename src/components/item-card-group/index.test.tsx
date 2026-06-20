@@ -33,7 +33,7 @@ describe('ItemCardGroup', () => {
     expect(group.style.getPropertyValue('--item-card-group-columns')).toBe('3');
   });
 
-  it('renders header/title/description slots', () => {
+  it('renders header/title/description slots with Pro rendered elements (h3 + p)', () => {
     render(
       <ItemCardGroup>
         <ItemCardGroup.Header>
@@ -43,8 +43,17 @@ describe('ItemCardGroup', () => {
       </ItemCardGroup>,
     );
     expect(document.querySelector('[data-slot="item-card-group-header"]')).toBeInTheDocument();
-    expect(screen.getByText('Top courses')).toBeInTheDocument();
-    expect(screen.getByText('By enrollment')).toBeInTheDocument();
+
+    // 对齐参考版：Title 渲染为 <h3>（真实小节标题，可作 heading 取用）
+    const title = screen.getByText('Top courses');
+    expect(title.tagName).toBe('H3');
+    expect(title).toHaveClass('item-card-group__title');
+    expect(screen.getByRole('heading', { name: 'Top courses', level: 3 })).toBe(title);
+
+    // 对齐参考版：Description 渲染为 <p>
+    const description = screen.getByText('By enrollment');
+    expect(description.tagName).toBe('P');
+    expect(description).toHaveClass('item-card-group__description');
   });
 
   // 回归：onItemPress 透传被点击项的 key
