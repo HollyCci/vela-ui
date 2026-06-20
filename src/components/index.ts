@@ -32,7 +32,7 @@ export {
 } from './chat-loader';
 export { default as ChatMessage } from './chat-message';
 export { default as ChatMessageActions } from './chat-message-actions';
-export { default as ChatSource } from './chat-source';
+export { default as ChatSource, ChatSources } from './chat-source';
 export { default as ChatTool } from './chat-tool';
 export { default as Checkbox } from './checkbox';
 export { default as CheckboxButtonGroup } from './checkbox-button-group';
