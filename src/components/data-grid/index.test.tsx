@@ -6,6 +6,8 @@ import DataGrid, { type DataGridColumn, type DataGridSortDescriptor } from './in
 
 // jsdom 没有真实布局：ResizeObserver 缺失会让滚动指标 effect 报错。
 // 这里全局桩掉，保证组件挂载稳定（我们不测布局/像素/虚拟化滚动）。
+// IntersectionObserver 同理：底座 Table.LoadMore（RAC 哨兵）在 effect 里 new IntersectionObserver，
+// jsdom 无此 API；桩掉保证 load-more 哨兵能挂载渲染（哨兵滚入触发的真实交叉逻辑依赖布局，jsdom 测不到）。
 beforeEach(() => {
   vi.stubGlobal(
     'ResizeObserver',
@@ -13,6 +15,18 @@ beforeEach(() => {
       observe() {}
       unobserve() {}
       disconnect() {}
+    },
+  );
+  vi.stubGlobal(
+    'IntersectionObserver',
+    class {
+      constructor(_callback: IntersectionObserverCallback) {}
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+      takeRecords() {
+        return [] as IntersectionObserverEntry[];
+      }
     },
   );
 });
@@ -454,6 +468,129 @@ describe('DataGrid', () => {
       // selectionBehavior 不应作为未知属性泄漏到根包装元素
       expect(root).not.toHaveAttribute('selectionbehavior');
       expect(root).toBeInTheDocument();
+    });
+  });
+
+  // 无限滚动 / load-more（参考 API：onLoadMore / isLoadingMore / loadMoreContent）。
+  // jsdom 无真实布局与 IntersectionObserver（已桩掉），哨兵滚入触发的交叉逻辑测不到；
+  // 这里覆盖可达的契约：哨兵渲染/缺省、加载内容渲染、默认 Spinner、后向兼容、axe。
+  describe('load-more / 无限滚动', () => {
+    it('does NOT render a load-more sentinel when onLoadMore is absent (back-compat)', () => {
+      const { container } = render(
+        <DataGrid aria-label="课程" columns={PLAIN_COLUMNS} data={COURSES} getRowId={courseRowId} />,
+      );
+      // 未提供 onLoadMore = 现状：不渲染底座 load-more 哨兵，老调用点零破坏
+      expect(container.querySelector('[data-slot="table-load-more"]')).toBeNull();
+      expect(container.querySelector('.data-grid__load-more')).toBeNull();
+    });
+
+    it('does not render a visible load-more row until isLoadingMore is true (RAC sentinel contract)', () => {
+      // 底座 RAC TableLoadMoreItem 的可见加载行只在 isLoading 为 true 时渲染（哨兵检测节点不可见）；
+      // 提供 onLoadMore 但未加载时，DOM 里没有 data-slot="table-load-more" 的可见行——这是 RAC 原生契约。
+      const { container } = render(
+        <DataGrid
+          aria-label="课程"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+        />,
+      );
+      expect(container.querySelector('[data-slot="table-load-more"]')).toBeNull();
+      // 但网格本身正常渲染（未因启用 load-more 而破坏）
+      expect(container.querySelector('[data-slot="data-grid"]')).toBeInTheDocument();
+      expect(screen.getByText('Algebra')).toBeInTheDocument();
+    });
+
+    it('renders the load-more row (with vela class) while isLoadingMore is true', () => {
+      const { container } = render(
+        <DataGrid
+          aria-label="课程"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+          isLoadingMore
+        />,
+      );
+      // 加载时底座 Table.LoadMore 输出 data-slot="table-load-more"，并带上我们的 vela class
+      const sentinel = container.querySelector('[data-slot="table-load-more"]');
+      expect(sentinel).toBeInTheDocument();
+      expect(sentinel).toHaveClass('data-grid__load-more');
+    });
+
+    it('renders the default Spinner inside the sentinel while isLoadingMore is true', () => {
+      const { container } = render(
+        <DataGrid
+          aria-label="课程"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+          isLoadingMore
+        />,
+      );
+      // 不传 loadMoreContent → 默认渲染本库 Spinner（.spinner，来自基础件）
+      const content = container.querySelector('[data-slot="table-load-more-content"]');
+      expect(content).toBeInTheDocument();
+      expect(content).toHaveClass('data-grid__load-more-content');
+      expect(container.querySelector('.spinner')).toBeInTheDocument();
+    });
+
+    it('renders custom loadMoreContent instead of the default Spinner', () => {
+      render(
+        <DataGrid
+          aria-label="课程"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+          isLoadingMore
+          loadMoreContent={<span data-testid="custom-load-more">加载更多…</span>}
+        />,
+      );
+      // 提供 loadMoreContent → 渲染它而非默认 Spinner
+      expect(screen.getByTestId('custom-load-more')).toBeInTheDocument();
+      expect(screen.getByText('加载更多…')).toBeInTheDocument();
+    });
+
+    it('does not leak load-more props onto the data-grid root element', () => {
+      const { container } = render(
+        <DataGrid
+          aria-label="课程"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+          isLoadingMore
+          loadMoreScrollOffset={0}
+        />,
+      );
+      const root = container.querySelector('[data-slot="data-grid"]');
+      // 这些 prop 被组件消费，不应作为未知属性泄漏到根包装元素
+      expect(root).not.toHaveAttribute('onloadmore');
+      expect(root).not.toHaveAttribute('isloadingmore');
+      expect(root).not.toHaveAttribute('loadmorescrolloffset');
+      expect(root).toBeInTheDocument();
+    });
+
+    it('has no axe a11y violations when load-more is enabled (idle, not loading)', async () => {
+      // 启用 load-more（提供 onLoadMore）但未加载时，无可见加载行 → 与基线一致，axe 应无违规。
+      // 注：加载中（isLoadingMore=true）的可见行由底座 RAC TableLoadMoreItem 渲染，原生带
+      // aria-level（grid 行）与空 rowheader 单元格，会触发 axe 的 aria-conditional-attr /
+      // empty-table-header。这是 RAC/OSS 基础件自身输出（与线上 HeroUI Table.LoadMore 一致），
+      // 非本组件新增；不在此处篡改 RAC 的 a11y 输出（保真铁律：不与真引擎对抗），
+      // 故 axe 覆盖 idle 态，加载态的视觉/交互由真引擎保证。
+      const { container } = render(
+        <DataGrid
+          aria-label="课程列表"
+          columns={PLAIN_COLUMNS}
+          data={COURSES}
+          getRowId={courseRowId}
+          onLoadMore={() => {}}
+        />,
+      );
+      expect(await axe(container)).toHaveNoViolations();
     });
   });
 

@@ -52,6 +52,66 @@ describe('Breadcrumbs', () => {
     expect(container.querySelectorAll('.breadcrumbs__separator')).toHaveLength(1);
   });
 
+  it('falls back to the default chevron separator when none is provided', () => {
+    const { container } = render(
+      <Breadcrumbs>
+        <Breadcrumbs.Item label="A" href="/a" />
+        <Breadcrumbs.Item label="B" isCurrent />
+      </Breadcrumbs>,
+    );
+    const sep = container.querySelector('.breadcrumbs__separator');
+    // 默认分隔符是内置 chevron svg，并带 OSS 对齐的 data-slot
+    expect(sep?.tagName.toLowerCase()).toBe('svg');
+    expect(sep).toHaveAttribute('data-slot', 'breadcrumbs-separator');
+  });
+
+  it('renders a custom element separator with injected class + data-slot, preserving its props', () => {
+    const { container } = render(
+      <Breadcrumbs separator={<span className="my-sep">/</span>}>
+        <Breadcrumbs.Item label="A" href="/a" />
+        <Breadcrumbs.Item label="B" href="/b" />
+        <Breadcrumbs.Item label="C" isCurrent />
+      </Breadcrumbs>,
+    );
+    const seps = container.querySelectorAll('.breadcrumbs__separator');
+    // 两个非 current 项各渲染一个自定义 separator
+    expect(seps).toHaveLength(2);
+    seps.forEach((sep) => {
+      // cloneElement 注入：分隔符 class（保留原 className）+ data-slot
+      expect(sep.tagName.toLowerCase()).toBe('span');
+      expect(sep).toHaveClass('breadcrumbs__separator');
+      expect(sep).toHaveClass('my-sep');
+      expect(sep).toHaveAttribute('data-slot', 'breadcrumbs-separator');
+      expect(sep).toHaveTextContent('/');
+    });
+    // 不应再渲染默认 chevron svg
+    expect(container.querySelector('svg.breadcrumbs__separator')).toBeNull();
+  });
+
+  it('renders a non-element (string) separator verbatim', () => {
+    const { container } = render(
+      <Breadcrumbs separator="›">
+        <Breadcrumbs.Item label="A" href="/a" />
+        <Breadcrumbs.Item label="B" isCurrent />
+      </Breadcrumbs>,
+    );
+    const firstItem = container.querySelector('.breadcrumbs__item');
+    // 字符串 separator 原样渲染，不包裹、不注入 class
+    expect(firstItem).toHaveTextContent('A›');
+    expect(container.querySelector('.breadcrumbs__separator')).toBeNull();
+  });
+
+  it('keeps a custom separator off the last/current item', () => {
+    const { container } = render(
+      <Breadcrumbs separator={<span className="my-sep">/</span>}>
+        <Breadcrumbs.Item label="A" href="/a" />
+        <Breadcrumbs.Item label="B" isCurrent />
+      </Breadcrumbs>,
+    );
+    // 末项（current）不渲染 separator
+    expect(container.querySelectorAll('.breadcrumbs__separator')).toHaveLength(1);
+  });
+
   it('forwards linkProps to the anchor', () => {
     render(
       <Breadcrumbs>
@@ -64,6 +124,17 @@ describe('Breadcrumbs', () => {
   it('has no axe a11y violations', async () => {
     const { container } = render(
       <Breadcrumbs>
+        <Breadcrumbs.Item label="首页" href="/" />
+        <Breadcrumbs.Item label="设置" href="/settings" />
+        <Breadcrumbs.Item label="个人资料" isCurrent />
+      </Breadcrumbs>,
+    );
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('has no axe a11y violations with a custom separator', async () => {
+    const { container } = render(
+      <Breadcrumbs separator={<span aria-hidden="true">/</span>}>
         <Breadcrumbs.Item label="首页" href="/" />
         <Breadcrumbs.Item label="设置" href="/settings" />
         <Breadcrumbs.Item label="个人资料" isCurrent />

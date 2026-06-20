@@ -15,6 +15,7 @@ import {
 } from 'react';
 import { Checkbox } from '@heroui/react';
 import { Table, type TableColumnProps, type TableRootProps } from '@heroui/react/table';
+import Spinner from '../spinner';
 import type {
   Key,
   Selection,
@@ -280,6 +281,21 @@ export type DataGridProps<TRow extends object> = Omit<
   onRowAction?: (key: Key) => void;
   /** 禁用行 key */
   disabledKeys?: Iterable<Key>;
+  /**
+   * 无限滚动：load-more 哨兵滚入可视区时触发（参考 API）。
+   * 提供此回调即启用 load-more 哨兵行；未提供 = 现状（不渲染哨兵，零破坏）。
+   * 底座为 RAC TableLoadMoreItem（IntersectionObserver 哨兵，内部依 isLoadingMore 防重复触发）。
+   */
+  onLoadMore?: () => void;
+  /** 是否正在加载更多数据；为 true 时渲染 loadMoreContent，并由底座哨兵抑制重复触发（参考 API，默认 false） */
+  isLoadingMore?: boolean;
+  /** load-more 哨兵行内渲染的内容（如 Spinner）；不传时默认渲染本库 Spinner（参考 API） */
+  loadMoreContent?: ReactNode;
+  /**
+   * 触发 load-more 的滚动偏移量（相对滚动区高度的百分比，1 = 100%）。
+   * 透传给底座 RAC 哨兵的 scrollOffset；默认 1（接近底部即触发）。
+   */
+  loadMoreScrollOffset?: number;
   /** 空态渲染函数 */
   renderEmptyState?: () => ReactNode;
   /** 内层 <table> 追加 className（如 min-w-[1200px]） */
@@ -533,6 +549,10 @@ function DataGrid<TRow extends object>({
   onCellEdit,
   onRowAction,
   disabledKeys,
+  onLoadMore,
+  isLoadingMore = false,
+  loadMoreContent,
+  loadMoreScrollOffset,
   renderEmptyState,
   contentClassName,
   scrollContainerClassName,
@@ -597,6 +617,8 @@ function DataGrid<TRow extends object>({
     enableRowReordering && (onRowReorder !== undefined || onReorder !== undefined);
   const withDragHandles = withRowReordering && showRowDragHandles;
   const withExpandableRows = renderExpandedContent !== undefined;
+  // 提供 onLoadMore 即启用 load-more 哨兵；未提供 = 现状（不渲染哨兵行，零破坏）
+  const withLoadMore = onLoadMore !== undefined;
   const activeExpandColumnId = expandColumnId ?? columns[0]?.id;
   const activeColumnWidths = columnWidths ?? internalColumnWidths;
   const getColumnWidth = (column: DataGridColumn<TRow>): ColumnWidth | undefined =>
@@ -1432,6 +1454,31 @@ function DataGrid<TRow extends object>({
       </Table.Row>
     ) : null;
 
+  /**
+   * load-more 哨兵行：底座 Table.LoadMore = RAC TableLoadMoreItem（基于 useLoadMoreSentinel 的
+   * IntersectionObserver 哨兵）。哨兵滚入可视区触发 onLoadMore；isLoading 为 true 时由底座抑制重复触发
+   * 并渲染加载内容。data-slot=table-load-more / table-load-more-content 由底座输出，scrollOffset 默认 1。
+   * 不提供 loadMoreContent 时默认渲染本库 Spinner（与线上 HeroUI Table.LoadMore 的示例一致）。
+   *
+   * a11y 备注（有意不偏差）：RAC 的可见加载行原生带 aria-level（grid 行上 axe 视为 treegrid-only）与
+   * 空 rowheader 单元格，axe 会报 aria-conditional-attr / empty-table-header。这是真引擎自身输出，
+   * 与线上参考实现完全一致；保真铁律下不篡改 RAC 的 a11y 属性（不与真引擎对抗），故保持原样。
+   */
+  const renderLoadMoreRow = (): ReactNode =>
+    withLoadMore ? (
+      <Table.LoadMore
+        key="__data-grid_load_more__"
+        className="data-grid__load-more"
+        isLoading={isLoadingMore}
+        onLoadMore={onLoadMore}
+        {...(loadMoreScrollOffset !== undefined ? { scrollOffset: loadMoreScrollOffset } : {})}
+      >
+        <Table.LoadMoreContent className="data-grid__load-more-content">
+          {loadMoreContent ?? <Spinner size="sm" />}
+        </Table.LoadMoreContent>
+      </Table.LoadMore>
+    ) : null;
+
   const draggedRow =
     draggedKey === null ? undefined : sortedData.find((item) => getRowId(item) === draggedKey);
   const dragLabelColumn = columns.find((column) => column.isRowHeader) ?? columns[0];
@@ -1529,10 +1576,12 @@ function DataGrid<TRow extends object>({
           {renderVirtualSpacerRow(VIRTUAL_TOP_SPACER_KEY, virtualTopSpacer)}
           {virtualRows.flatMap((item) => renderDataGridRows(item))}
           {renderVirtualSpacerRow(VIRTUAL_BOTTOM_SPACER_KEY, virtualBottomSpacer)}
+          {renderLoadMoreRow()}
         </Table.Body>
       ) : (
         <Table.Body renderEmptyState={renderEmptyState}>
           {virtualRows.flatMap((item) => renderDataGridRows(item))}
+          {renderLoadMoreRow()}
         </Table.Body>
       )}
     </Table.Content>
