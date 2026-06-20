@@ -40,8 +40,13 @@
 
 ## 取 Pro 规格
 
-- 本地 gh/npm token 常缺 `read:packages`，与本 skill 无关；Pro API 文档来自 heroui.pro 文档页，
-  不是 npm。优先让用户贴 API Reference（最准），WebFetch 兜底，抓不到就停下来要。
+- **`WebFetch https://heroui.pro/docs/react/components/<id>` 已验证可抓到完整 API**（2026-06 在 empty-state
+  实测：子组件 + props 类型/默认值 + CSS 类 + data 属性全拿到）。所以流水线可自助取 spec，**不必每个都让
+  用户贴**。prompt 要明确「verbatim、结构化、含 props 类型/默认值 + CSS Classes + data attributes」。
+- 抓 spec 时连**渲染元素**一起记（Pro 常标某子组件渲染为 `h3`/`p`/`dt`/`dd` 等）——这关系到语义与 a11y
+  （但 `dl` 类冲突仍按 a11y 干净优先，见上）。
+- 万一站点改版/抓不到，再回退让用户贴。本地 gh/npm token 的 `read:packages` 与本 skill 无关（那是装包，
+  不是文档）。
 - `docs/parity-shots/<id>/` 里 `live__*.png` 是 Pro 实拍、`local__*.png` 是我们的；重截只更新 local
   （`--local-only`），live 不动。
 

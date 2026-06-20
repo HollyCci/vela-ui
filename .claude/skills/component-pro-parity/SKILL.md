@@ -28,7 +28,10 @@ Vela UI 是 heroui Pro 的复刻库。很多组件早期是**「套 class 的空
 
 ### 1. 取 Pro 规格（目标）
 - **API Reference + CSS Classes**：来自 heroui.pro 该组件文档页（`https://heroui.pro/docs/react/components/<id>`）。
-  优先让**用户直接贴**（最可靠，他们有授权访问）；否则尝试 `WebFetch` 该页抓 API 表。抓不到就停下来问用户要。
+  **`WebFetch` 这个 URL 已验证可直接抓到完整 API（子组件 + props 类型/默认值 + CSS 类 + data 属性）**
+  ——这是流水线能自助运转的关键。prompt 用「Extract the full API Reference: every sub-component with its
+  props (type, default), plus CSS Classes and data attributes, verbatim」。万一抓不到（站点改版/被墙），
+  再让用户贴。
 - **视觉参照**：`docs/parity-shots/<id>/live__*.png`（Pro 示例页实拍）+ `local__*.png`（我们当前实拍）。
   `ls docs/parity-shots/<id>/` 然后 `Read` 这些图，看每个 section / 子组件长什么样。
 
