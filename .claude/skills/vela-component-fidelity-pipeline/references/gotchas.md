@@ -3,6 +3,20 @@
 > 每做一个组件、每踩一个坑，就把**可复用**的教训追加到这里。目标：同一个坑只踩一次。
 > 写的时候说清「现象 → 根因 → 怎么做」，让后面的 agent 看一眼就懂。
 
+## 真源 diff（基础件 CSS 对齐 heroui v3，83 件全量实战）
+
+- **`max-*`/`min-*` 钳制项最易在编译态分片里整条漏掉**（无 token 引用、不报错、只在超长/超高内容时暴露）。
+  overlay/dialog/sheet/popover/modal 类件**专门核** `max-h`/`max-w`/`min-h`——alert-dialog 漏 `max-height:100%`
+  致超高内容溢出视口，modal 同类。
+- **结构同构的姊妹件别互抄**：autocomplete 的 popover 段曾从 select.css 误抄（select=`min-w`+popover 自身滚；
+  autocomplete=固定 `w/max-w`+popover `overflow-hidden`+滚动&scrollbar&`max-h:320` 在 list-box+独立 popover-dialog
+  块）。**每个件核它自己的真源，别假设和邻居一样**。
+- **编译态 ≠ drift，别误判**：`var(--container-xs)` == 真源 `max-w-xs`（Tailwind v4 max-w-* 解析为 --container-*）；
+  reduce-motion 两路（[data-reduce-motion] 属性轨 + prefers-reduced-motion 媒查轨）是正常展开非重复。status-*
+  （focused/disabled/pending/invalid-field）逐字段核展开是否完整。
+- **83 件实测：61 已忠实（多数像 button 逐项 1:1）、22 真 drift**——基础件保真度本就高，但那 22 个是截图永远看
+  不出的 CSS bug。真源 diff 法可证伪，值得对全部 OSS 同源件跑。
+
 ## 单组件 monolith vs Pro compound（dot-notation）API（emoji-picker 实战）
 
 - **现象**：本库 emoji-picker 是「一个 `<EmojiPicker categories=… onEmojiSelect=… isInline=… />` 单组件 props」，
@@ -118,7 +132,27 @@
 - 万一站点改版/抓不到，再回退让用户贴。本地 gh/npm token 的 `read:packages` 与本 skill 无关（那是装包，
   不是文档）。
 - `docs/parity-shots/<id>/` 里 `live__*.png` 是 Pro 实拍、`local__*.png` 是我们的；重截只更新 local
-  （`--local-only`），live 不动。
+  （`--local-only`），live 不动。`docs/parity-shots/` 已 gitignore——重截不会脏 git，对照看图即可。
+
+## parity 截图：recharts 图表会被截到动画中途（radar 实战）
+
+- **现象**：radar-chart 的多边形/某些图表在 `local__*.png` 里只到半径的 ~50%，看着像 `outerRadius` 太小或
+  radius-axis `domain` 太大。**但这是假象**：先用预览 DOM 量过——radar 多边形终态 Design=86 → 99.8px =
+  栅格环(116px)的 86%，自动 domain `[0,'auto']` 解析成 `[0,100]`（和显式 `domain={[0,100]}` 那版完全一致），
+  栅格到标签的 gap 也只有约 12px（recharts 标签固有偏移，不是「大空隙」）。组件**本身就是 1:1 的**。
+- **根因**：recharts 图表 mount 时有约 1.5s 入场动画（radar/area/line 从中心/基线长出来）。
+  `captureLive` 截图前会先跑好几秒的 `autoScroll`，动画早跑完→线上图是终态；而 `captureLocal` 只
+  `scrollIntoView + sleep(120)` 就截→**靠前的变体被冻在动画中途**（按 `demoIndex` 顺序，越靠前越小，
+  越靠后越完整——这就是为什么同样几何的 with-radius-axis(最后截)正常、default/comparison(靠前)偏小）。
+- **怎么做**：别动组件的 `outerRadius`/`domain`（动了反而让终态溢出）。在 `captureLocal` 截图前等图表几何
+  稳定——poll 该 preview `svg.recharts-surface` 内所有 `path`@d + `polygon`@points 串，连续两次不变即视为
+  settled（无 recharts surface 的非图表 preview 立即返回，不增加耗时）。已落地在
+  `scripts/capture-parity-screenshots.cjs` 的 `waitForChartSettled`。
+- **量图坑**：按颜色量「蓝色多边形」bbox 时，带 `Widget.Legend` 的变体(comparison/multi-series/with-radius-axis)
+  图例色块也是蓝的会污染 bbox 宽度；用无图例的 default/dots-only 量纯多边形最干净。
+- **预览页量 recharts 动画无效**：Claude Preview 页是 hidden 态、rAF 暂停，radar 多边形 `d` 会卡在
+  `M cx,cy L cx,cy …`（全在中心，半径 0）。要量终态得临时 `isAnimationActive={false}` 再量
+  （[[preview-hidden-no-raf]]）。
 
 ## 流程
 
