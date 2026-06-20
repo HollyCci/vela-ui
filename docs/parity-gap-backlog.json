@@ -281,8 +281,10 @@
       "contractToken": "hover-preview",
       "suggestedFix": "Track a hover-preview value in RatingRoot state (e.g. via RAC Radio render-prop isHovered or onHoverStart/onHoverEnd on each Item) and, when hovering, drive data-active / fill from the hovered value instead of the committed rating, clearing on hover end. Skip the preview when isReadOnly/isDisabled.",
       "confidence": 0.8,
-      "verdict": "confirmed",
-      "verifyReason": "Read src/components/rating/index.tsx in full. data-active is set only from committed value: line 73 `const isActive = value <= rating;` and line 106 `data-active={isActive || undefined}`, where `rating` comes from RatingContext (the committed `value ?? internalValue`, lines 71/127). RatingRoot (lines 121-153) holds only `internalValue` state for the committed selection — no hover-preview state. Neither Item nor RatingRoot wires onHoverStart/onHoverEnd/onMouseEnter/isHovered; grep across src/components/rating/ for hover|onHoverStart|onHoverEnd|onMouseEnter|isHovered returns nothing. CSS confirms it too: src/styles/components/rating.css has no `:hover` rule — fill is driven only by `.rating__item[data-active=true] .rating__icon { color: var(--rating-active-color) }` (line 141-143); the only pointer-driven rule is `:active`/`[data-pressed=true]` scale (lines 95-97). heroui-full.css has no rating `:hover` rule either. The cumulative hover-preview contract (stars filling up to the hovered star before commit) is genuinely absent. (Minor nuance: RAC Radio emits data-hovered, but no CSS uses it, and a single hovered star cannot drive cumulative fill below it without JS state — so the contract behavior is truly unimplemented.)"
+      "verdict": "resolved",
+      "verifyReason": "Read src/components/rating/index.tsx in full. data-active is set only from committed value: line 73 `const isActive = value <= rating;` and line 106 `data-active={isActive || undefined}`, where `rating` comes from RatingContext (the committed `value ?? internalValue`, lines 71/127). RatingRoot (lines 121-153) holds only `internalValue` state for the committed selection — no hover-preview state. Neither Item nor RatingRoot wires onHoverStart/onHoverEnd/onMouseEnter/isHovered; grep across src/components/rating/ for hover|onHoverStart|onHoverEnd|onMouseEnter|isHovered returns nothing. CSS confirms it too: src/styles/components/rating.css has no `:hover` rule — fill is driven only by `.rating__item[data-active=true] .rating__icon { color: var(--rating-active-color) }` (line 141-143); the only pointer-driven rule is `:active`/`[data-pressed=true]` scale (lines 95-97). heroui-full.css has no rating `:hover` rule either. The cumulative hover-preview contract (stars filling up to the hovered star before commit) is genuinely absent. (Minor nuance: RAC Radio emits data-hovered, but no CSS uses it, and a single hovered star cannot drive cumulative fill below it without JS state — so the contract behavior is truly unimplemented.)",
+      "resolvedAt": "2026-06-20",
+      "resolutionNote": "STALE/SUPERSEDED — hover-preview IS now implemented in src/components/rating/index.tsx; the verifyReason above describes the prior (now-obsolete) state. RatingRoot holds hoverValue state (useState) and an isInteractive = !rest.isReadOnly && !rest.isDisabled guard (lines 157-163); each Rating.Item wires onHoverStart/onHoverEnd to setHoverValue (lines 127-134); fill/data-active are driven by the hovered value while previewing (lines 93-95: `const fill = isPreviewing ? hoverValue : rating; const isActive = value <= fill;`). The preview is correctly skipped when isReadOnly/isDisabled (handleHover is a noop and the context hoverValue is forced to null). Covered by passing unit tests in src/components/rating/index.test.tsx: 'previews the hovered value via data-active and reverts on hover end' (line 82) and 'skips hover preview when read-only' (line 103)."
     },
     {
       "id": "checkbox-button-group",
@@ -1113,7 +1115,10 @@
       "evidence": "src/components/rating/index.tsx line 128 `const selected = Math.floor(rating)`, line 107 `value={String(value)}` (integer item value), line 130-134 handleChange emits `Number(next)`; partial overlay (lines 88-96) renders only for the `isPartial` display case. No demo selects a half value — read-only-fractional variant uses a static `value={3.5}` with isReadOnly (feedback-nav-demos.tsx line 1345).",
       "contractToken": "half-step",
       "suggestedFix": "Add an opt-in half-step selection mode (e.g. allowHalf prop) that splits each star into two pointer/keyboard targets so users can commit .5 values, with arrow keys stepping by 0.5; keep current integer behavior as default.",
-      "confidence": 0.65
+      "confidence": 0.65,
+      "verdict": "wontfix",
+      "resolvedAt": "2026-06-20",
+      "resolutionNote": "OUT OF SCOPE per the fidelity rule (do not exceed the reference API). The HeroUI Pro reference (https://heroui.pro/docs/react/components/rating) exposes NO allowHalf prop and offers no interactive half-step selection — fractional values are read-only display only. The suggestedFix (allowHalf selection mode) is therefore a reference-exceeding superset and is intentionally NOT implemented. The component's existing read-only fractional half-star overlay already matches the reference; integer-only interactive selection is the correct/faithful behavior, so this is closed as wontfix rather than a real parity gap."
     },
     {
       "id": "rich-text-editor",
@@ -1785,7 +1790,10 @@
       "evidence": "src/showcase/demos/feedback-nav-demos.tsx line 77 demo label mentions only press feedback; the controlled Rating (lines 78-82) has no hover-related props, consistent with index.tsx having no hover wiring.",
       "contractToken": "hover-preview",
       "suggestedFix": "Once hover-preview is implemented in src/components/rating/index.tsx, the existing interactive demos will exercise it automatically; update the demo label to reflect hover preview.",
-      "confidence": 0.7
+      "confidence": 0.7,
+      "verdict": "resolved",
+      "resolvedAt": "2026-06-20",
+      "resolutionNote": "STALE — hover-preview is now implemented in src/components/rating/index.tsx (RatingRoot hoverValue state + isInteractive guard lines 157-163, Item onHoverStart/onHoverEnd lines 127-134, fill/data-active lines 93-95), so the premise 'consistent with index.tsx having no hover wiring' no longer holds and the interactive demos now exercise hover preview automatically. Any residual is purely a demo-copy nit (the controlled-Rating label in feedback-nav-demos.tsx still advertises only press feedback), not a component-level parity gap."
     },
     {
       "id": "resizable",
@@ -2680,8 +2688,8 @@
     {
       "id": "rating",
       "solid": false,
-      "summary": "Rating is a real RAC RadioGroup/Radio wrapper with working click + arrow-key selection, isReadOnly/isDisabled passthrough, controlled/uncontrolled numeric API, and read-only fractional half-star overlay; however the documented hover-preview behavior is entirely absent and half-step exists only as read-only display (no interactive half-star selection).",
-      "gapCount": 3
+      "summary": "Rating is a real RAC RadioGroup/Radio wrapper with working click + arrow-key selection, isReadOnly/isDisabled passthrough, controlled/uncontrolled numeric API, and read-only fractional half-star overlay. UPDATED 2026-06-20: hover-preview is now implemented (src/components/rating/index.tsx hoverValue state + isInteractive guard L157-163, Item onHoverStart/onHoverEnd L127-134, fill/data-active L93-95; tested in index.test.tsx L82/L103) — resolved. half-step remains read-only display by design: the HeroUI Pro reference exposes no allowHalf prop, so interactive half-star selection is out of scope (wontfix), not a parity gap. No outstanding gaps.",
+      "gapCount": 0
     },
     {
       "id": "trend-chip",
